@@ -42,6 +42,18 @@ editor. Invalid programs show their errors in the browser instead of running.
 }
 ```
 
+### Reveals and transitions
+Text appears with a **reveal**, set per element, per screen or in `config.defaults`:
+- `"teletype"`: one character at a time (`{ "type": "teletype", "speed": 20 }` sets ms per character)
+- `"glitch"`: resolves out of random glyphs (`{ "type": "glitch", "duration": 2000 }` sets the total ms).
+  When a screen or the config sets it, consecutive elements glitch in together as one block.
+- `"none"`: appears at once
+
+A screen's `transition` controls how the previous screen leaves: `"cut"` (the default) or
+`"glitch"`, where the old screen erases itself over the new one as it appears.
+
+The glitch effect is ported from [musicforprogramming.net](https://musicforprogramming.net).
+
 ## Layout
 - `src/engine/`: framework-free TypeScript (schema, state machine, navigation, timing, text
   reveals). It can't import React or use the DOM; Biome and the engine's tsconfig enforce this.

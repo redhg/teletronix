@@ -4,7 +4,13 @@
     user-select: none;
 }
 
+.screens {
+    display: grid;
+}
+
 .screen {
+    grid-area: 1 / 1;
+    min-width: 0;
     /* the engine wraps lines itself, so the browser must not */
     white-space: pre;
     overflow-x: clip;

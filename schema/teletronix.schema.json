@@ -32,6 +32,7 @@
                                     "type": "string",
                                     "enum": [
                                         "teletype",
+                                        "glitch",
                                         "none"
                                     ]
                                 },
@@ -48,6 +49,24 @@
                                                 "type": {
                                                     "type": "string",
                                                     "const": "teletype"
+                                                }
+                                            },
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "additionalProperties": false
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "duration": {
+                                                    "description": "Total time in milliseconds",
+                                                    "type": "number",
+                                                    "exclusiveMinimum": 0
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "glitch"
                                                 }
                                             },
                                             "required": [
@@ -83,6 +102,65 @@
                                 }
                             },
                             "additionalProperties": false
+                        },
+                        "glitch": {
+                            "description": "Default glitch options, for reveals and transitions",
+                            "type": "object",
+                            "properties": {
+                                "duration": {
+                                    "description": "Total time in milliseconds",
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "transition": {
+                            "description": "Default screen transition (default: \"cut\")",
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "cut",
+                                        "glitch"
+                                    ]
+                                },
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "cut"
+                                                }
+                                            },
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "additionalProperties": false
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "duration": {
+                                                    "description": "Total time in milliseconds",
+                                                    "type": "number",
+                                                    "exclusiveMinimum": 0
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "glitch"
+                                                }
+                                            },
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "additionalProperties": false
+                                        }
+                                    ]
+                                }
+                            ]
                         }
                     },
                     "additionalProperties": false
@@ -110,6 +188,7 @@
                                 "type": "string",
                                 "enum": [
                                     "teletype",
+                                    "glitch",
                                     "none"
                                 ]
                             },
@@ -136,9 +215,74 @@
                                     {
                                         "type": "object",
                                         "properties": {
+                                            "duration": {
+                                                "description": "Total time in milliseconds",
+                                                "type": "number",
+                                                "exclusiveMinimum": 0
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "const": "glitch"
+                                            }
+                                        },
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "additionalProperties": false
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
                                             "type": {
                                                 "type": "string",
                                                 "const": "none"
+                                            }
+                                        },
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "transition": {
+                        "description": "How the previous screen leaves when this one is shown",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "cut",
+                                    "glitch"
+                                ]
+                            },
+                            {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "type": {
+                                                "type": "string",
+                                                "const": "cut"
+                                            }
+                                        },
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "additionalProperties": false
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "duration": {
+                                                "description": "Total time in milliseconds",
+                                                "type": "number",
+                                                "exclusiveMinimum": 0
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "const": "glitch"
                                             }
                                         },
                                         "required": [
@@ -177,12 +321,13 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }",
+                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
                                                             "enum": [
                                                                 "teletype",
+                                                                "glitch",
                                                                 "none"
                                                             ]
                                                         },
@@ -199,6 +344,24 @@
                                                                         "type": {
                                                                             "type": "string",
                                                                             "const": "teletype"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "duration": {
+                                                                            "description": "Total time in milliseconds",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "glitch"
                                                                         }
                                                                     },
                                                                     "required": [
@@ -317,12 +480,13 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }",
+                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
                                                             "enum": [
                                                                 "teletype",
+                                                                "glitch",
                                                                 "none"
                                                             ]
                                                         },
@@ -339,6 +503,24 @@
                                                                         "type": {
                                                                             "type": "string",
                                                                             "const": "teletype"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "duration": {
+                                                                            "description": "Total time in milliseconds",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "glitch"
                                                                         }
                                                                     },
                                                                     "required": [

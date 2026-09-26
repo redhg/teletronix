@@ -1,14 +1,18 @@
 import { z } from "zod";
 import {
     type Action,
+    GlitchOptionsSchema,
     IdSchema,
     type RevealOption,
     RevealSchema,
     TeletypeOptionsSchema,
+    type TransitionOption,
+    TransitionSchema,
 } from "./common.ts";
 import { type Element, ElementSchema, moduleFor } from "./elements.ts";
 
 export const DEFAULT_TELETYPE_SPEED = 10;
+export const DEFAULT_GLITCH_DURATION = 1000;
 
 // ─── Authoring schema (what a JSON file contains) ────────────────────────────
 
@@ -20,6 +24,9 @@ const ContentSchema = z.union([
 const ScreenSchema = z.strictObject({
     reveal: RevealSchema.optional().meta({
         description: "Default reveal for this screen's elements",
+    }),
+    transition: TransitionSchema.optional().meta({
+        description: "How the previous screen leaves when this one is shown",
     }),
     content: z.array(ContentSchema).min(1),
 });
@@ -33,6 +40,12 @@ const DefaultsSchema = z.strictObject({
     reveal: RevealSchema.optional().meta({ description: 'Default reveal (default: "teletype")' }),
     teletype: TeletypeOptionsSchema.optional().meta({
         description: "Default teletype options",
+    }),
+    glitch: GlitchOptionsSchema.optional().meta({
+        description: "Default glitch options, for reveals and transitions",
+    }),
+    transition: TransitionSchema.optional().meta({
+        description: 'Default screen transition (default: "cut")',
     }),
 });
 
@@ -60,12 +73,15 @@ export type TeletronixFile = z.input<typeof FileSchema>;
 
 export interface Defaults {
     reveal: RevealOption;
+    transition: TransitionOption;
     teletype: { speed: number };
+    glitch: { duration: number };
 }
 
 export interface Screen {
     id: string;
     reveal?: RevealOption;
+    transition?: TransitionOption;
     content: Element[];
 }
 
@@ -92,7 +108,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             const element = typeof item === "string" ? { type: "text" as const, text: item } : item;
             return { ...element, id: `${id}#${index}` };
         });
-        screens.set(id, { id, reveal: screen.reveal, content });
+        screens.set(id, { id, reveal: screen.reveal, transition: screen.transition, content });
     }
 
     const dialogs = new Map<string, Dialog>();
@@ -106,7 +122,9 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         start: start ?? screens.keys().next().value ?? "",
         defaults: {
             reveal: defaults?.reveal ?? { type: "teletype" },
+            transition: defaults?.transition ?? { type: "cut" },
             teletype: { speed: defaults?.teletype?.speed ?? DEFAULT_TELETYPE_SPEED },
+            glitch: { duration: defaults?.glitch?.duration ?? DEFAULT_GLITCH_DURATION },
         },
         screens,
         dialogs,

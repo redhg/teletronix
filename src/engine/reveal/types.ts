@@ -11,11 +11,15 @@ export interface Segment {
  */
 export type Frame = readonly Segment[];
 
-/** A way of making text appear. Pure: the same elapsed time always yields the same frame. */
+/** A way of making text appear (or disappear). */
 export interface Reveal {
     /** Total running time in ms. The element reaches Done once this much time has elapsed. */
     readonly duration: number;
-    /** The frame at `elapsed` ms since activation, for 0 <= elapsed < duration. */
+    /**
+     * The frame at `elapsed` ms since activation, for 0 <= elapsed < duration. Reveals may
+     * keep state between frames (glitch does), so call this with non-decreasing times.
+     * Return the previous frame object when nothing changed.
+     */
     frame(elapsed: number): Frame;
     /** The fully revealed frame. */
     final(): Frame;

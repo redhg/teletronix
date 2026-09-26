@@ -1,3 +1,4 @@
+export { type Random, seededRandom } from "./random.ts";
 export type { Frame, Reveal, Segment, SegmentKind } from "./reveal/index.ts";
 export { type ElementState, type FrameListener, ScreenRun } from "./runtime/screen-run.ts";
 export { type ScreenSnapshot, Terminal, type TerminalSnapshot } from "./runtime/terminal.ts";

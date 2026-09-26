@@ -25,7 +25,12 @@ describe("parseProgram", () => {
 
         const { program } = result;
         expect(program.start).toBe("home");
-        expect(program.defaults).toEqual({ reveal: { type: "teletype" }, teletype: { speed: 10 } });
+        expect(program.defaults).toEqual({
+            reveal: { type: "teletype" },
+            transition: { type: "cut" },
+            teletype: { speed: 10 },
+            glitch: { duration: 1000 },
+        });
         expect(program.screens.get("home")?.content).toEqual([
             { id: "home#0", type: "text", text: "Hello" },
             {
@@ -37,19 +42,37 @@ describe("parseProgram", () => {
         ]);
     });
 
-    it("normalizes reveal shorthand", () => {
+    it("normalizes reveal and transition shorthand", () => {
         const result = parseProgram(
             file({
-                config: { name: "Test", defaults: { reveal: "none", teletype: { speed: 3 } } },
-                screens: { home: { reveal: "teletype", content: ["a"] } },
+                config: {
+                    name: "Test",
+                    defaults: {
+                        reveal: "none",
+                        transition: "glitch",
+                        teletype: { speed: 3 },
+                        glitch: { duration: 500 },
+                    },
+                },
+                screens: {
+                    home: {
+                        reveal: "teletype",
+                        transition: { type: "glitch", duration: 200 },
+                        content: ["a"],
+                    },
+                },
             }),
         );
         if (!result.ok) throw new Error(JSON.stringify(result.errors));
         expect(result.program.defaults).toEqual({
             reveal: { type: "none" },
+            transition: { type: "glitch" },
             teletype: { speed: 3 },
+            glitch: { duration: 500 },
         });
-        expect(result.program.screens.get("home")?.reveal).toEqual({ type: "teletype" });
+        const home = result.program.screens.get("home");
+        expect(home?.reveal).toEqual({ type: "teletype" });
+        expect(home?.transition).toEqual({ type: "glitch", duration: 200 });
     });
 
     it("honors an explicit start screen", () => {

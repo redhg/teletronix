@@ -1,3 +1,5 @@
+import type { Random } from "../random.ts";
+import { resolveTransition } from "../reveal/index.ts";
 import type { Action } from "../schema/common.ts";
 import type { Dialog, Program } from "../schema/program.ts";
 import type { Ticker } from "../time/ticker.ts";
@@ -10,6 +12,8 @@ export interface TerminalOptions {
     columns?: number;
     /** Show everything instantly (e.g. for prefers-reduced-motion). */
     instant?: boolean;
+    /** Randomness for effects. Defaults to Math.random. */
+    random?: Random;
 }
 
 export interface ScreenSnapshot {
@@ -20,6 +24,8 @@ export interface ScreenSnapshot {
 /** Structural state for the UI. A new object whenever anything in it changes. */
 export interface TerminalSnapshot {
     screen: ScreenSnapshot | null;
+    /** The previous screen, while it erases itself over the current one. */
+    outgoing: ScreenSnapshot | null;
     dialog: Dialog | null;
 }
 
@@ -37,19 +43,22 @@ export class Terminal {
 
     private readonly ticker: Ticker;
     private readonly instant: boolean;
+    private readonly random: Random | undefined;
     private readonly listeners = new Set<() => void>();
     private columns: number;
     private run: ScreenRun | null = null;
+    private outgoing: ScreenRun | null = null;
     private dialog: Dialog | null = null;
-    private snapshot: TerminalSnapshot = { screen: null, dialog: null };
+    private snapshot: TerminalSnapshot = { screen: null, outgoing: null, dialog: null };
     private dirty = false;
     private unsubscribeTicker: (() => void) | null = null;
 
-    constructor({ program, ticker, columns = DEFAULT_COLUMNS, instant = false }: TerminalOptions) {
-        this.program = program;
-        this.ticker = ticker;
-        this.columns = columns;
-        this.instant = instant;
+    constructor(options: TerminalOptions) {
+        this.program = options.program;
+        this.ticker = options.ticker;
+        this.columns = options.columns ?? DEFAULT_COLUMNS;
+        this.instant = options.instant ?? false;
+        this.random = options.random;
     }
 
     // ─── Store interface (e.g. for React's useSyncExternalStore) ────────────
@@ -79,18 +88,34 @@ export class Terminal {
         }
     }
 
-    /** Shows a screen from the top. Navigating to the current screen replays it. */
+    /**
+     * Shows a screen from the top. Navigating to the current screen replays it.
+     *
+     * With a glitch transition, the current screen stays on screen and erases itself over
+     * the new one while the new one starts revealing, and is dropped once it's erased.
+     */
     navigate(screenId: string): void {
         const screen = this.program.screens.get(screenId);
         if (!screen) throw new Error(`Unknown screen "${screenId}"`);
+        const now = this.ticker.now();
+
+        const transition = resolveTransition(screen.transition, this.program.defaults);
+        // a transition that's still playing is cut short by the next one
+        this.outgoing = null;
+        if (this.run && transition.type === "glitch" && !this.instant) {
+            this.outgoing = this.run;
+            this.outgoing.erase(now, transition.duration);
+        }
 
         this.run = new ScreenRun(screen, {
             defaults: this.program.defaults,
             columns: this.columns,
             instant: this.instant,
+            random: this.random,
             onChange: this.markDirty,
         });
-        this.run.start(this.ticker.now());
+        this.run.start(now);
+        this.markDirty();
         this.syncTicker();
         this.flush();
     }
@@ -110,9 +135,13 @@ export class Terminal {
         this.flush();
     }
 
-    /** Finishes revealing the current screen immediately. */
+    /** Finishes revealing the current screen immediately, and any transition with it. */
     skip(): void {
         this.run?.skip();
+        if (this.outgoing) {
+            this.outgoing = null;
+            this.markDirty();
+        }
         this.syncTicker();
         this.flush();
     }
@@ -121,6 +150,7 @@ export class Terminal {
         if (columns === this.columns || columns < 1) return;
         this.columns = columns;
         this.run?.setColumns(columns);
+        this.outgoing?.setColumns(columns);
     }
 
     /** Stops all timers. The terminal can't be used afterwards. */
@@ -134,13 +164,18 @@ export class Terminal {
 
     private readonly tick = (now: number): void => {
         this.run?.advance(now);
+        this.outgoing?.advance(now);
+        if (this.outgoing?.erased) {
+            this.outgoing = null;
+            this.markDirty();
+        }
         this.syncTicker();
         this.flush();
     };
 
     /** Only listen to the ticker while something is animating, so an idle terminal costs nothing. */
     private syncTicker(): void {
-        const animating = this.run?.animating ?? false;
+        const animating = (this.run?.animating ?? false) || (this.outgoing?.animating ?? false);
         if (animating && !this.unsubscribeTicker) {
             this.unsubscribeTicker = this.ticker.subscribe(this.tick);
         } else if (!animating && this.unsubscribeTicker) {
@@ -157,8 +192,10 @@ export class Terminal {
     private flush(): void {
         if (!this.dirty) return;
         this.dirty = false;
+        const snapshot = (run: ScreenRun | null) => (run ? { run, states: run.states } : null);
         this.snapshot = {
-            screen: this.run ? { run: this.run, states: this.run.states } : null,
+            screen: snapshot(this.run),
+            outgoing: snapshot(this.outgoing),
             dialog: this.dialog,
         };
         for (const listener of this.listeners) listener();

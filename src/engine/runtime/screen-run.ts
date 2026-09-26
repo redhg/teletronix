@@ -1,12 +1,21 @@
-import { createReveal, type Frame, type Reveal } from "../reveal/index.ts";
+import type { Random } from "../random.ts";
+import {
+    createGlitchReveal,
+    createReveal,
+    type Frame,
+    type Reveal,
+    type RevealSpec,
+    resolveReveal,
+    splitFrame,
+} from "../reveal/index.ts";
 import type { Element } from "../schema/elements.ts";
 import { moduleFor } from "../schema/elements.ts";
 import type { Defaults, Screen } from "../schema/program.ts";
 import { applyBreaks, type Break, lineBreaks } from "../text/breaks.ts";
 
 /**
- * An element's lifecycle. One element is Active at a time, and the next is activated
- * when the current one reaches Done.
+ * An element's lifecycle. Elements reveal in order, and the next starts when the current
+ * one reaches Done.
  * - unloaded: waiting on an async resource (e.g. an image) before it can run
  * - ready:    waiting its turn; not rendered
  * - active:   revealing
@@ -21,17 +30,32 @@ export interface ScreenRunOptions {
     columns: number;
     /** Skip every reveal (e.g. for prefers-reduced-motion). */
     instant?: boolean;
-    /** Called whenever an element changes state. */
+    random?: Random;
+    /** Called whenever an element changes state or the run finishes erasing. */
     onChange: () => void;
 }
 
 interface ElementRun {
     element: Element;
     state: ElementState;
-    reveal: Reveal;
+    text: string;
     breaks: Break[];
     frame: Frame;
     listeners: Set<FrameListener>;
+}
+
+/**
+ * Elements that reveal together. Usually one element; consecutive elements that inherit a
+ * glitch reveal from their screen or the config form one block, as in the original effect.
+ * A unit's reveal runs over its elements' texts joined by newlines.
+ */
+interface Unit {
+    indices: number[];
+    reveal: Reveal;
+}
+
+interface Eraser extends Unit {
+    since: number;
 }
 
 let nextKey = 0;
@@ -43,31 +67,34 @@ export class ScreenRun {
     readonly screen: Screen;
 
     private readonly runs: ElementRun[];
+    private readonly units: Unit[];
+    private readonly random: Random | undefined;
     private readonly onChange: () => void;
     private active = -1;
     private activeSince = 0;
+    private eraser: Eraser | null = null;
+    private erasedFlag = false;
     private columns: number;
     private stateList: readonly ElementState[] = [];
 
     constructor(screen: Screen, options: ScreenRunOptions) {
         this.screen = screen;
         this.columns = options.columns;
+        this.random = options.random;
         this.onChange = options.onChange;
 
         this.runs = screen.content.map((element) => {
             const text = moduleFor(element).text(element);
-            const reveal = options.instant
-                ? createReveal(text, [{ type: "none" }], options.defaults)
-                : createReveal(text, [element.reveal, screen.reveal], options.defaults);
             return {
                 element,
                 state: "ready",
-                reveal,
+                text,
                 breaks: lineBreaks(text, this.columns),
-                frame: reveal.frame(0),
+                frame: [],
                 listeners: new Set(),
             };
         });
+        this.units = this.buildUnits(options);
         this.snapshotStates();
     }
 
@@ -80,54 +107,81 @@ export class ScreenRun {
         return this.stateList;
     }
 
-    /** True while an element is still revealing. */
+    /** True while revealing or erasing. */
     get animating(): boolean {
-        return this.active !== -1;
+        return this.active !== -1 || this.eraser !== null;
+    }
+
+    /** True once {@link erase} has finished. */
+    get erased(): boolean {
+        return this.erasedFlag;
     }
 
     /** Activates the first element. */
     start(now: number): void {
-        if (this.active !== -1 || this.runs[0]?.state !== "ready") return;
+        if (this.active !== -1 || this.eraser || this.runs[0]?.state !== "ready") return;
         this.activate(0, now);
         this.advance(now);
     }
 
     /**
-     * Moves the active reveal to `now`. Elements finish at their exact end time and the
-     * next one starts from there, so timing is independent of the frame rate.
+     * Moves the animation to `now`. Units finish at their exact end time and the next one
+     * starts from there, so timing is independent of the frame rate.
      */
     advance(now: number): void {
+        if (this.eraser) {
+            this.advanceEraser(now);
+            return;
+        }
+
         while (this.active !== -1) {
-            const run = this.runs[this.active] as ElementRun;
-            // a frame timestamp can predate the moment the element was activated
+            const unit = this.units[this.active] as Unit;
+            // a frame timestamp can predate the moment the unit was activated
             const elapsed = Math.max(0, now - this.activeSince);
 
-            if (elapsed < run.reveal.duration) {
-                this.setFrame(run, run.reveal.frame(elapsed));
+            if (elapsed < unit.reveal.duration) {
+                this.setUnitFrame(unit, unit.reveal.frame(elapsed));
                 return;
             }
 
-            const end = this.activeSince + run.reveal.duration;
-            this.finish(run);
+            const end = this.activeSince + unit.reveal.duration;
+            this.finish(unit);
             this.activateNext(end);
         }
     }
 
     /** Completes every remaining element immediately. */
     skip(): void {
-        if (this.active === -1) return;
-        for (const run of this.runs) {
-            if (run.state !== "done") this.finish(run);
+        if (this.active === -1 || this.eraser) return;
+        for (const unit of this.units) {
+            if (unit.indices.some((i) => this.runs[i]?.state !== "done")) this.finish(unit);
         }
         this.active = -1;
-        this.snapshotStates();
+    }
+
+    /**
+     * Stops revealing and erases everything on screen with a reverse glitch, as one block.
+     * Used when this screen is being navigated away from.
+     */
+    erase(now: number, duration: number): void {
+        if (this.eraser || this.erasedFlag) return;
+        this.active = -1;
+
+        const indices = this.runs.flatMap((run, i) => (run.state === "ready" ? [] : [i]));
+        const text = indices.map((i) => this.runs[i]?.text).join("\n");
+        this.eraser = {
+            indices,
+            reveal: createGlitchReveal(text, { duration, reverse: true, random: this.random }),
+            since: now,
+        };
+        this.advance(now);
     }
 
     setColumns(columns: number): void {
         if (columns === this.columns) return;
         this.columns = columns;
         for (const run of this.runs) {
-            run.breaks = lineBreaks(moduleFor(run.element).text(run.element), columns);
+            run.breaks = lineBreaks(run.text, columns);
             this.emitFrame(run);
         }
     }
@@ -141,30 +195,85 @@ export class ScreenRun {
         return () => run.listeners.delete(listener);
     }
 
-    private activate(index: number, now: number): void {
-        const run = this.runs[index] as ElementRun;
-        run.state = "active";
-        this.active = index;
+    private buildUnits({ defaults, instant, random }: ScreenRunOptions): Unit[] {
+        const groups: { indices: number[]; spec: RevealSpec; block: boolean }[] = [];
+
+        this.runs.forEach(({ element }, index) => {
+            const { spec, inherited } = instant
+                ? { spec: { type: "none" } as const, inherited: false }
+                : resolveReveal(element.reveal, this.screen.reveal, defaults);
+            const block = inherited && spec.type === "glitch";
+            const last = groups.at(-1);
+
+            if (block && last?.block) {
+                last.indices.push(index);
+            } else {
+                groups.push({ indices: [index], spec, block });
+            }
+        });
+
+        return groups.map(({ indices, spec }) => ({
+            indices,
+            reveal: createReveal(indices.map((i) => this.runs[i]?.text).join("\n"), spec, random),
+        }));
+    }
+
+    private advanceEraser(now: number): void {
+        const eraser = this.eraser as Eraser;
+        const elapsed = Math.max(0, now - eraser.since);
+
+        if (elapsed < eraser.reveal.duration) {
+            this.setUnitFrame(eraser, eraser.reveal.frame(elapsed));
+            return;
+        }
+
+        this.setUnitFrame(eraser, eraser.reveal.final());
+        this.eraser = null;
+        this.erasedFlag = true;
+        this.onChange();
+    }
+
+    private activate(unitIndex: number, now: number): void {
+        const unit = this.units[unitIndex] as Unit;
+        this.setStates(unit, "active");
+        this.active = unitIndex;
         this.activeSince = now;
-        this.snapshotStates();
     }
 
     private activateNext(now: number): void {
-        const index = this.active + 1;
+        const next = this.active + 1;
         this.active = -1;
-        if (this.runs[index]?.state === "ready") {
-            this.activate(index, now);
+        const unit = this.units[next];
+        if (unit && this.runs[unit.indices[0] as number]?.state === "ready") {
+            this.activate(next, now);
         }
     }
 
-    private finish(run: ElementRun): void {
-        run.state = "done";
-        this.setFrame(run, run.reveal.final());
+    private finish(unit: Unit): void {
+        this.setUnitFrame(unit, unit.reveal.final());
+        this.setStates(unit, "done");
+    }
+
+    private setStates(unit: Unit, state: ElementState): void {
+        for (const i of unit.indices) (this.runs[i] as ElementRun).state = state;
         this.snapshotStates();
     }
 
+    private setUnitFrame(unit: Unit, frame: Frame): void {
+        const [only] = unit.indices;
+        if (unit.indices.length === 1 && only !== undefined) {
+            this.setFrame(this.runs[only] as ElementRun, frame);
+            return;
+        }
+
+        const lengths = unit.indices.map((i) => this.runs[i]?.text.length ?? 0);
+        splitFrame(frame, lengths).forEach((part, k) => {
+            this.setFrame(this.runs[unit.indices[k] as number] as ElementRun, part);
+        });
+    }
+
     private setFrame(run: ElementRun, frame: Frame): void {
-        if (frame === run.frame) return;
+        if (sameFrame(frame, run.frame)) return;
         run.frame = frame;
         this.emitFrame(run);
     }
@@ -179,4 +288,10 @@ export class ScreenRun {
         this.stateList = this.runs.map((run) => run.state);
         this.onChange();
     }
+}
+
+function sameFrame(a: Frame, b: Frame): boolean {
+    if (a === b) return true;
+    if (a.length !== b.length) return false;
+    return a.every((segment, i) => segment.text === b[i]?.text && segment.kind === b[i]?.kind);
 }

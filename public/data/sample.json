@@ -18,7 +18,8 @@
                 "",
                 { "type": "link", "text": "> TEXT", "action": { "screen": "text" } },
                 { "type": "link", "text": "> REVEALS", "action": { "screen": "reveals" } },
-                { "type": "link", "text": "> LINKS", "action": { "screen": "links" } }
+                { "type": "link", "text": "> LINKS", "action": { "screen": "links" } },
+                { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } }
             ]
         },
         "text": {
@@ -77,6 +78,37 @@
                     "shiftAction": { "screen": "secret" }
                 },
                 "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "glitch": {
+            "reveal": "glitch",
+            "transition": "glitch",
+            "content": [
+                "GLITCH",
+                "======",
+                "",
+                "This screen sets \"reveal\": \"glitch\", so its text resolves out of random glyphs. When a screen (or the config) sets it, consecutive elements glitch in together as one block.",
+                "",
+                "It also sets \"transition\": \"glitch\", so the screen you came from erased itself over this one as it appeared.",
+                "",
+                { "type": "text", "text": "An element can set its own glitch, which runs by itself, like this slow one.", "reveal": { "type": "glitch", "duration": 3000 } },
+                "",
+                { "type": "link", "text": "> NEXT PAGE", "action": { "screen": "glitch2" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "glitch2": {
+            "reveal": "glitch",
+            "transition": { "type": "glitch", "duration": 1500 },
+            "content": [
+                "TELETRONIX // SYSTEM LOG",
+                "",
+                "> Connection established. Signal integrity at 73%. Stand by for transmission from the outer relay.",
+                { "type": "text", "text": "> WARNING: hull breach detected on deck 4. Crew manifest incomplete. Two life signs unaccounted for.", "className": "alert" },
+                "> Awaiting operator input_",
+                "",
+                { "type": "link", "text": "> PREVIOUS PAGE", "action": { "screen": "glitch" } },
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },

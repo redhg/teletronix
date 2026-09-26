@@ -15,25 +15,53 @@ export const TeletypeOptionsSchema = z.strictObject({
     speed: z.number().positive().optional().meta({ description: "Milliseconds per character" }),
 });
 
+export const GlitchOptionsSchema = z.strictObject({
+    duration: z.number().positive().optional().meta({ description: "Total time in milliseconds" }),
+});
+
 const TeletypeRevealSchema = TeletypeOptionsSchema.extend({ type: z.literal("teletype") });
+const GlitchRevealSchema = GlitchOptionsSchema.extend({ type: z.literal("glitch") });
 const NoneRevealSchema = z.strictObject({ type: z.literal("none") });
 
-const RevealObjectSchema = z.discriminatedUnion("type", [TeletypeRevealSchema, NoneRevealSchema]);
-
-export const RevealNameSchema = z.enum(["teletype", "none"]);
-export type RevealName = z.infer<typeof RevealNameSchema>;
+const RevealObjectSchema = z.discriminatedUnion("type", [
+    TeletypeRevealSchema,
+    GlitchRevealSchema,
+    NoneRevealSchema,
+]);
 
 export const RevealSchema = z
-    .union([RevealNameSchema, RevealObjectSchema])
+    .union([z.enum(["teletype", "glitch", "none"]), RevealObjectSchema])
     .transform((reveal) => (typeof reveal === "string" ? { type: reveal } : reveal))
     .meta({
         description:
-            'How text appears: "teletype" (character by character) or "none" (instantly). ' +
-            'Use an object to override options, e.g. { "type": "teletype", "speed": 20 }',
+            'How text appears: "teletype" (character by character), "glitch" (resolves out of ' +
+            'random glyphs) or "none" (instantly). Use an object to override options, e.g. ' +
+            '{ "type": "teletype", "speed": 20 }. When a screen or the config sets "glitch", ' +
+            "consecutive elements that don't set their own reveal glitch in together as one block.",
     });
 
 /** A reveal as written by an author, normalized to object form. Options are partial. */
 export type RevealOption = z.output<typeof RevealSchema>;
+
+// ─── Transitions ─────────────────────────────────────────────────────────────
+// How the previous screen leaves when a screen is shown.
+
+const GlitchTransitionSchema = GlitchOptionsSchema.extend({ type: z.literal("glitch") });
+const CutTransitionSchema = z.strictObject({ type: z.literal("cut") });
+
+export const TransitionSchema = z
+    .union([
+        z.enum(["cut", "glitch"]),
+        z.discriminatedUnion("type", [CutTransitionSchema, GlitchTransitionSchema]),
+    ])
+    .transform((transition) => (typeof transition === "string" ? { type: transition } : transition))
+    .meta({
+        description:
+            'How the previous screen leaves: "cut" (it disappears) or "glitch" (it erases ' +
+            "itself over this screen while this screen reveals)",
+    });
+
+export type TransitionOption = z.output<typeof TransitionSchema>;
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
 // What an interactive element does. Shared by links, prompts and dialogs.
