@@ -8,9 +8,23 @@
     --alert-glow: 0 0 5px rgb(from var(--alert) r g b / 0.5);
     --inverse-glow: 0 0 2px rgb(from var(--bg) r g b / 0.5);
 
-    --font-family: "VGA", "Departure Mono", ui-monospace, Menlo, Consolas, monospace;
-    --font-size: clamp(16px, 1.5vw + 10px, 32px);
+    --font-family: "AST PremiumExec", "Departure Mono", ui-monospace, Menlo, Consolas, monospace;
+    /* A pixel font is only crisp at whole multiples of its pixel height (16px), so the
+       size steps up with the window instead of scaling smoothly. */
+    --font-size: 16px;
     --line-height: 1.25;
+}
+
+@media (min-width: 800px) {
+    :root {
+        --font-size: 32px;
+    }
+}
+
+@media (min-width: 2000px) {
+    :root {
+        --font-size: 48px;
+    }
 }
 
 [data-theme="amber"] {

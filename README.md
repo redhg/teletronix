@@ -143,8 +143,8 @@ layers over the config's.
 
 Moving effects hold still when the system asks for reduced motion.
 
-Fonts: PxPlus VGA SquarePx by VileR ([int10h.org](https://int10h.org), CC BY-SA 4.0) and
-Departure Mono by Helena Zhang (SIL OFL 1.1).
+Fonts: AST PremiumExec from [The Ultimate Oldschool PC Font Pack](https://int10h.org/oldschool-pc-fonts/)
+by VileR (CC BY-SA 4.0), and Departure Mono by Helena Zhang (SIL OFL 1.1).
 
 The glitch effect is ported from [musicforprogramming.net](https://musicforprogramming.net).
 

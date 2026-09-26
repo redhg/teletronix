@@ -1,0 +1,6 @@
+WebPlus_AST_PremiumExec.woff is from The Ultimate Oldschool PC Font Pack v2.2 (2020-11-21),
+unmodified. In v1 of the pack this font was called "PxPlus VGA SquarePx".
+
+(c) 2016-2020 VileR, https://int10h.org/oldschool-pc-fonts/
+Licensed under the Creative Commons Attribution-ShareAlike 4.0 International License;
+see oldschool-pc-font-pack.LICENSE.txt, or https://creativecommons.org/licenses/by-sa/4.0/

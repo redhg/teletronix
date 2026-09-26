@@ -1,7 +1,8 @@
-/* PxPlus VGA SquarePx by VileR (int10h.org), CC BY-SA 4.0 (see vga.LICENSE.txt) */
+/* AST PremiumExec (formerly "VGA SquarePx") from The Ultimate Oldschool PC Font Pack by VileR,
+   https://int10h.org/oldschool-pc-fonts/, CC BY-SA 4.0 (see oldschool-pc-font-pack.*.txt) */
 @font-face {
-    font-family: "VGA";
-    src: url("../assets/fonts/vga.woff2") format("woff2");
+    font-family: "AST PremiumExec";
+    src: url("../assets/fonts/WebPlus_AST_PremiumExec.woff") format("woff");
     font-display: block;
 }
 
