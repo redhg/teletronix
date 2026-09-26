@@ -19,6 +19,7 @@ Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `s
 | `npm run dev` | Dev server |
 | `npm run build` | Typecheck and build to `dist/` |
 | `npm test` | Unit tests |
+| `npm run test:e2e` | Browser tests, in Chromium, Firefox and WebKit (see [Tests](#tests)) |
 | `npm run lint` / `npm run format` | Biome check / fix |
 | `npm run gen` | Regenerate `schema/teletronix.schema.json` and `docs/reference.md` after changing the schema |
 | `node scripts/convert-phosphor.ts <in> <out>` | Convert a Phosphor JSON file |
@@ -250,6 +251,31 @@ by VileR (CC BY-SA 4.0), and Departure Mono by Helena Zhang (SIL OFL 1.1). Their
 are in `public/licenses/`, so every build includes them (served at `licenses/`).
 
 The glitch effect is ported from [musicforprogramming.net](https://musicforprogramming.net).
+
+## Tests
+Two suites, both run on every push by GitHub Actions:
+
+- **Unit tests** (`npm test`, Vitest): the engine, schemas, modules' behavior and the
+  generated files, with a fake clock. Next to the code, as `*.test.ts`.
+- **Browser tests** (`npm run test:e2e`, Playwright): the player, the settings page and the
+  sound test page, driven as a user would, in Chromium, Firefox and WebKit. In `e2e/`, one
+  file per feature. They build the app and serve it on port 4173, so a running dev server
+  doesn't matter.
+
+The first time, install the browsers with `npx playwright install`. Then:
+
+```sh
+npm run test:e2e                         # everything
+npx playwright test e2e/dialogs.spec.ts  # one file
+npx playwright test --project=webkit     # one browser
+npm run test:e2e:ui                      # step through tests, with a live view
+npx playwright show-report               # after a failure: traces of what happened
+```
+
+Browser tests write their own small programs (see `e2e/fixtures.ts`) rather than relying
+on the demos, and turn reveals and transitions off (reduced motion) unless the test is
+about them. The shipped programs are covered by a crawl that follows every link in them.
+Every new feature gets tests.
 
 ## Layout
 - `src/engine/`: framework-free TypeScript (schema, state machine, navigation, timing, text

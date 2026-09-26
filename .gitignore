@@ -16,3 +16,8 @@ coverage/
 
 # Logs
 *.log
+
+# Browser tests
+test-results/
+playwright-report/
+blob-report/

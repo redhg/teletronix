@@ -35,8 +35,8 @@ export class Synth {
     private settings: ResolvedSound | null = null;
     private muted = false;
     private voices: Voices;
-    private lastKey = 0;
-    private lastTick = 0;
+    private lastKey = Number.NEGATIVE_INFINITY;
+    private lastTick = Number.NEGATIVE_INFINITY;
     private hum: { oscillators: OscillatorNode[]; gains: GainNode[] } | null = null;
     private hiss: {
         source: AudioBufferSourceNode;
