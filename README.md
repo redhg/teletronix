@@ -59,9 +59,23 @@ Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`. Every element take
 `className` (e.g. `"alert"`) and `reveal`.
 
 ### Moving on without a link
-A screen's `next` moves on by itself: `after` a delay (ms, counted from when the screen has
-finished revealing), at any key or click (`anyKey`), or both. With empty `content`, a screen
-can be nothing but effects, e.g. a burst of static between screens:
+A screen's `next` moves on without a link. Each rule has an `action` and a trigger:
+- `after`: milliseconds after the screen has finished revealing
+- `key`: `"any"`, a key name (`"Enter"`, `"Space"`, `"Escape"`, `"ArrowRight"`, `"y"`, …), or an array
+  of them. The first press finishes revealing the screen, if it hasn't; the next moves on.
+  Taps and clicks count as a key too, unless keys in different rules lead to different places.
+
+`next` is one rule or a list, and the first rule to trigger wins:
+
+```json
+"next": [
+    { "key": "y", "action": { "screen": "evacuate" } },
+    { "key": ["n", "Escape"], "action": { "screen": "menu" } },
+    { "after": 10000, "action": { "screen": "timeout" } }
+]
+```
+
+With empty `content`, a screen can be nothing but effects, e.g. a burst of static:
 
 ```json
 "signal-lost": {

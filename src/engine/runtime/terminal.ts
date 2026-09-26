@@ -4,6 +4,7 @@ import type { Action } from "../schema/common.ts";
 import { type Dialog, dialogAction } from "../schema/dialog.ts";
 import { type ResolvedEffects, resolveEffects } from "../schema/effects.ts";
 import type { Element } from "../schema/elements.ts";
+import { firstTimedRule, type NextRule, ruleForKey, ruleForTap } from "../schema/next.ts";
 import type { Program } from "../schema/program.ts";
 import type { Ticker } from "../time/ticker.ts";
 import { type ElementState, ScreenRun } from "./screen-run.ts";
@@ -193,14 +194,26 @@ export class Terminal {
     }
 
     /**
-     * Moves on to the current screen's `next`, if it goes on at any key. Returns whether
-     * it did, so the UI can treat the click or key press as handled.
+     * A key press, for the current screen's `next` rules. If a rule wants this key, the
+     * first press finishes revealing the screen (if it hasn't) and the next one moves on.
+     * Returns whether the key was used. `key` is a KeyboardEvent.key value.
      */
-    proceed(): boolean {
-        const next = this.run?.screen.next;
-        if (!next?.anyKey || this.dialog || this.nextFired) return false;
-        this.goNext(next.action);
-        return true;
+    pressKey(key: string): boolean {
+        const rules = this.run?.screen.next;
+        const rule = rules && ruleForKey(rules, key);
+        return rule ? this.trigger(rule) : false;
+    }
+
+    /**
+     * A tap or click, which stands in for a key on screens whose `next` rules make that
+     * unambiguous (see ruleForTap). Returns whether it moved on; if not, the UI treats
+     * it as an ordinary click.
+     */
+    tap(): boolean {
+        const rules = this.run?.screen.next;
+        const rule = rules && ruleForTap(rules);
+        if (!rule || this.run?.finishedAt === null) return false;
+        return this.trigger(rule);
     }
 
     /** Finishes revealing the current screen immediately, and any transition with it. */
@@ -232,10 +245,8 @@ export class Terminal {
 
     private readonly tick = (now: number): void => {
         this.run?.advance(now);
-        const due = this.nextDue();
-        if (due !== null && now >= due && this.run?.screen.next) {
-            this.goNext(this.run.screen.next.action);
-        }
+        const timed = this.timedRule();
+        if (timed && now >= timed.due) this.goNext(timed.rule.action);
         this.outgoing?.advance(now);
         if (this.outgoing?.erased) {
             this.outgoing = null;
@@ -245,12 +256,23 @@ export class Terminal {
         this.flush();
     };
 
-    /** When the current screen's timed `next` fires, or null if it has none (or not yet known). */
-    private nextDue(): number | null {
-        const after = this.run?.screen.next?.after;
+    /** The current screen's first timed `next` rule and when it fires, once that's known. */
+    private timedRule(): { rule: NextRule; due: number } | null {
+        const rule = this.run?.screen.next && firstTimedRule(this.run.screen.next);
         const finished = this.run?.finishedAt ?? null;
-        if (after === undefined || finished === null || this.nextFired) return null;
-        return finished + after;
+        if (!rule || finished === null || this.nextFired) return null;
+        return { rule, due: finished + (rule.after ?? 0) };
+    }
+
+    /** Finishes revealing first, if need be; moves on once revealed. */
+    private trigger(rule: NextRule): boolean {
+        if (this.dialog || this.nextFired) return false;
+        if (this.run?.finishedAt === null) {
+            this.skip();
+            return true;
+        }
+        this.goNext(rule.action);
+        return true;
     }
 
     private goNext(action: Action): void {
@@ -263,7 +285,7 @@ export class Terminal {
         const animating =
             (this.run?.animating ?? false) ||
             (this.outgoing?.animating ?? false) ||
-            this.nextDue() !== null;
+            this.timedRule() !== null;
         if (animating && !this.unsubscribeTicker) {
             this.unsubscribeTicker = this.ticker.subscribe(this.tick);
         } else if (!animating && this.unsubscribeTicker) {

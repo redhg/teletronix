@@ -643,58 +643,145 @@
                         "additionalProperties": false
                     },
                     "next": {
-                        "type": "object",
-                        "properties": {
-                            "after": {
-                                "description": "Milliseconds to wait after the screen has finished revealing",
-                                "type": "number",
-                                "minimum": 0
-                            },
-                            "anyKey": {
-                                "description": "Also go on at any click or key press (default: false)",
-                                "type": "boolean"
-                            },
-                            "action": {
-                                "description": "Where to go",
-                                "anyOf": [
-                                    {
-                                        "type": "object",
-                                        "properties": {
-                                            "screen": {
-                                                "type": "string",
-                                                "pattern": "^[A-Za-z0-9_-]+$",
-                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
-                                            }
-                                        },
-                                        "required": [
-                                            "screen"
-                                        ],
-                                        "additionalProperties": false,
-                                        "description": "Navigate to a screen"
+                        "description": "Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens.",
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "after": {
+                                        "description": "Milliseconds to wait after the screen has finished revealing",
+                                        "type": "number",
+                                        "minimum": 0
                                     },
-                                    {
-                                        "type": "object",
-                                        "properties": {
-                                            "dialog": {
+                                    "key": {
+                                        "description": "A key that moves on: \"any\", a key name like \"Enter\", \"Space\", \"Escape\", \"ArrowRight\" or \"y\", or an array of them. Taps and clicks count too, unless keys in different rules lead to different places.",
+                                        "anyOf": [
+                                            {
                                                 "type": "string",
-                                                "pattern": "^[A-Za-z0-9_-]+$",
-                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                "minLength": 1
+                                            },
+                                            {
+                                                "minItems": 1,
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                }
                                             }
-                                        },
-                                        "required": [
-                                            "dialog"
-                                        ],
-                                        "additionalProperties": false,
-                                        "description": "Open a dialog"
+                                        ]
+                                    },
+                                    "action": {
+                                        "description": "Where to go",
+                                        "anyOf": [
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "screen": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "screen"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Navigate to a screen"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "dialog": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "dialog"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Open a dialog"
+                                            }
+                                        ]
                                     }
-                                ]
+                                },
+                                "required": [
+                                    "action"
+                                ],
+                                "additionalProperties": false
+                            },
+                            {
+                                "minItems": 1,
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "after": {
+                                            "description": "Milliseconds to wait after the screen has finished revealing",
+                                            "type": "number",
+                                            "minimum": 0
+                                        },
+                                        "key": {
+                                            "description": "A key that moves on: \"any\", a key name like \"Enter\", \"Space\", \"Escape\", \"ArrowRight\" or \"y\", or an array of them. Taps and clicks count too, unless keys in different rules lead to different places.",
+                                            "anyOf": [
+                                                {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                {
+                                                    "minItems": 1,
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "action": {
+                                            "description": "Where to go",
+                                            "anyOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "screen": {
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "screen"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Navigate to a screen"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "dialog": {
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "dialog"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Open a dialog"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "action"
+                                    ],
+                                    "additionalProperties": false
+                                }
                             }
-                        },
-                        "required": [
-                            "action"
-                        ],
-                        "additionalProperties": false,
-                        "description": "Moves on without a link: after a delay, at any key, or both. With empty content and \"static\" at full opacity, this makes a burst of noise between screens."
+                        ]
                     },
                     "content": {
                         "type": "array",

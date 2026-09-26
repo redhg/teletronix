@@ -122,8 +122,27 @@ describe("parseProgram", () => {
                 },
             },
         });
-        expect(errors(input)[0]?.path).toBe("screens.home.content[0]");
+        expect(errors(input)).toEqual([
+            { path: "screens.home.content[0].action", message: 'Unrecognized key: "dialog"' },
+        ]);
         expect(errors({ ...file(), extra: true })[0]?.message).toMatch(/extra/);
+    });
+
+    it("explains the closest shape when a value matches none of its shapes", () => {
+        const input = file({
+            screens: { home: { content: ["ok", { type: "link", text: "> GO" }, { type: "lnk" }] } },
+        } as Partial<TeletronixFile>);
+        expect(errors(input)).toEqual([
+            {
+                path: "screens.home.content[1].action",
+                message: "Invalid input: expected object, received undefined",
+            },
+            {
+                path: "screens.home.content[2].type",
+                message:
+                    "Invalid discriminator value. Expected 'text' | 'link' | 'toggle' | 'prompt' | 'bitmap'",
+            },
+        ]);
     });
 
     it("quotes ids that aren't identifiers in paths", () => {

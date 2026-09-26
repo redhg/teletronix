@@ -24,6 +24,7 @@
                 { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
                 { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
                 { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
+                { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
                 { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } }
             ]
         },
@@ -58,13 +59,13 @@
         },
         "fx-restored": {
             "reveal": "glitch",
-            "next": { "anyKey": true, "action": { "screen": "effects" } },
+            "next": { "key": "any", "action": { "screen": "effects" } },
             "content": [
                 { "type": "text", "text": "SIGNAL RESTORED.", "className": "alert" },
                 "",
                 "The static screen had no content and \"next\": { \"after\": 1500, ... }.",
                 "",
-                "This one has \"next\": { \"anyKey\": true, ... }. Press any key or click to continue."
+                "This one has \"next\": { \"key\": \"any\", ... }. Press any key or click to continue."
             ]
         },
         "fx-static": {
@@ -168,6 +169,25 @@
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
+        },
+        "keys": {
+            "next": [
+                { "key": "y", "action": { "screen": "destroyed" } },
+                { "key": ["n", "Escape"], "action": { "screen": "home" } },
+                { "after": 10000, "action": { "screen": "keys-timeout" } }
+            ],
+            "content": [
+                "KEYS",
+                "====",
+                "",
+                "A screen's \"next\" can list rules, and the first to trigger wins. This one has three: Y, N (or Esc), and a 10 second timeout.",
+                "",
+                { "type": "text", "text": "INITIATE SELF-DESTRUCT? [Y/N]", "className": "alert" }
+            ]
+        },
+        "keys-timeout": {
+            "next": { "key": "any", "action": { "screen": "home" } },
+            "content": ["No answer. Self-destruct cancelled.", "", "Press any key."]
         },
         "destroyed": {
             "transition": "glitch",

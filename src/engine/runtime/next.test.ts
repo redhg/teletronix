@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { normalizeKey, ruleForKey, ruleForTap } from "../schema/next.ts";
 import { parseProgram, type TeletronixFile } from "../schema/program.ts";
 import { createTestTerminal } from "./test-helpers.ts";
 
@@ -13,7 +14,15 @@ const FILE: TeletronixFile = {
         // "abc" types in 30ms, then waits 100ms
         boot: { next: { after: 100, action: { screen: "menu" } }, content: ["abc"] },
         menu: { content: ["menu"] },
-        key: { next: { anyKey: true, action: { screen: "menu" } }, content: ["press a key"] },
+        any: { next: { key: "any", action: { screen: "menu" } }, content: ["press a key"] },
+        choice: {
+            next: [
+                { key: ["y", "Enter"], action: { screen: "boot" } },
+                { key: "n", action: { screen: "menu" } },
+                { after: 1000, action: { screen: "noise" } },
+            ],
+            content: [],
+        },
         alarm: { next: { after: 50, action: { dialog: "warning" } }, content: [] },
     },
     dialogs: { warning: { type: "alert", content: "!" } },
@@ -22,7 +31,7 @@ const FILE: TeletronixFile = {
 const screenId = (terminal: ReturnType<typeof createTestTerminal>["terminal"]) =>
     terminal.getSnapshot().screen?.run.screen.id;
 
-describe("next", () => {
+describe("timed next", () => {
     it("moves on from an empty screen after its delay", () => {
         const { terminal, ticker } = createTestTerminal(FILE);
         terminal.navigate("noise");
@@ -75,40 +84,141 @@ describe("next", () => {
         expect(terminal.getSnapshot().dialog).toBeNull();
         expect(ticker.active).toBe(false);
     });
+});
 
-    it("moves on at any key when asked, and not otherwise", () => {
+describe("keys", () => {
+    it("moves on at the rule's keys, first to match wins", () => {
+        for (const [key, target] of [
+            ["y", "boot"],
+            ["Y", "boot"],
+            ["Enter", "boot"],
+            ["n", "menu"],
+        ] as const) {
+            const { terminal } = createTestTerminal(FILE);
+            terminal.navigate("choice");
+            expect(terminal.pressKey(key)).toBe(true);
+            expect(screenId(terminal)).toBe(target);
+        }
+    });
+
+    it("ignores other keys", () => {
         const { terminal } = createTestTerminal(FILE);
-        terminal.navigate("menu");
-        expect(terminal.proceed()).toBe(false);
-        terminal.navigate("key");
-        expect(terminal.proceed()).toBe(true);
+        terminal.navigate("choice");
+        expect(terminal.pressKey("x")).toBe(false);
+        expect(screenId(terminal)).toBe("choice");
+    });
+
+    it("still times out if no key comes", () => {
+        const { terminal, ticker } = createTestTerminal(FILE);
+        terminal.navigate("choice");
+        ticker.advance(1000);
+        expect(screenId(terminal)).toBe("noise");
+    });
+
+    it('takes any key for "any", except modifiers and Tab', () => {
+        const { terminal } = createTestTerminal(FILE);
+        terminal.navigate("any");
+        terminal.skip();
+        expect(terminal.pressKey("Shift")).toBe(false);
+        expect(terminal.pressKey("Tab")).toBe(false);
+        expect(terminal.pressKey("q")).toBe(true);
         expect(screenId(terminal)).toBe("menu");
     });
 
-    it("doesn't move on at a key while a dialog is open", () => {
+    it("finishes the reveal on the first press and moves on with the second", () => {
         const { terminal } = createTestTerminal(FILE);
-        terminal.navigate("key");
+        terminal.navigate("any");
+        expect(terminal.pressKey("q")).toBe(true);
+        expect(screenId(terminal)).toBe("any");
+        expect(terminal.getSnapshot().screen?.states).toEqual(["done"]);
+        terminal.pressKey("q");
+        expect(screenId(terminal)).toBe("menu");
+    });
+
+    it("doesn't move on while a dialog is open", () => {
+        const { terminal } = createTestTerminal(FILE);
+        terminal.navigate("choice");
         terminal.openDialog("warning");
-        expect(terminal.proceed()).toBe(false);
-        expect(screenId(terminal)).toBe("key");
+        expect(terminal.pressKey("y")).toBe(false);
+        expect(screenId(terminal)).toBe("choice");
+    });
+
+    it("does nothing on screens without keys", () => {
+        const { terminal } = createTestTerminal(FILE);
+        terminal.navigate("menu");
+        expect(terminal.pressKey("Enter")).toBe(false);
+        expect(terminal.tap()).toBe(false);
+    });
+});
+
+describe("taps", () => {
+    it("stand in for a key once the screen is revealed", () => {
+        const { terminal } = createTestTerminal(FILE);
+        terminal.navigate("any");
+        expect(terminal.tap()).toBe(false); // still revealing: the click just skips
+        terminal.skip();
+        expect(terminal.tap()).toBe(true);
+        expect(screenId(terminal)).toBe("menu");
+    });
+
+    it("don't choose between keys that lead to different places", () => {
+        const { terminal } = createTestTerminal(FILE);
+        terminal.navigate("choice");
+        expect(terminal.tap()).toBe(false);
+        expect(screenId(terminal)).toBe("choice");
     });
 });
 
 describe("next schema", () => {
     const withNext = (next: unknown) =>
         parseProgram({ ...FILE, screens: { ...FILE.screens, menu: { next, content: [] } } });
+    const rules = (next: unknown) => {
+        const result = withNext(next);
+        if (!result.ok) throw new Error(JSON.stringify(result.errors));
+        return result.program.screens.get("menu")?.next;
+    };
 
-    it("needs a delay, anyKey, or both", () => {
-        const result = withNext({ action: { screen: "boot" } });
-        expect(result.ok ? [] : result.errors).toEqual([
-            { path: "screens.menu.next", message: 'Set "after", "anyKey", or both' },
+    it("accepts one rule or a list, and normalizes keys", () => {
+        expect(rules({ key: "Space", action: { screen: "boot" } })).toEqual([
+            { keys: [" "], action: { type: "screen", target: "boot" } },
+        ]);
+        expect(rules([{ after: 5, key: ["Esc", "F"], action: { screen: "boot" } }])).toEqual([
+            { after: 5, keys: ["escape", "f"], action: { type: "screen", target: "boot" } },
         ]);
     });
 
-    it("checks its target", () => {
-        const result = withNext({ after: 1, action: { screen: "nowhere" } });
+    it("needs a delay, a key, or both", () => {
+        const result = withNext({ action: { screen: "boot" } });
         expect(result.ok ? [] : result.errors).toEqual([
-            { path: "screens.menu.next.action", message: 'Unknown screen "nowhere"' },
+            { path: "screens.menu.next", message: 'Set "after", "key", or both' },
         ]);
+    });
+
+    it("checks each rule's target", () => {
+        const result = withNext([
+            { key: "a", action: { screen: "boot" } },
+            { key: "b", action: { screen: "nowhere" } },
+        ]);
+        expect(result.ok ? [] : result.errors).toEqual([
+            { path: "screens.menu.next[1].action", message: 'Unknown screen "nowhere"' },
+        ]);
+    });
+});
+
+describe("key helpers", () => {
+    const go = { type: "screen", target: "a" } as const;
+    it("normalize names", () => {
+        expect(normalizeKey("ArrowRight")).toBe("arrowright");
+        expect(normalizeKey("Return")).toBe("enter");
+    });
+    it("match keys and taps", () => {
+        expect(ruleForKey([{ keys: [" "], action: go }], " ")).toBeDefined();
+        expect(ruleForTap([{ after: 1, action: go }])).toBeUndefined();
+        expect(
+            ruleForTap([
+                { keys: ["a"], action: go },
+                { keys: ["b"], action: go },
+            ]),
+        ).toBeDefined();
     });
 });

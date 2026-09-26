@@ -1,7 +1,6 @@
 import { z } from "zod";
 import {
     type Action,
-    ActionSchema,
     GlitchOptionsSchema,
     IdSchema,
     type RevealOption,
@@ -13,6 +12,7 @@ import {
 import { type Dialog, DialogSchema, dialogAction } from "./dialog.ts";
 import { EffectsSchema, type EffectsSetting } from "./effects.ts";
 import { type Element, ElementSchema, moduleFor } from "./elements.ts";
+import { type NextRule, NextSchema } from "./next.ts";
 
 export type { Dialog } from "./dialog.ts";
 
@@ -25,28 +25,6 @@ const ContentSchema = z.union([
     z.string().meta({ description: "Shorthand for a text element" }),
     ElementSchema,
 ]);
-
-const NextSchema = z
-    .strictObject({
-        after: z
-            .number()
-            .min(0)
-            .optional()
-            .meta({ description: "Milliseconds to wait after the screen has finished revealing" }),
-        anyKey: z
-            .boolean()
-            .optional()
-            .meta({ description: "Also go on at any click or key press (default: false)" }),
-        action: ActionSchema.meta({ description: "Where to go" }),
-    })
-    .refine((next) => next.after !== undefined || next.anyKey, {
-        message: 'Set "after", "anyKey", or both',
-    })
-    .meta({
-        description:
-            "Moves on without a link: after a delay, at any key, or both. With empty content and " +
-            '"static" at full opacity, this makes a burst of noise between screens.',
-    });
 
 const ScreenSchema = z.strictObject({
     reveal: RevealSchema.optional().meta({
@@ -112,7 +90,7 @@ export interface Screen {
     reveal?: RevealOption;
     transition?: TransitionOption;
     effects?: EffectsSetting;
-    next?: { after?: number; anyKey?: boolean; action: Action };
+    next?: NextRule[];
     content: Element[];
 }
 
@@ -197,14 +175,16 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
     }
 
     for (const screen of program.screens.values()) {
-        const message = screen.next && missing(screen.next.action);
-        if (message) {
-            ctx.addIssue({
-                code: "custom",
-                path: ["screens", screen.id, "next", "action"],
-                message,
-            });
-        }
+        screen.next?.forEach((rule, index) => {
+            const message = missing(rule.action);
+            if (message) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["screens", screen.id, "next", index, "action"],
+                    message,
+                });
+            }
+        });
 
         screen.content.forEach((element, index) => {
             for (const action of moduleFor(element).actions?.(element) ?? []) {
@@ -241,11 +221,33 @@ export function parseProgram(input: unknown): ParseResult {
 
     return {
         ok: false,
-        errors: result.error.issues.map((issue) => ({
+        errors: result.error.issues.flatMap(explain).map((issue) => ({
             path: formatPath(issue.path),
             message: issue.message,
         })),
     };
+}
+
+type Issue = z.core.$ZodIssue;
+
+/**
+ * When a value can take several shapes (e.g. a string or an element) and matches none,
+ * Zod reports only "Invalid input". Report the problems with the closest shape instead:
+ * the one that didn't fail outright on the value's type.
+ */
+function explain(issue: Issue): Issue[] {
+    if (issue.code !== "invalid_union" || issue.errors.length === 0) return [issue];
+
+    const wrongType = (branch: Issue[]) =>
+        branch.filter((i) => i.code === "invalid_type" && i.path.length === 0).length;
+    const depth = (branch: Issue[]) => Math.max(0, ...branch.map((i) => i.path.length));
+    const [closest] = [...issue.errors].sort(
+        (a, b) => wrongType(a) - wrongType(b) || depth(b) - depth(a),
+    );
+
+    return (closest ?? []).flatMap((inner) =>
+        explain({ ...inner, path: [...issue.path, ...inner.path] } as Issue),
+    );
 }
 
 function formatPath(path: readonly PropertyKey[]): string {
