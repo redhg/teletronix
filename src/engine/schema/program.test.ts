@@ -87,6 +87,13 @@ describe("parseProgram", () => {
         expect(off.program.screens.get("home")?.autoscroll).toBe(true);
     });
 
+    it("blocks the context menu unless the config allows it", () => {
+        const on = parseProgram(file());
+        expect(on.ok && on.program.blockContextMenu).toBe(true);
+        const off = parseProgram(file({ config: { name: "Test", blockContextMenu: false } }));
+        expect(off.ok && off.program.blockContextMenu).toBe(false);
+    });
+
     it("honors an explicit start screen", () => {
         const result = parseProgram(file({ config: { name: "Test", start: "next" } }));
         expect(result.ok && result.program.start).toBe("next");

@@ -89,6 +89,14 @@ export const ConfigSchema = z
         theme: ThemeSchema.optional(),
         font: FontSchema.optional(),
         effects: EffectsSchema.optional(),
+        blockContextMenu: z
+            .boolean()
+            .optional()
+            .meta({
+                description:
+                    "Block the browser's right-click menu, so the program feels like a terminal " +
+                    "rather than a web page. Text fields keep theirs (default: true)",
+            }),
         autoscroll: z
             .boolean()
             .optional()
@@ -151,6 +159,7 @@ export interface Program {
     defaults: Defaults;
     effects?: EffectsSetting;
     autoscroll: boolean;
+    blockContextMenu: boolean;
     /** The theme as written (for tools that edit it), and its colors. */
     theme?: ThemeSetting;
     palette: Palette;
@@ -160,8 +169,18 @@ export interface Program {
 }
 
 function normalize(file: z.output<typeof FileSchema>): Program {
-    const { start, reveal, transition, defaults, effects, autoscroll, theme, font, ...config } =
-        file.config;
+    const {
+        start,
+        reveal,
+        transition,
+        defaults,
+        effects,
+        autoscroll,
+        blockContextMenu,
+        theme,
+        font,
+        ...config
+    } = file.config;
 
     const screens = new Map<string, Screen>();
     for (const [id, screen] of Object.entries(file.screens)) {
@@ -190,6 +209,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         },
         effects,
         autoscroll: autoscroll ?? true,
+        blockContextMenu: blockContextMenu ?? true,
         theme,
         palette: resolveTheme(theme),
         font: font ?? DEFAULT_FONT,

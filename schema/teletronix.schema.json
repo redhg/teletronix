@@ -430,6 +430,10 @@
                     "additionalProperties": false,
                     "description": "Visual effects: true, false, or an object of options"
                 },
+                "blockContextMenu": {
+                    "description": "Block the browser's right-click menu, so the program feels like a terminal rather than a web page. Text fields keep theirs (default: true)",
+                    "type": "boolean"
+                },
                 "autoscroll": {
                     "description": "Scroll to keep new content in view as it appears, unless the reader has scrolled up (default: true)",
                     "type": "boolean"

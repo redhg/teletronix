@@ -160,6 +160,11 @@ The easiest way to choose is the **settings page**: add `&config` to a program's
 program update beside you, then copy the resulting `config` properties or download the program
 with them in place.
 
+### Right-click menu
+The browser's right-click menu is blocked, so a program feels like a terminal rather than a web
+page; the prompt's text field keeps its menu, for pasting. `"blockContextMenu": false` in `config`
+brings it back.
+
 ### Effects
 `config.effects` turns visual effects on or off and sets their options. A screen's `effects`
 layers over the config's.

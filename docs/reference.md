@@ -46,6 +46,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `theme` | [Theme](#theme) | `"phosphor"` | The color scheme: "phosphor" (pale blue on black), "amber", "green" or "white", or your own colors |
 | `font` | `"ast-premiumexec"` \| `"ibm-vga"` \| `"ibm-ega"` \| `"ibm-cga"` \| `"ibm-cga-thin"` \| `"ibm-mda"` \| `"toshiba-satellite"` \| `"departure-mono"` | `"ast-premiumexec"` | The typeface, from a set of period PC fonts |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |
+| `blockContextMenu` | boolean | `true` | Block the browser's right-click menu, so the program feels like a terminal rather than a web page. Text fields keep theirs |
 | `autoscroll` | boolean | `true` | Scroll to keep new content in view as it appears, unless the reader has scrolled up |
 
 <a id="defaults"></a>

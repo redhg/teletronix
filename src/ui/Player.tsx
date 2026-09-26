@@ -34,6 +34,18 @@ export function Player({ terminal, initial, preview }: Props) {
         };
     }, [font]);
 
+    // block the browser's right-click menu, except in text fields (for pasting)
+    const blockContextMenu = terminal.program.blockContextMenu;
+    useEffect(() => {
+        if (!blockContextMenu) return;
+        const handleContextMenu = (event: MouseEvent) => {
+            if (event.target instanceof Element && event.target.closest("input, textarea")) return;
+            event.preventDefault();
+        };
+        document.addEventListener("contextmenu", handleContextMenu);
+        return () => document.removeEventListener("contextmenu", handleContextMenu);
+    }, [blockContextMenu]);
+
     useEffect(() => {
         if (!preview || window.parent === window) return;
         const handleMessage = (event: MessageEvent) => {
