@@ -1,26 +1,25 @@
 # Teletronix
 A retrofuturistic terminal simulator for tabletop role-playing games.
 
-A JSON file describes screens of text that type themselves in, links between screens, and
-(soon) prompts, dialogs and CRT effects. Teletronix is the successor to Phosphor.
+A JSON file describes screens of text that type themselves in, links between screens, and (soon) prompts, dialogs and CRT effects. Teletronix is the successor to Phosphor.
 
 ## Getting started
-Requires Node 24+ and pnpm (`corepack enable pnpm`).
+Requires Node 24+.
 
 ```sh
-pnpm install
-pnpm dev          # http://localhost:5173
+npm install
+npm run dev    # http://localhost:5173
 ```
 
 Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `sample`.
 
 | Script | |
 |---|---|
-| `pnpm dev` | Dev server |
-| `pnpm build` | Typecheck and build to `dist/` |
-| `pnpm test` | Unit tests |
-| `pnpm lint` / `pnpm format` | Biome check / fix |
-| `pnpm gen:schema` | Regenerate `schema/teletronix.schema.json` after changing the schema |
+| `npm run dev` | Dev server |
+| `npm run build` | Typecheck and build to `dist/` |
+| `npm test` | Unit tests |
+| `npm run lint` / `npm run format` | Biome check / fix |
+| `npm run gen:schema` | Regenerate `schema/teletronix.schema.json` after changing the schema |
 
 ## Writing a program
 Point `$schema` at `schema/teletronix.schema.json` for validation and autocomplete in your

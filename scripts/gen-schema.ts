@@ -1,4 +1,4 @@
-// Writes schema/teletronix.schema.json. Run with `pnpm gen:schema`.
+// Writes schema/teletronix.schema.json. Run with `npm run gen:schema`.
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { generateJsonSchema, SCHEMA_PATH } from "./json-schema.ts";
