@@ -1921,6 +1921,243 @@
                                             ],
                                             "additionalProperties": false,
                                             "description": "A text progress bar that runs from one percentage to another over a set time, then carries on, or runs an action"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "slider"
+                                                },
+                                                "label": {
+                                                    "description": "Text before the bar",
+                                                    "type": "string"
+                                                },
+                                                "min": {
+                                                    "default": 0,
+                                                    "description": "The lowest value (default: 0)",
+                                                    "type": "number"
+                                                },
+                                                "max": {
+                                                    "default": 100,
+                                                    "description": "The highest value (default: 100)",
+                                                    "type": "number"
+                                                },
+                                                "step": {
+                                                    "default": 1,
+                                                    "description": "The smallest change, e.g. 5, or 0.1 (default: 1)",
+                                                    "type": "number",
+                                                    "exclusiveMinimum": 0
+                                                },
+                                                "value": {
+                                                    "description": "Where it starts (default: min)",
+                                                    "type": "number"
+                                                },
+                                                "unit": {
+                                                    "default": "",
+                                                    "description": "Shown after the value, e.g. \"%\" or \" MHz\"",
+                                                    "type": "string"
+                                                },
+                                                "showValue": {
+                                                    "default": true,
+                                                    "description": "Show the value after the bar (default: true)",
+                                                    "type": "boolean"
+                                                },
+                                                "width": {
+                                                    "description": "Bar width in characters (default: the rest of the line)",
+                                                    "type": "integer",
+                                                    "minimum": 1,
+                                                    "maximum": 9007199254740991
+                                                },
+                                                "fill": {
+                                                    "default": "█",
+                                                    "description": "Filled cells (default: \"█\")",
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 1
+                                                },
+                                                "empty": {
+                                                    "default": "░",
+                                                    "description": "Empty cells (default: \"░\")",
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 1
+                                                },
+                                                "on": {
+                                                    "description": "Actions for ranges of values. The first rule the value moves into fires.",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "atLeast": {
+                                                                "description": "Fires when the value rises to this or above",
+                                                                "type": "number"
+                                                            },
+                                                            "atMost": {
+                                                                "description": "Fires when the value falls to this or below",
+                                                                "type": "number"
+                                                            },
+                                                            "equals": {
+                                                                "description": "Fires when the value lands on exactly this",
+                                                                "type": "number"
+                                                            },
+                                                            "action": {
+                                                                "description": "What happens",
+                                                                "anyOf": [
+                                                                    {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "screen": {
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "screen"
+                                                                        ],
+                                                                        "additionalProperties": false,
+                                                                        "description": "Navigate to a screen"
+                                                                    },
+                                                                    {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "dialog": {
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "dialog"
+                                                                        ],
+                                                                        "additionalProperties": false,
+                                                                        "description": "Open a dialog"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "action"
+                                                        ],
+                                                        "additionalProperties": false,
+                                                        "description": "An action for a range of values. It fires each time the value moves into the range; set more than one condition and the value must meet them all."
+                                                    }
+                                                },
+                                                "onEnter": {
+                                                    "description": "What happens when the player presses <enter> on the slider",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "screen": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "screen"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Navigate to a screen"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "dialog": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "dialog"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Open a dialog"
+                                                        }
+                                                    ]
+                                                },
+                                                "className": {
+                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                    "type": "string"
+                                                },
+                                                "reveal": {
+                                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "teletype",
+                                                                "glitch",
+                                                                "instant"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "speed": {
+                                                                            "description": "Milliseconds per character (default: 10)",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "teletype"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false,
+                                                                    "description": "Types the text one character at a time"
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "glitch"
+                                                                        },
+                                                                        "duration": {
+                                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false,
+                                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "instant"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false,
+                                                                    "description": "Shows the text all at once"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "additionalProperties": false,
+                                            "description": "A bar the player sets by dragging, or with the arrow keys. It remembers its value, and can run actions when the value enters a range."
                                         }
                                     ]
                                 }

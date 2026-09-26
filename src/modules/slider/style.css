@@ -1,0 +1,16 @@
+.slider[role="slider"] {
+    cursor: ew-resize;
+    /* horizontal drags move the slider; vertical ones still scroll the page */
+    touch-action: pan-y;
+}
+
+.slider[role="slider"]:focus-visible,
+.slider[role="slider"]:hover {
+    outline: none;
+    background: rgb(from var(--fg) r g b / 0.12);
+}
+
+.slider.alert[role="slider"]:focus-visible,
+.slider.alert[role="slider"]:hover {
+    background: rgb(from var(--alert) r g b / 0.12);
+}

@@ -17,7 +17,7 @@ import { useColumns } from "./use-columns.ts";
 import "./terminal.css";
 
 const INTERSTITIAL_STATIC = { ...staticEffect.defaults, opacity: 1 };
-const KEY_TARGETS = "input, textarea, dialog, button, a";
+const KEY_TARGETS = 'input, textarea, dialog, button, a, [role="slider"]';
 
 interface Props {
     /** Changes when something that affects the line length changes (e.g. the font). */
@@ -63,7 +63,10 @@ export function TerminalView({ layoutKey }: Props) {
     // Clicking anywhere that isn't a control moves on (standing in for a "next" key) or
     // finishes the current screen, and keeps (or puts) the keyboard in the screen's prompt.
     const handlePointerDown = (event: PointerEvent) => {
-        if (event.target instanceof Element && event.target.closest("button, a, input, label")) {
+        if (
+            event.target instanceof Element &&
+            event.target.closest('button, a, input, label, [role="slider"]')
+        ) {
             return;
         }
         // otherwise the click would move focus to the page, away from a prompt that the

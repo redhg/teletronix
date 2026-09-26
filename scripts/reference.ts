@@ -48,6 +48,7 @@ import {
     ProgressSchema,
 } from "../src/modules/progress/definition.ts";
 import { CommandSchema, PromptSchema } from "../src/modules/prompt/definition.ts";
+import { SliderRuleSchema, SliderSchema } from "../src/modules/slider/definition.ts";
 import { TextSchema } from "../src/modules/text/definition.ts";
 import { ToggleSchema } from "../src/modules/toggle/definition.ts";
 
@@ -107,6 +108,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Progress outcome", OutcomeSchema],
             ["Delayed action", DelayedActionSchema],
             ["Progress interrupt", InterruptSchema],
+            ["Slider", SliderSchema, '"type": "slider"'],
+            ["Slider rule", SliderRuleSchema],
         ],
     ],
     [

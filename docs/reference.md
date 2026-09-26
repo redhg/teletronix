@@ -7,7 +7,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
-- **Elements:** [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt)
+- **Elements:** [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -93,7 +93,7 @@ A screen of content. Its elements are revealed one after another.
 | `effects` | [Effects](#effects) |  | Effects for this screen, layered over the config's |
 | `autoscroll` | boolean | the config's | Keep new content in view as it appears |
 | `next` | [Next rule](#next-rule) \| [Next rule](#next-rule)[] |  | Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens. |
-| `content` | (string \| [Text](#text) \| [Link](#link) \| [Toggle](#toggle) \| [Prompt](#prompt) \| [Bitmap](#bitmap) \| [Progress](#progress))[] | **required** | The elements, revealed in order. Can be empty. |
+| `content` | (string \| [Text](#text) \| [Link](#link) \| [Toggle](#toggle) \| [Prompt](#prompt) \| [Bitmap](#bitmap) \| [Progress](#progress) \| [Slider](#slider))[] | **required** | The elements, revealed in order. Can be empty. |
 
 <a id="next-rule"></a>
 
@@ -266,6 +266,42 @@ Makes a progress bar stop short: at a set point (a transfer that fails) and/or w
 | `text` | string | `"INTERRUPTED"` | Shown in place of the percentage |
 | `action` | [Action](#action) |  | What happens when interrupted, instead of onComplete |
 | `after` | number, ≥ 0 |  | Milliseconds to wait before the action |
+
+<a id="slider"></a>
+
+### Slider (`"type": "slider"`)
+
+A bar the player sets by dragging, or with the arrow keys. It remembers its value, and can run actions when the value enters a range.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `label` | string |  | Text before the bar |
+| `min` | number | `0` | The lowest value |
+| `max` | number | `100` | The highest value |
+| `step` | number, > 0 | `1` | The smallest change, e.g. 5, or 0.1 |
+| `value` | number | min | Where it starts |
+| `unit` | string | `""` | Shown after the value, e.g. "%" or " MHz" |
+| `showValue` | boolean | `true` | Show the value after the bar |
+| `width` | whole number, ≥ 1 | the rest of the line | Bar width in characters |
+| `fill` | character | `"█"` | Filled cells |
+| `empty` | character | `"░"` | Empty cells |
+| `on` | [Slider rule](#slider-rule)[] |  | Actions for ranges of values. The first rule the value moves into fires. |
+| `onEnter` | [Action](#action) |  | What happens when the player presses <enter> on the slider |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+
+<a id="slider-rule"></a>
+
+### Slider rule
+
+An action for a range of values. It fires each time the value moves into the range; set more than one condition and the value must meet them all.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `atLeast` | number |  | Fires when the value rises to this or above |
+| `atMost` | number |  | Fires when the value falls to this or below |
+| `equals` | number |  | Fires when the value lands on exactly this |
+| `action` | [Action](#action) | **required** | What happens |
 
 ## Dialogs
 

@@ -261,8 +261,19 @@ export class ScreenRun {
 
     /** Re-reads an element's text, e.g. after its memory changed. */
     refresh(elementId: string): void {
-        const run = this.runs.find((r) => r.element.id === elementId);
+        const index = this.runs.findIndex((r) => r.element.id === elementId);
+        const run = this.runs[index];
         if (!run) return;
+
+        // a custom reveal draws the element itself, from its memory
+        const unit = this.units.find((u) => u.custom && u.indices.includes(index));
+        if (unit) {
+            if (run.state === "done" && !this.eraser) {
+                this.setUnitFrame(unit, unit.reveal.final(), 1);
+            }
+            return;
+        }
+
         const text = this.textOf(run.element);
         if (text === run.text) return;
 
@@ -317,7 +328,6 @@ export class ScreenRun {
 
     private buildUnits(): Unit[] {
         const { defaults, instant, random } = this.options;
-        const context = { columns: () => this.columns, random };
         const groups: { indices: number[]; reveal?: Reveal; spec: RevealSpec; block: boolean }[] =
             [];
 
@@ -326,6 +336,11 @@ export class ScreenRun {
                 ? { spec: { type: "instant" } as const, inherited: false }
                 : resolveReveal(element.reveal, this.screen.reveal, defaults);
 
+            const context = {
+                columns: () => this.columns,
+                random,
+                memory: () => this.options.memory?.get(element.id),
+            };
             const custom = moduleFor(element).reveal?.(element, spec, context);
             if (custom) {
                 groups.push({ indices: [index], reveal: custom, spec, block: false });

@@ -26,6 +26,7 @@
                 { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
                 { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
                 { "type": "link", "text": "> PROGRESS", "action": { "screen": "progress" } },
+                { "type": "link", "text": "> SLIDERS", "action": { "screen": "sliders" } },
                 { "type": "link", "text": "> AUTOSCROLL", "action": { "screen": "autoscroll" } },
                 { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } }
             ]
@@ -282,6 +283,50 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
+        "sliders": {
+            "content": [
+                "SLIDERS",
+                "=======",
+                "",
+                "Drag a slider, or focus it with <tab> and use the arrow keys. It remembers its value, and can do something when the value enters a range.",
+                "",
+                "Tune the receiver to find a hidden transmission (somewhere above 100):",
+                {
+                    "type": "slider",
+                    "label": "FREQUENCY  ",
+                    "min": 88,
+                    "max": 108,
+                    "step": 0.1,
+                    "value": 94.5,
+                    "unit": " MHz",
+                    "on": [{ "equals": 101.1, "action": { "screen": "transmission" } }]
+                },
+                "",
+                "Push the reactor into the red, or press <enter> on it to confirm a setting:",
+                {
+                    "type": "slider",
+                    "label": "REACTOR    ",
+                    "step": 5,
+                    "value": 40,
+                    "unit": "%",
+                    "on": [{ "atLeast": 95, "action": { "dialog": "reactor-hot" } }],
+                    "onEnter": { "dialog": "reactor-set" }
+                },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "transmission": {
+            "transition": "static",
+            "reveal": "glitch",
+            "content": [
+                { "type": "text", "text": "...INCOMING TRANSMISSION, 101.1 MHZ...", "className": "alert" },
+                "",
+                "THIS IS MINING STATION YPSILON-14. IF YOU CAN HEAR THIS, DO NOT DOCK. REPEAT: DO NOT DOCK.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "sliders" } }
+            ]
+        },
         "keys": {
             "next": [
                 { "key": "y", "action": { "screen": "destroyed" } },
@@ -501,6 +546,16 @@
         "aborted": {
             "type": "alert",
             "content": "Self-destruct aborted."
+        },
+        "reactor-hot": {
+            "type": "alert",
+            "className": "alert",
+            "content": ["WARNING: REACTOR OUTPUT CRITICAL.", "", "Reduce output immediately."],
+            "dismiss": "ACKNOWLEDGE"
+        },
+        "reactor-set": {
+            "type": "alert",
+            "content": "Reactor output confirmed."
         }
     }
 }

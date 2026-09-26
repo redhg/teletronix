@@ -36,12 +36,19 @@ export interface ModuleDefinition<E, M = never> {
     outcome?(element: E, reveal: Reveal): Outcome | undefined;
     /** Whether a key press (a KeyboardEvent.key) should interrupt the element while it reveals. */
     interruptKey?(element: E, key: string): boolean;
+    /**
+     * Called when the element's memory changes (e.g. a slider moves). Returns an action to
+     * run, if the change should trigger one.
+     */
+    changed?(element: E, before: M | undefined, after: M): Action | undefined;
 }
 
 export interface RevealContext {
     /** Characters per line, which can change while the reveal runs. */
     columns: () => number;
     random?: Random;
+    /** The element's current memory (see ModuleDefinition), which can change while it shows. */
+    memory: () => unknown;
 }
 
 export interface Outcome {

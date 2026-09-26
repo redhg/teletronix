@@ -220,8 +220,14 @@ export class Terminal {
 
     /** Updates an element's memory, and its text on screen if that depends on it. */
     remember(elementId: string, value: unknown): void {
+        const before = this.memory.get(elementId);
         this.memory.set(elementId, value);
         this.run?.refresh(elementId);
+
+        // the change may trigger an action (e.g. a slider pushed past a threshold)
+        const element = this.run?.elements.find((e) => e.id === elementId);
+        const action = element && moduleFor(element).changed?.(element, before, value);
+        if (action && !this.dialog) this.dispatch(action);
     }
 
     /**

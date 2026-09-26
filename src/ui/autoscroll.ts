@@ -81,6 +81,8 @@ export class Autoscroller {
     };
 
     private readonly handleKey = (event: KeyboardEvent): void => {
+        // a key a control used (e.g. ArrowUp on a slider) didn't scroll anything
+        if (event.defaultPrevented) return;
         if (SCROLL_UP_KEYS.has(event.key)) this.stopFollowing();
     };
 

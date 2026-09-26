@@ -58,6 +58,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"prompt"` | A command line. Each of its `commands` has an `action`. |
 | `"bitmap"` | An image (`src`, `alt`) that resolves from blocky to sharp. The screen waits for it to load. |
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
+| `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`. Every element takes an optional
 `className` (e.g. `"alert"`) and `reveal`.
@@ -81,6 +82,22 @@ Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`. Every element take
   when the player presses a `key`. Its `text` replaces the percentage, and its `action` (with
   an optional `after`) runs instead of `onComplete`.
 - Skipping jumps the bar to its end, or to its scripted interruption.
+
+### Sliders
+```json
+{
+    "type": "slider",
+    "label": "FREQUENCY ",
+    "min": 88, "max": 108, "step": 0.1, "value": 94.5, "unit": " MHz",
+    "on": [{ "equals": 101.1, "action": { "screen": "transmission" } }],
+    "onEnter": { "dialog": "tuned" }
+}
+```
+The player drags the bar (it snaps to each `step`) or focuses it with <tab> and uses ←/→, PageUp/PageDown
+and Home/End. It remembers its value. Each `on` rule fires when the value moves into its range
+(`atLeast`, `atMost`, `equals`, or a combination); the first rule entered wins. `onEnter` runs when
+the player presses <enter> on the slider. `width`, `fill`, `empty` and `showValue` shape it like a
+progress bar.
 
 ### Moving on without a link
 A screen's `next` moves on without a link. Each rule has an `action` and a trigger:
