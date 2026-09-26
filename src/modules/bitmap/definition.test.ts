@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { seededRandom } from "../../engine/random.ts";
 import { createTestTerminal, deferred, settle } from "../../engine/runtime/test-helpers.ts";
-import { BITMAP_STEP_TIME, BITMAP_STEPS, bitmapResolution } from "./definition.ts";
+import { BITMAP_STEP_TIME, BITMAP_STEPS, bitmapBlend, bitmapResolution } from "./definition.ts";
 
 const DURATION = BITMAP_STEPS.length * BITMAP_STEP_TIME;
 
@@ -106,5 +106,15 @@ describe("bitmap", () => {
         ticker.advance(500);
         ticker.advance(500);
         expect(progress).toEqual([1, 0.5, 0]);
+    });
+});
+
+describe("bitmapBlend", () => {
+    it("finds a blend mode among the class names", () => {
+        expect(bitmapBlend("big luminosity")).toBe("luminosity");
+        expect(bitmapBlend("lighten")).toBe("lighten");
+        expect(bitmapBlend("monochrome")).toBe("luminosity");
+        expect(bitmapBlend("alert")).toBeUndefined();
+        expect(bitmapBlend(undefined)).toBeUndefined();
     });
 });

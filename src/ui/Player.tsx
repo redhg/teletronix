@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { type FontId, resolveTheme, type Terminal, type ThemeSetting } from "../engine/index.ts";
 import { applyAppearance, loadFont } from "./appearance.ts";
+import { PaletteContext } from "./palette-context.ts";
 import { isPreviewMessage, type PreviewMessage } from "./preview-protocol.ts";
 import { TerminalView } from "./TerminalView.tsx";
 import { TerminalContext } from "./terminal-context.ts";
@@ -19,7 +20,8 @@ export function Player({ terminal, initial, preview }: Props) {
     // changes once the font has loaded, so the line length is measured again
     const [loadedFont, setLoadedFont] = useState<FontId | null>(null);
 
-    useLayoutEffect(() => applyAppearance(resolveTheme(theme), font), [theme, font]);
+    const palette = useMemo(() => resolveTheme(theme), [theme]);
+    useLayoutEffect(() => applyAppearance(palette, font), [palette, font]);
 
     useEffect(() => {
         let current = true;
@@ -50,7 +52,9 @@ export function Player({ terminal, initial, preview }: Props) {
 
     return (
         <TerminalContext value={terminal}>
-            <TerminalView layoutKey={`${font}:${loadedFont}`} />
+            <PaletteContext value={palette}>
+                <TerminalView layoutKey={`${font}:${loadedFont}`} />
+            </PaletteContext>
         </TerminalContext>
     );
 }

@@ -176,7 +176,7 @@ A command the prompt understands
 
 ### Bitmap (`"type": "bitmap"`)
 
-An image, revealed in steps from low to high resolution. Add a className such as "lighten" or "luminosity" to blend it with the screen.
+An image, revealed in steps from low to high resolution. A className naming a blend mode ("luminosity", "lighten", "multiply", "screen", "overlay", …) blends it with the screen's background color; "monochrome" is short for "luminosity".
 
 | Property | Type | Default | Description |
 |---|---|---|---|

@@ -1,13 +1,16 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { classNames, type ElementViewProps } from "../../ui/element-view.ts";
 import { loadImage } from "../../ui/load-image.ts";
-import { type BitmapElement, bitmapResolution } from "./definition.ts";
+import { PaletteContext } from "../../ui/palette-context.ts";
+import { type BitmapElement, type BlendMode, bitmapBlend, bitmapResolution } from "./definition.ts";
 import "./style.css";
 
 export function BitmapView({ element, state, run, index }: ElementViewProps<BitmapElement>) {
     const canvas = useRef<HTMLCanvasElement>(null);
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [failed, setFailed] = useState(false);
+    const blend = bitmapBlend(element.className);
+    const backdrop = useContext(PaletteContext).bg;
 
     useEffect(() => {
         let current = true;
@@ -20,14 +23,14 @@ export function BitmapView({ element, state, run, index }: ElementViewProps<Bitm
         };
     }, [element.src]);
 
-    // redraw at each step of the reveal, without re-rendering
+    // redraw at each step of the reveal, without re-rendering (and when the colors change)
     useLayoutEffect(() => {
         const target = canvas.current;
         if (!image || !target) return;
         return run.subscribeProgress(index, (progress) =>
-            draw(target, image, bitmapResolution(progress)),
+            draw(target, image, bitmapResolution(progress), blend && { mode: blend, backdrop }),
         );
-    }, [image, run, index]);
+    }, [image, run, index, blend, backdrop]);
 
     const className = classNames("bitmap", element.className);
 
@@ -58,13 +61,27 @@ export function BitmapView({ element, state, run, index }: ElementViewProps<Bitm
 
 const scratch = typeof document === "undefined" ? null : document.createElement("canvas");
 
-/** Draws the image pixelated to `resolution` (a fraction of full size), or nothing at 0. */
-function draw(canvas: HTMLCanvasElement, image: HTMLImageElement, resolution: number) {
+/**
+ * Draws the image pixelated to `resolution` (a fraction of full size), or nothing at 0.
+ * With a blend, the image is blended over a fill of the backdrop color.
+ */
+function draw(
+    canvas: HTMLCanvasElement,
+    image: HTMLImageElement,
+    resolution: number,
+    blend: { mode: BlendMode; backdrop: string } | undefined,
+) {
     const context = canvas.getContext("2d");
     if (!context) return;
     const { width, height } = canvas;
+    context.globalCompositeOperation = "source-over";
     context.clearRect(0, 0, width, height);
     if (resolution <= 0) return;
+    if (blend) {
+        context.fillStyle = blend.backdrop;
+        context.fillRect(0, 0, width, height);
+        context.globalCompositeOperation = blend.mode;
+    }
     if (resolution >= 1 || !scratch) {
         context.drawImage(image, 0, 0, width, height);
         return;

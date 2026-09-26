@@ -15,8 +15,9 @@ export const BitmapSchema = z
     })
     .meta({
         description:
-            "An image, revealed in steps from low to high resolution. Add a className such as " +
-            '"lighten" or "luminosity" to blend it with the screen.',
+            "An image, revealed in steps from low to high resolution. A className naming a blend " +
+            'mode ("luminosity", "lighten", "multiply", "screen", "overlay", …) blends it with ' +
+            'the screen\'s background color; "monochrome" is short for "luminosity".',
     });
 
 export type BitmapElement = z.output<typeof BitmapSchema> & ElementIdentity;
@@ -31,6 +32,40 @@ export const bitmapModule: ModuleDefinition<BitmapElement> = {
     reveal: (_element, spec) =>
         createTimedReveal(spec.type === "instant" ? 0 : BITMAP_STEPS.length * BITMAP_STEP_TIME),
 };
+
+/**
+ * Blend modes a bitmap can take through its className, e.g. "lighten". The canvas blends
+ * the image itself, over the screen's background color, rather than using CSS
+ * mix-blend-mode: CSS blending breaks whenever something above the image forms an isolated
+ * group (a filter such as bloom, opacity, transforms…).
+ */
+export const BLEND_MODES = [
+    "luminosity",
+    "lighten",
+    "darken",
+    "multiply",
+    "screen",
+    "overlay",
+    "color-dodge",
+    "color-burn",
+    "hard-light",
+    "soft-light",
+    "difference",
+    "exclusion",
+    "hue",
+    "saturation",
+    "color",
+] as const;
+
+export type BlendMode = (typeof BLEND_MODES)[number];
+
+/** The blend mode named in a className, if any. "monochrome" is short for "luminosity". */
+export function bitmapBlend(className: string | undefined): BlendMode | undefined {
+    const names = (className ?? "")
+        .split(/\s+/)
+        .map((name) => (name === "monochrome" ? "luminosity" : name));
+    return BLEND_MODES.find((mode) => names.includes(mode));
+}
 
 /** The resolution to draw at a given reveal progress, or 0 for nothing. */
 export function bitmapResolution(progress: number): number {
