@@ -48,6 +48,7 @@ export function SoundLayer({ terminal, sound, children }: Props) {
         };
     }, [synth]);
 
+    useEffect(() => synth.setLibrary(terminal.program.sounds), [synth, terminal]);
     useEffect(() => terminal.subscribeCues((cue) => synth.play(cue)), [terminal, synth]);
 
     const play = useCallback((cue: InterfaceCue) => synth.play(cue), [synth]);

@@ -45,6 +45,8 @@ export class Synth {
     } | null = null;
     private hissLevel = 0;
     private rendered = new Map<string, AudioBuffer>();
+    /** The program's sounds, by name (see Program.sounds). */
+    private library: ReadonlyMap<string, Recipe> = new Map();
 
     constructor(voices: Voices = copyVoices()) {
         this.voices = voices;
@@ -75,6 +77,11 @@ export class Synth {
         this.apply();
     }
 
+    /** The program's own sounds, for "sound" cues and replacing built-in sounds. */
+    setLibrary(library: ReadonlyMap<string, Recipe>): void {
+        this.library = library;
+    }
+
     /** Replaces the voices; sounds already playing (the hum, the hiss) follow along. */
     setVoices(voices: Voices): void {
         this.voices = voices;
@@ -93,11 +100,16 @@ export class Synth {
         const now = context.currentTime;
 
         switch (cue.type) {
+            case "sound": {
+                const recipe = this.library.get(cue.name);
+                if (recipe) this.playRecipe(recipe);
+                return;
+            }
             case "key":
             case "keypress":
                 if (!settings.typing || now - this.lastKey < this.voices.key.gap) return;
                 this.lastKey = now;
-                this.voice("key", now);
+                this.voiceOrOwn("key", now);
                 return;
             case "glitch":
                 if (settings.glitch) this.voice("glitch", now, cue.duration / 1000);
@@ -106,20 +118,30 @@ export class Synth {
                 if (settings.static) this.voice("burst", now, cue.duration / 1000);
                 return;
             case "dialog":
-                if (settings.interface) this.voice(cue.alert ? "alert" : "dialog", now);
+                if (settings.interface) this.voiceOrOwn(cue.alert ? "alert" : "dialog", now);
                 return;
             case "select":
-                if (settings.interface) this.voice("select", now);
+                if (settings.interface) this.voiceOrOwn("select", now);
                 return;
             case "tick":
                 if (!settings.interface || now - this.lastTick < this.voices.tick.gap) return;
                 this.lastTick = now;
-                this.voice("tick", now);
+                this.voiceOrOwn("tick", now);
                 return;
             case "error":
-                if (settings.interface) this.voice("error", now);
+                if (settings.interface) this.voiceOrOwn("error", now);
                 return;
         }
+    }
+
+    /** A built-in sound, or the program's own sound of the same name if it has one. */
+    private voiceOrOwn(
+        name: "key" | "select" | "tick" | "error" | "dialog" | "alert",
+        at: number,
+    ): void {
+        const own = this.library.get(name);
+        if (own) this.playRecipe(own);
+        else this.voice(name, at);
     }
 
     /**

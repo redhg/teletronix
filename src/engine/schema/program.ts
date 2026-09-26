@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { fillRecipe, type Recipe, RecipeSchema } from "../sound/recipe.ts";
 import {
     DEFAULT_FONT,
     type FontId,
@@ -14,6 +15,7 @@ import {
     IdSchema,
     type RevealOption,
     RevealSchema,
+    SoundNameSchema,
     TeletypeOptionsSchema,
     type TransitionOption,
     TransitionSchema,
@@ -51,6 +53,9 @@ export const ScreenSchema = z
             description: "Keep new content in view as it appears (default: the config's)",
         }),
         next: NextSchema.optional(),
+        sound: SoundNameSchema.optional().meta({
+            description: "A sound from the program's sounds, played as the screen appears",
+        }),
         content: z
             .array(ContentSchema)
             .meta({ description: "The elements, revealed in order. Can be empty." }),
@@ -128,10 +133,20 @@ export const FileSchema = z
             .record(IdSchema, DialogSchema)
             .optional()
             .meta({ description: "The dialogs, by id. Actions open them by id." }),
+        sounds: z
+            .record(IdSchema, RecipeSchema)
+            .optional()
+            .meta({
+                description:
+                    'Sound effects, by name, for "sound" on actions, elements, screens and ' +
+                    "dialogs. Design them on the sound test page (?sound, Custom tab). Named " +
+                    '"key", "select", "tick", "error", "dialog" or "alert", one replaces ' +
+                    "Teletronix's own sound of that kind.",
+            }),
     })
     .meta({
         title: "Teletronix program",
-        description: "A Teletronix program: its settings, screens and dialogs",
+        description: "A Teletronix program: its settings, screens, dialogs and sounds",
     });
 
 export type TeletronixFile = z.input<typeof FileSchema>;
@@ -152,6 +167,7 @@ export interface Screen {
     effects?: EffectsSetting;
     autoscroll?: boolean;
     next?: NextRule[];
+    sound?: string;
     content: Element[];
 }
 
@@ -171,6 +187,8 @@ export interface Program {
     font: FontId;
     screens: ReadonlyMap<string, Screen>;
     dialogs: ReadonlyMap<string, Dialog>;
+    /** Sound effects by name, each filled in */
+    sounds: ReadonlyMap<string, Recipe>;
 }
 
 function normalize(file: z.output<typeof FileSchema>): Program {
@@ -194,8 +212,8 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             const element = typeof item === "string" ? { type: "text" as const, text: item } : item;
             return { ...element, id: `${id}#${index}` };
         });
-        const { reveal, transition, effects, autoscroll, next } = screen;
-        screens.set(id, { id, reveal, transition, effects, autoscroll, next, content });
+        const { reveal, transition, effects, autoscroll, next, sound } = screen;
+        screens.set(id, { id, reveal, transition, effects, autoscroll, next, sound, content });
     }
 
     const dialogs = new Map<string, Dialog>();
@@ -223,6 +241,9 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         font: font ?? DEFAULT_FONT,
         screens,
         dialogs,
+        sounds: new Map(
+            Object.entries(file.sounds ?? {}).map(([name, recipe]) => [name, fillRecipe(recipe)]),
+        ),
     };
 }
 
@@ -241,10 +262,25 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
         });
     }
 
+    const unknownSound = (name: string | undefined) =>
+        name !== undefined && !program.sounds.has(name) ? `Unknown sound "${name}"` : null;
     const missing = (action: Action): string | null => {
         const known = action.type === "screen" ? program.screens : program.dialogs;
-        return known.has(action.target) ? null : `Unknown ${action.type} "${action.target}"`;
+        if (!known.has(action.target)) return `Unknown ${action.type} "${action.target}"`;
+        return unknownSound(action.sound);
     };
+    const report = (path: PropertyKey[], message: string | null) => {
+        if (message) ctx.addIssue({ code: "custom", path, message });
+    };
+    for (const dialog of program.dialogs.values()) {
+        report(["dialogs", dialog.id, "sound"], unknownSound(dialog.sound));
+    }
+    for (const screen of program.screens.values()) {
+        report(["screens", screen.id, "sound"], unknownSound(screen.sound));
+        screen.content.forEach((element, index) => {
+            report(["screens", screen.id, "content", index, "sound"], unknownSound(element.sound));
+        });
+    }
 
     for (const dialog of program.dialogs.values()) {
         for (const [answer, confirmed] of [

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type Action, ActionSchema } from "./common.ts";
+import { type Action, ActionSchema, SoundNameSchema } from "./common.ts";
 
 const ContentSchema = z
     .union([z.string(), z.array(z.string()).min(1)])
@@ -7,6 +7,9 @@ const ContentSchema = z
     .meta({ description: "The dialog's text: a string, or an array of paragraphs" });
 
 const className = z.string().optional().meta({ description: "Space-separated CSS classes" });
+const sound = SoundNameSchema.optional().meta({
+    description: "A sound from the program's sounds, played instead of the usual beep as it opens",
+});
 
 export const AlertSchema = z
     .strictObject({
@@ -18,6 +21,7 @@ export const AlertSchema = z
             .default("OK")
             .meta({ description: 'The button that closes it (default: "OK")' }),
         className,
+        sound,
     })
     .meta({ description: "A message. Closes with <enter>, <esc>, or a click." });
 
@@ -44,6 +48,7 @@ export const ConfirmSchema = z
         confirm: ConfirmButtonSchema,
         cancel: CancelButtonSchema.default({ text: "NO" }),
         className,
+        sound,
     })
     .meta({ description: "A yes/no question. Each answer can trigger an action." });
 

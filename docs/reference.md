@@ -9,7 +9,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Elements:** [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
-- **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
+- **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
 - **Shared types:** [Action](#action), [Screen action](#screen-action), [Dialog action](#dialog-action), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
 
@@ -19,7 +19,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 
 ### Program
 
-A Teletronix program: its settings, screens and dialogs
+A Teletronix program: its settings, screens, dialogs and sounds
 
 | Property | Type | Default | Description |
 |---|---|---|---|
@@ -27,6 +27,7 @@ A Teletronix program: its settings, screens and dialogs
 | `config` | [Config](#config) | **required** | Settings for the whole program |
 | `screens` | map of id → [Screen](#screen) | **required** | The screens, by id. Links, commands and `next` refer to them by id. |
 | `dialogs` | map of id → [Alert](#alert) \| [Confirm](#confirm) |  | The dialogs, by id. Actions open them by id. |
+| `sounds` | map of id → [Sound recipe](#sound-recipe) |  | Sound effects, by name, for "sound" on actions, elements, screens and dialogs. Design them on the sound test page (?sound, Custom tab). Named "key", "select", "tick", "error", "dialog" or "alert", one replaces Teletronix's own sound of that kind. |
 
 <a id="config"></a>
 
@@ -94,6 +95,7 @@ A screen of content. Its elements are revealed one after another.
 | `effects` | [Effects](#effects) |  | Effects for this screen, layered over the config's |
 | `autoscroll` | boolean | the config's | Keep new content in view as it appears |
 | `next` | [Next rule](#next-rule) \| [Next rule](#next-rule)[] |  | Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens. |
+| `sound` | id |  | A sound from the program's sounds, played as the screen appears |
 | `content` | (string \| [Text](#text) \| [Link](#link) \| [Toggle](#toggle) \| [Prompt](#prompt) \| [Bitmap](#bitmap) \| [Progress](#progress) \| [Slider](#slider))[] | **required** | The elements, revealed in order. Can be empty. |
 
 <a id="next-rule"></a>
@@ -121,6 +123,7 @@ A block of text. A bare string is shorthand for this.
 | `text` | string | **required** | The text to display. May contain line breaks. |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 
 <a id="link"></a>
 
@@ -135,6 +138,7 @@ Clickable text that navigates to a screen or opens a dialog
 | `secondaryAction` | [Action](#action) | the same as action | What happens on a secondary click: shift-click, right-click, Shift+Enter, or a long press |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 
 <a id="toggle"></a>
 
@@ -148,6 +152,7 @@ Text that cycles through states when clicked. It remembers its state when you co
 | `initial` | whole number, ≥ 0 | `0` | Index of the state shown first |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 
 <a id="prompt"></a>
 
@@ -162,6 +167,7 @@ A command line. Typed commands navigate or open dialogs.
 | `unknown` | string | `"Unknown command."` | Shown when the input matches no command |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 
 <a id="prompt-command"></a>
 
@@ -187,6 +193,7 @@ An image, revealed in steps from low to high resolution, optionally blended with
 | `blend` | [Blend](#blend) |  | Blends the image with one of the theme's colors: a mode such as "luminosity", "hard-light" or "difference", or { "mode", "with": "text" } to blend with the text color instead of the background |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 
 <a id="blend"></a>
 
@@ -230,6 +237,7 @@ A text progress bar that runs from one percentage to another over a set time, th
 | `interrupt` | [Progress interrupt](#progress-interrupt) |  | Makes the bar stop short, at a set point (`at`) or a key press (`key`) |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 
 <a id="progress-outcome"></a>
 
@@ -290,6 +298,7 @@ A bar the player sets by dragging, or with the arrow keys. It remembers its valu
 | `onEnter` | [Action](#action) |  | What happens when the player presses <enter> on the slider |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 
 <a id="slider-rule"></a>
 
@@ -317,6 +326,7 @@ A message. Closes with <enter>, <esc>, or a click.
 | `content` | string \| string[] | **required** | The dialog's text: a string, or an array of paragraphs |
 | `dismiss` | string | `"OK"` | The button that closes it |
 | `className` | string |  | Space-separated CSS classes |
+| `sound` | id |  | A sound from the program's sounds, played instead of the usual beep as it opens |
 
 <a id="confirm"></a>
 
@@ -330,6 +340,7 @@ A yes/no question. Each answer can trigger an action.
 | `confirm` | [Confirm button](#confirm-button) | **required** | The "yes" button, chosen with <enter> |
 | `cancel` | [Cancel button](#cancel-button) |  | The "no" button, chosen with <esc> or a click outside the dialog |
 | `className` | string |  | Space-separated CSS classes |
+| `sound` | id |  | A sound from the program's sounds, played instead of the usual beep as it opens |
 
 <a id="confirm-button"></a>
 
@@ -404,6 +415,39 @@ Sound options: the volume, and each kind of sound on or off
 | `interface` | boolean | `true` | Beeps for links, toggles, sliders, prompts and dialogs |
 | `hum` | boolean | `false` | A CRT's mains hum and high-pitched whine, all the time |
 | `voices` | [Sound voices](#sound-voices) |  | Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the sound test page (?sound, Built-in tab) and paste the result here. |
+
+<a id="sound-recipe"></a>
+
+### Sound recipe
+
+A generated sound effect, made from sfxr-style settings. Design one on the sound test page (?sound, Custom tab) and paste it in.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `wave` | `"square"` \| `"sawtooth"` \| `"sine"` \| `"noise"` | `"square"` | The waveform |
+| `attack` | number, 0–1 | `0` | Envelope: Attack |
+| `sustain` | number, 0–1 | `0.3` | Envelope: Sustain |
+| `punch` | number, 0–1 | `0` | Envelope: Punch |
+| `decay` | number, 0–1 | `0.4` | Envelope: Decay |
+| `frequency` | number, 0–1 | `0.3` | Pitch: Start pitch |
+| `minFrequency` | number, 0–1 | `0` | Pitch: Cut-off pitch |
+| `slide` | number, -1–1 | `0` | Pitch: Slide |
+| `deltaSlide` | number, -1–1 | `0` | Pitch: Slide change |
+| `vibratoDepth` | number, 0–1 | `0` | Vibrato: Depth |
+| `vibratoSpeed` | number, 0–1 | `0` | Vibrato: Speed |
+| `arpeggio` | number, -1–1 | `0` | Arpeggio: Pitch jump |
+| `arpeggioSpeed` | number, 0–1 | `0` | Arpeggio: When |
+| `duty` | number, 0–1 | `0` | Square wave: Duty |
+| `dutySweep` | number, -1–1 | `0` | Square wave: Duty sweep |
+| `repeatSpeed` | number, 0–1 | `0` | Repeat: Repeat speed |
+| `flangerOffset` | number, -1–1 | `0` | Flanger: Offset |
+| `flangerSweep` | number, -1–1 | `0` | Flanger: Sweep |
+| `lowpass` | number, 0–1 | `1` | Filters: Low-pass cut-off |
+| `lowpassSweep` | number, -1–1 | `0` | Filters: Low-pass sweep |
+| `lowpassResonance` | number, 0–1 | `0` | Filters: Low-pass resonance |
+| `highpass` | number, 0–1 | `0` | Filters: High-pass cut-off |
+| `highpassSweep` | number, -1–1 | `0` | Filters: High-pass sweep |
+| `volume` | number, 0–1 | `0.5` | Volume: Volume |
 
 <a id="sound-voices"></a>
 
@@ -666,6 +710,7 @@ Navigate to a screen
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `screen` | id | **required** | A screen or dialog id (letters, digits, '_' and '-') |
+| `sound` | id |  | A sound from the program's sounds, played as the action happens |
 
 <a id="dialog-action"></a>
 
@@ -676,6 +721,7 @@ Open a dialog
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `dialog` | id | **required** | A screen or dialog id (letters, digits, '_' and '-') |
+| `sound` | id |  | A sound from the program's sounds, played as the action happens |
 
 <a id="reveal"></a>
 

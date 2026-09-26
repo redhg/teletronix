@@ -137,24 +137,38 @@ export type TransitionOption =
 // ─── Actions ─────────────────────────────────────────────────────────────────
 // What an interactive element does. Shared by links, prompts and dialogs.
 
+/** A sound from the program's `sounds`, by name. */
+export const SoundNameSchema = IdSchema.meta({
+    description: "The name of a sound in the program's sounds",
+});
+
+const actionSound = SoundNameSchema.optional().meta({
+    description: "A sound from the program's sounds, played as the action happens",
+});
+
 export const ScreenActionSchema = z
-    .strictObject({ screen: IdSchema })
+    .strictObject({ screen: IdSchema, sound: actionSound })
     .meta({ description: "Navigate to a screen" });
 export const DialogActionSchema = z
-    .strictObject({ dialog: IdSchema })
+    .strictObject({ dialog: IdSchema, sound: actionSound })
     .meta({ description: "Open a dialog" });
 
 export const ActionSchema = z
     .union([ScreenActionSchema, DialogActionSchema])
     .transform(
-        (action): Action =>
-            "screen" in action
+        (action): Action => ({
+            ...("screen" in action
                 ? { type: "screen", target: action.screen }
-                : { type: "dialog", target: action.dialog },
+                : { type: "dialog", target: action.dialog }),
+            ...(action.sound ? { sound: action.sound } : {}),
+        }),
     )
     .meta({ description: "What an interactive element does: go to a screen, or open a dialog" });
 
-export type Action = { type: "screen"; target: string } | { type: "dialog"; target: string };
+export type Action = ({ type: "screen"; target: string } | { type: "dialog"; target: string }) & {
+    /** A sound from the program's sounds, to play as the action happens */
+    sound?: string;
+};
 
 // ─── Element base ────────────────────────────────────────────────────────────
 
@@ -165,5 +179,8 @@ export const ElementBaseShape = {
         .meta({ description: 'Space-separated CSS classes, e.g. "alert"' }),
     reveal: RevealSchema.optional().meta({
         description: "How this element's text appears (default: the screen's reveal)",
+    }),
+    sound: SoundNameSchema.optional().meta({
+        description: "A sound from the program's sounds, played as the element starts to appear",
     }),
 };

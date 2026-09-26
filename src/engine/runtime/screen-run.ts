@@ -403,6 +403,10 @@ export class ScreenRun {
         this.setStates(unit, "active");
         this.active = unitIndex;
         this.activeSince = now;
+        for (const index of unit.indices) {
+            const sound = this.runs[index]?.element.sound;
+            if (sound) this.options.onCue?.({ type: "sound", name: sound });
+        }
         if (unit.kind === "glitch") {
             this.options.onCue?.({ type: "glitch", duration: unit.reveal.duration });
         }

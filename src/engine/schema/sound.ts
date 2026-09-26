@@ -96,4 +96,13 @@ export type Cue =
     /** The static transition starting */
     | { type: "static"; duration: number }
     /** A dialog opening */
-    | { type: "dialog"; alert: boolean };
+    | { type: "dialog"; alert: boolean }
+    /** A sound from the program's sounds, by name */
+    | { type: "sound"; name: string };
+
+/**
+ * Sounds in a program's library with these names replace Teletronix's own: "key" for key
+ * clicks, "select" for choosing things, "tick" for sliders, "error" for unknown commands,
+ * and "dialog" and "alert" for dialogs opening.
+ */
+export const REPLACEABLE_SOUNDS = ["key", "select", "tick", "error", "dialog", "alert"] as const;

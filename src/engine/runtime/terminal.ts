@@ -133,6 +133,7 @@ export class Terminal {
     }
 
     dispatch(action: Action): void {
+        if (action.sound) this.cue({ type: "sound", name: action.sound });
         switch (action.type) {
             case "screen":
                 this.navigate(action.target);
@@ -187,6 +188,7 @@ export class Terminal {
             onCue: this.cue,
         });
         this.run = run;
+        if (screen.sound) this.cue({ type: "sound", name: screen.sound });
         if (!this.interstitial) this.run.start(now);
         this.markDirty();
         this.settle();
@@ -197,7 +199,7 @@ export class Terminal {
         if (!dialog) throw new Error(`Unknown dialog "${dialogId}"`);
         this.dialog = dialog;
         const alert = (dialog.className ?? "").split(/\s+/).includes("alert");
-        this.cue({ type: "dialog", alert });
+        this.cue(dialog.sound ? { type: "sound", name: dialog.sound } : { type: "dialog", alert });
         this.markDirty();
         this.flush();
     }

@@ -57,6 +57,7 @@ export function CustomTab({ synth }: { synth: Synth }) {
     const [autoplay, setAutoplay] = useState(true);
     const [copied, setCopied] = useState(false);
     const [pasted, setPasted] = useState("");
+    const [name, setName] = useState("my-sound");
     const [pasteError, setPasteError] = useState<string | null>(null);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -82,7 +83,9 @@ export function CustomTab({ synth }: { synth: Synth }) {
         else timer.current = setTimeout(() => play(next), AUTOPLAY_DELAY);
     };
 
-    const json = JSON.stringify(compactRecipe(recipe), null, 4);
+    // valid sound names are ids: letters, digits, "_" and "-"
+    const soundName = name.trim().replace(/[^\w-]+/g, "-") || "my-sound";
+    const json = JSON.stringify({ sounds: { [soundName]: compactRecipe(recipe) } }, null, 4);
 
     const copy = async () => {
         await navigator.clipboard.writeText(json);
@@ -92,7 +95,15 @@ export function CustomTab({ synth }: { synth: Synth }) {
 
     const loadPasted = () => {
         try {
-            const parsed = RecipeSchema.safeParse(JSON.parse(pasted));
+            // a bare recipe, or one wrapped as { "sounds": { "name": { … } } }
+            let data: unknown = JSON.parse(pasted);
+            const sounds = (data as { sounds?: Record<string, unknown> } | null)?.sounds;
+            const [first] = typeof sounds === "object" && sounds ? Object.entries(sounds) : [];
+            if (first) {
+                setName(first[0]);
+                data = first[1];
+            }
+            const parsed = RecipeSchema.safeParse(data);
             if (!parsed.success) {
                 setPasteError(parsed.error.issues[0]?.message ?? "Not a sound recipe");
                 return;
@@ -107,9 +118,13 @@ export function CustomTab({ synth }: { synth: Synth }) {
     return (
         <div className="designer">
             <p className="hint">
-                Design a new sound effect: start from a preset, adjust it by ear, and copy the JSON.
-                Presets roll a new random sound each time, as in sfxr, the classic retro sound
-                generator this is based on.
+                Design a new sound effect: start from a preset, adjust it by ear, name it, and copy
+                the JSON into your program. Then play it with <code>"sound": "its-name"</code> on a
+                link's action, an element, a screen or a dialog. Name it <code>key</code>,{" "}
+                <code>select</code>, <code>tick</code>, <code>error</code>, <code>dialog</code> or{" "}
+                <code>alert</code> to replace Teletronix's own sound of that kind. Presets roll a
+                new random sound each time, as in sfxr, the classic retro sound generator this is
+                based on.
             </p>
 
             <div className="buttons presets">
@@ -194,6 +209,10 @@ export function CustomTab({ synth }: { synth: Synth }) {
 
             <section className="sound-code">
                 <h2>The sound, as JSON</h2>
+                <label className="row narrow">
+                    <span>Name</span>
+                    <input value={name} onChange={(e) => setName(e.target.value)} />
+                </label>
                 <pre className="output">{json}</pre>
                 <div className="buttons">
                     <button type="button" onClick={copy}>

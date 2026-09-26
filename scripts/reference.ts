@@ -40,6 +40,7 @@ import {
     ScreenSchema,
 } from "../src/engine/schema/program.ts";
 import { SoundOptionsSchema, SoundSchema } from "../src/engine/schema/sound.ts";
+import { RecipeSchema } from "../src/engine/sound/recipe.ts";
 import {
     VOICE_PARAMS,
     type VoiceName,
@@ -135,6 +136,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Custom theme", CustomThemeSchema],
             ["Sound", SoundSchema],
             ["Sound options", SoundOptionsSchema],
+            ["Sound recipe", RecipeSchema],
             ["Sound voices", VoicesSchema],
             ...(Object.keys(VOICE_PARAMS) as VoiceName[]).map((name): [string, z.ZodType] => [
                 `${VOICE_PARAMS[name].label} voice`,

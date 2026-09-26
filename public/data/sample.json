@@ -27,6 +27,7 @@
                 { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
                 { "type": "link", "text": "> PROGRESS", "action": { "screen": "progress" } },
                 { "type": "link", "text": "> SLIDERS", "action": { "screen": "sliders" } },
+                { "type": "link", "text": "> SOUNDS", "action": { "screen": "sounds" } },
                 { "type": "link", "text": "> AUTOSCROLL", "action": { "screen": "autoscroll" } },
                 { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } }
             ]
@@ -327,6 +328,24 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "sliders" } }
             ]
         },
+        "sounds": {
+            "sound": "powerup",
+            "content": [
+                "SOUNDS",
+                "======",
+                "",
+                "A program can have its own sound effects, and play them wherever it likes. This screen played one as it appeared.",
+                { "type": "text", "text": "This line plays one as it starts to appear.", "sound": "blip" },
+                "",
+                "Links play one as they're followed:",
+                { "type": "link", "text": "> FIRE THE LASER", "action": { "screen": "sounds", "sound": "laser" } },
+                { "type": "link", "text": "> FORCE THE DOOR", "action": { "dialog": "door", "sound": "door" } },
+                "",
+                "Design your own on the sound test page (?sound, Custom tab).",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
         "keys": {
             "next": [
                 { "key": "y", "action": { "screen": "destroyed" } },
@@ -556,6 +575,16 @@
         "reactor-set": {
             "type": "alert",
             "content": "Reactor output confirmed."
+        },
+        "door": {
+            "type": "alert",
+            "content": "The door grinds open."
         }
+    },
+    "sounds": {
+        "powerup": { "sustain": 0.1865, "decay": 0.196, "frequency": 0.4931, "slide": 0.3086, "duty": 0.0372, "repeatSpeed": 0.5622 },
+        "laser": { "wave": "sine", "sustain": 0.2105, "decay": 0.078, "frequency": 0.5375, "minFrequency": 0.2, "slide": -0.2462, "duty": 0.4809, "dutySweep": -0.1843, "highpass": 0.143 },
+        "door": { "wave": "noise", "sustain": 0.2614, "punch": 0.488, "decay": 0.04, "frequency": 0.0973, "slide": 0.1432, "vibratoDepth": 0.294, "vibratoSpeed": 0.4021, "flangerOffset": 0.247, "flangerSweep": -0.1351 },
+        "blip": { "wave": "sawtooth", "sustain": 0.122, "decay": 0.1246, "frequency": 0.5091, "duty": 1, "highpass": 0.1 }
     }
 }

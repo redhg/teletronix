@@ -197,6 +197,30 @@ The **sound test page**, <http://localhost:5173/?sound>, has two tabs:
 
 Edits on both tabs are kept in the browser.
 
+### Your own sounds
+A program can define sound effects in a top-level `sounds` library, and play them by name:
+
+```json
+"sounds": {
+    "door": { "wave": "noise", "sustain": 0.26, "punch": 0.49, "decay": 0.04, "frequency": 0.1 }
+},
+"screens": {
+    "hatch": {
+        "sound": "door",
+        "content": [
+            { "type": "text", "text": "WARNING", "sound": "alarm" },
+            { "type": "link", "text": "> OPEN", "action": { "screen": "airlock", "sound": "door" } }
+        ]
+    }
+}
+```
+
+`"sound"` works on actions (so on links, prompt commands, `next` rules, slider rules, progress
+bar outcomes and dialog buttons), on elements (as they start to appear), on screens (as they
+appear) and on dialogs (instead of the usual beep). A sound named `key`, `select`, `tick`, `error`,
+`dialog` or `alert` replaces Teletronix's own sound of that kind. Design sounds on the sound test
+page's **Custom** tab. Every sound name is checked when the program loads.
+
 ### Right-click menu
 The browser's right-click menu is blocked, so a program feels like a terminal rather than a web
 page; the prompt's text field keeps its menu, for pasting. `"blockContextMenu": false` in `config`
