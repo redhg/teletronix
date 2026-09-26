@@ -1,4 +1,4 @@
-import type { EffectsSetting, FontId, ThemeSetting } from "../engine/index.ts";
+import type { EffectsSetting, FontId, SoundSetting, ThemeSetting } from "../engine/index.ts";
 
 /**
  * Messages between the settings page and the player it previews in an iframe. Both are
@@ -8,6 +8,7 @@ export interface AppearanceSettings {
     theme: ThemeSetting | undefined;
     font: FontId;
     effects: EffectsSetting | undefined;
+    sound: SoundSetting | undefined;
 }
 
 export type PreviewMessage =

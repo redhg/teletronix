@@ -430,6 +430,47 @@
                     "additionalProperties": false,
                     "description": "Visual effects: true, false, or an object of options"
                 },
+                "sound": {
+                    "anyOf": [
+                        {
+                            "type": "boolean"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "volume": {
+                                    "description": "Overall volume, from 0 to 1 (default: 0.3)",
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                },
+                                "typing": {
+                                    "description": "Key clicks as text types in (default: true)",
+                                    "type": "boolean"
+                                },
+                                "glitch": {
+                                    "description": "Digital crackle during glitch reveals and transitions (default: true)",
+                                    "type": "boolean"
+                                },
+                                "static": {
+                                    "description": "Hiss under static, and the static transition (default: true)",
+                                    "type": "boolean"
+                                },
+                                "interface": {
+                                    "description": "Beeps for links, toggles, sliders, prompts and dialogs (default: true)",
+                                    "type": "boolean"
+                                },
+                                "hum": {
+                                    "description": "A CRT's mains hum and high-pitched whine, all the time (default: false)",
+                                    "type": "boolean"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "description": "Sound options: the volume, and each kind of sound on or off"
+                        }
+                    ],
+                    "description": "Generated retro sound effects: true, false, or an object of options. On by default; players can mute them with the sound toggle."
+                },
                 "blockContextMenu": {
                     "description": "Block the browser's right-click menu, so the program feels like a terminal rather than a web page. Text fields keep theirs (default: true)",
                     "type": "boolean"

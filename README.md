@@ -177,6 +177,16 @@ The easiest way to choose is the **settings page**: add `&config` to a program's
 program update beside you, then copy the resulting `config` properties or download the program
 with them in place.
 
+### Sound
+Teletronix makes its own retro sound effects as it runs, with no audio files: key clicks as text
+types, digital crackle for glitches, hiss for static, and beeps for links, toggles, sliders, prompts
+and dialogs. An optional CRT hum (`"hum": true`) adds a mains hum and a faint high whine.
+
+Sound is on by default, quietly. `config.sound` turns it off (`false`) or adjusts it:
+`{ "volume": 0.5, "typing": false, "hum": true }`. Browsers only play sound once the player has
+clicked or pressed a key, so it starts then. Players can mute it with the `[SOUND ON]` toggle in the
+corner, and their choice is remembered.
+
 ### Right-click menu
 The browser's right-click menu is blocked, so a program feels like a terminal rather than a web
 page; the prompt's text field keeps its menu, for pasting. `"blockContextMenu": false` in `config`

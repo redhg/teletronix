@@ -8,6 +8,7 @@ import type { Element } from "../schema/elements.ts";
 import { moduleFor } from "../schema/elements.ts";
 import { firstTimedRule, type NextRule, ruleForKey, ruleForTap } from "../schema/next.ts";
 import type { Program } from "../schema/program.ts";
+import type { Cue } from "../schema/sound.ts";
 import type { Ticker } from "../time/ticker.ts";
 import { type ElementState, ScreenRun } from "./screen-run.ts";
 
@@ -74,6 +75,7 @@ export class Terminal {
     /** Per-element state that outlives a screen visit (see ModuleDefinition). */
     private readonly memory = new Map<string, unknown>();
     private readonly listeners = new Set<() => void>();
+    private readonly cueListeners = new Set<(cue: Cue) => void>();
     private columns: number;
     private run: ScreenRun | null = null;
     private outgoing: ScreenRun | null = null;
@@ -116,6 +118,12 @@ export class Terminal {
     };
 
     getSnapshot = (): TerminalSnapshot => this.snapshot;
+
+    /** Receives moments worth a sound, as they happen (see Cue). */
+    subscribeCues(listener: (cue: Cue) => void): () => void {
+        this.cueListeners.add(listener);
+        return () => this.cueListeners.delete(listener);
+    }
 
     // ─── Commands ───────────────────────────────────────────────────────────
 
@@ -162,6 +170,7 @@ export class Terminal {
         } else if (animated && transition.type === "static") {
             // the old screen goes at once; the new one waits for the static to pass
             this.interstitial = { type: "static", until: now + transition.duration };
+            this.cue({ type: "static", duration: transition.duration });
         }
 
         const run: ScreenRun = new ScreenRun(screen, {
@@ -175,6 +184,7 @@ export class Terminal {
             onChange: this.markDirty,
             onWake: this.wake,
             onFinished: (element, reveal, time) => this.elementFinished(run, element, reveal, time),
+            onCue: this.cue,
         });
         this.run = run;
         if (!this.interstitial) this.run.start(now);
@@ -186,6 +196,8 @@ export class Terminal {
         const dialog = this.program.dialogs.get(dialogId);
         if (!dialog) throw new Error(`Unknown dialog "${dialogId}"`);
         this.dialog = dialog;
+        const alert = (dialog.className ?? "").split(/\s+/).includes("alert");
+        this.cue({ type: "dialog", alert });
         this.markDirty();
         this.flush();
     }
@@ -383,6 +395,10 @@ export class Terminal {
     }
 
     private readonly wake = (): void => this.settle();
+
+    private readonly cue = (cue: Cue): void => {
+        for (const listener of this.cueListeners) listener(cue);
+    };
 
     /** Removes the interstitial and starts the current screen from `time`. */
     private endInterstitial(time: number): void {

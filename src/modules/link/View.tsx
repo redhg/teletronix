@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { classNames, type ElementViewProps } from "../../ui/element-view.ts";
 import { RevealText } from "../../ui/RevealText.tsx";
+import { useSound } from "../../ui/sound/context.ts";
 import { useTerminal } from "../../ui/terminal-context.ts";
 import { type LinkElement, linkAction } from "./definition.ts";
 import { LONG_PRESS_MS, useSecondaryPress } from "./use-secondary-press.ts";
@@ -8,10 +9,12 @@ import "./style.css";
 
 export function LinkView({ element, state, run, index }: ElementViewProps<LinkElement>) {
     const terminal = useTerminal();
+    const sound = useSound();
     const hasSecondary = element.secondaryAction !== undefined;
-    const { holding, handlers } = useSecondaryPress(hasSecondary, (secondary) =>
-        terminal.dispatch(linkAction(element, secondary)),
-    );
+    const { holding, handlers } = useSecondaryPress(hasSecondary, (secondary) => {
+        sound({ type: "select" });
+        terminal.dispatch(linkAction(element, secondary));
+    });
     const content = <RevealText run={run} index={index} />;
 
     // a link only becomes usable once it has been fully revealed

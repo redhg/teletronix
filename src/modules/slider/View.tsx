@@ -1,6 +1,7 @@
 import { type KeyboardEvent, type PointerEvent, useRef, useState } from "react";
 import { classNames, type ElementViewProps } from "../../ui/element-view.ts";
 import { RevealText } from "../../ui/RevealText.tsx";
+import { useSound } from "../../ui/sound/context.ts";
 import { useTerminal } from "../../ui/terminal-context.ts";
 import {
     type SliderElement,
@@ -13,6 +14,7 @@ import "./style.css";
 
 export function SliderView({ element, state, run, index }: ElementViewProps<SliderElement>) {
     const terminal = useTerminal();
+    const sound = useSound();
     const ref = useRef<HTMLDivElement>(null);
     const current = () => sliderValue(element, terminal.recall<SliderMemory>(element.id));
     // kept in state only for the ARIA attributes; the bar redraws through the engine
@@ -29,6 +31,7 @@ export function SliderView({ element, state, run, index }: ElementViewProps<Slid
         const snapped = snapValue(element, next);
         if (snapped === current()) return;
         setValue(snapped);
+        sound({ type: "tick" });
         terminal.remember(element.id, snapped);
     };
 
@@ -66,6 +69,7 @@ export function SliderView({ element, state, run, index }: ElementViewProps<Slid
             set(move());
         } else if (event.key === "Enter" && element.onEnter) {
             event.preventDefault();
+            sound({ type: "select" });
             terminal.dispatch(element.onEnter);
         }
     };

@@ -9,7 +9,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Elements:** [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
-- **Appearance:** [Theme](#theme), [Custom theme](#custom-theme)
+- **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
 - **Shared types:** [Action](#action), [Screen action](#screen-action), [Dialog action](#dialog-action), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
 
@@ -46,6 +46,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `theme` | [Theme](#theme) | `"default"` | The color scheme: "default" (pale blue on black), "amber", "green" or "white", or your own colors |
 | `font` | `"ast-premiumexec"` \| `"ibm-vga"` \| `"ibm-ega"` \| `"ibm-cga"` \| `"ibm-cga-thin"` \| `"ibm-mda"` \| `"toshiba-satellite"` \| `"departure-mono"` | `"ast-premiumexec"` | The typeface, from a set of period PC fonts |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |
+| `sound` | [Sound](#sound) |  | Generated retro sound effects: true, false, or an object of options. On by default; players can mute them with the sound toggle. |
 | `blockContextMenu` | boolean | `true` | Block the browser's right-click menu, so the program feels like a terminal rather than a web page. Text fields keep theirs |
 | `autoscroll` | boolean | `true` | Scroll to keep new content in view as it appears, unless the reader has scrolled up |
 
@@ -376,6 +377,32 @@ Your own colors
 | `fg` | id | **required** | Text color |
 | `bg` | id | **required** | Background color |
 | `alert` | id | `"#ff3c00"` | Color of text with the "alert" class |
+
+<a id="sound"></a>
+
+### Sound
+
+Generated retro sound effects: true, false, or an object of options. On by default; players can mute them with the sound toggle.
+
+One of:
+
+- boolean
+- [Sound options](#sound-options)
+
+<a id="sound-options"></a>
+
+### Sound options
+
+Sound options: the volume, and each kind of sound on or off
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `volume` | number, 0–1 | `0.3` | Overall volume, from 0 to 1 |
+| `typing` | boolean | `true` | Key clicks as text types in |
+| `glitch` | boolean | `true` | Digital crackle during glitch reveals and transitions |
+| `static` | boolean | `true` | Hiss under static, and the static transition |
+| `interface` | boolean | `true` | Beeps for links, toggles, sliders, prompts and dialogs |
+| `hum` | boolean | `false` | A CRT's mains hum and high-pitched whine, all the time |
 
 ## Effects
 

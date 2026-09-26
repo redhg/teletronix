@@ -39,6 +39,7 @@ import {
     FileSchema,
     ScreenSchema,
 } from "../src/engine/schema/program.ts";
+import { SoundOptionsSchema, SoundSchema } from "../src/engine/schema/sound.ts";
 import { BitmapSchema, BlendObjectSchema, BlendSchema } from "../src/modules/bitmap/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
 import {
@@ -126,6 +127,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
         [
             ["Theme", ThemeSchema],
             ["Custom theme", CustomThemeSchema],
+            ["Sound", SoundSchema],
+            ["Sound options", SoundOptionsSchema],
         ],
     ],
     [

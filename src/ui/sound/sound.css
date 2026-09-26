@@ -1,0 +1,26 @@
+.sound-toggle {
+    position: fixed;
+    top: 0.25lh;
+    right: 1ch;
+    z-index: 1;
+    padding: 0 0.5ch;
+    border: 0;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    /* the pixel font's own size, so it stays crisp and small */
+    font-size: var(--font-px);
+    line-height: 1.25;
+    text-shadow: var(--glow);
+    opacity: 0.55;
+    cursor: pointer;
+}
+
+.sound-toggle:hover,
+.sound-toggle:focus-visible {
+    outline: none;
+    opacity: 1;
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: none;
+}

@@ -46,4 +46,14 @@ export {
     parseProgram,
     type Screen,
 } from "./schema/program.ts";
+export {
+    type Cue,
+    compactSound,
+    DEFAULT_VOLUME,
+    type ResolvedSound,
+    resolveSound,
+    SOUND_KINDS,
+    type SoundKind,
+    type SoundSetting,
+} from "./schema/sound.ts";
 export { ManualTicker, type Ticker, type TickListener } from "./time/ticker.ts";

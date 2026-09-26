@@ -12,6 +12,7 @@ import {
 import type { Element } from "../schema/elements.ts";
 import { moduleFor } from "../schema/elements.ts";
 import type { Defaults, Screen } from "../schema/program.ts";
+import type { Cue } from "../schema/sound.ts";
 import { applyBreaks, type Break, lineBreaks } from "../text/breaks.ts";
 
 /**
@@ -51,6 +52,8 @@ export interface ScreenRunOptions {
      * action is pending).
      */
     onFinished?: (element: Element, reveal: Reveal, time: number) => boolean;
+    /** Moments worth a sound (see Cue). */
+    onCue?: (cue: Cue) => void;
 }
 
 interface ElementRun {
@@ -74,6 +77,8 @@ interface Unit {
     reveal: Reveal;
     /** A module's own reveal, whose frames also set the element's text. */
     custom?: boolean;
+    /** Which kind of reveal it is, for sound cues. */
+    kind?: RevealSpec["type"];
 }
 
 interface Eraser extends Unit {
@@ -256,6 +261,7 @@ export class ScreenRun {
             }),
             since: now,
         };
+        if (indices.length > 0) this.options.onCue?.({ type: "glitch", duration });
         this.advance(now);
     }
 
@@ -362,6 +368,7 @@ export class ScreenRun {
                 reveal ??
                 createReveal(indices.map((i) => this.runs[i]?.text).join("\n"), spec, random),
             custom: reveal !== undefined,
+            ...(reveal ? {} : { kind: spec.type }),
         }));
     }
 
@@ -396,6 +403,9 @@ export class ScreenRun {
         this.setStates(unit, "active");
         this.active = unitIndex;
         this.activeSince = now;
+        if (unit.kind === "glitch") {
+            this.options.onCue?.({ type: "glitch", duration: unit.reveal.duration });
+        }
     }
 
     private advanceEraser(now: number): void {
@@ -455,9 +465,14 @@ export class ScreenRun {
                       unit.indices.map((i) => this.runs[i]?.text.length ?? 0),
                   );
 
+        // a new character under a teletype cursor is a key press
+        const typing =
+            unit.kind === "teletype" && frame.some((segment) => segment.kind === "cursor");
+
         unit.indices.forEach((index, k) => {
             const run = this.runs[index] as ElementRun;
             const part = parts[k] ?? [];
+            if (typing && !sameFrame(part, run.frame)) this.options.onCue?.({ type: "key" });
             if (unit.custom) {
                 // a custom reveal's frames are the element's text (e.g. a progress bar)
                 const text = part.map((segment) => segment.text).join("");

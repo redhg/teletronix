@@ -1,12 +1,14 @@
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { classNames, type ElementViewProps } from "../../ui/element-view.ts";
 import { RevealText } from "../../ui/RevealText.tsx";
+import { useSound } from "../../ui/sound/context.ts";
 import { useTerminal, useTerminalSnapshot } from "../../ui/terminal-context.ts";
 import { matchCommand, type PromptElement } from "./definition.ts";
 import "./style.css";
 
 export function PromptView({ element, state, run, index }: ElementViewProps<PromptElement>) {
     const terminal = useTerminal();
+    const sound = useSound();
     const disabled = useTerminalSnapshot().dialog !== null;
     const input = useRef<HTMLInputElement>(null);
     const inputId = useId();
@@ -24,7 +26,12 @@ export function PromptView({ element, state, run, index }: ElementViewProps<Prom
         const action = matchCommand(element, value);
         setValue("");
         setMessage(action || !value.trim() ? null : element.unknown);
-        if (action) terminal.dispatch(action);
+        if (action) {
+            sound({ type: "select" });
+            terminal.dispatch(action);
+        } else if (value.trim()) {
+            sound({ type: "error" });
+        }
     };
 
     return (
@@ -45,6 +52,7 @@ export function PromptView({ element, state, run, index }: ElementViewProps<Prom
                             disabled={disabled}
                             onChange={(event) => {
                                 setValue(event.target.value);
+                                sound({ type: "keypress" });
                                 setMessage(null);
                             }}
                             autoComplete="off"

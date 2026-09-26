@@ -22,6 +22,7 @@ import { type Dialog, DialogSchema, dialogAction } from "./dialog.ts";
 import { EffectsSchema, type EffectsSetting } from "./effects.ts";
 import { type Element, ElementSchema, moduleFor } from "./elements.ts";
 import { type NextRule, NextSchema } from "./next.ts";
+import { type ResolvedSound, resolveSound, SoundSchema, type SoundSetting } from "./sound.ts";
 
 export type { Dialog } from "./dialog.ts";
 
@@ -89,6 +90,7 @@ export const ConfigSchema = z
         theme: ThemeSchema.optional(),
         font: FontSchema.optional(),
         effects: EffectsSchema.optional(),
+        sound: SoundSchema.optional(),
         blockContextMenu: z
             .boolean()
             .optional()
@@ -160,6 +162,9 @@ export interface Program {
     effects?: EffectsSetting;
     autoscroll: boolean;
     blockContextMenu: boolean;
+    /** Sound as written (for tools that edit it), and resolved */
+    soundSetting?: SoundSetting;
+    sound: ResolvedSound | null;
     /** The theme as written (for tools that edit it), and its colors. */
     theme?: ThemeSetting;
     palette: Palette;
@@ -177,6 +182,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         effects,
         autoscroll,
         blockContextMenu,
+        sound,
         theme,
         font,
         ...config
@@ -210,6 +216,8 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         effects,
         autoscroll: autoscroll ?? true,
         blockContextMenu: blockContextMenu ?? true,
+        soundSetting: sound,
+        sound: resolveSound(sound),
         theme,
         palette: resolveTheme(theme),
         font: font ?? DEFAULT_FONT,

@@ -1,8 +1,15 @@
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { type FontId, resolveTheme, type Terminal, type ThemeSetting } from "../engine/index.ts";
+import {
+    type FontId,
+    resolveSound,
+    resolveTheme,
+    type Terminal,
+    type ThemeSetting,
+} from "../engine/index.ts";
 import { applyAppearance, loadFont } from "./appearance.ts";
 import { PaletteContext } from "./palette-context.ts";
 import { isPreviewMessage, type PreviewMessage } from "./preview-protocol.ts";
+import { SoundLayer } from "./sound/SoundLayer.tsx";
 import { TerminalView } from "./TerminalView.tsx";
 import { TerminalContext } from "./terminal-context.ts";
 
@@ -17,6 +24,7 @@ interface Props {
 export function Player({ terminal, initial, preview }: Props) {
     const [theme, setTheme] = useState(initial.theme);
     const [font, setFont] = useState(initial.font);
+    const [sound, setSound] = useState(terminal.program.sound);
     // changes once the font has loaded, so the line length is measured again
     const [loadedFont, setLoadedFont] = useState<FontId | null>(null);
 
@@ -55,6 +63,7 @@ export function Player({ terminal, initial, preview }: Props) {
             setTheme(settings.theme);
             setFont(settings.font);
             terminal.setEffects(settings.effects);
+            setSound(resolveSound(settings.sound));
         };
         window.addEventListener("message", handleMessage);
         const ready: PreviewMessage = { type: "teletronix:ready" };
@@ -65,7 +74,9 @@ export function Player({ terminal, initial, preview }: Props) {
     return (
         <TerminalContext value={terminal}>
             <PaletteContext value={palette}>
-                <TerminalView layoutKey={`${font}:${loadedFont}`} />
+                <SoundLayer terminal={terminal} sound={sound}>
+                    <TerminalView layoutKey={`${font}:${loadedFont}`} />
+                </SoundLayer>
             </PaletteContext>
         </TerminalContext>
     );

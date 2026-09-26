@@ -1,6 +1,7 @@
 import { type KeyboardEvent, type MouseEvent, useId, useLayoutEffect, useRef } from "react";
 import type { Dialog } from "../engine/index.ts";
 import { classNames } from "./element-view.ts";
+import { useSound } from "./sound/context.ts";
 import { useTerminal } from "./terminal-context.ts";
 import "./dialog.css";
 
@@ -20,7 +21,11 @@ export function DialogView({ dialog }: { dialog: Dialog }) {
         return () => element?.close();
     }, []);
 
-    const answer = (confirmed: boolean) => terminal.answerDialog(confirmed);
+    const sound = useSound();
+    const answer = (confirmed: boolean) => {
+        sound({ type: "select" });
+        terminal.answerDialog(confirmed);
+    };
 
     // a click outside (on the backdrop) cancels; for an alert, any click closes it
     const handleClick = (event: MouseEvent<HTMLDialogElement>) => {
