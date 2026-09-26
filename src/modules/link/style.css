@@ -1,7 +1,6 @@
 .link {
     display: block;
-    width: fit-content;
-    max-width: 100%;
+    width: 100%;
     min-height: 1lh;
     padding: 0;
     border: 0;
