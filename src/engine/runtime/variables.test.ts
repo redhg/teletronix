@@ -188,3 +188,20 @@ describe("bound elements", () => {
         expect(terminal.variable("name")).toBe("Ada");
     });
 });
+
+describe("restart", () => {
+    it("goes back to the start, with variables and memory as new", () => {
+        const { terminal } = start();
+        terminal.dispatch(link(terminal, "> BOOST").action);
+        const door = terminal.getSnapshot().screen?.run.elements.find((e) => e.type === "toggle");
+        if (door) terminal.remember(door.id, 1);
+        terminal.navigate("vault");
+
+        terminal.restart();
+        expect(screenId(terminal)).toBe("hall");
+        expect(terminal.variable("power")).toBe(40);
+        expect(terminal.variable("lights")).toBe(false);
+        // no transition from the screen that was showing
+        expect(terminal.getSnapshot().outgoing).toBeNull();
+    });
+});

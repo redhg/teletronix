@@ -226,6 +226,20 @@ export class Terminal {
         this.settle();
     }
 
+    /**
+     * Starts the program over, as if just loaded: the start screen, with the variables and
+     * every element's memory back where they began.
+     */
+    restart(): void {
+        this.memory.clear();
+        this.variables.clear();
+        for (const [name, value] of this.program.variables) this.variables.set(name, value);
+        // no transition from whatever was on screen
+        this.run = null;
+        this.outgoing = null;
+        this.navigate(this.program.start);
+    }
+
     openDialog(dialogId: string): void {
         const dialog = this.program.dialogs.get(dialogId);
         if (!dialog) throw new Error(`Unknown dialog "${dialogId}"`);

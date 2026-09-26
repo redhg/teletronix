@@ -305,6 +305,19 @@ are in `public/licenses/`, so every build includes them (served at `licenses/`).
 
 The glitch effect is ported from [musicforprogramming.net](https://musicforprogramming.net).
 
+## At the table
+### Kiosk mode
+Add `&kiosk` to a program's address (e.g. `?data=ypsilon14&kiosk`) to run it on a dedicated
+screen:
+- It shows the program's name and `PRESS ANY KEY`, and starts at the first key press or tap.
+  Browsers only allow full screen and sound after one.
+- It goes full screen, and back to full screen at the next key press or tap if the player
+  leaves it (e.g. with <esc>). Some browsers, such as Safari on iPhone, have no full screen
+  for web pages; install the app instead (see [Offline](#offline)).
+- It keeps the screen from sleeping, hides the mouse pointer when it's still, blocks text
+  selection and zooming, and asks before the page is closed or left.
+- **Ctrl+Alt+R** restarts the program from its start screen, with variables reset.
+
 ## Tests
 Two suites, both run on every push by GitHub Actions:
 

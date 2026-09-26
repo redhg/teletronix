@@ -14,7 +14,8 @@ const FONT_TIMEOUT = 1000;
 
 /**
  * Loads a program and runs it. `?data=<name>` picks the program; `?preview` takes
- * appearance settings from the page it's embedded in (the settings panel).
+ * appearance settings from the page it's embedded in (the settings panel); `?kiosk` runs
+ * it full screen, for a game table or an exhibit.
  */
 export async function startPlayer(root: Root, params: URLSearchParams): Promise<void> {
     const result = await loadProgram(params.get("data") ?? "sample");
@@ -45,6 +46,7 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
                 terminal={terminal}
                 initial={{ theme: program.theme, font: program.font }}
                 preview={params.has("preview")}
+                kiosk={params.has("kiosk") && !params.has("preview")}
             />
         </StrictMode>,
     );

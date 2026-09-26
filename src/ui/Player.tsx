@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import {
     type FontId,
     resolveSound,
@@ -7,6 +7,7 @@ import {
     type ThemeSetting,
 } from "../engine/index.ts";
 import { applyAppearance, loadFont } from "./appearance.ts";
+import { KioskGate, useKiosk } from "./kiosk/Kiosk.tsx";
 import { PaletteContext } from "./palette-context.ts";
 import { isPreviewMessage, type PreviewMessage } from "./preview-protocol.ts";
 import { SoundLayer } from "./sound/SoundLayer.tsx";
@@ -18,15 +19,22 @@ interface Props {
     initial: { theme: ThemeSetting | undefined; font: FontId };
     /** Take appearance settings from the parent page (the settings panel). */
     preview: boolean;
+    /** Run as a kiosk: full screen, awake, and hard to leave (see useKiosk). */
+    kiosk?: boolean;
 }
 
 /** Runs a program, applying its colors and font. */
-export function Player({ terminal, initial, preview }: Props) {
+export function Player({ terminal, initial, preview, kiosk = false }: Props) {
     const [theme, setTheme] = useState(initial.theme);
     const [font, setFont] = useState(initial.font);
     const [sound, setSound] = useState(terminal.program.sound);
     // changes once the font has loaded, so the line length is measured again
     const [loadedFont, setLoadedFont] = useState<FontId | null>(null);
+
+    // a kiosk waits for a key press or tap before starting, to go full screen
+    const [started, setStarted] = useState(!kiosk);
+    const start = useCallback(() => setStarted(true), []);
+    useKiosk(terminal, kiosk && started);
 
     const palette = useMemo(() => resolveTheme(theme), [theme]);
     useLayoutEffect(() => applyAppearance(palette, font), [palette, font]);
@@ -75,7 +83,11 @@ export function Player({ terminal, initial, preview }: Props) {
         <TerminalContext value={terminal}>
             <PaletteContext value={palette}>
                 <SoundLayer terminal={terminal} sound={sound}>
-                    <TerminalView layoutKey={`${font}:${loadedFont}`} />
+                    {started ? (
+                        <TerminalView layoutKey={`${font}:${loadedFont}`} />
+                    ) : (
+                        <KioskGate title={terminal.program.config.name} onStart={start} />
+                    )}
                 </SoundLayer>
             </PaletteContext>
         </TerminalContext>
