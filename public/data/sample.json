@@ -47,10 +47,24 @@
                 "Phosphor afterglow is a screen transition: the old screen fades out behind the new one.",
                 { "type": "link", "text": "> AFTERGLOW", "action": { "screen": "fx-afterglow" } },
                 "",
+                "A static transition flashes noise between screens, like changing channels:",
+                { "type": "link", "text": "> CHANGE CHANNEL", "action": { "screen": "fx-channel" } },
+                "",
                 "A screen can be nothing but effects, and \"next\" moves on without a link:",
                 { "type": "link", "text": "> SIGNAL LOST", "action": { "screen": "fx-noise" } },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "fx-channel": {
+            "transition": "static",
+            "content": [
+                "CHANNEL 3",
+                "=========",
+                "",
+                "This screen sets \"transition\": \"static\": a 120ms burst of noise before it appears. Set a \"duration\" to change it.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "effects" } }
             ]
         },
         "fx-noise": {

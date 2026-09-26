@@ -7,6 +7,7 @@ export {
     ScreenRun,
 } from "./runtime/screen-run.ts";
 export {
+    type Interstitial,
     type OutgoingSnapshot,
     type ScreenSnapshot,
     Terminal,

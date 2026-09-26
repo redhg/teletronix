@@ -1,4 +1,6 @@
 import { type PointerEvent, useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { staticEffect } from "../effects/static/definition.ts";
+import { StaticView } from "../effects/static/View.tsx";
 import { DialogView } from "./DialogView.tsx";
 import { EffectsLayer } from "./effects.tsx";
 import { ScreenView } from "./ScreenView.tsx";
@@ -6,11 +8,12 @@ import { useTerminal, useTerminalSnapshot } from "./terminal-context.ts";
 import { useColumns } from "./use-columns.ts";
 import "./terminal.css";
 
+const INTERSTITIAL_STATIC = { ...staticEffect.defaults, opacity: 1 };
 const KEY_TARGETS = "input, textarea, dialog, button, a";
 
 export function TerminalView() {
     const terminal = useTerminal();
-    const { screen, outgoing, dialog, effects } = useTerminalSnapshot();
+    const { screen, outgoing, interstitial, dialog, effects } = useTerminalSnapshot();
     const ref = useRef<HTMLElement>(null);
 
     const setColumns = useCallback((columns: number) => terminal.setColumns(columns), [terminal]);
@@ -65,6 +68,12 @@ export function TerminalView() {
                     )}
                 </div>
             </main>
+            {/* "transition": "static": noise between screens, under the other effects */}
+            {interstitial?.type === "static" && (
+                <div className="interstitial" aria-hidden="true">
+                    <StaticView options={INTERSTITIAL_STATIC} />
+                </div>
+            )}
             <EffectsLayer effects={effects} />
             {dialog && <DialogView key={dialog.id} dialog={dialog} />}
         </>

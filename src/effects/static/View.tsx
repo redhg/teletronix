@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import type { EffectViewProps } from "../../ui/effect-view.ts";
 import type { StaticOptions } from "./definition.ts";
 import "./style.css";
@@ -8,7 +8,8 @@ export function StaticView({ options }: EffectViewProps<StaticOptions>) {
     const ref = useRef<HTMLCanvasElement>(null);
     const { fps, scale } = options;
 
-    useEffect(() => {
+    // a layout effect, so the first frame of noise is drawn before the page is painted
+    useLayoutEffect(() => {
         const canvas = ref.current;
         const context = canvas?.getContext("2d");
         if (!canvas || !context) return;

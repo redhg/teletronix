@@ -48,6 +48,10 @@ export type RevealOption = z.output<typeof RevealSchema>;
 
 const GlitchTransitionSchema = GlitchOptionsSchema.extend({ type: z.literal("glitch") });
 const NoneTransitionSchema = z.strictObject({ type: z.literal("none") });
+const StaticTransitionSchema = z.strictObject({
+    type: z.literal("static"),
+    duration: z.number().positive().optional().meta({ description: "Milliseconds (default: 120)" }),
+});
 const FadeTransitionSchema = z.strictObject({
     type: z.literal("fade"),
     duration: z.number().positive().optional().meta({ description: "Milliseconds (default: 600)" }),
@@ -55,11 +59,12 @@ const FadeTransitionSchema = z.strictObject({
 
 export const TransitionSchema = z
     .union([
-        z.enum(["none", "glitch", "fade"]),
+        z.enum(["none", "glitch", "fade", "static"]),
         z.discriminatedUnion("type", [
             NoneTransitionSchema,
             GlitchTransitionSchema,
             FadeTransitionSchema,
+            StaticTransitionSchema,
         ]),
     ])
     .transform(
@@ -69,15 +74,17 @@ export const TransitionSchema = z
     .meta({
         description:
             'How the previous screen leaves: "none" (it disappears at once), "glitch" (it erases ' +
-            'itself over this screen while this screen reveals) or "fade" (it fades out like ' +
-            "phosphor afterglow)",
+            'itself over this screen while this screen reveals), "fade" (it fades out like ' +
+            'phosphor afterglow) or "static" (a brief burst of full-screen noise, like changing ' +
+            "channels, before this screen reveals)",
     });
 
 /** A transition as written by an author, normalized to object form. Options are partial. */
 export type TransitionOption =
     | { type: "none" }
     | { type: "glitch"; duration?: number }
-    | { type: "fade"; duration?: number };
+    | { type: "fade"; duration?: number }
+    | { type: "static"; duration?: number };
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
 // What an interactive element does. Shared by links, prompts and dialogs.

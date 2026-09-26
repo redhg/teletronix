@@ -124,7 +124,8 @@ A screen's `transition` controls how the previous screen leaves: `"none"` (the d
 disappears at once),
 `"glitch"`, where the old screen erases itself over the new one as it appears, or `"fade"`,
 where it fades out behind the new one like phosphor afterglow (`{ "type": "fade", "duration": 1500 }`
-sets the ms; default 600).
+sets the ms; default 600), or `"static"`, a brief burst of full-screen noise, like changing
+channels, before the new screen appears (default 120ms).
 
 Both can be set for the whole program in `config`, per screen, and (for reveals) per element; the
 most specific wins. `config.defaults` sets the default options for each kind of reveal:

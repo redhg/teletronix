@@ -35,7 +35,12 @@ export interface ScreenSnapshot {
 
 export interface OutgoingSnapshot extends ScreenSnapshot {
     /** How it's leaving, so the view can animate it. */
-    transition: Exclude<TransitionSpec, { type: "none" }>;
+    transition: Extract<TransitionSpec, { type: "glitch" | "fade" }>;
+}
+
+/** Something shown between screens, before the next one starts (e.g. a burst of static). */
+export interface Interstitial {
+    type: "static";
 }
 
 /** Structural state for the UI. A new object whenever anything in it changes. */
@@ -43,6 +48,8 @@ export interface TerminalSnapshot {
     screen: ScreenSnapshot | null;
     /** The previous screen, while it erases itself over the current one. */
     outgoing: OutgoingSnapshot | null;
+    /** Shown between screens; the current screen starts revealing once it's gone. */
+    interstitial: Interstitial | null;
     dialog: Dialog | null;
     /** The effects that are on for the current screen. */
     effects: ResolvedEffects;
@@ -71,6 +78,7 @@ export class Terminal {
     private run: ScreenRun | null = null;
     private outgoing: ScreenRun | null = null;
     private outgoingTransition: OutgoingSnapshot["transition"] | null = null;
+    private interstitial: { type: "static"; until: number } | null = null;
     /** Set once the current screen's `next` has fired, so it fires only once per visit. */
     private nextFired = false;
     /** Element outcomes waiting to run, for the current screen (see ModuleDefinition.outcome). */
@@ -81,6 +89,7 @@ export class Terminal {
     private snapshot: TerminalSnapshot = {
         screen: null,
         outgoing: null,
+        interstitial: null,
         dialog: null,
         effects: {},
     };
@@ -141,10 +150,15 @@ export class Terminal {
         const transition = resolveTransition(screen.transition, this.program.defaults);
         // a transition that's still playing is cut short by the next one
         this.outgoing = null;
-        if (this.run && transition.type !== "none" && !this.instant) {
+        this.interstitial = null;
+        const animated = this.run !== null && !this.instant;
+        if (animated && (transition.type === "glitch" || transition.type === "fade")) {
             this.outgoing = this.run;
             this.outgoingTransition = transition;
-            this.outgoing.erase(now, transition);
+            this.outgoing?.erase(now, transition);
+        } else if (animated && transition.type === "static") {
+            // the old screen goes at once; the new one waits for the static to pass
+            this.interstitial = { type: "static", until: now + transition.duration };
         }
 
         const run: ScreenRun = new ScreenRun(screen, {
@@ -160,7 +174,7 @@ export class Terminal {
             onFinished: (element, reveal, time) => this.elementFinished(run, element, reveal, time),
         });
         this.run = run;
-        this.run.start(now);
+        if (!this.interstitial) this.run.start(now);
         this.markDirty();
         this.settle();
     }
@@ -229,6 +243,7 @@ export class Terminal {
 
     /** Finishes revealing the current screen immediately, and any transition with it. */
     skip(): void {
+        this.endInterstitial(this.ticker.now());
         this.run?.skip(this.ticker.now());
         if (this.outgoing) {
             this.outgoing = null;
@@ -254,6 +269,9 @@ export class Terminal {
     // ─── Internals ──────────────────────────────────────────────────────────
 
     private readonly tick = (now: number): void => {
+        if (this.interstitial && now >= this.interstitial.until) {
+            this.endInterstitial(this.interstitial.until);
+        }
         this.run?.advance(now);
         this.runOutcomes(now);
         const timed = this.timedRule();
@@ -327,7 +345,8 @@ export class Terminal {
             (this.run?.animating ?? false) ||
             (this.outgoing?.animating ?? false) ||
             this.timedRule() !== null ||
-            this.outcomes.length > 0;
+            this.outcomes.length > 0 ||
+            this.interstitial !== null;
         if (animating && !this.unsubscribeTicker) {
             this.unsubscribeTicker = this.ticker.subscribe(this.tick);
         } else if (!animating && this.unsubscribeTicker) {
@@ -348,6 +367,14 @@ export class Terminal {
 
     private readonly wake = (): void => this.settle();
 
+    /** Removes the interstitial and starts the current screen from `time`. */
+    private endInterstitial(time: number): void {
+        if (!this.interstitial) return;
+        this.interstitial = null;
+        this.run?.start(time);
+        this.markDirty();
+    }
+
     private readonly markDirty = (): void => {
         this.dirty = true;
     };
@@ -367,6 +394,7 @@ export class Terminal {
                           transition: this.outgoingTransition,
                       }
                     : null,
+            interstitial: this.interstitial ? { type: this.interstitial.type } : null,
             dialog: this.dialog,
             effects: this.run ? this.effectsFor(this.run.screen.id) : resolveEffects(),
         };

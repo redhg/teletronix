@@ -96,7 +96,8 @@
                             "enum": [
                                 "none",
                                 "glitch",
-                                "fade"
+                                "fade",
+                                "static"
                             ]
                         },
                         {
@@ -141,6 +142,24 @@
                                         },
                                         "duration": {
                                             "description": "Milliseconds (default: 600)",
+                                            "type": "number",
+                                            "exclusiveMinimum": 0
+                                        }
+                                    },
+                                    "required": [
+                                        "type"
+                                    ],
+                                    "additionalProperties": false
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "const": "static"
+                                        },
+                                        "duration": {
+                                            "description": "Milliseconds (default: 120)",
                                             "type": "number",
                                             "exclusiveMinimum": 0
                                         }
@@ -430,7 +449,8 @@
                                 "enum": [
                                     "none",
                                     "glitch",
-                                    "fade"
+                                    "fade",
+                                    "static"
                                 ]
                             },
                             {
@@ -475,6 +495,24 @@
                                             },
                                             "duration": {
                                                 "description": "Milliseconds (default: 600)",
+                                                "type": "number",
+                                                "exclusiveMinimum": 0
+                                            }
+                                        },
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "additionalProperties": false
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "type": {
+                                                "type": "string",
+                                                "const": "static"
+                                            },
+                                            "duration": {
+                                                "description": "Milliseconds (default: 120)",
                                                 "type": "number",
                                                 "exclusiveMinimum": 0
                                             }

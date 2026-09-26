@@ -36,11 +36,13 @@ export function resolveReveal(
 }
 
 export const DEFAULT_FADE_DURATION = 600;
+export const DEFAULT_STATIC_DURATION = 120;
 
 export type TransitionSpec =
     | { type: "none" }
     | { type: "glitch"; duration: number }
-    | { type: "fade"; duration: number };
+    | { type: "fade"; duration: number }
+    | { type: "static"; duration: number };
 
 /** The transition used when showing a screen: its own, or the program default. */
 export function resolveTransition(
@@ -53,6 +55,8 @@ export function resolveTransition(
             return { ...defaults.glitch, ...definedOnly(option), type: "glitch" };
         case "fade":
             return { type: "fade", duration: option.duration ?? DEFAULT_FADE_DURATION };
+        case "static":
+            return { type: "static", duration: option.duration ?? DEFAULT_STATIC_DURATION };
         case "none":
             return { type: "none" };
     }
