@@ -1,4 +1,11 @@
 import { z } from "zod";
+import {
+    mergeVoices,
+    type VoiceOverrides,
+    type Voices,
+    VoicesSchema,
+    voiceOverrides,
+} from "../sound/voices.ts";
 
 // Teletronix makes its sounds itself (see src/ui/sound/), so a program only turns them on,
 // off, or down. They're on by default, quietly.
@@ -37,6 +44,7 @@ export const SoundOptionsSchema = z
             .optional()
             .meta({ description: `Overall volume, from 0 to 1 (default: ${DEFAULT_VOLUME})` }),
         ...kindSettings,
+        voices: VoicesSchema.optional(),
     })
     .meta({ description: "Sound options: the volume, and each kind of sound on or off" });
 
@@ -49,12 +57,15 @@ export const SoundSchema = z.union([z.boolean(), SoundOptionsSchema]).meta({
 export type SoundSetting = z.output<typeof SoundSchema>;
 
 /** Sound with every option filled in, or null when it's off. */
-export type ResolvedSound = { volume: number } & { [K in SoundKind]: boolean };
+export type ResolvedSound = { volume: number; voices: Voices } & { [K in SoundKind]: boolean };
 
 export function resolveSound(setting: SoundSetting | undefined): ResolvedSound | null {
     if (setting === false) return null;
     const options = typeof setting === "object" ? setting : {};
-    const resolved = { volume: options.volume ?? DEFAULT_VOLUME } as ResolvedSound;
+    const resolved = {
+        volume: options.volume ?? DEFAULT_VOLUME,
+        voices: mergeVoices(options.voices as VoiceOverrides | undefined),
+    } as ResolvedSound;
     for (const kind of Object.keys(SOUND_KINDS) as SoundKind[]) {
         resolved[kind] = options[kind] ?? SOUND_KINDS[kind].default;
     }
@@ -64,11 +75,13 @@ export function resolveSound(setting: SoundSetting | undefined): ResolvedSound |
 /** The smallest setting for a sound state: only what differs from the defaults. */
 export function compactSound(sound: ResolvedSound | null): SoundSetting | undefined {
     if (sound === null) return false;
-    const setting: Record<string, number | boolean> = {};
+    const setting: Record<string, number | boolean | object> = {};
     if (sound.volume !== DEFAULT_VOLUME) setting.volume = sound.volume;
     for (const kind of Object.keys(SOUND_KINDS) as SoundKind[]) {
         if (sound[kind] !== SOUND_KINDS[kind].default) setting[kind] = sound[kind];
     }
+    const voices = voiceOverrides(sound.voices);
+    if (voices) (setting as Record<string, unknown>).voices = voices;
     return Object.keys(setting).length > 0 ? (setting as SoundSetting) : undefined;
 }
 

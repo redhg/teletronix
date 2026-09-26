@@ -189,7 +189,8 @@ corner, and their choice is remembered.
 
 The **sound test page**, <http://localhost:5173/?sound>, has two tabs:
 - **Built-in** tunes Teletronix's own sounds: play each one, adjust it with sliders by ear, and
-  copy the result over `DEFAULT_VOICES` in `src/ui/sound/voices.ts`.
+  copy the result into your program's `config` as `sound.voices`, e.g.
+  `"sound": { "voices": { "key": { "pitch": 2400 } } }`. Only the settings you change are written.
 - **Custom** designs brand new sound effects: roll a preset (laser, explosion, pickup, blip…),
   adjust it, and copy it as JSON. Its synthesizer is a port of [jsfxr](https://github.com/chr15m/jsfxr)
   (public domain), the JavaScript version of DrPetter's classic sfxr.

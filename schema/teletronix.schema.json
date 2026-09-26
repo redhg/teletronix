@@ -463,6 +463,391 @@
                                 "hum": {
                                     "description": "A CRT's mains hum and high-pitched whine, all the time (default: false)",
                                     "type": "boolean"
+                                },
+                                "voices": {
+                                    "type": "object",
+                                    "properties": {
+                                        "key": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pitch": {
+                                                    "description": "Pitch (Hz) (default: 1800)",
+                                                    "type": "number",
+                                                    "minimum": 100,
+                                                    "maximum": 8000
+                                                },
+                                                "spread": {
+                                                    "description": "Random pitch spread (Hz) (default: 1400)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 4000
+                                                },
+                                                "q": {
+                                                    "description": "Resonance (default: 1.2)",
+                                                    "type": "number",
+                                                    "minimum": 0.1,
+                                                    "maximum": 20
+                                                },
+                                                "length": {
+                                                    "description": "Length (s) (default: 0.018)",
+                                                    "type": "number",
+                                                    "minimum": 0.001,
+                                                    "maximum": 0.2
+                                                },
+                                                "level": {
+                                                    "description": "Level (default: 0.5)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "gap": {
+                                                    "description": "Least time between clicks (s) (default: 0.03)",
+                                                    "type": "number",
+                                                    "minimum": 0.001,
+                                                    "maximum": 0.2
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "description": "Key click: Each character typed, and keys pressed in a prompt"
+                                        },
+                                        "glitch": {
+                                            "type": "object",
+                                            "properties": {
+                                                "level": {
+                                                    "description": "Noise level (default: 0.3)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "tone": {
+                                                    "description": "Tone level (default: 0.012)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "density": {
+                                                    "description": "Stutter density (default: 0.55)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "stutter": {
+                                                    "description": "Shortest stutter (s) (default: 0.012)",
+                                                    "type": "number",
+                                                    "minimum": 0.001,
+                                                    "maximum": 0.2
+                                                },
+                                                "stutterSpread": {
+                                                    "description": "Stutter spread (s) (default: 0.03)",
+                                                    "type": "number",
+                                                    "minimum": 0.001,
+                                                    "maximum": 0.2
+                                                },
+                                                "pitch": {
+                                                    "description": "Lowest tone (Hz) (default: 120)",
+                                                    "type": "number",
+                                                    "minimum": 20,
+                                                    "maximum": 4000
+                                                },
+                                                "pitchSpread": {
+                                                    "description": "Tone spread (Hz) (default: 1800)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 8000
+                                                },
+                                                "band": {
+                                                    "description": "Lowest noise band (Hz) (default: 800)",
+                                                    "type": "number",
+                                                    "minimum": 100,
+                                                    "maximum": 8000
+                                                },
+                                                "bandSpread": {
+                                                    "description": "Noise band spread (Hz) (default: 4000)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 12000
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "description": "Glitch: Glitch reveals and the glitch transition"
+                                        },
+                                        "burst": {
+                                            "type": "object",
+                                            "properties": {
+                                                "highpass": {
+                                                    "description": "Cut below (Hz) (default: 1000)",
+                                                    "type": "number",
+                                                    "minimum": 20,
+                                                    "maximum": 8000
+                                                },
+                                                "q": {
+                                                    "description": "Resonance (default: 0.7)",
+                                                    "type": "number",
+                                                    "minimum": 0.1,
+                                                    "maximum": 20
+                                                },
+                                                "level": {
+                                                    "description": "Level (default: 0.5)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "description": "Static burst: The static transition"
+                                        },
+                                        "hiss": {
+                                            "type": "object",
+                                            "properties": {
+                                                "highpass": {
+                                                    "description": "Cut below (Hz) (default: 2000)",
+                                                    "type": "number",
+                                                    "minimum": 20,
+                                                    "maximum": 8000
+                                                },
+                                                "level": {
+                                                    "description": "Level at full static (default: 0.25)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "description": "Static hiss: Under the static effect, as loud as the static is strong"
+                                        },
+                                        "select": {
+                                            "type": "object",
+                                            "properties": {
+                                                "from": {
+                                                    "description": "First pitch (Hz) (default: 880)",
+                                                    "type": "number",
+                                                    "minimum": 50,
+                                                    "maximum": 4000
+                                                },
+                                                "to": {
+                                                    "description": "Second pitch (Hz) (default: 1320)",
+                                                    "type": "number",
+                                                    "minimum": 50,
+                                                    "maximum": 4000
+                                                },
+                                                "length": {
+                                                    "description": "Each note (s) (default: 0.035)",
+                                                    "type": "number",
+                                                    "minimum": 0.001,
+                                                    "maximum": 0.3
+                                                },
+                                                "level": {
+                                                    "description": "Level (default: 0.06)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "wave": {
+                                                    "description": "Wave (default: \"square\")",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "square",
+                                                        "sine",
+                                                        "triangle",
+                                                        "sawtooth"
+                                                    ]
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "description": "Select: Links, toggles, dialog buttons, known commands"
+                                        },
+                                        "tick": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pitch": {
+                                                    "description": "Pitch (Hz) (default: 1600)",
+                                                    "type": "number",
+                                                    "minimum": 50,
+                                                    "maximum": 8000
+                                                },
+                                                "length": {
+                                                    "description": "Length (s) (default: 0.015)",
+                                                    "type": "number",
+                                                    "minimum": 0.001,
+                                                    "maximum": 0.2
+                                                },
+                                                "level": {
+                                                    "description": "Level (default: 0.04)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "gap": {
+                                                    "description": "Least time between ticks (s) (default: 0.04)",
+                                                    "type": "number",
+                                                    "minimum": 0.001,
+                                                    "maximum": 0.2
+                                                },
+                                                "wave": {
+                                                    "description": "Wave (default: \"square\")",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "square",
+                                                        "sine",
+                                                        "triangle",
+                                                        "sawtooth"
+                                                    ]
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "description": "Slider tick: A slider moving a step"
+                                        },
+                                        "dialog": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pitch": {
+                                                    "description": "Pitch (Hz) (default: 660)",
+                                                    "type": "number",
+                                                    "minimum": 50,
+                                                    "maximum": 4000
+                                                },
+                                                "length": {
+                                                    "description": "Length (s) (default: 0.1)",
+                                                    "type": "number",
+                                                    "minimum": 0.001,
+                                                    "maximum": 1
+                                                },
+                                                "level": {
+                                                    "description": "Level (default: 0.2)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "wave": {
+                                                    "description": "Wave (default: \"sine\")",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "square",
+                                                        "sine",
+                                                        "triangle",
+                                                        "sawtooth"
+                                                    ]
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "description": "Dialog: A dialog opening"
+                                        },
+                                        "alert": {
+                                            "type": "object",
+                                            "properties": {
+                                                "from": {
+                                                    "description": "First pitch (Hz) (default: 440)",
+                                                    "type": "number",
+                                                    "minimum": 50,
+                                                    "maximum": 4000
+                                                },
+                                                "to": {
+                                                    "description": "Second pitch (Hz) (default: 330)",
+                                                    "type": "number",
+                                                    "minimum": 50,
+                                                    "maximum": 4000
+                                                },
+                                                "length": {
+                                                    "description": "Each note (s) (default: 0.15)",
+                                                    "type": "number",
+                                                    "minimum": 0.001,
+                                                    "maximum": 1
+                                                },
+                                                "level": {
+                                                    "description": "Level (default: 0.08)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "wave": {
+                                                    "description": "Wave (default: \"square\")",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "square",
+                                                        "sine",
+                                                        "triangle",
+                                                        "sawtooth"
+                                                    ]
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "description": "Alert: A dialog with the \"alert\" class opening"
+                                        },
+                                        "error": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pitch": {
+                                                    "description": "Pitch (Hz) (default: 110)",
+                                                    "type": "number",
+                                                    "minimum": 20,
+                                                    "maximum": 2000
+                                                },
+                                                "length": {
+                                                    "description": "Length (s) (default: 0.18)",
+                                                    "type": "number",
+                                                    "minimum": 0.001,
+                                                    "maximum": 1
+                                                },
+                                                "level": {
+                                                    "description": "Level (default: 0.08)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "wave": {
+                                                    "description": "Wave (default: \"square\")",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "square",
+                                                        "sine",
+                                                        "triangle",
+                                                        "sawtooth"
+                                                    ]
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "description": "Error: A command the prompt doesn't know"
+                                        },
+                                        "hum": {
+                                            "type": "object",
+                                            "properties": {
+                                                "mains": {
+                                                    "description": "Mains (Hz) (default: 60)",
+                                                    "type": "number",
+                                                    "minimum": 40,
+                                                    "maximum": 70
+                                                },
+                                                "mainsLevel": {
+                                                    "description": "Mains level (default: 0.05)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "harmonicLevel": {
+                                                    "description": "Harmonic level (default: 0.025)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "whine": {
+                                                    "description": "Whine (Hz) (default: 15734)",
+                                                    "type": "number",
+                                                    "minimum": 1000,
+                                                    "maximum": 20000
+                                                },
+                                                "whineLevel": {
+                                                    "description": "Whine level (default: 0.006)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "description": "CRT hum: Mains hum and flyback whine, all the time (when turned on)"
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "description": "Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the sound test page (?sound, Built-in tab) and paste the result here."
                                 }
                             },
                             "additionalProperties": false,

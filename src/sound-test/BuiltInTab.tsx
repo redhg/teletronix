@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { resolveSound } from "../engine/index.ts";
-import type { Synth } from "../ui/sound/synth.ts";
 import {
     copyVoices,
     DEFAULT_VOICES,
@@ -8,7 +7,9 @@ import {
     VOICE_PARAMS,
     type VoiceName,
     type Voices,
-} from "../ui/sound/voices.ts";
+    voiceOverrides,
+} from "../engine/sound/voices.ts";
+import type { Synth } from "../ui/sound/synth.ts";
 
 const STORAGE_KEY = "teletronix:sound-test";
 
@@ -30,9 +31,9 @@ const save = (voices: Voices) => {
     }
 };
 
-/** Voices as code, ready to paste over DEFAULT_VOICES in src/ui/sound/voices.ts. */
-const asCode = (voices: Voices) =>
-    `export const DEFAULT_VOICES: Voices = ${JSON.stringify(voices, null, 4).replace(/"(\w+)":/g, "$1:")};\n`;
+/** The changed settings as a program's config.sound, ready to paste. */
+const asJson = (voices: Voices) =>
+    JSON.stringify({ sound: { voices: voiceOverrides(voices) ?? {} } }, null, 4);
 
 const isChoice = (param: Param) => "options" in param;
 
@@ -44,16 +45,13 @@ export function BuiltInTab({ synth, volume }: { synth: Synth; volume: number }) 
     const [length, setLength] = useState(1);
     const [copied, setCopied] = useState(false);
 
-    useEffect(() => {
-        synth.setVoices(voices);
-        save(voices);
-    }, [synth, voices]);
+    useEffect(() => save(voices), [voices]);
 
-    // every kind of sound on, so each can be heard
+    // every kind of sound on, so each can be heard, with the voices as edited
     useEffect(() => {
-        const settings = resolveSound({ volume, hum });
+        const settings = resolveSound({ volume, hum, voices: voiceOverrides(voices) });
         synth.configure(settings, false);
-    }, [synth, volume, hum]);
+    }, [synth, volume, hum, voices]);
 
     useEffect(() => synth.setHiss(hiss), [synth, hiss]);
 
@@ -71,7 +69,7 @@ export function BuiltInTab({ synth, volume }: { synth: Synth; volume: number }) 
     };
 
     const copy = async () => {
-        await navigator.clipboard.writeText(asCode(voices));
+        await navigator.clipboard.writeText(asJson(voices));
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
     };
@@ -80,8 +78,8 @@ export function BuiltInTab({ synth, volume }: { synth: Synth; volume: number }) 
         <>
             <p className="hint">
                 Play each of Teletronix's own sounds and adjust it by ear. Changes are kept in this
-                browser. When you like them, copy the code at the bottom over{" "}
-                <code>DEFAULT_VOICES</code> in <code>src/ui/sound/voices.ts</code>.
+                browser. When you like them, copy the JSON at the bottom into your program's{" "}
+                <code>config</code> (merge it with any <code>sound</code> settings already there).
             </p>
             <label className="row narrow">
                 <span>Test length (s)</span>
@@ -154,7 +152,9 @@ export function BuiltInTab({ synth, volume }: { synth: Synth; volume: number }) 
                                     onClick={() =>
                                         setVoices({
                                             ...voices,
-                                            [name]: structuredClone(DEFAULT_VOICES[name]),
+                                            [name]: JSON.parse(
+                                                JSON.stringify(DEFAULT_VOICES[name]),
+                                            ),
                                         })
                                     }
                                 >
@@ -198,8 +198,8 @@ export function BuiltInTab({ synth, volume }: { synth: Synth; volume: number }) 
             </div>
 
             <section className="sound-code">
-                <h2>{changed ? "Your changes, as code" : "No changes yet"}</h2>
-                <pre className="output">{asCode(voices)}</pre>
+                <h2>{changed ? "Your changes, for your program's config" : "No changes yet"}</h2>
+                <pre className="output">{asJson(voices)}</pre>
                 <div className="buttons">
                     <button type="button" onClick={copy}>
                         {copied ? "Copied" : "Copy"}

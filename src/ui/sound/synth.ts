@@ -1,7 +1,7 @@
 import type { Cue, ResolvedSound } from "../../engine/index.ts";
 import type { Recipe } from "../../engine/sound/recipe.ts";
 import { renderRecipe, SAMPLE_RATE } from "../../engine/sound/sfxr.ts";
-import { copyVoices, type VoiceName, type Voices } from "./voices.ts";
+import { copyVoices, type VoiceName, type Voices } from "../../engine/sound/voices.ts";
 
 /** Sounds the interface asks for directly, on top of the engine's cues. */
 export type InterfaceCue =
@@ -67,9 +67,11 @@ export class Synth {
         this.context.resume().catch(() => {});
     }
 
+    /** Applies a program's sound settings, including its voices. */
     configure(settings: ResolvedSound | null, muted: boolean): void {
         this.settings = settings;
         this.muted = muted;
+        if (settings) this.voices = settings.voices;
         this.apply();
     }
 

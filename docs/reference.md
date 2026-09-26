@@ -9,7 +9,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Elements:** [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
-- **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options)
+- **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
 - **Shared types:** [Action](#action), [Screen action](#screen-action), [Dialog action](#dialog-action), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
 
@@ -403,6 +403,164 @@ Sound options: the volume, and each kind of sound on or off
 | `static` | boolean | `true` | Hiss under static, and the static transition |
 | `interface` | boolean | `true` | Beeps for links, toggles, sliders, prompts and dialogs |
 | `hum` | boolean | `false` | A CRT's mains hum and high-pitched whine, all the time |
+| `voices` | [Sound voices](#sound-voices) |  | Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the sound test page (?sound, Built-in tab) and paste the result here. |
+
+<a id="sound-voices"></a>
+
+### Sound voices
+
+Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the sound test page (?sound, Built-in tab) and paste the result here.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | [Key click voice](#key-click-voice) |  | Key click: Each character typed, and keys pressed in a prompt |
+| `glitch` | [Glitch voice](#glitch-voice) |  | Glitch: Glitch reveals and the glitch transition |
+| `burst` | [Static burst voice](#static-burst-voice) |  | Static burst: The static transition |
+| `hiss` | [Static hiss voice](#static-hiss-voice) |  | Static hiss: Under the static effect, as loud as the static is strong |
+| `select` | [Select voice](#select-voice) |  | Select: Links, toggles, dialog buttons, known commands |
+| `tick` | [Slider tick voice](#slider-tick-voice) |  | Slider tick: A slider moving a step |
+| `dialog` | [Dialog voice](#dialog-voice) |  | Dialog: A dialog opening |
+| `alert` | [Alert voice](#alert-voice) |  | Alert: A dialog with the "alert" class opening |
+| `error` | [Error voice](#error-voice) |  | Error: A command the prompt doesn't know |
+| `hum` | [CRT hum voice](#crt-hum-voice) |  | CRT hum: Mains hum and flyback whine, all the time (when turned on) |
+
+<a id="key-click-voice"></a>
+
+### Key click voice
+
+Key click: Each character typed, and keys pressed in a prompt
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `pitch` | number, 100–8000 | `1800` | Pitch (Hz) |
+| `spread` | number, 0–4000 | `1400` | Random pitch spread (Hz) |
+| `q` | number, 0.1–20 | `1.2` | Resonance |
+| `length` | number, 0.001–0.2 | `0.018` | Length (s) |
+| `level` | number, 0–1 | `0.5` | Level |
+| `gap` | number, 0.001–0.2 | `0.03` | Least time between clicks (s) |
+
+<a id="glitch-voice"></a>
+
+### Glitch voice
+
+Glitch: Glitch reveals and the glitch transition
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `level` | number, 0–1 | `0.3` | Noise level |
+| `tone` | number, 0–1 | `0.012` | Tone level |
+| `density` | number, 0–1 | `0.55` | Stutter density |
+| `stutter` | number, 0.001–0.2 | `0.012` | Shortest stutter (s) |
+| `stutterSpread` | number, 0.001–0.2 | `0.03` | Stutter spread (s) |
+| `pitch` | number, 20–4000 | `120` | Lowest tone (Hz) |
+| `pitchSpread` | number, 0–8000 | `1800` | Tone spread (Hz) |
+| `band` | number, 100–8000 | `800` | Lowest noise band (Hz) |
+| `bandSpread` | number, 0–12000 | `4000` | Noise band spread (Hz) |
+
+<a id="static-burst-voice"></a>
+
+### Static burst voice
+
+Static burst: The static transition
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `highpass` | number, 20–8000 | `1000` | Cut below (Hz) |
+| `q` | number, 0.1–20 | `0.7` | Resonance |
+| `level` | number, 0–1 | `0.5` | Level |
+
+<a id="static-hiss-voice"></a>
+
+### Static hiss voice
+
+Static hiss: Under the static effect, as loud as the static is strong
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `highpass` | number, 20–8000 | `2000` | Cut below (Hz) |
+| `level` | number, 0–1 | `0.25` | Level at full static |
+
+<a id="select-voice"></a>
+
+### Select voice
+
+Select: Links, toggles, dialog buttons, known commands
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `from` | number, 50–4000 | `880` | First pitch (Hz) |
+| `to` | number, 50–4000 | `1320` | Second pitch (Hz) |
+| `length` | number, 0.001–0.3 | `0.035` | Each note (s) |
+| `level` | number, 0–1 | `0.06` | Level |
+| `wave` | `"square"` \| `"sine"` \| `"triangle"` \| `"sawtooth"` | `"square"` | Wave |
+
+<a id="slider-tick-voice"></a>
+
+### Slider tick voice
+
+Slider tick: A slider moving a step
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `pitch` | number, 50–8000 | `1600` | Pitch (Hz) |
+| `length` | number, 0.001–0.2 | `0.015` | Length (s) |
+| `level` | number, 0–1 | `0.04` | Level |
+| `gap` | number, 0.001–0.2 | `0.04` | Least time between ticks (s) |
+| `wave` | `"square"` \| `"sine"` \| `"triangle"` \| `"sawtooth"` | `"square"` | Wave |
+
+<a id="dialog-voice"></a>
+
+### Dialog voice
+
+Dialog: A dialog opening
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `pitch` | number, 50–4000 | `660` | Pitch (Hz) |
+| `length` | number, 0.001–1 | `0.1` | Length (s) |
+| `level` | number, 0–1 | `0.2` | Level |
+| `wave` | `"square"` \| `"sine"` \| `"triangle"` \| `"sawtooth"` | `"sine"` | Wave |
+
+<a id="alert-voice"></a>
+
+### Alert voice
+
+Alert: A dialog with the "alert" class opening
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `from` | number, 50–4000 | `440` | First pitch (Hz) |
+| `to` | number, 50–4000 | `330` | Second pitch (Hz) |
+| `length` | number, 0.001–1 | `0.15` | Each note (s) |
+| `level` | number, 0–1 | `0.08` | Level |
+| `wave` | `"square"` \| `"sine"` \| `"triangle"` \| `"sawtooth"` | `"square"` | Wave |
+
+<a id="error-voice"></a>
+
+### Error voice
+
+Error: A command the prompt doesn't know
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `pitch` | number, 20–2000 | `110` | Pitch (Hz) |
+| `length` | number, 0.001–1 | `0.18` | Length (s) |
+| `level` | number, 0–1 | `0.08` | Level |
+| `wave` | `"square"` \| `"sine"` \| `"triangle"` \| `"sawtooth"` | `"square"` | Wave |
+
+<a id="crt-hum-voice"></a>
+
+### CRT hum voice
+
+CRT hum: Mains hum and flyback whine, all the time (when turned on)
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `mains` | number, 40–70 | `60` | Mains (Hz) |
+| `mainsLevel` | number, 0–1 | `0.05` | Mains level |
+| `harmonicLevel` | number, 0–1 | `0.025` | Harmonic level |
+| `whine` | number, 1000–20000 | `15734` | Whine (Hz) |
+| `whineLevel` | number, 0–1 | `0.006` | Whine level |
 
 ## Effects
 

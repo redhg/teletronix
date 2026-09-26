@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createTestTerminal } from "../runtime/test-helpers.ts";
-import { type Cue, compactSound, resolveSound } from "./sound.ts";
+import { DEFAULT_VOICES } from "../sound/voices.ts";
+import { type Cue, compactSound, resolveSound, SoundSchema } from "./sound.ts";
 
 describe("sound setting", () => {
     it("is on and quiet by default, without the hum", () => {
@@ -11,8 +12,27 @@ describe("sound setting", () => {
             static: true,
             interface: true,
             hum: false,
+            voices: DEFAULT_VOICES,
         });
         expect(resolveSound(false)).toBeNull();
+    });
+
+    it("lays a program's voice overrides over the defaults", () => {
+        const sound = resolveSound({ voices: { key: { pitch: 2400 }, select: { wave: "sine" } } });
+        expect(sound?.voices.key).toEqual({ ...DEFAULT_VOICES.key, pitch: 2400 });
+        expect(sound?.voices.select.wave).toBe("sine");
+        expect(sound?.voices.dialog).toEqual(DEFAULT_VOICES.dialog);
+        expect(compactSound(sound)).toEqual({
+            voices: { key: { pitch: 2400 }, select: { wave: "sine" } },
+        });
+    });
+
+    it("rejects voice settings out of range or unknown", () => {
+        expect(SoundSchema.safeParse({ voices: { key: { pitch: 99999 } } }).success).toBe(false);
+        expect(SoundSchema.safeParse({ voices: { key: { sparkle: 1 } } }).success).toBe(false);
+        expect(SoundSchema.safeParse({ voices: { select: { wave: "noise" } } }).success).toBe(
+            false,
+        );
     });
 
     it("compacts back to what differs from the defaults", () => {

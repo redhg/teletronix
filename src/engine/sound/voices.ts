@@ -1,5 +1,8 @@
-// Every number the synthesizer uses, in one place. The sound test page (?sound) edits
-// these live and prints the changes, ready to paste back here.
+// Every number the synthesizer uses for Teletronix's own sounds, with the defaults. A
+// program can override any of them in config.sound.voices; the sound test page (?sound,
+// Built-in tab) tunes them by ear and prints the JSON for that.
+
+import { z } from "zod";
 
 export interface NumberParam {
     label: string;
@@ -177,4 +180,71 @@ export const DEFAULT_VOICES: Voices = {
 };
 
 /** A deep copy of the default voices, to edit. */
-export const copyVoices = (): Voices => structuredClone(DEFAULT_VOICES);
+export const copyVoices = (): Voices => JSON.parse(JSON.stringify(DEFAULT_VOICES));
+
+// ─── Schema ──────────────────────────────────────────────────────────────────
+
+const paramSchema = (param: Param, fallback: unknown) => {
+    const description = `${param.label} (default: ${JSON.stringify(fallback)})`;
+    return "options" in param
+        ? z
+              .enum(param.options as readonly [string, ...string[]])
+              .optional()
+              .meta({ description })
+        : z.number().min(param.min).max(param.max).optional().meta({ description });
+};
+
+/** One voice's overrides: any of its settings. */
+export const voiceSchema = (name: VoiceName) => {
+    const spec = VOICE_PARAMS[name];
+    return z
+        .strictObject(
+            Object.fromEntries(
+                Object.entries(spec.params).map(([key, param]) => [
+                    key,
+                    paramSchema(param, (DEFAULT_VOICES[name] as Record<string, unknown>)[key]),
+                ]),
+            ),
+        )
+        .meta({ description: `${spec.label}: ${spec.description}` });
+};
+
+export const VoicesSchema = z
+    .strictObject(
+        Object.fromEntries(
+            (Object.keys(VOICE_PARAMS) as VoiceName[]).map((name) => [
+                name,
+                voiceSchema(name).optional(),
+            ]),
+        ),
+    )
+    .meta({
+        description:
+            "Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear " +
+            "on the sound test page (?sound, Built-in tab) and paste the result here.",
+    });
+
+/** Voice overrides as a program writes them: any voice, any of its settings. */
+export type VoiceOverrides = { [V in VoiceName]?: Partial<Voices[V]> };
+
+/** The defaults with a program's overrides laid over them. */
+export function mergeVoices(overrides: VoiceOverrides | undefined): Voices {
+    const voices = copyVoices();
+    for (const [name, values] of Object.entries(overrides ?? {})) {
+        Object.assign(voices[name as VoiceName], values);
+    }
+    return voices;
+}
+
+/** Only the settings that differ from the defaults, or nothing if none do. */
+export function voiceOverrides(voices: Voices): VoiceOverrides | undefined {
+    const out: Record<string, Record<string, unknown>> = {};
+    for (const name of Object.keys(DEFAULT_VOICES) as VoiceName[]) {
+        const defaults = DEFAULT_VOICES[name] as Record<string, unknown>;
+        const changed = Object.entries(voices[name]).filter(
+            ([key, value]) => defaults[key] !== value,
+        );
+        if (changed.length > 0) out[name] = Object.fromEntries(changed);
+    }
+    return Object.keys(out).length > 0 ? (out as VoiceOverrides) : undefined;
+}
