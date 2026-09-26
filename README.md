@@ -139,6 +139,12 @@ most specific wins. `config.defaults` sets the default options for each kind of 
 }
 ```
 
+### Autoscroll
+When a screen is taller than the window, the view scrolls to keep the newest content in view:
+the typing cursor, or the element being revealed. Scrolling up to reread stops it; scrolling
+back down picks it up again. Each new screen starts at the top. `"autoscroll": false` turns it
+off, in `config` for the whole program or on a screen.
+
 ### Effects
 `config.effects` turns visual effects on or off and sets their options. A screen's `effects`
 layers over the config's.

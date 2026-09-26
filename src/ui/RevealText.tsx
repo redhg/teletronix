@@ -1,5 +1,6 @@
-import { useLayoutEffect, useRef } from "react";
+import { useContext, useLayoutEffect, useRef } from "react";
 import type { Frame, ScreenRun, SegmentKind } from "../engine/index.ts";
+import { AutoscrollContext } from "./autoscroll.ts";
 
 interface Props {
     run: ScreenRun;
@@ -16,6 +17,7 @@ interface Props {
  * every animation frame, and React never re-renders for it.
  */
 export function RevealText({ run, index, label }: Props) {
+    const autoscroll = useContext(AutoscrollContext);
     const full = useRef<HTMLSpanElement>(null);
     const visible = useRef<HTMLSpanElement>(null);
     const cursor = useRef<HTMLSpanElement>(null);
@@ -46,14 +48,14 @@ export function RevealText({ run, index, label }: Props) {
                 if (span && span.textContent !== texts[kind]) span.textContent = texts[kind];
             }
 
-            // keep the cursor on screen, checking only when it moves to a new line
+            // the cursor moved to a new line: let the autoscroller keep it in view
             const span = spans.cursor;
             if (span && texts.cursor && span.offsetTop !== cursorTop) {
                 cursorTop = span.offsetTop;
-                span.scrollIntoView({ block: "nearest" });
+                autoscroll?.follow();
             }
         });
-    }, [run, index, label]);
+    }, [run, index, label, autoscroll]);
 
     return (
         <>

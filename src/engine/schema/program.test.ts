@@ -72,6 +72,21 @@ describe("parseProgram", () => {
         expect(home?.transition).toEqual({ type: "glitch", duration: 200 });
     });
 
+    it("turns autoscroll on unless the config or a screen turns it off", () => {
+        const on = parseProgram(file());
+        expect(on.ok && on.program.autoscroll).toBe(true);
+
+        const off = parseProgram(
+            file({
+                config: { name: "Test", autoscroll: false },
+                screens: { home: { autoscroll: true, content: ["x"] } },
+            }),
+        );
+        if (!off.ok) throw new Error(JSON.stringify(off.errors));
+        expect(off.program.autoscroll).toBe(false);
+        expect(off.program.screens.get("home")?.autoscroll).toBe(true);
+    });
+
     it("honors an explicit start screen", () => {
         const result = parseProgram(file({ config: { name: "Test", start: "next" } }));
         expect(result.ok && result.program.start).toBe("next");

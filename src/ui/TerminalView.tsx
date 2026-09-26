@@ -1,6 +1,14 @@
-import { type PointerEvent, useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import {
+    type PointerEvent,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+} from "react";
 import { staticEffect } from "../effects/static/definition.ts";
 import { StaticView } from "../effects/static/View.tsx";
+import { AutoscrollContext, Autoscroller } from "./autoscroll.ts";
 import { DialogView } from "./DialogView.tsx";
 import { EffectsLayer } from "./effects.tsx";
 import { ScreenView } from "./ScreenView.tsx";
@@ -15,6 +23,17 @@ export function TerminalView() {
     const terminal = useTerminal();
     const { screen, outgoing, interstitial, dialog, effects } = useTerminalSnapshot();
     const ref = useRef<HTMLElement>(null);
+    const screensRef = useRef<HTMLDivElement>(null);
+    const [autoscroll] = useState(() => new Autoscroller());
+    useEffect(() => autoscroll.attach(), [autoscroll]);
+
+    // follow the current screen; a new screen starts at the top
+    const screenKey = screen?.run.key;
+    const autoscrollOn = screen?.run.screen.autoscroll ?? terminal.program.autoscroll;
+    useLayoutEffect(() => {
+        const current = screensRef.current?.querySelector<HTMLElement>(".screen:not(.outgoing)");
+        autoscroll.setScreen(screenKey === undefined ? null : (current ?? null), autoscrollOn);
+    }, [autoscroll, screenKey, autoscrollOn]);
 
     const setColumns = useCallback((columns: number) => terminal.setColumns(columns), [terminal]);
     useColumns(ref, setColumns);
@@ -53,11 +72,11 @@ export function TerminalView() {
     };
 
     return (
-        <>
+        <AutoscrollContext value={autoscroll}>
             <main ref={ref} className="terminal" onPointerDown={handlePointerDown}>
                 {/* Both screens share one grid cell, the outgoing one on top. Keys keep a screen's
                 DOM (and its frame subscriptions) alive as it moves from current to outgoing. */}
-                <div className="screens">
+                <div ref={screensRef} className="screens">
                     {screen && <ScreenView key={screen.run.key} screen={screen} />}
                     {outgoing && (
                         <ScreenView
@@ -76,6 +95,6 @@ export function TerminalView() {
             )}
             <EffectsLayer effects={effects} />
             {dialog && <DialogView key={dialog.id} dialog={dialog} />}
-        </>
+        </AutoscrollContext>
     );
 }

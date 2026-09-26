@@ -358,6 +358,10 @@
                     },
                     "additionalProperties": false,
                     "description": "Visual effects: true, false, or an object of options"
+                },
+                "autoscroll": {
+                    "description": "Scroll to keep new content in view as it appears, unless the reader has scrolled up (default: true)",
+                    "type": "boolean"
                 }
             },
             "required": [
@@ -680,6 +684,10 @@
                             }
                         },
                         "additionalProperties": false
+                    },
+                    "autoscroll": {
+                        "description": "Keep new content in view as it appears (default: the config's)",
+                        "type": "boolean"
                     },
                     "next": {
                         "description": "Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens.",

@@ -36,6 +36,9 @@ const ScreenSchema = z.strictObject({
     effects: EffectsSchema.optional().meta({
         description: "Effects for this screen, layered over the config's",
     }),
+    autoscroll: z.boolean().optional().meta({
+        description: "Keep new content in view as it appears (default: the config's)",
+    }),
     next: NextSchema.optional(),
     content: z
         .array(ContentSchema)
@@ -67,6 +70,14 @@ const ConfigSchema = z.strictObject({
     }),
     defaults: DefaultsSchema.optional(),
     effects: EffectsSchema.optional(),
+    autoscroll: z
+        .boolean()
+        .optional()
+        .meta({
+            description:
+                "Scroll to keep new content in view as it appears, unless the reader has scrolled " +
+                "up (default: true)",
+        }),
 });
 
 /** The shape of a Teletronix JSON file, before normalization. Used to generate the JSON Schema. */
@@ -95,6 +106,7 @@ export interface Screen {
     reveal?: RevealOption;
     transition?: TransitionOption;
     effects?: EffectsSetting;
+    autoscroll?: boolean;
     next?: NextRule[];
     content: Element[];
 }
@@ -104,12 +116,13 @@ export interface Program {
     start: string;
     defaults: Defaults;
     effects?: EffectsSetting;
+    autoscroll: boolean;
     screens: ReadonlyMap<string, Screen>;
     dialogs: ReadonlyMap<string, Dialog>;
 }
 
 function normalize(file: z.output<typeof FileSchema>): Program {
-    const { start, reveal, transition, defaults, effects, ...config } = file.config;
+    const { start, reveal, transition, defaults, effects, autoscroll, ...config } = file.config;
 
     const screens = new Map<string, Screen>();
     for (const [id, screen] of Object.entries(file.screens)) {
@@ -117,8 +130,8 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             const element = typeof item === "string" ? { type: "text" as const, text: item } : item;
             return { ...element, id: `${id}#${index}` };
         });
-        const { reveal, transition, effects, next } = screen;
-        screens.set(id, { id, reveal, transition, effects, next, content });
+        const { reveal, transition, effects, autoscroll, next } = screen;
+        screens.set(id, { id, reveal, transition, effects, autoscroll, next, content });
     }
 
     const dialogs = new Map<string, Dialog>();
@@ -137,6 +150,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             glitch: { duration: defaults?.glitch?.duration ?? DEFAULT_GLITCH_DURATION },
         },
         effects,
+        autoscroll: autoscroll ?? true,
         screens,
         dialogs,
     };
