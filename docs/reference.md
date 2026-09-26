@@ -9,6 +9,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Elements:** [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
+- **Appearance:** [Theme](#theme), [Custom theme](#custom-theme)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
 - **Shared types:** [Action](#action), [Screen action](#screen-action), [Dialog action](#dialog-action), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
 
@@ -42,6 +43,8 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `reveal` | [Reveal](#reveal) | `"teletype"` | How text appears on every screen, unless a screen or element says otherwise |
 | `transition` | [Transition](#transition) | `"none"` | How screens leave, unless the next screen says otherwise |
 | `defaults` | [Defaults](#defaults) |  | Default options for each kind of reveal |
+| `theme` | [Theme](#theme) | `"phosphor"` | The color scheme: "phosphor" (pale blue on black), "amber", "green" or "white", or your own colors |
+| `font` | `"ast-premiumexec"` \| `"ibm-vga"` \| `"ibm-ega"` \| `"ibm-cga"` \| `"ibm-cga-thin"` \| `"ibm-mda"` \| `"toshiba-satellite"` \| `"departure-mono"` | `"ast-premiumexec"` | The typeface, from a set of period PC fonts |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |
 | `autoscroll` | boolean | `true` | Scroll to keep new content in view as it appears, unless the reader has scrolled up |
 
@@ -288,6 +291,31 @@ The "no" button, chosen with <esc> or a click outside the dialog
 |---|---|---|---|
 | `text` | string | `"NO"` | The label |
 | `action` | [Action](#action) | nothing; the dialog closes | What happens when it's chosen |
+
+## Appearance
+
+<a id="theme"></a>
+
+### Theme
+
+The color scheme: "phosphor" (pale blue on black), "amber", "green" or "white", or your own colors (default: "phosphor")
+
+One of:
+
+- `"phosphor"` | `"amber"` | `"green"` | `"white"`
+- [Custom theme](#custom-theme)
+
+<a id="custom-theme"></a>
+
+### Custom theme
+
+Your own colors
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `fg` | id | **required** | Text color |
+| `bg` | id | **required** | Background color |
+| `alert` | id | `"#ff3c00"` | Color of text with the "alert" class |
 
 ## Effects
 

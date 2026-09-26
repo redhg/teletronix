@@ -8,6 +8,7 @@ import { FringeOptionsSchema } from "../src/effects/fringe/definition.ts";
 import { ScanlinesOptionsSchema } from "../src/effects/scanlines/definition.ts";
 import { StaticOptionsSchema } from "../src/effects/static/definition.ts";
 import { VignetteOptionsSchema } from "../src/effects/vignette/definition.ts";
+import { CustomThemeSchema, ThemeSchema } from "../src/engine/schema/appearance.ts";
 import {
     ActionSchema,
     DialogActionSchema,
@@ -113,6 +114,13 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Confirm", ConfirmSchema, '"type": "confirm"'],
             ["Confirm button", ConfirmButtonSchema],
             ["Cancel button", CancelButtonSchema],
+        ],
+    ],
+    [
+        "Appearance",
+        [
+            ["Theme", ThemeSchema],
+            ["Custom theme", CustomThemeSchema],
         ],
     ],
     [

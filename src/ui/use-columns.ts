@@ -9,7 +9,10 @@ const PROBE_LENGTH = 100;
 export function useColumns(
     ref: RefObject<HTMLElement | null>,
     onChange: (columns: number) => void,
+    /** Measure again when this changes (e.g. a new font). */
+    key?: string,
 ) {
+    // biome-ignore lint/correctness/useExhaustiveDependencies: `key` is a signal to measure again
     useLayoutEffect(() => {
         const container = ref.current;
         if (!container) return;
@@ -48,5 +51,5 @@ export function useColumns(
             document.fonts.removeEventListener("loadingdone", measure);
             probe.remove();
         };
-    }, [ref, onChange]);
+    }, [ref, onChange, key]);
 }

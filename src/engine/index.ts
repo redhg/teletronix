@@ -13,9 +13,30 @@ export {
     Terminal,
     type TerminalSnapshot,
 } from "./runtime/terminal.ts";
+export {
+    DEFAULT_FONT,
+    DEFAULT_THEME,
+    FONTS,
+    type FontId,
+    type Palette,
+    resolveTheme,
+    THEMES,
+    type ThemeName,
+    type ThemeSetting,
+} from "./schema/appearance.ts";
 export type { Action } from "./schema/common.ts";
 export { dialogAction } from "./schema/dialog.ts";
-export type { EffectName, EffectOptions, ResolvedEffects } from "./schema/effects.ts";
+export {
+    compactEffects,
+    EFFECT_OPTIONS_SCHEMAS,
+    EFFECTS,
+    type EffectName,
+    type EffectOptions,
+    type EffectsSetting,
+    type EffectsState,
+    expandEffects,
+    type ResolvedEffects,
+} from "./schema/effects.ts";
 export type { Element, ElementOf, ElementType } from "./schema/elements.ts";
 export {
     type Dialog,

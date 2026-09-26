@@ -1,5 +1,12 @@
-The AST PremiumExec font (WebPlus_AST_PremiumExec.woff) is from The Ultimate Oldschool PC Font Pack v2.2 (2020-11-21),
-unmodified. In v1 of the pack this font was called "PxPlus VGA SquarePx".
+These fonts are from The Ultimate Oldschool PC Font Pack v2.2 (2020-11-21), unmodified:
+
+    WebPlus_AST_PremiumExec.woff    (called "PxPlus VGA SquarePx" in v1 of the pack)
+    WebPlus_IBM_VGA_9x16.woff
+    WebPlus_IBM_EGA_8x14.woff
+    WebPlus_IBM_CGA-2y.woff
+    WebPlus_IBM_CGAthin-2y.woff
+    WebPlus_IBM_MDA.woff
+    WebPlus_ToshibaSat_8x16.woff
 
 (c) 2016-2020 VileR, https://int10h.org/oldschool-pc-fonts/
 Licensed under the Creative Commons Attribution-ShareAlike 4.0 International License;

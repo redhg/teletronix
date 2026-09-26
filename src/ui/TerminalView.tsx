@@ -19,7 +19,12 @@ import "./terminal.css";
 const INTERSTITIAL_STATIC = { ...staticEffect.defaults, opacity: 1 };
 const KEY_TARGETS = "input, textarea, dialog, button, a";
 
-export function TerminalView() {
+interface Props {
+    /** Changes when something that affects the line length changes (e.g. the font). */
+    layoutKey?: string;
+}
+
+export function TerminalView({ layoutKey }: Props) {
     const terminal = useTerminal();
     const { screen, outgoing, interstitial, dialog, effects } = useTerminalSnapshot();
     const ref = useRef<HTMLElement>(null);
@@ -36,7 +41,7 @@ export function TerminalView() {
     }, [autoscroll, screenKey, autoscrollOn]);
 
     const setColumns = useCallback((columns: number) => terminal.setColumns(columns), [terminal]);
-    useColumns(ref, setColumns);
+    useColumns(ref, setColumns, layoutKey);
 
     // start once the column count is known, so the first screen wraps correctly
     useLayoutEffect(() => {

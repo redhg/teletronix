@@ -3,7 +3,7 @@ import type { Reveal } from "../reveal/index.ts";
 import { resolveTransition, type TransitionSpec } from "../reveal/index.ts";
 import type { Action } from "../schema/common.ts";
 import { type Dialog, dialogAction } from "../schema/dialog.ts";
-import { type ResolvedEffects, resolveEffects } from "../schema/effects.ts";
+import { type EffectsSetting, type ResolvedEffects, resolveEffects } from "../schema/effects.ts";
 import type { Element } from "../schema/elements.ts";
 import { moduleFor } from "../schema/elements.ts";
 import { firstTimedRule, type NextRule, ruleForKey, ruleForTap } from "../schema/next.ts";
@@ -86,6 +86,8 @@ export class Terminal {
     private dialog: Dialog | null = null;
     /** Resolved once per screen, so effect views see the same object on every visit. */
     private readonly effects = new Map<string, ResolvedEffects>();
+    /** The program-wide effects: the config's, unless replaced with setEffects(). */
+    private configEffects: EffectsSetting | undefined;
     private snapshot: TerminalSnapshot = {
         screen: null,
         outgoing: null,
@@ -103,6 +105,7 @@ export class Terminal {
         this.instant = options.instant ?? false;
         this.random = options.random;
         this.load = options.load;
+        this.configEffects = options.program.effects;
     }
 
     // ─── Store interface (e.g. for React's useSyncExternalStore) ────────────
@@ -199,6 +202,14 @@ export class Terminal {
 
         const action = dialogAction(dialog, confirmed);
         if (action) this.dispatch(action);
+        this.flush();
+    }
+
+    /** Replaces the program-wide effects, e.g. while trying out settings in a preview. */
+    setEffects(effects: EffectsSetting | undefined): void {
+        this.configEffects = effects;
+        this.effects.clear();
+        this.markDirty();
         this.flush();
     }
 
@@ -359,7 +370,7 @@ export class Terminal {
         let effects = this.effects.get(screenId);
         if (!effects) {
             const screen = this.program.screens.get(screenId);
-            effects = resolveEffects(this.program.effects, screen?.effects);
+            effects = resolveEffects(this.configEffects, screen?.effects);
             this.effects.set(screenId, effects);
         }
         return effects;

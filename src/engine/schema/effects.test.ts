@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createTestTerminal } from "../runtime/test-helpers.ts";
-import { resolveEffects } from "./effects.ts";
+import { compactEffects, expandEffects, resolveEffects } from "./effects.ts";
 import { parseProgram } from "./program.ts";
 
 const SCANLINES = { opacity: 0.5, moving: true };
@@ -69,5 +69,23 @@ describe("effects in programs", () => {
             "config.effects.static.opacity",
             "config.effects",
         ]);
+    });
+});
+
+describe("expandEffects and compactEffects", () => {
+    it("round-trip a setting, dropping what matches the defaults", () => {
+        const setting = { scanlines: { opacity: 0.2 }, static: true, bloom: false };
+        const state = expandEffects(setting);
+        expect(state.scanlines).toEqual({ on: true, options: { opacity: 0.2, moving: true } });
+        expect(state.bloom.on).toBe(false);
+        expect(compactEffects(state)).toEqual({ scanlines: { opacity: 0.2 }, static: true });
+    });
+
+    it("writes false only for effects that are on by default", () => {
+        const state = expandEffects(undefined);
+        state.scanlines.on = false;
+        expect(compactEffects(state)).toEqual({ scanlines: false });
+        state.scanlines.on = true;
+        expect(compactEffects(state)).toBeUndefined();
     });
 });

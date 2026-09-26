@@ -60,7 +60,7 @@ export interface EffectOptions {
 
 export type EffectName = keyof EffectOptions;
 
-const effects: { [N in EffectName]: EffectDefinition<EffectOptions[N]> } = {
+export const EFFECTS: { [N in EffectName]: EffectDefinition<EffectOptions[N]> } = {
     scanlines: scanlinesEffect,
     static: staticEffect,
     bloom: bloomEffect,
@@ -68,6 +68,50 @@ const effects: { [N in EffectName]: EffectDefinition<EffectOptions[N]> } = {
     flicker: flickerEffect,
     fringe: fringeEffect,
 };
+
+/** Each effect's options schema, for tools that build controls from it. */
+export const EFFECT_OPTIONS_SCHEMAS: { [N in EffectName]: z.ZodType } = {
+    scanlines: ScanlinesOptionsSchema,
+    static: StaticOptionsSchema,
+    bloom: BloomOptionsSchema,
+    vignette: VignetteOptionsSchema,
+    flicker: FlickerOptionsSchema,
+    fringe: FringeOptionsSchema,
+};
+
+/** Every effect, on or off, with all its options: what a settings panel edits. */
+export type EffectsState = { [N in EffectName]: { on: boolean; options: EffectOptions[N] } };
+
+/** Expands a program's effects setting into the full state. */
+export function expandEffects(setting: EffectsSetting | undefined): EffectsState {
+    const resolved = resolveEffects(setting);
+    const state = {} as Record<EffectName, { on: boolean; options: object }>;
+    for (const name of Object.keys(EFFECTS) as EffectName[]) {
+        const options = resolved[name];
+        state[name] = { on: options !== undefined, options: options ?? EFFECTS[name].defaults };
+    }
+    return state as EffectsState;
+}
+
+/** The smallest setting for a state: only what differs from the defaults. */
+export function compactEffects(state: EffectsState): EffectsSetting | undefined {
+    const setting: Record<string, boolean | object> = {};
+    for (const name of Object.keys(EFFECTS) as EffectName[]) {
+        const { enabledByDefault, defaults } = EFFECTS[name];
+        const { on, options } = state[name];
+        const changed = Object.entries(options).filter(
+            ([key, value]) => defaults[key as keyof typeof defaults] !== value,
+        );
+        if (!on) {
+            if (enabledByDefault) setting[name] = false;
+        } else if (changed.length > 0) {
+            setting[name] = Object.fromEntries(changed);
+        } else if (!enabledByDefault) {
+            setting[name] = true;
+        }
+    }
+    return Object.keys(setting).length > 0 ? (setting as EffectsSetting) : undefined;
+}
 
 /** Effects as a program or screen sets them. */
 export type EffectsSetting = z.output<typeof EffectsSchema>;
@@ -85,8 +129,8 @@ export function resolveEffects(
 ): ResolvedEffects {
     const resolved: ResolvedEffects = {};
 
-    for (const name of Object.keys(effects) as EffectName[]) {
-        const definition = effects[name];
+    for (const name of Object.keys(EFFECTS) as EffectName[]) {
+        const definition = EFFECTS[name];
         let enabled = definition.enabledByDefault;
         let options: object = definition.defaults;
 

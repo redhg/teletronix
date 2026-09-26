@@ -215,6 +215,60 @@
                     "additionalProperties": false,
                     "description": "Default options for each kind of reveal"
                 },
+                "theme": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "enum": [
+                                "phosphor",
+                                "amber",
+                                "green",
+                                "white"
+                            ]
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "fg": {
+                                    "type": "string",
+                                    "pattern": "^#[0-9a-fA-F]{6}$",
+                                    "description": "Text color"
+                                },
+                                "bg": {
+                                    "type": "string",
+                                    "pattern": "^#[0-9a-fA-F]{6}$",
+                                    "description": "Background color"
+                                },
+                                "alert": {
+                                    "description": "Color of text with the \"alert\" class (default: \"#ff3c00\")",
+                                    "type": "string",
+                                    "pattern": "^#[0-9a-fA-F]{6}$"
+                                }
+                            },
+                            "required": [
+                                "fg",
+                                "bg"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Your own colors"
+                        }
+                    ],
+                    "description": "The color scheme: \"phosphor\" (pale blue on black), \"amber\", \"green\" or \"white\", or your own colors (default: \"phosphor\")"
+                },
+                "font": {
+                    "type": "string",
+                    "enum": [
+                        "ast-premiumexec",
+                        "ibm-vga",
+                        "ibm-ega",
+                        "ibm-cga",
+                        "ibm-cga-thin",
+                        "ibm-mda",
+                        "toshiba-satellite",
+                        "departure-mono"
+                    ],
+                    "description": "The typeface, from a set of period PC fonts (default: \"ast-premiumexec\")"
+                },
                 "effects": {
                     "type": "object",
                     "properties": {

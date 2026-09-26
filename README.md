@@ -148,6 +148,18 @@ the typing cursor, or the element being revealed. Scrolling up to reread stops i
 back down picks it up again. Each new screen starts at the top. `"autoscroll": false` turns it
 off, in `config` for the whole program or on a screen.
 
+### Appearance
+`config.theme` sets the colors: `"phosphor"` (the default), `"amber"`, `"green"`, `"white"`, or your
+own, e.g. `{ "fg": "#33ff66", "bg": "#001100" }`. `config.font` picks a typeface: `"ast-premiumexec"`
+(the default), `"ibm-vga"`, `"ibm-ega"`, `"ibm-cga"`, `"ibm-cga-thin"`, `"ibm-mda"`,
+`"toshiba-satellite"` or `"departure-mono"`. Text is sized to whole multiples of the font's pixel
+height, so it stays crisp.
+
+The easiest way to choose is the **settings page**: add `&config` to a program's address, e.g.
+<http://localhost:5173/?data=sample&config>. Change the theme, font and effects and watch the
+program update beside you, then copy the resulting `config` properties or download the program
+with them in place.
+
 ### Effects
 `config.effects` turns visual effects on or off and sets their options. A screen's `effects`
 layers over the config's.

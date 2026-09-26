@@ -1,5 +1,14 @@
 import { z } from "zod";
 import {
+    DEFAULT_FONT,
+    type FontId,
+    FontSchema,
+    type Palette,
+    resolveTheme,
+    ThemeSchema,
+    type ThemeSetting,
+} from "./appearance.ts";
+import {
     type Action,
     GlitchOptionsSchema,
     IdSchema,
@@ -77,6 +86,8 @@ export const ConfigSchema = z
                 'How screens leave, unless the next screen says otherwise (default: "none")',
         }),
         defaults: DefaultsSchema.optional(),
+        theme: ThemeSchema.optional(),
+        font: FontSchema.optional(),
         effects: EffectsSchema.optional(),
         autoscroll: z
             .boolean()
@@ -140,12 +151,17 @@ export interface Program {
     defaults: Defaults;
     effects?: EffectsSetting;
     autoscroll: boolean;
+    /** The theme as written (for tools that edit it), and its colors. */
+    theme?: ThemeSetting;
+    palette: Palette;
+    font: FontId;
     screens: ReadonlyMap<string, Screen>;
     dialogs: ReadonlyMap<string, Dialog>;
 }
 
 function normalize(file: z.output<typeof FileSchema>): Program {
-    const { start, reveal, transition, defaults, effects, autoscroll, ...config } = file.config;
+    const { start, reveal, transition, defaults, effects, autoscroll, theme, font, ...config } =
+        file.config;
 
     const screens = new Map<string, Screen>();
     for (const [id, screen] of Object.entries(file.screens)) {
@@ -174,6 +190,9 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         },
         effects,
         autoscroll: autoscroll ?? true,
+        theme,
+        palette: resolveTheme(theme),
+        font: font ?? DEFAULT_FONT,
         screens,
         dialogs,
     };
