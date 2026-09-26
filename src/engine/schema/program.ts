@@ -26,26 +26,30 @@ const ContentSchema = z.union([
     ElementSchema,
 ]);
 
-const ScreenSchema = z.strictObject({
-    reveal: RevealSchema.optional().meta({
-        description: "Default reveal for this screen's elements",
-    }),
-    transition: TransitionSchema.optional().meta({
-        description: "How the previous screen leaves when this one is shown",
-    }),
-    effects: EffectsSchema.optional().meta({
-        description: "Effects for this screen, layered over the config's",
-    }),
-    autoscroll: z.boolean().optional().meta({
-        description: "Keep new content in view as it appears (default: the config's)",
-    }),
-    next: NextSchema.optional(),
-    content: z
-        .array(ContentSchema)
-        .meta({ description: "The elements, revealed in order. Can be empty." }),
-});
+export const ScreenSchema = z
+    .strictObject({
+        reveal: RevealSchema.optional().meta({
+            description: "Default reveal for this screen's elements",
+        }),
+        transition: TransitionSchema.optional().meta({
+            description: "How the previous screen leaves when this one is shown",
+        }),
+        effects: EffectsSchema.optional().meta({
+            description: "Effects for this screen, layered over the config's",
+        }),
+        autoscroll: z.boolean().optional().meta({
+            description: "Keep new content in view as it appears (default: the config's)",
+        }),
+        next: NextSchema.optional(),
+        content: z
+            .array(ContentSchema)
+            .meta({ description: "The elements, revealed in order. Can be empty." }),
+    })
+    .meta({
+        description: "A screen of content. Its elements are revealed one after another.",
+    });
 
-const DefaultsSchema = z
+export const DefaultsSchema = z
     .strictObject({
         teletype: TeletypeOptionsSchema.optional().meta({
             description: "Default teletype options",
@@ -56,39 +60,58 @@ const DefaultsSchema = z
     })
     .meta({ description: "Default options for each kind of reveal" });
 
-const ConfigSchema = z.strictObject({
-    name: z.string(),
-    author: z.string().optional(),
-    description: z.string().optional(),
-    start: IdSchema.optional().meta({ description: "The first screen (default: the first one)" }),
-    reveal: RevealSchema.optional().meta({
-        description:
-            'How text appears on every screen, unless a screen or element says otherwise (default: "teletype")',
-    }),
-    transition: TransitionSchema.optional().meta({
-        description: 'How screens leave, unless the next screen says otherwise (default: "none")',
-    }),
-    defaults: DefaultsSchema.optional(),
-    effects: EffectsSchema.optional(),
-    autoscroll: z
-        .boolean()
-        .optional()
-        .meta({
-            description:
-                "Scroll to keep new content in view as it appears, unless the reader has scrolled " +
-                "up (default: true)",
+export const ConfigSchema = z
+    .strictObject({
+        name: z.string().meta({ description: "The program's name, shown as the page title" }),
+        author: z.string().optional().meta({ description: "Who made it" }),
+        description: z.string().optional().meta({ description: "What it is" }),
+        start: IdSchema.optional().meta({
+            description: "The first screen (default: the first one)",
         }),
-});
+        reveal: RevealSchema.optional().meta({
+            description:
+                'How text appears on every screen, unless a screen or element says otherwise (default: "teletype")',
+        }),
+        transition: TransitionSchema.optional().meta({
+            description:
+                'How screens leave, unless the next screen says otherwise (default: "none")',
+        }),
+        defaults: DefaultsSchema.optional(),
+        effects: EffectsSchema.optional(),
+        autoscroll: z
+            .boolean()
+            .optional()
+            .meta({
+                description:
+                    "Scroll to keep new content in view as it appears, unless the reader has scrolled " +
+                    "up (default: true)",
+            }),
+    })
+    .meta({
+        description:
+            "Settings for the whole program. `reveal`, `transition`, `effects` and `autoscroll` apply to every screen unless it sets its own.",
+    });
 
 /** The shape of a Teletronix JSON file, before normalization. Used to generate the JSON Schema. */
 export const FileSchema = z
     .strictObject({
-        $schema: z.string().optional(),
-        config: ConfigSchema,
-        screens: z.record(IdSchema, ScreenSchema),
-        dialogs: z.record(IdSchema, DialogSchema).optional(),
+        $schema: z.string().optional().meta({
+            description:
+                "Path or URL of teletronix.schema.json, for checking and autocomplete in editors",
+        }),
+        config: ConfigSchema.meta({ description: "Settings for the whole program" }),
+        screens: z.record(IdSchema, ScreenSchema).meta({
+            description: "The screens, by id. Links, commands and `next` refer to them by id.",
+        }),
+        dialogs: z
+            .record(IdSchema, DialogSchema)
+            .optional()
+            .meta({ description: "The dialogs, by id. Actions open them by id." }),
     })
-    .meta({ title: "Teletronix program" });
+    .meta({
+        title: "Teletronix program",
+        description: "A Teletronix program: its settings, screens and dialogs",
+    });
 
 export type TeletronixFile = z.input<typeof FileSchema>;
 

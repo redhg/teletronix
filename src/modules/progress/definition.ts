@@ -16,22 +16,26 @@ import { KeysSchema, keyMatches } from "../../engine/schema/next.ts";
 
 const PercentSchema = z.number().min(0).max(100);
 
-const OutcomeSchema = z
-    .union([
-        ActionSchema,
-        z.strictObject({
-            after: z.number().min(0).optional().meta({ description: "Milliseconds to wait first" }),
-            action: ActionSchema,
-        }),
-    ])
+export const DelayedActionSchema = z
+    .strictObject({
+        after: z.number().min(0).optional().meta({ description: "Milliseconds to wait first" }),
+        action: ActionSchema.meta({ description: "What happens" }),
+    })
+    .meta({ description: "An action that runs after a pause" });
+
+export const OutcomeSchema = z
+    .union([ActionSchema, DelayedActionSchema])
     .transform(
         (outcome): Outcome =>
             "action" in outcome
                 ? { after: outcome.after ?? 0, action: outcome.action }
                 : { after: 0, action: outcome },
-    );
+    )
+    .meta({
+        description: "What happens when a progress bar finishes: an action, now or after a pause",
+    });
 
-const InterruptSchema = z
+export const InterruptSchema = z
     .strictObject({
         at: PercentSchema.optional().meta({
             description: "Stop here instead of reaching `to`: a transfer that fails",
@@ -53,6 +57,11 @@ const InterruptSchema = z
     })
     .refine((interrupt) => interrupt.at !== undefined || interrupt.key !== undefined, {
         message: 'Set "at", "key", or both',
+    })
+    .meta({
+        description:
+            "Makes a progress bar stop short: at a set point (a transfer that fails) and/or when " +
+            "the player presses a key",
     });
 
 export const ProgressSchema = z

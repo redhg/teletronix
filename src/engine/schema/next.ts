@@ -23,9 +23,14 @@ const KeyNameSchema = z.string().min(1);
 /** One key name or several, normalized to a list. */
 export const KeysSchema = z
     .union([KeyNameSchema, z.array(KeyNameSchema).min(1)])
-    .transform((key) => (Array.isArray(key) ? key : [key]).map(normalizeKey));
+    .transform((key) => (Array.isArray(key) ? key : [key]).map(normalizeKey))
+    .meta({
+        description:
+            'One key or several: "any", or key names like "Enter", "Escape", "ArrowRight" or "y" ' +
+            '(case-insensitive), with the aliases "Space", "Esc" and "Return"',
+    });
 
-const RuleSchema = z
+export const RuleSchema = z
     .strictObject({
         after: z
             .number()
@@ -45,6 +50,10 @@ const RuleSchema = z
     })
     .refine((rule) => rule.after !== undefined || rule.key !== undefined, {
         message: 'Set "after", "key", or both',
+    })
+    .meta({
+        description:
+            "A way to move on from a screen without a link: after a delay, at a key press, or both",
     })
     .transform(
         ({ after, key, action }): NextRule => ({

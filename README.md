@@ -20,12 +20,15 @@ Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `s
 | `npm run build` | Typecheck and build to `dist/` |
 | `npm test` | Unit tests |
 | `npm run lint` / `npm run format` | Biome check / fix |
-| `npm run gen:schema` | Regenerate `schema/teletronix.schema.json` after changing the schema |
+| `npm run gen` | Regenerate `schema/teletronix.schema.json` and `docs/reference.md` after changing the schema |
 | `node scripts/convert-phosphor.ts <in> <out>` | Convert a Phosphor JSON file |
 
 ## Writing a program
 Point `$schema` at `schema/teletronix.schema.json` for validation and autocomplete in your
 editor. Invalid programs show their errors in the browser instead of running.
+
+This section is a tour. **[docs/reference.md](docs/reference.md)** lists every property, with its
+type and default; it's generated from the schema, so it's always current.
 
 ```json
 {

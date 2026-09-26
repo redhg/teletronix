@@ -8,7 +8,7 @@ const ContentSchema = z
 
 const className = z.string().optional().meta({ description: "Space-separated CSS classes" });
 
-const AlertSchema = z
+export const AlertSchema = z
     .strictObject({
         type: z.literal("alert"),
         content: ContentSchema,
@@ -21,26 +21,28 @@ const AlertSchema = z
     })
     .meta({ description: "A message. Closes with <enter>, <esc>, or a click." });
 
-const ConfirmSchema = z
+export const ConfirmButtonSchema = z
+    .strictObject({
+        text: z.string().min(1).default("YES").meta({ description: 'The label (default: "YES")' }),
+        action: ActionSchema.meta({ description: "What happens when it's chosen" }),
+    })
+    .meta({ description: 'The "yes" button, chosen with <enter>' });
+
+export const CancelButtonSchema = z
+    .strictObject({
+        text: z.string().min(1).default("NO").meta({ description: 'The label (default: "NO")' }),
+        action: ActionSchema.optional().meta({
+            description: "What happens when it's chosen (default: nothing; the dialog closes)",
+        }),
+    })
+    .meta({ description: 'The "no" button, chosen with <esc> or a click outside the dialog' });
+
+export const ConfirmSchema = z
     .strictObject({
         type: z.literal("confirm"),
         content: ContentSchema,
-        confirm: z
-            .strictObject({
-                text: z.string().min(1).default("YES"),
-                action: ActionSchema,
-            })
-            .meta({ description: 'The "yes" button (<enter>) and what it does' }),
-        cancel: z
-            .strictObject({
-                text: z.string().min(1).default("NO"),
-                action: ActionSchema.optional(),
-            })
-            .default({ text: "NO" })
-            .meta({
-                description:
-                    'The "no" button (<esc>, or a click outside) and what it does, if anything',
-            }),
+        confirm: ConfirmButtonSchema,
+        cancel: CancelButtonSchema.default({ text: "NO" }),
         className,
     })
     .meta({ description: "A yes/no question. Each answer can trigger an action." });

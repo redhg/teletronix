@@ -2,12 +2,14 @@ import { z } from "zod";
 import type { ElementIdentity, ModuleDefinition } from "../../engine/module.ts";
 import { type Action, ActionSchema, ElementBaseShape } from "../../engine/schema/common.ts";
 
-const CommandSchema = z.strictObject({
-    command: z
-        .union([z.string().min(1), z.array(z.string().min(1)).min(1)])
-        .meta({ description: "What to type (case-insensitive). Use an array for aliases." }),
-    action: ActionSchema.meta({ description: "What happens when the command is entered" }),
-});
+export const CommandSchema = z
+    .strictObject({
+        command: z
+            .union([z.string().min(1), z.array(z.string().min(1)).min(1)])
+            .meta({ description: "What to type (case-insensitive). Use an array for aliases." }),
+        action: ActionSchema.meta({ description: "What happens when the command is entered" }),
+    })
+    .meta({ description: "A command the prompt understands" });
 
 export const PromptSchema = z
     .strictObject({
@@ -16,7 +18,10 @@ export const PromptSchema = z
             .string()
             .default("> ")
             .meta({ description: 'Text shown before the input (default: "> ")' }),
-        commands: z.array(CommandSchema).min(1),
+        commands: z
+            .array(CommandSchema)
+            .min(1)
+            .meta({ description: "The commands it understands" }),
         unknown: z
             .string()
             .default("Unknown command.")

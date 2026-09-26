@@ -11,17 +11,40 @@ export const IdSchema = z
 // How an element's text appears on screen. Authors can use a bare name
 // ("teletype") or an object with per-reveal options.
 
-export const TeletypeOptionsSchema = z.strictObject({
-    speed: z.number().positive().optional().meta({ description: "Milliseconds per character" }),
-});
+export const TeletypeOptionsSchema = z
+    .strictObject({
+        speed: z
+            .number()
+            .positive()
+            .optional()
+            .meta({ description: "Milliseconds per character (default: 10)" }),
+    })
+    .meta({ description: "Default options for teletype reveals" });
 
-export const GlitchOptionsSchema = z.strictObject({
-    duration: z.number().positive().optional().meta({ description: "Total time in milliseconds" }),
-});
+export const GlitchOptionsSchema = z
+    .strictObject({
+        duration: z
+            .number()
+            .positive()
+            .optional()
+            .meta({ description: "Milliseconds a glitch takes (default: 1000)" }),
+    })
+    .meta({ description: "Default options for glitch reveals and transitions" });
 
-const TeletypeRevealSchema = TeletypeOptionsSchema.extend({ type: z.literal("teletype") });
-const GlitchRevealSchema = GlitchOptionsSchema.extend({ type: z.literal("glitch") });
-const InstantRevealSchema = z.strictObject({ type: z.literal("instant") });
+export const TeletypeRevealSchema = TeletypeOptionsSchema.extend({
+    type: z.literal("teletype"),
+}).meta({ description: "Types the text one character at a time" });
+export const GlitchRevealSchema = z
+    .strictObject({
+        type: z.literal("glitch"),
+        duration: z.number().positive().optional().meta({
+            description: "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+        }),
+    })
+    .meta({ description: "Resolves the text out of random glyphs, left to right" });
+export const InstantRevealSchema = z
+    .strictObject({ type: z.literal("instant") })
+    .meta({ description: "Shows the text all at once" });
 
 const RevealObjectSchema = z.discriminatedUnion("type", [
     TeletypeRevealSchema,
@@ -46,16 +69,41 @@ export type RevealOption = z.output<typeof RevealSchema>;
 // ─── Transitions ─────────────────────────────────────────────────────────────
 // How the previous screen leaves when a screen is shown.
 
-const GlitchTransitionSchema = GlitchOptionsSchema.extend({ type: z.literal("glitch") });
-const NoneTransitionSchema = z.strictObject({ type: z.literal("none") });
-const StaticTransitionSchema = z.strictObject({
-    type: z.literal("static"),
-    duration: z.number().positive().optional().meta({ description: "Milliseconds (default: 120)" }),
-});
-const FadeTransitionSchema = z.strictObject({
-    type: z.literal("fade"),
-    duration: z.number().positive().optional().meta({ description: "Milliseconds (default: 600)" }),
-});
+export const GlitchTransitionSchema = z
+    .strictObject({
+        type: z.literal("glitch"),
+        duration: z.number().positive().optional().meta({
+            description:
+                "Milliseconds for the old screen to erase (default: config.defaults.glitch)",
+        }),
+    })
+    .meta({ description: "The old screen erases itself over the new one as it appears" });
+export const NoneTransitionSchema = z
+    .strictObject({ type: z.literal("none") })
+    .meta({ description: "The old screen disappears at once" });
+export const StaticTransitionSchema = z
+    .strictObject({
+        type: z.literal("static"),
+        duration: z
+            .number()
+            .positive()
+            .optional()
+            .meta({ description: "Milliseconds of static (default: 120)" }),
+    })
+    .meta({
+        description:
+            "A brief burst of full-screen noise, like changing channels, before the new screen",
+    });
+export const FadeTransitionSchema = z
+    .strictObject({
+        type: z.literal("fade"),
+        duration: z
+            .number()
+            .positive()
+            .optional()
+            .meta({ description: "Milliseconds to fade out (default: 600)" }),
+    })
+    .meta({ description: "The old screen fades out behind the new one, like phosphor afterglow" });
 
 export const TransitionSchema = z
     .union([
@@ -89,10 +137,10 @@ export type TransitionOption =
 // ─── Actions ─────────────────────────────────────────────────────────────────
 // What an interactive element does. Shared by links, prompts and dialogs.
 
-const ScreenActionSchema = z
+export const ScreenActionSchema = z
     .strictObject({ screen: IdSchema })
     .meta({ description: "Navigate to a screen" });
-const DialogActionSchema = z
+export const DialogActionSchema = z
     .strictObject({ dialog: IdSchema })
     .meta({ description: "Open a dialog" });
 
@@ -103,7 +151,8 @@ export const ActionSchema = z
             "screen" in action
                 ? { type: "screen", target: action.screen }
                 : { type: "dialog", target: action.dialog },
-    );
+    )
+    .meta({ description: "What an interactive element does: go to a screen, or open a dialog" });
 
 export type Action = { type: "screen"; target: string } | { type: "dialog"; target: string };
 
@@ -114,5 +163,7 @@ export const ElementBaseShape = {
         .string()
         .optional()
         .meta({ description: 'Space-separated CSS classes, e.g. "alert"' }),
-    reveal: RevealSchema.optional(),
+    reveal: RevealSchema.optional().meta({
+        description: "How this element's text appears (default: the screen's reveal)",
+    }),
 };

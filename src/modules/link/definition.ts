@@ -5,7 +5,7 @@ import { type Action, ActionSchema, ElementBaseShape } from "../../engine/schema
 export const LinkSchema = z
     .strictObject({
         type: z.literal("link"),
-        text: z.string().min(1),
+        text: z.string().min(1).meta({ description: "The link's text" }),
         action: ActionSchema.meta({ description: "What happens when the link is clicked" }),
         shiftAction: ActionSchema.optional().meta({
             description: "What happens when the link is shift-clicked (defaults to action)",

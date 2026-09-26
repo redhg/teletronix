@@ -3,18 +3,22 @@
     "type": "object",
     "properties": {
         "$schema": {
+            "description": "Path or URL of teletronix.schema.json, for checking and autocomplete in editors",
             "type": "string"
         },
         "config": {
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The program's name, shown as the page title"
                 },
                 "author": {
+                    "description": "Who made it",
                     "type": "string"
                 },
                 "description": {
+                    "description": "What it is",
                     "type": "string"
                 },
                 "start": {
@@ -39,7 +43,7 @@
                                     "type": "object",
                                     "properties": {
                                         "speed": {
-                                            "description": "Milliseconds per character",
+                                            "description": "Milliseconds per character (default: 10)",
                                             "type": "number",
                                             "exclusiveMinimum": 0
                                         },
@@ -51,25 +55,27 @@
                                     "required": [
                                         "type"
                                     ],
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "Types the text one character at a time"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "duration": {
-                                            "description": "Total time in milliseconds",
-                                            "type": "number",
-                                            "exclusiveMinimum": 0
-                                        },
                                         "type": {
                                             "type": "string",
                                             "const": "glitch"
+                                        },
+                                        "duration": {
+                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                            "type": "number",
+                                            "exclusiveMinimum": 0
                                         }
                                     },
                                     "required": [
                                         "type"
                                     ],
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "Resolves the text out of random glyphs, left to right"
                                 },
                                 {
                                     "type": "object",
@@ -82,7 +88,8 @@
                                     "required": [
                                         "type"
                                     ],
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "Shows the text all at once"
                                 }
                             ]
                         }
@@ -113,25 +120,27 @@
                                     "required": [
                                         "type"
                                     ],
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "The old screen disappears at once"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "duration": {
-                                            "description": "Total time in milliseconds",
-                                            "type": "number",
-                                            "exclusiveMinimum": 0
-                                        },
                                         "type": {
                                             "type": "string",
                                             "const": "glitch"
+                                        },
+                                        "duration": {
+                                            "description": "Milliseconds for the old screen to erase (default: config.defaults.glitch)",
+                                            "type": "number",
+                                            "exclusiveMinimum": 0
                                         }
                                     },
                                     "required": [
                                         "type"
                                     ],
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "The old screen erases itself over the new one as it appears"
                                 },
                                 {
                                     "type": "object",
@@ -141,7 +150,7 @@
                                             "const": "fade"
                                         },
                                         "duration": {
-                                            "description": "Milliseconds (default: 600)",
+                                            "description": "Milliseconds to fade out (default: 600)",
                                             "type": "number",
                                             "exclusiveMinimum": 0
                                         }
@@ -149,7 +158,8 @@
                                     "required": [
                                         "type"
                                     ],
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "The old screen fades out behind the new one, like phosphor afterglow"
                                 },
                                 {
                                     "type": "object",
@@ -159,7 +169,7 @@
                                             "const": "static"
                                         },
                                         "duration": {
-                                            "description": "Milliseconds (default: 120)",
+                                            "description": "Milliseconds of static (default: 120)",
                                             "type": "number",
                                             "exclusiveMinimum": 0
                                         }
@@ -167,7 +177,8 @@
                                     "required": [
                                         "type"
                                     ],
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "A brief burst of full-screen noise, like changing channels, before the new screen"
                                 }
                             ]
                         }
@@ -181,7 +192,7 @@
                             "type": "object",
                             "properties": {
                                 "speed": {
-                                    "description": "Milliseconds per character",
+                                    "description": "Milliseconds per character (default: 10)",
                                     "type": "number",
                                     "exclusiveMinimum": 0
                                 }
@@ -193,7 +204,7 @@
                             "type": "object",
                             "properties": {
                                 "duration": {
-                                    "description": "Total time in milliseconds",
+                                    "description": "Milliseconds a glitch takes (default: 1000)",
                                     "type": "number",
                                     "exclusiveMinimum": 0
                                 }
@@ -227,7 +238,8 @@
                                             "type": "boolean"
                                         }
                                     },
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "CRT scanlines, with an optional rolling band. On by default."
                                 }
                             ]
                         },
@@ -259,7 +271,8 @@
                                             "maximum": 16
                                         }
                                     },
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "Analog TV noise over the screen. Off by default."
                                 }
                             ]
                         },
@@ -285,7 +298,8 @@
                                             "maximum": 32
                                         }
                                     },
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "Bright text and images glow into the dark around them. Off by default."
                                 }
                             ]
                         },
@@ -305,7 +319,8 @@
                                             "maximum": 1
                                         }
                                     },
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "Darkened corners, like the edge of a curved tube. Off by default."
                                 }
                             ]
                         },
@@ -325,7 +340,8 @@
                                             "maximum": 1
                                         }
                                     },
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "An unsteady picture that dims by small, irregular amounts. Off by default."
                                 }
                             ]
                         },
@@ -351,7 +367,8 @@
                                             "maximum": 8
                                         }
                                     },
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "Red and cyan fringes on text, like misaligned color guns. Off by default."
                                 }
                             ]
                         }
@@ -367,7 +384,8 @@
             "required": [
                 "name"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "Settings for the whole program"
         },
         "screens": {
             "type": "object",
@@ -396,7 +414,7 @@
                                         "type": "object",
                                         "properties": {
                                             "speed": {
-                                                "description": "Milliseconds per character",
+                                                "description": "Milliseconds per character (default: 10)",
                                                 "type": "number",
                                                 "exclusiveMinimum": 0
                                             },
@@ -408,25 +426,27 @@
                                         "required": [
                                             "type"
                                         ],
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "Types the text one character at a time"
                                     },
                                     {
                                         "type": "object",
                                         "properties": {
-                                            "duration": {
-                                                "description": "Total time in milliseconds",
-                                                "type": "number",
-                                                "exclusiveMinimum": 0
-                                            },
                                             "type": {
                                                 "type": "string",
                                                 "const": "glitch"
+                                            },
+                                            "duration": {
+                                                "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                "type": "number",
+                                                "exclusiveMinimum": 0
                                             }
                                         },
                                         "required": [
                                             "type"
                                         ],
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "Resolves the text out of random glyphs, left to right"
                                     },
                                     {
                                         "type": "object",
@@ -439,7 +459,8 @@
                                         "required": [
                                             "type"
                                         ],
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "Shows the text all at once"
                                     }
                                 ]
                             }
@@ -470,25 +491,27 @@
                                         "required": [
                                             "type"
                                         ],
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "The old screen disappears at once"
                                     },
                                     {
                                         "type": "object",
                                         "properties": {
-                                            "duration": {
-                                                "description": "Total time in milliseconds",
-                                                "type": "number",
-                                                "exclusiveMinimum": 0
-                                            },
                                             "type": {
                                                 "type": "string",
                                                 "const": "glitch"
+                                            },
+                                            "duration": {
+                                                "description": "Milliseconds for the old screen to erase (default: config.defaults.glitch)",
+                                                "type": "number",
+                                                "exclusiveMinimum": 0
                                             }
                                         },
                                         "required": [
                                             "type"
                                         ],
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "The old screen erases itself over the new one as it appears"
                                     },
                                     {
                                         "type": "object",
@@ -498,7 +521,7 @@
                                                 "const": "fade"
                                             },
                                             "duration": {
-                                                "description": "Milliseconds (default: 600)",
+                                                "description": "Milliseconds to fade out (default: 600)",
                                                 "type": "number",
                                                 "exclusiveMinimum": 0
                                             }
@@ -506,7 +529,8 @@
                                         "required": [
                                             "type"
                                         ],
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "The old screen fades out behind the new one, like phosphor afterglow"
                                     },
                                     {
                                         "type": "object",
@@ -516,7 +540,7 @@
                                                 "const": "static"
                                             },
                                             "duration": {
-                                                "description": "Milliseconds (default: 120)",
+                                                "description": "Milliseconds of static (default: 120)",
                                                 "type": "number",
                                                 "exclusiveMinimum": 0
                                             }
@@ -524,7 +548,8 @@
                                         "required": [
                                             "type"
                                         ],
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "A brief burst of full-screen noise, like changing channels, before the new screen"
                                     }
                                 ]
                             }
@@ -554,7 +579,8 @@
                                                 "type": "boolean"
                                             }
                                         },
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "CRT scanlines, with an optional rolling band. On by default."
                                     }
                                 ]
                             },
@@ -586,7 +612,8 @@
                                                 "maximum": 16
                                             }
                                         },
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "Analog TV noise over the screen. Off by default."
                                     }
                                 ]
                             },
@@ -612,7 +639,8 @@
                                                 "maximum": 32
                                             }
                                         },
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "Bright text and images glow into the dark around them. Off by default."
                                     }
                                 ]
                             },
@@ -632,7 +660,8 @@
                                                 "maximum": 1
                                             }
                                         },
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "Darkened corners, like the edge of a curved tube. Off by default."
                                     }
                                 ]
                             },
@@ -652,7 +681,8 @@
                                                 "maximum": 1
                                             }
                                         },
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "An unsteady picture that dims by small, irregular amounts. Off by default."
                                     }
                                 ]
                             },
@@ -678,7 +708,8 @@
                                                 "maximum": 8
                                             }
                                         },
-                                        "additionalProperties": false
+                                        "additionalProperties": false,
+                                        "description": "Red and cyan fringes on text, like misaligned color guns. Off by default."
                                     }
                                 ]
                             }
@@ -756,7 +787,8 @@
                                 "required": [
                                     "action"
                                 ],
-                                "additionalProperties": false
+                                "additionalProperties": false,
+                                "description": "A way to move on from a screen without a link: after a delay, at a key press, or both"
                             },
                             {
                                 "minItems": 1,
@@ -825,7 +857,8 @@
                                     "required": [
                                         "action"
                                     ],
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "description": "A way to move on from a screen without a link: after a delay, at a key press, or both"
                                 }
                             }
                         ]
@@ -856,7 +889,7 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "description": "How this element's text appears (default: the screen's reveal)",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
@@ -872,7 +905,7 @@
                                                                     "type": "object",
                                                                     "properties": {
                                                                         "speed": {
-                                                                            "description": "Milliseconds per character",
+                                                                            "description": "Milliseconds per character (default: 10)",
                                                                             "type": "number",
                                                                             "exclusiveMinimum": 0
                                                                         },
@@ -884,25 +917,27 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Types the text one character at a time"
                                                                 },
                                                                 {
                                                                     "type": "object",
                                                                     "properties": {
-                                                                        "duration": {
-                                                                            "description": "Total time in milliseconds",
-                                                                            "type": "number",
-                                                                            "exclusiveMinimum": 0
-                                                                        },
                                                                         "type": {
                                                                             "type": "string",
                                                                             "const": "glitch"
+                                                                        },
+                                                                        "duration": {
+                                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
                                                                         }
                                                                     },
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Resolves the text out of random glyphs, left to right"
                                                                 },
                                                                 {
                                                                     "type": "object",
@@ -915,7 +950,8 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Shows the text all at once"
                                                                 }
                                                             ]
                                                         }
@@ -938,7 +974,8 @@
                                                 },
                                                 "text": {
                                                     "type": "string",
-                                                    "minLength": 1
+                                                    "minLength": 1,
+                                                    "description": "The link's text"
                                                 },
                                                 "action": {
                                                     "description": "What happens when the link is clicked",
@@ -1015,7 +1052,7 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "description": "How this element's text appears (default: the screen's reveal)",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
@@ -1031,7 +1068,7 @@
                                                                     "type": "object",
                                                                     "properties": {
                                                                         "speed": {
-                                                                            "description": "Milliseconds per character",
+                                                                            "description": "Milliseconds per character (default: 10)",
                                                                             "type": "number",
                                                                             "exclusiveMinimum": 0
                                                                         },
@@ -1043,25 +1080,27 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Types the text one character at a time"
                                                                 },
                                                                 {
                                                                     "type": "object",
                                                                     "properties": {
-                                                                        "duration": {
-                                                                            "description": "Total time in milliseconds",
-                                                                            "type": "number",
-                                                                            "exclusiveMinimum": 0
-                                                                        },
                                                                         "type": {
                                                                             "type": "string",
                                                                             "const": "glitch"
+                                                                        },
+                                                                        "duration": {
+                                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
                                                                         }
                                                                     },
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Resolves the text out of random glyphs, left to right"
                                                                 },
                                                                 {
                                                                     "type": "object",
@@ -1074,7 +1113,8 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Shows the text all at once"
                                                                 }
                                                             ]
                                                         }
@@ -1116,7 +1156,7 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "description": "How this element's text appears (default: the screen's reveal)",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
@@ -1132,7 +1172,7 @@
                                                                     "type": "object",
                                                                     "properties": {
                                                                         "speed": {
-                                                                            "description": "Milliseconds per character",
+                                                                            "description": "Milliseconds per character (default: 10)",
                                                                             "type": "number",
                                                                             "exclusiveMinimum": 0
                                                                         },
@@ -1144,25 +1184,27 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Types the text one character at a time"
                                                                 },
                                                                 {
                                                                     "type": "object",
                                                                     "properties": {
-                                                                        "duration": {
-                                                                            "description": "Total time in milliseconds",
-                                                                            "type": "number",
-                                                                            "exclusiveMinimum": 0
-                                                                        },
                                                                         "type": {
                                                                             "type": "string",
                                                                             "const": "glitch"
+                                                                        },
+                                                                        "duration": {
+                                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
                                                                         }
                                                                     },
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Resolves the text out of random glyphs, left to right"
                                                                 },
                                                                 {
                                                                     "type": "object",
@@ -1175,7 +1217,8 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Shows the text all at once"
                                                                 }
                                                             ]
                                                         }
@@ -1264,8 +1307,10 @@
                                                             "command",
                                                             "action"
                                                         ],
-                                                        "additionalProperties": false
-                                                    }
+                                                        "additionalProperties": false,
+                                                        "description": "A command the prompt understands"
+                                                    },
+                                                    "description": "The commands it understands"
                                                 },
                                                 "unknown": {
                                                     "default": "Unknown command.",
@@ -1277,7 +1322,7 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "description": "How this element's text appears (default: the screen's reveal)",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
@@ -1293,7 +1338,7 @@
                                                                     "type": "object",
                                                                     "properties": {
                                                                         "speed": {
-                                                                            "description": "Milliseconds per character",
+                                                                            "description": "Milliseconds per character (default: 10)",
                                                                             "type": "number",
                                                                             "exclusiveMinimum": 0
                                                                         },
@@ -1305,25 +1350,27 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Types the text one character at a time"
                                                                 },
                                                                 {
                                                                     "type": "object",
                                                                     "properties": {
-                                                                        "duration": {
-                                                                            "description": "Total time in milliseconds",
-                                                                            "type": "number",
-                                                                            "exclusiveMinimum": 0
-                                                                        },
                                                                         "type": {
                                                                             "type": "string",
                                                                             "const": "glitch"
+                                                                        },
+                                                                        "duration": {
+                                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
                                                                         }
                                                                     },
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Resolves the text out of random glyphs, left to right"
                                                                 },
                                                                 {
                                                                     "type": "object",
@@ -1336,7 +1383,8 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Shows the text all at once"
                                                                 }
                                                             ]
                                                         }
@@ -1372,7 +1420,7 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "description": "How this element's text appears (default: the screen's reveal)",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
@@ -1388,7 +1436,7 @@
                                                                     "type": "object",
                                                                     "properties": {
                                                                         "speed": {
-                                                                            "description": "Milliseconds per character",
+                                                                            "description": "Milliseconds per character (default: 10)",
                                                                             "type": "number",
                                                                             "exclusiveMinimum": 0
                                                                         },
@@ -1400,25 +1448,27 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Types the text one character at a time"
                                                                 },
                                                                 {
                                                                     "type": "object",
                                                                     "properties": {
-                                                                        "duration": {
-                                                                            "description": "Total time in milliseconds",
-                                                                            "type": "number",
-                                                                            "exclusiveMinimum": 0
-                                                                        },
                                                                         "type": {
                                                                             "type": "string",
                                                                             "const": "glitch"
+                                                                        },
+                                                                        "duration": {
+                                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
                                                                         }
                                                                     },
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Resolves the text out of random glyphs, left to right"
                                                                 },
                                                                 {
                                                                     "type": "object",
@@ -1431,7 +1481,8 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Shows the text all at once"
                                                                 }
                                                             ]
                                                         }
@@ -1506,6 +1557,7 @@
                                                     "description": "What happens when the bar reaches `to`: an action, or { after, action } to pause first. Without one, the screen carries on.",
                                                     "anyOf": [
                                                         {
+                                                            "description": "What an interactive element does: go to a screen, or open a dialog",
                                                             "anyOf": [
                                                                 {
                                                                     "type": "object",
@@ -1548,6 +1600,7 @@
                                                                     "minimum": 0
                                                                 },
                                                                 "action": {
+                                                                    "description": "What happens",
                                                                     "anyOf": [
                                                                         {
                                                                             "type": "object",
@@ -1585,7 +1638,8 @@
                                                             "required": [
                                                                 "action"
                                                             ],
-                                                            "additionalProperties": false
+                                                            "additionalProperties": false,
+                                                            "description": "An action that runs after a pause"
                                                         }
                                                     ]
                                                 },
@@ -1670,7 +1724,7 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "description": "How this element's text appears (default: the screen's reveal)",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
@@ -1686,7 +1740,7 @@
                                                                     "type": "object",
                                                                     "properties": {
                                                                         "speed": {
-                                                                            "description": "Milliseconds per character",
+                                                                            "description": "Milliseconds per character (default: 10)",
                                                                             "type": "number",
                                                                             "exclusiveMinimum": 0
                                                                         },
@@ -1698,25 +1752,27 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Types the text one character at a time"
                                                                 },
                                                                 {
                                                                     "type": "object",
                                                                     "properties": {
-                                                                        "duration": {
-                                                                            "description": "Total time in milliseconds",
-                                                                            "type": "number",
-                                                                            "exclusiveMinimum": 0
-                                                                        },
                                                                         "type": {
                                                                             "type": "string",
                                                                             "const": "glitch"
+                                                                        },
+                                                                        "duration": {
+                                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
                                                                         }
                                                                     },
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Resolves the text out of random glyphs, left to right"
                                                                 },
                                                                 {
                                                                     "type": "object",
@@ -1729,7 +1785,8 @@
                                                                     "required": [
                                                                         "type"
                                                                     ],
-                                                                    "additionalProperties": false
+                                                                    "additionalProperties": false,
+                                                                    "description": "Shows the text all at once"
                                                                 }
                                                             ]
                                                         }
@@ -1752,10 +1809,13 @@
                 "required": [
                     "content"
                 ],
-                "additionalProperties": false
-            }
+                "additionalProperties": false,
+                "description": "A screen of content. Its elements are revealed one after another."
+            },
+            "description": "The screens, by id. Links, commands and `next` refer to them by id."
         },
         "dialogs": {
+            "description": "The dialogs, by id. Actions open them by id.",
             "type": "object",
             "propertyNames": {
                 "type": "string",
@@ -1831,10 +1891,12 @@
                                 "properties": {
                                     "text": {
                                         "default": "YES",
+                                        "description": "The label (default: \"YES\")",
                                         "type": "string",
                                         "minLength": 1
                                     },
                                     "action": {
+                                        "description": "What happens when it's chosen",
                                         "anyOf": [
                                             {
                                                 "type": "object",
@@ -1873,18 +1935,19 @@
                                     "action"
                                 ],
                                 "additionalProperties": false,
-                                "description": "The \"yes\" button (<enter>) and what it does"
+                                "description": "The \"yes\" button, chosen with <enter>"
                             },
                             "cancel": {
-                                "description": "The \"no\" button (<esc>, or a click outside) and what it does, if anything",
                                 "type": "object",
                                 "properties": {
                                     "text": {
                                         "default": "NO",
+                                        "description": "The label (default: \"NO\")",
                                         "type": "string",
                                         "minLength": 1
                                     },
                                     "action": {
+                                        "description": "What happens when it's chosen (default: nothing; the dialog closes)",
                                         "anyOf": [
                                             {
                                                 "type": "object",
@@ -1919,7 +1982,8 @@
                                         ]
                                     }
                                 },
-                                "additionalProperties": false
+                                "additionalProperties": false,
+                                "description": "The \"no\" button, chosen with <esc> or a click outside the dialog"
                             },
                             "className": {
                                 "description": "Space-separated CSS classes",
@@ -1943,5 +2007,6 @@
         "screens"
     ],
     "additionalProperties": false,
-    "title": "Teletronix program"
+    "title": "Teletronix program",
+    "description": "A Teletronix program: its settings, screens and dialogs"
 }
