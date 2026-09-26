@@ -21,7 +21,7 @@ interface Press {
 
 /**
  * Primary and secondary clicks for an element. Secondary is a shift-click, Shift+Enter,
- * a right-click, or, on touch screens and pens, a long press. `holding` is true while a long press is under way.
+ * a right-click, or a long press (with a finger, pen or mouse). `holding` is true while a long press is under way.
  */
 export function useSecondaryPress(hasSecondary: boolean, onPress: (secondary: boolean) => void) {
     const [holding, setHolding] = useState(false);
@@ -42,7 +42,9 @@ export function useSecondaryPress(hasSecondary: boolean, onPress: (secondary: bo
         onPointerDown(event: PointerEvent) {
             pointerType.current = event.pointerType;
             swallowClick.current = false;
-            if (!hasSecondary || event.pointerType === "mouse" || !event.isPrimary) return;
+            // any pointer can long-press, but only with its main button (a right-click is
+            // already a secondary click of its own)
+            if (!hasSecondary || !event.isPrimary || event.button !== 0) return;
             cancel();
             const timer = setTimeout(() => {
                 press.current = null;

@@ -425,7 +425,7 @@
                 "A link that points to the current screen replays it:",
                 { "type": "link", "text": "> REPLAY THIS SCREEN", "action": { "screen": "links" } },
                 "",
-                "Links can have a secondary action, for a shift-click, right-click or long press (on touch screens). This one shows an alert, but use its secondary action to find a hidden screen:",
+                "Links can have a secondary action, for a shift-click, right-click or long press. This one shows an alert, but use its secondary action to find a hidden screen:",
                 {
                     "type": "link",
                     "text": "> LOCKED. Shift-click or long-press to unlock",

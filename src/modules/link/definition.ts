@@ -10,7 +10,7 @@ export const LinkSchema = z
         secondaryAction: ActionSchema.optional().meta({
             description:
                 "What happens on a secondary click: shift-click, right-click, Shift+Enter, or a " +
-                "long press on touch screens (default: the same as action)",
+                "long press (default: the same as action)",
         }),
         ...ElementBaseShape,
     })
