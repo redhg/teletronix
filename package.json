@@ -1,0 +1,36 @@
+{
+    "name": "teletronix",
+    "private": true,
+    "version": "0.1.0",
+    "type": "module",
+    "packageManager": "pnpm@11.27.1",
+    "engines": {
+        "node": ">=24"
+    },
+    "scripts": {
+        "dev": "vite",
+        "build": "pnpm typecheck && vite build",
+        "preview": "vite preview",
+        "typecheck": "tsc -b",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "lint": "biome check .",
+        "format": "biome check --write .",
+        "gen:schema": "node scripts/gen-schema.ts"
+    },
+    "dependencies": {
+        "react": "^19.3.0",
+        "react-dom": "^19.3.0",
+        "zod": "^4.6.5"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.5.14",
+        "@types/node": "^24.13.6",
+        "@types/react": "^19.3.0",
+        "@types/react-dom": "^19.3.0",
+        "@vitejs/plugin-react": "^6.1.1",
+        "typescript": "^7.0.2",
+        "vite": "^8.3.1",
+        "vitest": "^5.0.1"
+    }
+}

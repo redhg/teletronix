@@ -1,0 +1,4 @@
+.text {
+    /* keeps empty lines from collapsing */
+    min-height: 1lh;
+}

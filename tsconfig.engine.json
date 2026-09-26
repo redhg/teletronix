@@ -1,0 +1,9 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.engine.tsbuildinfo",
+        "lib": ["ES2023"],
+        "types": []
+    },
+    "include": ["src/engine", "src/modules/*/definition.ts", "src/modules/*/*.test.ts"]
+}

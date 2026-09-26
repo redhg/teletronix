@@ -1,0 +1,29 @@
+/* Design tokens. Palettes come from Phosphor; pick one with <html data-theme="…">. */
+:root {
+    --fg: rgb(212 249 250);
+    --bg: rgb(0 12 12);
+    --alert: rgb(255 60 0);
+
+    --glow: 0 0 5px rgb(from var(--fg) r g b / 0.5);
+    --alert-glow: 0 0 5px rgb(from var(--alert) r g b / 0.5);
+    --inverse-glow: 0 0 2px rgb(from var(--bg) r g b / 0.5);
+
+    --font-family: "VGA", "Departure Mono", ui-monospace, Menlo, Consolas, monospace;
+    --font-size: clamp(16px, 1.5vw + 10px, 32px);
+    --line-height: 1.25;
+}
+
+[data-theme="amber"] {
+    --fg: rgb(224 125 11);
+    --bg: rgb(8 4 0);
+}
+
+[data-theme="green"] {
+    --fg: rgb(36 161 20);
+    --bg: rgb(0 2 0);
+}
+
+[data-theme="white"] {
+    --fg: rgb(218 218 218);
+    --bg: rgb(2 2 2);
+}

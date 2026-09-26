@@ -1,0 +1,186 @@
+import { z } from "zod";
+import {
+    type Action,
+    IdSchema,
+    type RevealOption,
+    RevealSchema,
+    TeletypeOptionsSchema,
+} from "./common.ts";
+import { type Element, ElementSchema, moduleFor } from "./elements.ts";
+
+export const DEFAULT_TELETYPE_SPEED = 10;
+
+// ─── Authoring schema (what a JSON file contains) ────────────────────────────
+
+const ContentSchema = z.union([
+    z.string().meta({ description: "Shorthand for a text element" }),
+    ElementSchema,
+]);
+
+const ScreenSchema = z.strictObject({
+    reveal: RevealSchema.optional().meta({
+        description: "Default reveal for this screen's elements",
+    }),
+    content: z.array(ContentSchema).min(1),
+});
+
+const DialogSchema = z.strictObject({
+    type: z.literal("alert"),
+    content: z.array(z.string()).min(1),
+});
+
+const DefaultsSchema = z.strictObject({
+    reveal: RevealSchema.optional().meta({ description: 'Default reveal (default: "teletype")' }),
+    teletype: TeletypeOptionsSchema.optional().meta({
+        description: "Default teletype options",
+    }),
+});
+
+const ConfigSchema = z.strictObject({
+    name: z.string(),
+    author: z.string().optional(),
+    description: z.string().optional(),
+    start: IdSchema.optional().meta({ description: "The first screen (default: the first one)" }),
+    defaults: DefaultsSchema.optional(),
+});
+
+/** The shape of a Teletronix JSON file, before normalization. Used to generate the JSON Schema. */
+export const FileSchema = z
+    .strictObject({
+        $schema: z.string().optional(),
+        config: ConfigSchema,
+        screens: z.record(IdSchema, ScreenSchema),
+        dialogs: z.record(IdSchema, DialogSchema).optional(),
+    })
+    .meta({ title: "Teletronix program" });
+
+export type TeletronixFile = z.input<typeof FileSchema>;
+
+// ─── Normalized program (what the engine runs) ───────────────────────────────
+
+export interface Defaults {
+    reveal: RevealOption;
+    teletype: { speed: number };
+}
+
+export interface Screen {
+    id: string;
+    reveal?: RevealOption;
+    content: Element[];
+}
+
+export interface Dialog {
+    id: string;
+    type: "alert";
+    content: string[];
+}
+
+export interface Program {
+    config: { name: string; author?: string; description?: string };
+    start: string;
+    defaults: Defaults;
+    screens: ReadonlyMap<string, Screen>;
+    dialogs: ReadonlyMap<string, Dialog>;
+}
+
+function normalize(file: z.output<typeof FileSchema>): Program {
+    const { start, defaults, ...config } = file.config;
+
+    const screens = new Map<string, Screen>();
+    for (const [id, screen] of Object.entries(file.screens)) {
+        const content = screen.content.map((item, index): Element => {
+            const element = typeof item === "string" ? { type: "text" as const, text: item } : item;
+            return { ...element, id: `${id}#${index}` };
+        });
+        screens.set(id, { id, reveal: screen.reveal, content });
+    }
+
+    const dialogs = new Map<string, Dialog>();
+    for (const [id, dialog] of Object.entries(file.dialogs ?? {})) {
+        dialogs.set(id, { id, ...dialog });
+    }
+
+    return {
+        config,
+        // an empty `screens` is reported by the reference check below
+        start: start ?? screens.keys().next().value ?? "",
+        defaults: {
+            reveal: defaults?.reveal ?? { type: "teletype" },
+            teletype: { speed: defaults?.teletype?.speed ?? DEFAULT_TELETYPE_SPEED },
+        },
+        screens,
+        dialogs,
+    };
+}
+
+/** Cross-reference checks that a JSON Schema can't express. */
+function checkReferences(program: Program, ctx: z.RefinementCtx): void {
+    if (program.screens.size === 0) {
+        ctx.addIssue({ code: "custom", path: ["screens"], message: "Add at least one screen" });
+        return;
+    }
+
+    if (!program.screens.has(program.start)) {
+        ctx.addIssue({
+            code: "custom",
+            path: ["config", "start"],
+            message: `Unknown start screen "${program.start}"`,
+        });
+    }
+
+    const missing = (action: Action): string | null => {
+        const known = action.type === "screen" ? program.screens : program.dialogs;
+        return known.has(action.target) ? null : `Unknown ${action.type} "${action.target}"`;
+    };
+
+    for (const screen of program.screens.values()) {
+        screen.content.forEach((element, index) => {
+            for (const action of moduleFor(element).actions?.(element) ?? []) {
+                const message = missing(action);
+                if (message) {
+                    ctx.addIssue({
+                        code: "custom",
+                        path: ["screens", screen.id, "content", index],
+                        message,
+                    });
+                }
+            }
+        });
+    }
+}
+
+export const ProgramSchema = FileSchema.transform(normalize).superRefine(checkReferences);
+
+// ─── Parsing ─────────────────────────────────────────────────────────────────
+
+export interface ParseError {
+    /** Where the problem is, e.g. `screens.home.content[2].action` */
+    path: string;
+    message: string;
+}
+
+export type ParseResult = { ok: true; program: Program } | { ok: false; errors: ParseError[] };
+
+export function parseProgram(input: unknown): ParseResult {
+    const result = ProgramSchema.safeParse(input);
+    if (result.success) {
+        return { ok: true, program: result.data };
+    }
+
+    return {
+        ok: false,
+        errors: result.error.issues.map((issue) => ({
+            path: formatPath(issue.path),
+            message: issue.message,
+        })),
+    };
+}
+
+function formatPath(path: readonly PropertyKey[]): string {
+    return path.reduce<string>((out, key) => {
+        if (typeof key === "number") return `${out}[${key}]`;
+        const name = String(key);
+        if (!/^[A-Za-z_$][\w$]*$/.test(name)) return `${out}[${JSON.stringify(name)}]`;
+        return out ? `${out}.${name}` : name;
+    }, "");
+}

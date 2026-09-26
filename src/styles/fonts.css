@@ -1,0 +1,12 @@
+@font-face {
+    font-family: "VGA";
+    src: url("../assets/fonts/vga.woff2") format("woff2");
+    font-display: block;
+}
+
+/* Departure Mono by Helena Zhang, SIL Open Font License 1.1 (see departure-mono.LICENSE.txt) */
+@font-face {
+    font-family: "Departure Mono";
+    src: url("../assets/fonts/departure-mono.woff2") format("woff2");
+    font-display: block;
+}

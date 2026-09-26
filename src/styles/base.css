@@ -1,0 +1,35 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    background: var(--bg) radial-gradient(rgb(from var(--fg) r g b / 0.15), var(--bg) 100%) fixed;
+    color: var(--fg);
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    text-shadow: var(--glow);
+    -webkit-font-smoothing: none;
+}
+
+.alert {
+    color: var(--alert);
+    text-shadow: var(--alert-glow);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}

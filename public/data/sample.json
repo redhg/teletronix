@@ -1,0 +1,91 @@
+{
+    "$schema": "../../schema/teletronix.schema.json",
+    "config": {
+        "name": "Teletronix Sample",
+        "author": "@redhg",
+        "description": "Demonstrates every Teletronix feature.",
+        "start": "home"
+    },
+    "screens": {
+        "home": {
+            "content": [
+                "TELETRONIX // SAMPLE PROGRAM",
+                "============================",
+                "",
+                "Each line of a screen appears in turn. A bare string is a line of text. Long lines wrap at word boundaries to fit the window, so try resizing it.",
+                "",
+                "Click anywhere (except a link) to skip to the end of a screen.",
+                "",
+                { "type": "link", "text": "> TEXT", "action": { "screen": "text" } },
+                { "type": "link", "text": "> REVEALS", "action": { "screen": "reveals" } },
+                { "type": "link", "text": "> LINKS", "action": { "screen": "links" } }
+            ]
+        },
+        "text": {
+            "content": [
+                "TEXT",
+                "====",
+                "",
+                "A string can contain\nline breaks.",
+                "",
+                "An empty string makes a blank line, like the one above.",
+                { "type": "text", "text": "Text objects can add CSS classes, like \"alert\".", "className": "alert" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "reveals": {
+            "content": [
+                "REVEALS",
+                "=======",
+                "",
+                "By default, text teletypes in at 10ms per character.",
+                { "type": "text", "text": "Any element can change its speed...", "reveal": { "type": "teletype", "speed": 60 } },
+                { "type": "text", "text": "...or appear all at once.", "reveal": "none" },
+                "Screens and the config can set defaults too: the next screen shows everything instantly.",
+                "",
+                { "type": "link", "text": "> INSTANT SCREEN", "action": { "screen": "instant" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "instant": {
+            "reveal": "none",
+            "content": [
+                "INSTANT",
+                "=======",
+                "",
+                "This screen sets \"reveal\": \"none\", so its elements appear at once...",
+                { "type": "text", "text": "...unless an element overrides it, like this one.", "reveal": "teletype" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "reveals" } }
+            ]
+        },
+        "links": {
+            "content": [
+                "LINKS",
+                "=====",
+                "",
+                "A link that points to the current screen replays it:",
+                { "type": "link", "text": "> REPLAY THIS SCREEN", "action": { "screen": "links" } },
+                "",
+                "Links can do something different when shift-clicked. This one goes home, but shift-click it to find a hidden screen:",
+                {
+                    "type": "link",
+                    "text": "> LOCKED. Shift+click to unlock",
+                    "className": "alert",
+                    "action": { "screen": "home" },
+                    "shiftAction": { "screen": "secret" }
+                },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "secret": {
+            "content": [
+                { "type": "text", "text": "ACCESS GRANTED", "className": "alert" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "links" } }
+            ]
+        }
+    }
+}

@@ -1,0 +1,423 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "config": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "author": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "start": {
+                    "description": "The first screen (default: the first one)",
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]+$"
+                },
+                "defaults": {
+                    "type": "object",
+                    "properties": {
+                        "reveal": {
+                            "description": "Default reveal (default: \"teletype\")",
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "teletype",
+                                        "none"
+                                    ]
+                                },
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "speed": {
+                                                    "description": "Milliseconds per character",
+                                                    "type": "number",
+                                                    "exclusiveMinimum": 0
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "teletype"
+                                                }
+                                            },
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "additionalProperties": false
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "none"
+                                                }
+                                            },
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "additionalProperties": false
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "teletype": {
+                            "description": "Default teletype options",
+                            "type": "object",
+                            "properties": {
+                                "speed": {
+                                    "description": "Milliseconds per character",
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
+        },
+        "screens": {
+            "type": "object",
+            "propertyNames": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+            },
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "reveal": {
+                        "description": "Default reveal for this screen's elements",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "teletype",
+                                    "none"
+                                ]
+                            },
+                            {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "speed": {
+                                                "description": "Milliseconds per character",
+                                                "type": "number",
+                                                "exclusiveMinimum": 0
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "const": "teletype"
+                                            }
+                                        },
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "additionalProperties": false
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "type": {
+                                                "type": "string",
+                                                "const": "none"
+                                            }
+                                        },
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "content": {
+                        "minItems": 1,
+                        "type": "array",
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Shorthand for a text element"
+                                },
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "text"
+                                                },
+                                                "text": {
+                                                    "type": "string",
+                                                    "description": "The text to display. May contain line breaks."
+                                                },
+                                                "className": {
+                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                    "type": "string"
+                                                },
+                                                "reveal": {
+                                                    "description": "How text appears: \"teletype\" (character by character) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "teletype",
+                                                                "none"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "speed": {
+                                                                            "description": "Milliseconds per character",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "teletype"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "none"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "type",
+                                                "text"
+                                            ],
+                                            "additionalProperties": false,
+                                            "description": "A block of text. A bare string is shorthand for this."
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "link"
+                                                },
+                                                "text": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "action": {
+                                                    "description": "What happens when the link is clicked",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "screen": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "screen"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Navigate to a screen"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "dialog": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "dialog"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Open a dialog"
+                                                        }
+                                                    ]
+                                                },
+                                                "shiftAction": {
+                                                    "description": "What happens when the link is shift-clicked (defaults to action)",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "screen": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "screen"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Navigate to a screen"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "dialog": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "dialog"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Open a dialog"
+                                                        }
+                                                    ]
+                                                },
+                                                "className": {
+                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                    "type": "string"
+                                                },
+                                                "reveal": {
+                                                    "description": "How text appears: \"teletype\" (character by character) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "teletype",
+                                                                "none"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "speed": {
+                                                                            "description": "Milliseconds per character",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "teletype"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "none"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "type",
+                                                "text",
+                                                "action"
+                                            ],
+                                            "additionalProperties": false,
+                                            "description": "Clickable text that navigates to a screen or opens a dialog"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "content"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "dialogs": {
+            "type": "object",
+            "propertyNames": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+            },
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "const": "alert"
+                    },
+                    "content": {
+                        "minItems": 1,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "type",
+                    "content"
+                ],
+                "additionalProperties": false
+            }
+        }
+    },
+    "required": [
+        "config",
+        "screens"
+    ],
+    "additionalProperties": false,
+    "title": "Teletronix program"
+}

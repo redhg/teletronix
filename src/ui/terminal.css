@@ -1,0 +1,38 @@
+.terminal {
+    min-height: 100vh;
+    padding: 1lh;
+    user-select: none;
+}
+
+.screen {
+    /* the engine wraps lines itself, so the browser must not */
+    white-space: pre;
+    overflow-x: clip;
+}
+
+.cursor {
+    color: rgb(from var(--bg) r g b / 0.2);
+    background: var(--fg);
+}
+
+.alert .cursor {
+    background: var(--alert);
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.error-view {
+    user-select: text;
+}
+
+.error-view h1 {
+    font-size: inherit;
+    font-weight: normal;
+    margin: 0 0 1lh;
+}
+
+.error-view code {
+    font: inherit;
+}
