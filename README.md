@@ -166,7 +166,7 @@ back down picks it up again. Each new screen starts at the top. `"autoscroll": f
 off, in `config` for the whole program or on a screen.
 
 ### Appearance
-`config.theme` sets the colors: `"phosphor"` (the default), `"amber"`, `"green"`, `"white"`, or your
+`config.theme` sets the colors: `"default"` (pale blue on black), `"amber"`, `"green"`, `"white"`, or your
 own, e.g. `{ "fg": "#33ff66", "bg": "#001100" }`. `config.font` picks a typeface: `"ast-premiumexec"`
 (the default), `"ibm-vga"`, `"ibm-ega"`, `"ibm-cga"`, `"ibm-cga-thin"`, `"ibm-mda"`,
 `"toshiba-satellite"` or `"departure-mono"`. Text is sized to whole multiples of the font's pixel

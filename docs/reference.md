@@ -43,7 +43,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `reveal` | [Reveal](#reveal) | `"teletype"` | How text appears on every screen, unless a screen or element says otherwise |
 | `transition` | [Transition](#transition) | `"none"` | How screens leave, unless the next screen says otherwise |
 | `defaults` | [Defaults](#defaults) |  | Default options for each kind of reveal |
-| `theme` | [Theme](#theme) | `"phosphor"` | The color scheme: "phosphor" (pale blue on black), "amber", "green" or "white", or your own colors |
+| `theme` | [Theme](#theme) | `"default"` | The color scheme: "default" (pale blue on black), "amber", "green" or "white", or your own colors |
 | `font` | `"ast-premiumexec"` \| `"ibm-vga"` \| `"ibm-ega"` \| `"ibm-cga"` \| `"ibm-cga-thin"` \| `"ibm-mda"` \| `"toshiba-satellite"` \| `"departure-mono"` | `"ast-premiumexec"` | The typeface, from a set of period PC fonts |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |
 | `blockContextMenu` | boolean | `true` | Block the browser's right-click menu, so the program feels like a terminal rather than a web page. Text fields keep theirs |
@@ -358,11 +358,11 @@ The "no" button, chosen with <esc> or a click outside the dialog
 
 ### Theme
 
-The color scheme: "phosphor" (pale blue on black), "amber", "green" or "white", or your own colors (default: "phosphor")
+The color scheme: "default" (pale blue on black), "amber", "green" or "white", or your own colors (default: "default")
 
 One of:
 
-- `"phosphor"` | `"amber"` | `"green"` | `"white"`
+- `"default"` | `"amber"` | `"green"` | `"white"`
 - [Custom theme](#custom-theme)
 
 <a id="custom-theme"></a>

@@ -220,7 +220,7 @@
                         {
                             "type": "string",
                             "enum": [
-                                "phosphor",
+                                "default",
                                 "amber",
                                 "green",
                                 "white"
@@ -253,7 +253,7 @@
                             "description": "Your own colors"
                         }
                     ],
-                    "description": "The color scheme: \"phosphor\" (pale blue on black), \"amber\", \"green\" or \"white\", or your own colors (default: \"phosphor\")"
+                    "description": "The color scheme: \"default\" (pale blue on black), \"amber\", \"green\" or \"white\", or your own colors (default: \"default\")"
                 },
                 "font": {
                     "type": "string",

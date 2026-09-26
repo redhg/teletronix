@@ -35,14 +35,14 @@ export interface Palette {
 }
 
 export const THEMES = {
-    phosphor: { fg: "#d4f9fa", bg: "#000c0c", alert: "#ff3c00" },
+    default: { fg: "#d4f9fa", bg: "#000c0c", alert: "#ff3c00" },
     amber: { fg: "#e07d0b", bg: "#080400", alert: "#ff3c00" },
     green: { fg: "#24a114", bg: "#000200", alert: "#ff3c00" },
     white: { fg: "#dadada", bg: "#020202", alert: "#ff3c00" },
 } as const satisfies Record<string, Palette>;
 
 export type ThemeName = keyof typeof THEMES;
-export const DEFAULT_THEME: ThemeName = "phosphor";
+export const DEFAULT_THEME: ThemeName = "default";
 
 const ColorSchema = z
     .string()
@@ -63,8 +63,8 @@ export const ThemeSchema = z
     .union([z.enum(Object.keys(THEMES) as [ThemeName, ...ThemeName[]]), CustomThemeSchema])
     .meta({
         description:
-            'The color scheme: "phosphor" (pale blue on black), "amber", "green" or "white", ' +
-            'or your own colors (default: "phosphor")',
+            'The color scheme: "default" (pale blue on black), "amber", "green" or "white", ' +
+            'or your own colors (default: "default")',
     });
 
 export type ThemeSetting = z.output<typeof ThemeSchema>;

@@ -7,10 +7,10 @@ const parse = (config: object) =>
     parseProgram({ config: { name: "Test", ...config }, screens: { home: { content: ["x"] } } });
 
 describe("appearance", () => {
-    it("defaults to the phosphor theme and AST Premium Exec", () => {
+    it("defaults to the default theme and AST Premium Exec", () => {
         const result = parse({});
         if (!result.ok) throw new Error(JSON.stringify(result.errors));
-        expect(result.program.palette).toEqual(THEMES.phosphor);
+        expect(result.program.palette).toEqual(THEMES.default);
         expect(result.program.font).toBe("ast-premiumexec");
     });
 
