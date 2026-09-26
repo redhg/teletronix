@@ -22,6 +22,9 @@ export default defineConfig({
         trace: "retain-on-failure",
         // fail fast on a missing element, rather than at the test timeout
         actionTimeout: 10_000,
+        // the offline cache would answer requests before tests' own routes could; its tests
+        // turn it on
+        serviceWorkers: "block",
     },
     projects: [
         { name: "chromium", use: { browserName: "chromium" } },

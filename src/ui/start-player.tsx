@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import type { Root } from "react-dom/client";
 import { Terminal } from "../engine/index.ts";
+import { rememberProgram } from "../last-program.ts";
 import { AnimationFrameTicker } from "./animation-frame-ticker.ts";
 import { applyAppearance, loadFont } from "./appearance.ts";
 import { ErrorView } from "./ErrorView.tsx";
@@ -25,6 +26,7 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
     }
 
     const { program } = result;
+    if (!params.has("preview")) rememberProgram(location.search);
     document.title = program.config.name;
     applyAppearance(program.palette, program.font);
     // wait briefly for the font, so the first measurement of the line length is right

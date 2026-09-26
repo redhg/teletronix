@@ -1,9 +1,12 @@
 import { createRoot } from "react-dom/client";
+import { lastProgram } from "./last-program.ts";
 
 // `?config` opens the appearance settings for a program, `?sound` the sound test page;
 // anything else plays a program.
 // Each loads only its own code and styles.
-const params = new URLSearchParams(location.search);
+const search = lastProgram(location.search);
+if (search !== location.search) history.replaceState(null, "", search);
+const params = new URLSearchParams(search);
 const root = createRoot(document.getElementById("root") as HTMLElement);
 
 if (params.has("sound")) {

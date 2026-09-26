@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+    <title>Teletronix</title>
+    <!-- Teletronix: a pixel ">_" prompt, in the default theme's colors. Kept inside the middle
+    half so it survives the masks that phones and tablets apply to app icons. -->
+    <defs>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1.2" />
+        </filter>
+        <g id="prompt" fill="#d4f9fa">
+            <rect x="8" y="11" width="4" height="2" />
+            <rect x="10" y="13" width="4" height="2" />
+            <rect x="12" y="15" width="4" height="2" />
+            <rect x="10" y="17" width="4" height="2" />
+            <rect x="8" y="19" width="4" height="2" />
+            <rect x="17" y="19" width="7" height="2" />
+        </g>
+    </defs>
+    <rect width="32" height="32" fill="#000c0c" />
+    <use href="#prompt" filter="url(#glow)" opacity="0.6" />
+    <use href="#prompt" />
+</svg>

@@ -318,6 +318,19 @@ screen:
   selection and zooming, and asks before the page is closed or left.
 - **Ctrl+Alt+R** restarts the program from its start screen, with variables reset.
 
+### Offline
+Once Teletronix has been opened, it works without a network: the app, its fonts, and every
+program in `public/data` (with its images) are kept on the device. It can also be installed as
+an app ("Install" in Chrome and Edge, "Add to Home Screen" on iPhone and iPad), which opens full
+screen, without the browser around it, at the last program played on that device.
+
+A new version installs in the background and takes over the next time Teletronix is opened
+after all its tabs and windows have closed, so it never interrupts a session. Offline caching
+only runs in a build (`npm run build`, `npm run preview`), not the dev server.
+
+The icon is drawn in `public/icons/icon.svg`; after changing it, run `node scripts/icons.ts`
+to render the PNG sizes.
+
 ## Tests
 Two suites, both run on every push by GitHub Actions:
 
