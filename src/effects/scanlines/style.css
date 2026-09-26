@@ -1,0 +1,59 @@
+/* Phosphor's scanlines: 1px dark and light lines. At the default opacity (0.5) this matches
+   Phosphor's look exactly. */
+:root {
+    --scanlines-pattern: linear-gradient(
+        to bottom,
+        var(--bg) 50%,
+        rgb(from var(--fg) r g b / 0.2) 51%
+    );
+}
+
+.scanlines,
+:root[data-scanlines] .dialog::after {
+    background: var(--scanlines-pattern);
+    background-size: 100% 2px;
+    opacity: var(--scanlines-opacity);
+    pointer-events: none;
+}
+
+.scanlines {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+}
+
+:root[data-scanlines] .dialog::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+/* a soft bright band rolling down the screen */
+.scanlines-moving::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 15vh;
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        rgb(from var(--fg) r g b / 0.15),
+        transparent
+    );
+    animation: scanlines-roll 6s linear infinite;
+}
+
+@keyframes scanlines-roll {
+    from {
+        transform: translateY(-15vh);
+    }
+    to {
+        transform: translateY(100vh);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scanlines-moving::before {
+        display: none;
+    }
+}

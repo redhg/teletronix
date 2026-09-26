@@ -2,6 +2,7 @@ import type { Random } from "../random.ts";
 import { resolveTransition } from "../reveal/index.ts";
 import type { Action } from "../schema/common.ts";
 import { type Dialog, dialogAction } from "../schema/dialog.ts";
+import { type ResolvedEffects, resolveEffects } from "../schema/effects.ts";
 import type { Element } from "../schema/elements.ts";
 import type { Program } from "../schema/program.ts";
 import type { Ticker } from "../time/ticker.ts";
@@ -35,6 +36,8 @@ export interface TerminalSnapshot {
     /** The previous screen, while it erases itself over the current one. */
     outgoing: ScreenSnapshot | null;
     dialog: Dialog | null;
+    /** The effects that are on for the current screen. */
+    effects: ResolvedEffects;
 }
 
 const DEFAULT_COLUMNS = 80;
@@ -60,7 +63,14 @@ export class Terminal {
     private run: ScreenRun | null = null;
     private outgoing: ScreenRun | null = null;
     private dialog: Dialog | null = null;
-    private snapshot: TerminalSnapshot = { screen: null, outgoing: null, dialog: null };
+    /** Resolved once per screen, so effect views see the same object on every visit. */
+    private readonly effects = new Map<string, ResolvedEffects>();
+    private snapshot: TerminalSnapshot = {
+        screen: null,
+        outgoing: null,
+        dialog: null,
+        effects: {},
+    };
     private dirty = false;
     private unsubscribeTicker: (() => void) | null = null;
 
@@ -220,6 +230,16 @@ export class Terminal {
         }
     }
 
+    private effectsFor(screenId: string): ResolvedEffects {
+        let effects = this.effects.get(screenId);
+        if (!effects) {
+            const screen = this.program.screens.get(screenId);
+            effects = resolveEffects(this.program.effects, screen?.effects);
+            this.effects.set(screenId, effects);
+        }
+        return effects;
+    }
+
     private readonly wake = (): void => {
         this.syncTicker();
         this.flush();
@@ -238,6 +258,7 @@ export class Terminal {
             screen: snapshot(this.run),
             outgoing: snapshot(this.outgoing),
             dialog: this.dialog,
+            effects: this.run ? this.effectsFor(this.run.screen.id) : resolveEffects(),
         };
         for (const listener of this.listeners) listener();
     }

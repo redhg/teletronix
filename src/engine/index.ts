@@ -9,6 +9,7 @@ export {
 export { type ScreenSnapshot, Terminal, type TerminalSnapshot } from "./runtime/terminal.ts";
 export type { Action } from "./schema/common.ts";
 export { dialogAction } from "./schema/dialog.ts";
+export type { EffectName, EffectOptions, ResolvedEffects } from "./schema/effects.ts";
 export type { Element, ElementOf, ElementType } from "./schema/elements.ts";
 export {
     type Dialog,

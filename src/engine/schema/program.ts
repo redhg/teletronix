@@ -10,6 +10,7 @@ import {
     TransitionSchema,
 } from "./common.ts";
 import { type Dialog, DialogSchema, dialogAction } from "./dialog.ts";
+import { EffectsSchema, type EffectsSetting } from "./effects.ts";
 import { type Element, ElementSchema, moduleFor } from "./elements.ts";
 
 export type { Dialog } from "./dialog.ts";
@@ -30,6 +31,9 @@ const ScreenSchema = z.strictObject({
     }),
     transition: TransitionSchema.optional().meta({
         description: "How the previous screen leaves when this one is shown",
+    }),
+    effects: EffectsSchema.optional().meta({
+        description: "Effects for this screen, layered over the config's",
     }),
     content: z.array(ContentSchema).min(1),
 });
@@ -53,6 +57,7 @@ const ConfigSchema = z.strictObject({
     description: z.string().optional(),
     start: IdSchema.optional().meta({ description: "The first screen (default: the first one)" }),
     defaults: DefaultsSchema.optional(),
+    effects: EffectsSchema.optional(),
 });
 
 /** The shape of a Teletronix JSON file, before normalization. Used to generate the JSON Schema. */
@@ -80,6 +85,7 @@ export interface Screen {
     id: string;
     reveal?: RevealOption;
     transition?: TransitionOption;
+    effects?: EffectsSetting;
     content: Element[];
 }
 
@@ -87,12 +93,13 @@ export interface Program {
     config: { name: string; author?: string; description?: string };
     start: string;
     defaults: Defaults;
+    effects?: EffectsSetting;
     screens: ReadonlyMap<string, Screen>;
     dialogs: ReadonlyMap<string, Dialog>;
 }
 
 function normalize(file: z.output<typeof FileSchema>): Program {
-    const { start, defaults, ...config } = file.config;
+    const { start, defaults, effects, ...config } = file.config;
 
     const screens = new Map<string, Screen>();
     for (const [id, screen] of Object.entries(file.screens)) {
@@ -100,7 +107,8 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             const element = typeof item === "string" ? { type: "text" as const, text: item } : item;
             return { ...element, id: `${id}#${index}` };
         });
-        screens.set(id, { id, reveal: screen.reveal, transition: screen.transition, content });
+        const { reveal, transition, effects } = screen;
+        screens.set(id, { id, reveal, transition, effects, content });
     }
 
     const dialogs = new Map<string, Dialog>();
@@ -118,6 +126,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             teletype: { speed: defaults?.teletype?.speed ?? DEFAULT_TELETYPE_SPEED },
             glitch: { duration: defaults?.glitch?.duration ?? DEFAULT_GLITCH_DURATION },
         },
+        effects,
         screens,
         dialogs,
     };

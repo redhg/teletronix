@@ -1,5 +1,6 @@
 import { type PointerEvent, useCallback, useLayoutEffect, useRef } from "react";
 import { DialogView } from "./DialogView.tsx";
+import { EffectsLayer } from "./effects.tsx";
 import { ScreenView } from "./ScreenView.tsx";
 import { useTerminal, useTerminalSnapshot } from "./terminal-context.ts";
 import { useColumns } from "./use-columns.ts";
@@ -7,7 +8,7 @@ import "./terminal.css";
 
 export function TerminalView() {
     const terminal = useTerminal();
-    const { screen, outgoing, dialog } = useTerminalSnapshot();
+    const { screen, outgoing, dialog, effects } = useTerminalSnapshot();
     const ref = useRef<HTMLElement>(null);
 
     const setColumns = useCallback((columns: number) => terminal.setColumns(columns), [terminal]);
@@ -43,6 +44,7 @@ export function TerminalView() {
                     {outgoing && <ScreenView key={outgoing.run.key} screen={outgoing} outgoing />}
                 </div>
             </main>
+            <EffectsLayer effects={effects} />
             {dialog && <DialogView key={dialog.id} dialog={dialog} />}
         </>
     );

@@ -5,5 +5,10 @@
         "lib": ["ES2023"],
         "types": []
     },
-    "include": ["src/engine", "src/modules/*/definition.ts", "src/modules/*/*.test.ts"]
+    "include": [
+        "src/engine",
+        "src/modules/*/definition.ts",
+        "src/modules/*/*.test.ts",
+        "src/effects/*/definition.ts"
+    ]
 }

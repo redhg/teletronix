@@ -9,7 +9,11 @@
     },
     "overrides": [
         {
-            "includes": ["src/engine/**", "src/modules/*/definition.ts"],
+            "includes": [
+                "src/engine/**",
+                "src/modules/*/definition.ts",
+                "src/effects/*/definition.ts"
+            ],
             "linter": {
                 "rules": {
                     "style": {

@@ -164,6 +164,69 @@
                         }
                     },
                     "additionalProperties": false
+                },
+                "effects": {
+                    "type": "object",
+                    "properties": {
+                        "scanlines": {
+                            "description": "CRT scanlines (on by default)",
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "opacity": {
+                                            "description": "Strength of the lines, from 0 to 1 (default: 0.5)",
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 1
+                                        },
+                                        "moving": {
+                                            "description": "Roll a bright line down the screen (default: true)",
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            ]
+                        },
+                        "static": {
+                            "description": "Analog TV noise (off by default)",
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "opacity": {
+                                            "description": "Strength of the noise, from 0 to 1 (default: 0.15)",
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 1
+                                        },
+                                        "fps": {
+                                            "description": "Noise frames per second (default: 24)",
+                                            "type": "number",
+                                            "minimum": 1,
+                                            "maximum": 60
+                                        },
+                                        "scale": {
+                                            "description": "Size of a noise pixel, in screen pixels (default: 3)",
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 16
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            ]
+                        }
+                    },
+                    "additionalProperties": false,
+                    "description": "Visual effects: true, false, or an object of options"
                 }
             },
             "required": [
@@ -293,6 +356,69 @@
                                 ]
                             }
                         ]
+                    },
+                    "effects": {
+                        "description": "Effects for this screen, layered over the config's",
+                        "type": "object",
+                        "properties": {
+                            "scanlines": {
+                                "description": "CRT scanlines (on by default)",
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "opacity": {
+                                                "description": "Strength of the lines, from 0 to 1 (default: 0.5)",
+                                                "type": "number",
+                                                "minimum": 0,
+                                                "maximum": 1
+                                            },
+                                            "moving": {
+                                                "description": "Roll a bright line down the screen (default: true)",
+                                                "type": "boolean"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            },
+                            "static": {
+                                "description": "Analog TV noise (off by default)",
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "opacity": {
+                                                "description": "Strength of the noise, from 0 to 1 (default: 0.15)",
+                                                "type": "number",
+                                                "minimum": 0,
+                                                "maximum": 1
+                                            },
+                                            "fps": {
+                                                "description": "Noise frames per second (default: 24)",
+                                                "type": "number",
+                                                "minimum": 1,
+                                                "maximum": 60
+                                            },
+                                            "scale": {
+                                                "description": "Size of a noise pixel, in screen pixels (default: 3)",
+                                                "type": "integer",
+                                                "minimum": 1,
+                                                "maximum": 16
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            }
+                        },
+                        "additionalProperties": false
                     },
                     "content": {
                         "minItems": 1,

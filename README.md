@@ -74,6 +74,21 @@ Text appears with a **reveal**, set per element, per screen or in `config.defaul
 A screen's `transition` controls how the previous screen leaves: `"cut"` (the default) or
 `"glitch"`, where the old screen erases itself over the new one as it appears.
 
+### Effects
+`config.effects` turns visual effects on or off and sets their options. A screen's `effects`
+layers over the config's.
+
+| Effect | Default | Options |
+|---|---|---|
+| `scanlines` | on | `opacity` (0–1, default 0.5), `moving` (a rolling bright band, default true) |
+| `static` | off | `opacity` (0–1, default 0.15), `fps` (default 24), `scale` (noise pixel size, default 3) |
+
+```json
+"effects": { "scanlines": { "opacity": 0.3 }, "static": true }
+```
+
+Moving effects hold still when the system asks for reduced motion.
+
 The glitch effect is ported from [musicforprogramming.net](https://musicforprogramming.net).
 
 ## Layout
@@ -81,5 +96,6 @@ The glitch effect is ported from [musicforprogramming.net](https://musicforprogr
   reveals). It can't import React or use the DOM; Biome and the engine's tsconfig enforce this.
 - `src/modules/<name>/`: one folder per element type. `definition.ts` holds the schema and
   engine behavior; `View.tsx` holds the React view.
+- `src/effects/<name>/`: one folder per visual effect, split the same way as modules.
 - `src/ui/`: the React layer. Per-frame text is written straight to the DOM, so React only
   re-renders on structural changes.

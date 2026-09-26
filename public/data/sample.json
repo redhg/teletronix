@@ -23,7 +23,33 @@
                 { "type": "link", "text": "> TOGGLES", "action": { "screen": "toggles" } },
                 { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
                 { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
-                { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } }
+                { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
+                { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } }
+            ]
+        },
+        "effects": {
+            "effects": { "static": { "opacity": 0.25 } },
+            "content": [
+                "EFFECTS",
+                "=======",
+                "",
+                "Scanlines are on by default. \"effects\" in the config turns effects on or off and tunes them, and each screen can override that.",
+                "",
+                "This screen adds \"static\": analog TV noise.",
+                "",
+                { "type": "link", "text": "> CLEAN SIGNAL", "action": { "screen": "clean" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "clean": {
+            "effects": { "scanlines": false },
+            "content": [
+                "CLEAN SIGNAL",
+                "============",
+                "",
+                "This screen turns the scanlines off.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "effects" } }
             ]
         },
         "dialogs": {
