@@ -21,21 +21,21 @@ export const GlitchOptionsSchema = z.strictObject({
 
 const TeletypeRevealSchema = TeletypeOptionsSchema.extend({ type: z.literal("teletype") });
 const GlitchRevealSchema = GlitchOptionsSchema.extend({ type: z.literal("glitch") });
-const NoneRevealSchema = z.strictObject({ type: z.literal("none") });
+const InstantRevealSchema = z.strictObject({ type: z.literal("instant") });
 
 const RevealObjectSchema = z.discriminatedUnion("type", [
     TeletypeRevealSchema,
     GlitchRevealSchema,
-    NoneRevealSchema,
+    InstantRevealSchema,
 ]);
 
 export const RevealSchema = z
-    .union([z.enum(["teletype", "glitch", "none"]), RevealObjectSchema])
+    .union([z.enum(["teletype", "glitch", "instant"]), RevealObjectSchema])
     .transform((reveal) => (typeof reveal === "string" ? { type: reveal } : reveal))
     .meta({
         description:
             'How text appears: "teletype" (character by character), "glitch" (resolves out of ' +
-            'random glyphs) or "none" (instantly). Use an object to override options, e.g. ' +
+            'random glyphs) or "instant" (all at once). Use an object to override options, e.g. ' +
             '{ "type": "teletype", "speed": 20 }. When a screen or the config sets "glitch", ' +
             "consecutive elements that don't set their own reveal glitch in together as one block.",
     });

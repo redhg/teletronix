@@ -68,6 +68,8 @@ export class Terminal {
     private run: ScreenRun | null = null;
     private outgoing: ScreenRun | null = null;
     private outgoingTransition: OutgoingSnapshot["transition"] | null = null;
+    /** Set once the current screen's `next` has fired, so it fires only once per visit. */
+    private nextFired = false;
     private dialog: Dialog | null = null;
     /** Resolved once per screen, so effect views see the same object on every visit. */
     private readonly effects = new Map<string, ResolvedEffects>();
@@ -128,6 +130,7 @@ export class Terminal {
         if (!screen) throw new Error(`Unknown screen "${screenId}"`);
         const now = this.ticker.now();
         this.dialog = null;
+        this.nextFired = false;
 
         const transition = resolveTransition(screen.transition, this.program.defaults);
         // a transition that's still playing is cut short by the next one
@@ -189,9 +192,20 @@ export class Terminal {
         this.run?.refresh(elementId);
     }
 
+    /**
+     * Moves on to the current screen's `next`, if it goes on at any key. Returns whether
+     * it did, so the UI can treat the click or key press as handled.
+     */
+    proceed(): boolean {
+        const next = this.run?.screen.next;
+        if (!next?.anyKey || this.dialog || this.nextFired) return false;
+        this.goNext(next.action);
+        return true;
+    }
+
     /** Finishes revealing the current screen immediately, and any transition with it. */
     skip(): void {
-        this.run?.skip();
+        this.run?.skip(this.ticker.now());
         if (this.outgoing) {
             this.outgoing = null;
             this.markDirty();
@@ -218,6 +232,10 @@ export class Terminal {
 
     private readonly tick = (now: number): void => {
         this.run?.advance(now);
+        const due = this.nextDue();
+        if (due !== null && now >= due && this.run?.screen.next) {
+            this.goNext(this.run.screen.next.action);
+        }
         this.outgoing?.advance(now);
         if (this.outgoing?.erased) {
             this.outgoing = null;
@@ -227,9 +245,25 @@ export class Terminal {
         this.flush();
     };
 
+    /** When the current screen's timed `next` fires, or null if it has none (or not yet known). */
+    private nextDue(): number | null {
+        const after = this.run?.screen.next?.after;
+        const finished = this.run?.finishedAt ?? null;
+        if (after === undefined || finished === null || this.nextFired) return null;
+        return finished + after;
+    }
+
+    private goNext(action: Action): void {
+        this.nextFired = true;
+        this.dispatch(action);
+    }
+
     /** Only listen to the ticker while something is animating, so an idle terminal costs nothing. */
     private syncTicker(): void {
-        const animating = (this.run?.animating ?? false) || (this.outgoing?.animating ?? false);
+        const animating =
+            (this.run?.animating ?? false) ||
+            (this.outgoing?.animating ?? false) ||
+            this.nextDue() !== null;
         if (animating && !this.unsubscribeTicker) {
             this.unsubscribeTicker = this.ticker.subscribe(this.tick);
         } else if (!animating && this.unsubscribeTicker) {

@@ -2,7 +2,7 @@ import type { Random } from "../random.ts";
 import type { RevealOption, TransitionOption } from "../schema/common.ts";
 import type { Defaults } from "../schema/program.ts";
 import { createGlitchReveal } from "./glitch-reveal.ts";
-import { createNoneReveal } from "./none.ts";
+import { createInstantReveal } from "./instant.ts";
 import { createTeletype } from "./teletype.ts";
 import type { Frame, Reveal } from "./types.ts";
 
@@ -14,7 +14,7 @@ export type { Frame, Reveal, Segment, SegmentKind } from "./types.ts";
 export type RevealSpec =
     | { type: "teletype"; speed: number }
     | { type: "glitch"; duration: number }
-    | { type: "none" };
+    | { type: "instant" };
 
 export interface ResolvedReveal {
     spec: RevealSpec;
@@ -64,8 +64,8 @@ export function createReveal(text: string, spec: RevealSpec, random?: Random): R
             return createTeletype(text, spec);
         case "glitch":
             return createGlitchReveal(text, { duration: spec.duration, random });
-        case "none":
-            return createNoneReveal(text);
+        case "instant":
+            return createInstantReveal(text);
     }
 }
 
@@ -75,8 +75,8 @@ function fillOptions(option: RevealOption, defaults: Defaults): RevealSpec {
             return { ...defaults.teletype, ...definedOnly(option), type: "teletype" };
         case "glitch":
             return { ...defaults.glitch, ...definedOnly(option), type: "glitch" };
-        case "none":
-            return { type: "none" };
+        case "instant":
+            return { type: "instant" };
     }
 }
 

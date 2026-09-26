@@ -33,7 +33,7 @@
                                     "enum": [
                                         "teletype",
                                         "glitch",
-                                        "none"
+                                        "instant"
                                     ]
                                 },
                                 {
@@ -79,7 +79,7 @@
                                             "properties": {
                                                 "type": {
                                                     "type": "string",
-                                                    "const": "none"
+                                                    "const": "instant"
                                                 }
                                             },
                                             "required": [
@@ -363,7 +363,7 @@
                                 "enum": [
                                     "teletype",
                                     "glitch",
-                                    "none"
+                                    "instant"
                                 ]
                             },
                             {
@@ -409,7 +409,7 @@
                                         "properties": {
                                             "type": {
                                                 "type": "string",
-                                                "const": "none"
+                                                "const": "instant"
                                             }
                                         },
                                         "required": [
@@ -642,8 +642,61 @@
                         },
                         "additionalProperties": false
                     },
+                    "next": {
+                        "type": "object",
+                        "properties": {
+                            "after": {
+                                "description": "Milliseconds to wait after the screen has finished revealing",
+                                "type": "number",
+                                "minimum": 0
+                            },
+                            "anyKey": {
+                                "description": "Also go on at any click or key press (default: false)",
+                                "type": "boolean"
+                            },
+                            "action": {
+                                "description": "Where to go",
+                                "anyOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "screen": {
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                            }
+                                        },
+                                        "required": [
+                                            "screen"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "Navigate to a screen"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "dialog": {
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                            }
+                                        },
+                                        "required": [
+                                            "dialog"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "Open a dialog"
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "action"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Moves on without a link: after a delay, at any key, or both. With empty content and \"static\" at full opacity, this makes a burst of noise between screens."
+                    },
                     "content": {
-                        "minItems": 1,
                         "type": "array",
                         "items": {
                             "anyOf": [
@@ -669,14 +722,14 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
                                                             "enum": [
                                                                 "teletype",
                                                                 "glitch",
-                                                                "none"
+                                                                "instant"
                                                             ]
                                                         },
                                                         {
@@ -722,7 +775,7 @@
                                                                     "properties": {
                                                                         "type": {
                                                                             "type": "string",
-                                                                            "const": "none"
+                                                                            "const": "instant"
                                                                         }
                                                                     },
                                                                     "required": [
@@ -828,14 +881,14 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
                                                             "enum": [
                                                                 "teletype",
                                                                 "glitch",
-                                                                "none"
+                                                                "instant"
                                                             ]
                                                         },
                                                         {
@@ -881,7 +934,7 @@
                                                                     "properties": {
                                                                         "type": {
                                                                             "type": "string",
-                                                                            "const": "none"
+                                                                            "const": "instant"
                                                                         }
                                                                     },
                                                                     "required": [
@@ -929,14 +982,14 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
                                                             "enum": [
                                                                 "teletype",
                                                                 "glitch",
-                                                                "none"
+                                                                "instant"
                                                             ]
                                                         },
                                                         {
@@ -982,7 +1035,7 @@
                                                                     "properties": {
                                                                         "type": {
                                                                             "type": "string",
-                                                                            "const": "none"
+                                                                            "const": "instant"
                                                                         }
                                                                     },
                                                                     "required": [
@@ -1090,14 +1143,14 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
                                                             "enum": [
                                                                 "teletype",
                                                                 "glitch",
-                                                                "none"
+                                                                "instant"
                                                             ]
                                                         },
                                                         {
@@ -1143,7 +1196,7 @@
                                                                     "properties": {
                                                                         "type": {
                                                                             "type": "string",
-                                                                            "const": "none"
+                                                                            "const": "instant"
                                                                         }
                                                                     },
                                                                     "required": [
@@ -1185,14 +1238,14 @@
                                                     "type": "string"
                                                 },
                                                 "reveal": {
-                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
                                                     "anyOf": [
                                                         {
                                                             "type": "string",
                                                             "enum": [
                                                                 "teletype",
                                                                 "glitch",
-                                                                "none"
+                                                                "instant"
                                                             ]
                                                         },
                                                         {
@@ -1238,7 +1291,7 @@
                                                                     "properties": {
                                                                         "type": {
                                                                             "type": "string",
-                                                                            "const": "none"
+                                                                            "const": "instant"
                                                                         }
                                                                     },
                                                                     "required": [
@@ -1262,7 +1315,8 @@
                                     ]
                                 }
                             ]
-                        }
+                        },
+                        "description": "The elements, revealed in order. Can be empty."
                     }
                 },
                 "required": [

@@ -1,10 +1,13 @@
-import { type PointerEvent, useCallback, useLayoutEffect, useRef } from "react";
+import { type PointerEvent, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { DialogView } from "./DialogView.tsx";
 import { EffectsLayer } from "./effects.tsx";
 import { ScreenView } from "./ScreenView.tsx";
 import { useTerminal, useTerminalSnapshot } from "./terminal-context.ts";
 import { useColumns } from "./use-columns.ts";
 import "./terminal.css";
+
+const IGNORED_KEYS = new Set(["Shift", "Control", "Alt", "Meta", "CapsLock", "Tab"]);
+const KEY_TARGETS = "input, textarea, dialog, button, a";
 
 export function TerminalView() {
     const terminal = useTerminal();
@@ -19,8 +22,20 @@ export function TerminalView() {
         if (!terminal.getSnapshot().screen) terminal.start();
     }, [terminal]);
 
-    // Clicking anywhere that isn't a control finishes the current screen, and keeps (or
-    // puts) the keyboard in the screen's prompt, if it has one.
+    // "next": { "anyKey": true } moves on at a key press, unless the key is meant for
+    // something else: typing, a dialog, moving focus, or pressing a focused link
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.defaultPrevented || event.repeat || IGNORED_KEYS.has(event.key)) return;
+            if (event.target instanceof Element && event.target.closest(KEY_TARGETS)) return;
+            if (terminal.proceed()) event.preventDefault();
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [terminal]);
+
+    // Clicking anywhere that isn't a control moves on (for "anyKey" screens) or finishes
+    // the current screen, and keeps (or puts) the keyboard in the screen's prompt, if any.
     const handlePointerDown = (event: PointerEvent) => {
         if (event.target instanceof Element && event.target.closest("button, a, input, label")) {
             return;
@@ -28,6 +43,7 @@ export function TerminalView() {
         // otherwise the click would move focus to the page, away from a prompt that the
         // skip below (or an earlier reveal) just focused
         event.preventDefault();
+        if (terminal.proceed()) return;
         terminal.skip();
         ref.current
             ?.querySelector<HTMLInputElement>(".screen:not(.outgoing) .prompt input:not(:disabled)")

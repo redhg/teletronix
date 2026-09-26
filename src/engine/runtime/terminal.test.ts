@@ -21,7 +21,7 @@ const FILE: TeletronixFile = {
             ],
         },
         other: {
-            reveal: "none",
+            reveal: "instant",
             content: ["instant", { type: "text", text: "xy", reveal: "teletype" }],
         },
     },
@@ -121,7 +121,7 @@ describe("Terminal", () => {
     it("cascades reveals: element over screen over defaults", () => {
         const { terminal, ticker } = setup();
         terminal.navigate("other");
-        // "instant" uses the screen's "none"; "xy" overrides it with teletype
+        // the first element uses the screen's "instant"; "xy" overrides it with teletype
         expect(states(terminal)).toEqual(["done", "active"]);
         ticker.advance(20);
         expect(states(terminal)).toEqual(["done", "done"]);

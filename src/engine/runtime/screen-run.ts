@@ -88,6 +88,7 @@ export class ScreenRun {
     private activeSince = 0;
     /** The unit waiting for its elements to load, or -1. */
     private waiting = -1;
+    private finished: number | null = null;
     private eraser: Eraser | null = null;
     private erasedFlag = false;
     private columns: number;
@@ -135,6 +136,11 @@ export class ScreenRun {
         return this.active !== -1 || this.eraser !== null;
     }
 
+    /** When every element finished revealing (or was skipped), or null if not yet. */
+    get finishedAt(): number | null {
+        return this.finished;
+    }
+
     /** True once {@link erase} has finished. */
     get erased(): boolean {
         return this.erasedFlag;
@@ -177,13 +183,14 @@ export class ScreenRun {
     }
 
     /** Completes every remaining element immediately, including any still loading. */
-    skip(): void {
+    skip(now: number): void {
         if (this.eraser || this.erasedFlag) return;
         for (const unit of this.units) {
             if (unit.indices.some((i) => this.runs[i]?.state !== "done")) this.finish(unit);
         }
         this.active = -1;
         this.waiting = -1;
+        this.finished ??= now;
     }
 
     /**
@@ -274,7 +281,7 @@ export class ScreenRun {
 
         this.runs.forEach(({ element }, index) => {
             const { spec, inherited } = instant
-                ? { spec: { type: "none" } as const, inherited: false }
+                ? { spec: { type: "instant" } as const, inherited: false }
                 : resolveReveal(element.reveal, this.screen.reveal, defaults);
 
             const custom = moduleFor(element).reveal?.(element, spec);
@@ -318,7 +325,11 @@ export class ScreenRun {
     private tryActivate(unitIndex: number, now: number): void {
         const unit = this.units[unitIndex];
         this.waiting = -1;
-        if (!unit) return;
+        if (!unit) {
+            // past the last unit: the screen has finished revealing
+            this.finished ??= now;
+            return;
+        }
 
         if (unit.indices.some((i) => this.runs[i]?.state === "unloaded")) {
             this.waiting = unitIndex;

@@ -5,7 +5,7 @@ import { parseProgram } from "../../engine/schema/program.ts";
 import { nextToggleState, type ToggleElement } from "./definition.ts";
 
 const FILE = {
-    config: { name: "Test", defaults: { reveal: "none" as const } },
+    config: { name: "Test", defaults: { reveal: "instant" as const } },
     screens: {
         home: {
             content: [{ type: "toggle" as const, states: ["> A", "> B", "> C"], initial: 1 }],

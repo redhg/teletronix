@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
     type Action,
+    ActionSchema,
     GlitchOptionsSchema,
     IdSchema,
     type RevealOption,
@@ -25,6 +26,28 @@ const ContentSchema = z.union([
     ElementSchema,
 ]);
 
+const NextSchema = z
+    .strictObject({
+        after: z
+            .number()
+            .min(0)
+            .optional()
+            .meta({ description: "Milliseconds to wait after the screen has finished revealing" }),
+        anyKey: z
+            .boolean()
+            .optional()
+            .meta({ description: "Also go on at any click or key press (default: false)" }),
+        action: ActionSchema.meta({ description: "Where to go" }),
+    })
+    .refine((next) => next.after !== undefined || next.anyKey, {
+        message: 'Set "after", "anyKey", or both',
+    })
+    .meta({
+        description:
+            "Moves on without a link: after a delay, at any key, or both. With empty content and " +
+            '"static" at full opacity, this makes a burst of noise between screens.',
+    });
+
 const ScreenSchema = z.strictObject({
     reveal: RevealSchema.optional().meta({
         description: "Default reveal for this screen's elements",
@@ -35,7 +58,10 @@ const ScreenSchema = z.strictObject({
     effects: EffectsSchema.optional().meta({
         description: "Effects for this screen, layered over the config's",
     }),
-    content: z.array(ContentSchema).min(1),
+    next: NextSchema.optional(),
+    content: z
+        .array(ContentSchema)
+        .meta({ description: "The elements, revealed in order. Can be empty." }),
 });
 
 const DefaultsSchema = z.strictObject({
@@ -86,6 +112,7 @@ export interface Screen {
     reveal?: RevealOption;
     transition?: TransitionOption;
     effects?: EffectsSetting;
+    next?: { after?: number; anyKey?: boolean; action: Action };
     content: Element[];
 }
 
@@ -107,8 +134,8 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             const element = typeof item === "string" ? { type: "text" as const, text: item } : item;
             return { ...element, id: `${id}#${index}` };
         });
-        const { reveal, transition, effects } = screen;
-        screens.set(id, { id, reveal, transition, effects, content });
+        const { reveal, transition, effects, next } = screen;
+        screens.set(id, { id, reveal, transition, effects, next, content });
     }
 
     const dialogs = new Map<string, Dialog>();
@@ -170,6 +197,15 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
     }
 
     for (const screen of program.screens.values()) {
+        const message = screen.next && missing(screen.next.action);
+        if (message) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["screens", screen.id, "next", "action"],
+                message,
+            });
+        }
+
         screen.content.forEach((element, index) => {
             for (const action of moduleFor(element).actions?.(element) ?? []) {
                 const message = missing(action);

@@ -58,6 +58,19 @@ A screen's `content` is a list of elements, revealed one after another:
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`. Every element takes an optional
 `className` (e.g. `"alert"`) and `reveal`.
 
+### Moving on without a link
+A screen's `next` moves on by itself: `after` a delay (ms, counted from when the screen has
+finished revealing), at any key or click (`anyKey`), or both. With empty `content`, a screen
+can be nothing but effects, e.g. a burst of static between screens:
+
+```json
+"signal-lost": {
+    "effects": { "static": { "opacity": 1 } },
+    "next": { "after": 1500, "action": { "screen": "menu" } },
+    "content": []
+}
+```
+
 ### Dialogs
 `dialogs` holds modal dialogs, opened by any `{ "dialog": "<id>" }` action:
 - `"alert"`: a message with one button (`dismiss`, default `"OK"`). Closes with <enter>, <esc> or a click.
@@ -69,7 +82,7 @@ Text appears with a **reveal**, set per element, per screen or in `config.defaul
 - `"teletype"`: one character at a time (`{ "type": "teletype", "speed": 20 }` sets ms per character)
 - `"glitch"`: resolves out of random glyphs (`{ "type": "glitch", "duration": 2000 }` sets the total ms).
   When a screen or the config sets it, consecutive elements glitch in together as one block.
-- `"none"`: appears at once
+- `"instant"`: appears all at once
 
 A screen's `transition` controls how the previous screen leaves: `"cut"` (the default),
 `"glitch"`, where the old screen erases itself over the new one as it appears, or `"fade"`,

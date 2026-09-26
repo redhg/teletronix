@@ -45,7 +45,26 @@
                 "Phosphor afterglow is a screen transition: the old screen fades out behind the new one.",
                 { "type": "link", "text": "> AFTERGLOW", "action": { "screen": "fx-afterglow" } },
                 "",
+                "A screen can be nothing but effects, and \"next\" moves on without a link:",
+                { "type": "link", "text": "> SIGNAL LOST", "action": { "screen": "fx-noise" } },
+                "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "fx-noise": {
+            "effects": { "static": { "opacity": 1, "scale": 2 } },
+            "next": { "after": 1500, "action": { "screen": "fx-restored" } },
+            "content": []
+        },
+        "fx-restored": {
+            "reveal": "glitch",
+            "next": { "anyKey": true, "action": { "screen": "effects" } },
+            "content": [
+                { "type": "text", "text": "SIGNAL RESTORED.", "className": "alert" },
+                "",
+                "The static screen had no content and \"next\": { \"after\": 1500, ... }.",
+                "",
+                "This one has \"next\": { \"anyKey\": true, ... }. Press any key or click to continue."
             ]
         },
         "fx-static": {
@@ -233,7 +252,7 @@
                 "",
                 "By default, text teletypes in at 10ms per character.",
                 { "type": "text", "text": "Any element can change its speed...", "reveal": { "type": "teletype", "speed": 60 } },
-                { "type": "text", "text": "...or appear all at once.", "reveal": "none" },
+                { "type": "text", "text": "...or appear all at once.", "reveal": "instant" },
                 "Screens and the config can set defaults too: the next screen shows everything instantly.",
                 "",
                 { "type": "link", "text": "> INSTANT SCREEN", "action": { "screen": "instant" } },
@@ -241,12 +260,12 @@
             ]
         },
         "instant": {
-            "reveal": "none",
+            "reveal": "instant",
             "content": [
                 "INSTANT",
                 "=======",
                 "",
-                "This screen sets \"reveal\": \"none\", so its elements appear at once...",
+                "This screen sets \"reveal\": \"instant\", so its elements appear at once...",
                 { "type": "text", "text": "...unless an element overrides it, like this one.", "reveal": "teletype" },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "reveals" } }

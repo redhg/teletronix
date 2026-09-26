@@ -29,7 +29,7 @@ export const BITMAP_STEP_TIME = 150;
 export const bitmapModule: ModuleDefinition<BitmapElement> = {
     text: () => "",
     reveal: (_element, spec) =>
-        createTimedReveal(spec.type === "none" ? 0 : BITMAP_STEPS.length * BITMAP_STEP_TIME),
+        createTimedReveal(spec.type === "instant" ? 0 : BITMAP_STEPS.length * BITMAP_STEP_TIME),
 };
 
 /** The resolution to draw at a given reveal progress, or 0 for nothing. */

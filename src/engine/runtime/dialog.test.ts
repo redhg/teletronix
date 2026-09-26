@@ -3,7 +3,7 @@ import { parseProgram, type TeletronixFile } from "../schema/program.ts";
 import { createTestTerminal } from "./test-helpers.ts";
 
 const FILE: TeletronixFile = {
-    config: { name: "Test", defaults: { reveal: "none" } },
+    config: { name: "Test", defaults: { reveal: "instant" } },
     screens: {
         home: { content: ["home"] },
         boom: { content: ["boom"] },

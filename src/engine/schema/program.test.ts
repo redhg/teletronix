@@ -48,7 +48,7 @@ describe("parseProgram", () => {
                 config: {
                     name: "Test",
                     defaults: {
-                        reveal: "none",
+                        reveal: "instant",
                         transition: "glitch",
                         teletype: { speed: 3 },
                         glitch: { duration: 500 },
@@ -65,7 +65,7 @@ describe("parseProgram", () => {
         );
         if (!result.ok) throw new Error(JSON.stringify(result.errors));
         expect(result.program.defaults).toEqual({
-            reveal: { type: "none" },
+            reveal: { type: "instant" },
             transition: { type: "glitch" },
             teletype: { speed: 3 },
             glitch: { duration: 500 },
