@@ -85,7 +85,7 @@ describe("sound cues", () => {
         const { terminal, cues } = setup();
         terminal.navigate("home");
         cues.length = 0;
-        terminal.dispatch({ type: "screen", target: "away", sound: "beep" });
+        terminal.dispatch([{ screen: "away", sound: "beep" }]);
         expect(cues).toEqual([{ type: "sound", name: "beep" }]);
     });
 

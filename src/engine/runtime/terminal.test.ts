@@ -98,12 +98,12 @@ describe("Terminal", () => {
     it("dispatches actions: navigation and dialogs", () => {
         const { terminal } = setup();
         terminal.start();
-        terminal.dispatch({ type: "dialog", target: "info" });
+        terminal.dispatch([{ dialog: "info" }]);
         expect(terminal.getSnapshot().dialog?.content).toEqual(["Hi"]);
         terminal.answerDialog(true);
         expect(terminal.getSnapshot().dialog).toBeNull();
 
-        terminal.dispatch({ type: "screen", target: "other" });
+        terminal.dispatch([{ screen: "other" }]);
         expect(terminal.getSnapshot().screen?.run.screen.id).toBe("other");
     });
 

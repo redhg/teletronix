@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AssignmentsSchema, ConditionSchema } from "./variables.ts";
 
 // ─── Ids ─────────────────────────────────────────────────────────────────────
 
@@ -146,29 +147,48 @@ const actionSound = SoundNameSchema.optional().meta({
     description: "A sound from the program's sounds, played as the action happens",
 });
 
-export const ScreenActionSchema = z
-    .strictObject({ screen: IdSchema, sound: actionSound })
-    .meta({ description: "Navigate to a screen" });
-export const DialogActionSchema = z
-    .strictObject({ dialog: IdSchema, sound: actionSound })
-    .meta({ description: "Open a dialog" });
+export const ActionCaseSchema = z
+    .strictObject({
+        if: ConditionSchema.optional().meta({
+            description: "Only when this holds; otherwise the next case in the list is tried",
+        }),
+        screen: IdSchema.optional().meta({ description: "A screen to go to" }),
+        dialog: IdSchema.optional().meta({ description: "A dialog to open" }),
+        set: AssignmentsSchema.optional().meta({
+            description: 'Variables to change first, e.g. { "keycard": true }',
+        }),
+        sound: actionSound,
+    })
+    .refine((action) => !(action.screen && action.dialog), {
+        message: 'Set "screen" or "dialog", not both',
+    })
+    .refine(
+        (action) =>
+            action.screen !== undefined ||
+            action.dialog !== undefined ||
+            action.set !== undefined ||
+            action.sound !== undefined,
+        { message: 'Set "screen", "dialog", "set" or "sound"' },
+    )
+    .meta({
+        description:
+            "Go to a screen or open a dialog, changing variables and playing a sound on the way",
+    });
 
 export const ActionSchema = z
-    .union([ScreenActionSchema, DialogActionSchema])
-    .transform(
-        (action): Action => ({
-            ...("screen" in action
-                ? { type: "screen", target: action.screen }
-                : { type: "dialog", target: action.dialog }),
-            ...(action.sound ? { sound: action.sound } : {}),
-        }),
-    )
-    .meta({ description: "What an interactive element does: go to a screen, or open a dialog" });
+    .union([ActionCaseSchema, z.array(ActionCaseSchema).min(1)])
+    .transform((action): Action => (Array.isArray(action) ? action : [action]))
+    .meta({
+        description:
+            "What happens: go to a screen, open a dialog, change variables, play a sound. Or a " +
+            'list of these with "if" conditions, where the first whose condition holds happens.',
+    });
 
-export type Action = ({ type: "screen"; target: string } | { type: "dialog"; target: string }) & {
-    /** A sound from the program's sounds, to play as the action happens */
-    sound?: string;
-};
+/** One case of an action, normalized. */
+export type ActionCase = z.output<typeof ActionCaseSchema>;
+
+/** An action: cases, of which the first whose condition holds happens. */
+export type Action = readonly ActionCase[];
 
 // ─── Element base ────────────────────────────────────────────────────────────
 
@@ -182,5 +202,8 @@ export const ElementBaseShape = {
     }),
     sound: SoundNameSchema.optional().meta({
         description: "A sound from the program's sounds, played as the element starts to appear",
+    }),
+    if: ConditionSchema.optional().meta({
+        description: "Show the element only if this holds when the screen starts",
     }),
 };

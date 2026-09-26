@@ -4,7 +4,8 @@
         "name": "Teletronix Sample",
         "author": "@redhg",
         "description": "Demonstrates every Teletronix feature.",
-        "start": "home"
+        "start": "home",
+        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true }
     },
     "screens": {
         "home": {
@@ -27,6 +28,7 @@
                 { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
                 { "type": "link", "text": "> PROGRESS", "action": { "screen": "progress" } },
                 { "type": "link", "text": "> SLIDERS", "action": { "screen": "sliders" } },
+                { "type": "link", "text": "> VARIABLES", "action": { "screen": "variables" } },
                 { "type": "link", "text": "> SOUNDS", "action": { "screen": "sounds" } },
                 { "type": "link", "text": "> AUTOSCROLL", "action": { "screen": "autoscroll" } },
                 { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } }
@@ -328,6 +330,52 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "sliders" } }
             ]
         },
+        "variables": {
+            "content": [
+                "VARIABLES",
+                "=========",
+                "",
+                "A program can keep variables, declared in its config. Actions set them, controls can be bound to them, \"if\" tests them, and text shows them: hello, {name}. You have {credits} credits.",
+                "",
+                { "type": "link", "text": "> EARN 10 CREDITS", "action": { "set": { "credits": { "add": 10 } } } },
+                {
+                    "type": "link",
+                    "text": "> BUY A KEYCARD (30 CREDITS)",
+                    "if": { "keycard": false },
+                    "action": [
+                        { "if": { "credits": { "atLeast": 30 } }, "set": { "credits": { "add": -30 }, "keycard": true }, "screen": "variables" },
+                        { "dialog": "broke" }
+                    ]
+                },
+                { "type": "text", "text": "You have the keycard.", "if": { "keycard": true } },
+                { "type": "toggle", "states": ["[ ] VAULT ALARM ARMED", "[X] VAULT ALARM ARMED"], "variable": "alarm" },
+                {
+                    "type": "link",
+                    "text": "> OPEN THE VAULT",
+                    "action": [
+                        { "if": { "alarm": true }, "dialog": "alarm" },
+                        { "if": { "keycard": true }, "screen": "vault" },
+                        { "dialog": "vault-locked" }
+                    ]
+                },
+                "",
+                "Tell it your name:",
+                { "type": "prompt", "prompt": "NAME: ", "variable": "name", "onEnter": { "screen": "variables" } },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "vault": {
+            "reveal": "glitch",
+            "content": [
+                "THE VAULT",
+                "=========",
+                "",
+                "It's empty, {name}. Someone got here first.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "variables" } }
+            ]
+        },
         "sounds": {
             "sound": "powerup",
             "content": [
@@ -575,6 +623,19 @@
         "reactor-set": {
             "type": "alert",
             "content": "Reactor output confirmed."
+        },
+        "broke": {
+            "type": "alert",
+            "content": "Not enough credits. Earn some first."
+        },
+        "alarm": {
+            "type": "alert",
+            "className": "alert",
+            "content": "The alarm is armed, {name}. Disarm it first."
+        },
+        "vault-locked": {
+            "type": "alert",
+            "content": "The vault needs a keycard."
         },
         "door": {
             "type": "alert",

@@ -7,6 +7,7 @@ import {
     type RevealSpec,
 } from "../../engine/reveal/index.ts";
 import { type Action, ActionSchema, ElementBaseShape } from "../../engine/schema/common.ts";
+import { VariableNameSchema } from "../../engine/schema/variables.ts";
 
 export const SliderRuleSchema = z
     .strictObject({
@@ -78,6 +79,11 @@ export const SliderSchema = z
         onEnter: ActionSchema.optional().meta({
             description: "What happens when the player presses <enter> on the slider",
         }),
+        variable: VariableNameSchema.optional().meta({
+            description:
+                "A number variable that holds the slider's value. It starts from the variable's " +
+                "value, instead of value.",
+        }),
         ...ElementBaseShape,
     })
     .superRefine((slider, ctx) => {
@@ -100,7 +106,7 @@ export const SliderSchema = z
     .meta({
         description:
             "A bar the player sets by dragging, or with the arrow keys. It remembers its value, " +
-            "and can run actions when the value enters a range.",
+            "can keep it in a variable, and can run actions when the value enters a range.",
     });
 
 export type SliderElement = z.output<typeof SliderSchema> & ElementIdentity;
@@ -187,6 +193,20 @@ export const sliderModule: ModuleDefinition<SliderElement, SliderMemory> = {
         ...(slider.onEnter ? [slider.onEnter] : []),
     ],
     reveal: createSliderReveal,
+    binding: {
+        check(slider, initial) {
+            if (slider.value !== undefined) {
+                return 'A slider with a "variable" starts from its value; remove "value"';
+            }
+            if (typeof initial !== "number") return "A slider can only be bound to a number";
+            return initial >= slider.min && initial <= slider.max
+                ? null
+                : `The variable must start between ${slider.min} and ${slider.max}`;
+        },
+        // an action may have set the variable to any number
+        read: (slider, value) => snapValue(slider, Number(value) || 0),
+        write: (_slider, memory) => memory,
+    },
     changed(slider, before, after): Action | undefined {
         const previous = sliderValue(slider, before);
         // the first rule the value has just moved into

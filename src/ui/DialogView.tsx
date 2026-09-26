@@ -58,7 +58,7 @@ export function DialogView({ dialog }: { dialog: Dialog }) {
         >
             <div className="dialog-body">
                 <div id={contentId} className="dialog-content">
-                    {dialog.content.join("\n")}
+                    {terminal.format(dialog.content.join("\n"))}
                 </div>
                 <div className="dialog-buttons">
                     {dialog.type === "alert" ? (

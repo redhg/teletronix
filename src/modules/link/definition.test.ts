@@ -5,17 +5,17 @@ const link = (secondary?: boolean): LinkElement => ({
     id: "x",
     type: "link",
     text: "> GO",
-    action: { type: "screen", target: "main" },
-    ...(secondary ? { secondaryAction: { type: "dialog", target: "locked" } } : {}),
+    action: [{ screen: "main" }],
+    ...(secondary ? { secondaryAction: [{ dialog: "locked" }] } : {}),
 });
 
 describe("linkAction", () => {
     it("picks the secondary action for a secondary press", () => {
-        expect(linkAction(link(true), false)).toEqual({ type: "screen", target: "main" });
-        expect(linkAction(link(true), true)).toEqual({ type: "dialog", target: "locked" });
+        expect(linkAction(link(true), false)).toEqual([{ screen: "main" }]);
+        expect(linkAction(link(true), true)).toEqual([{ dialog: "locked" }]);
     });
 
     it("falls back to the main action when there's no secondary one", () => {
-        expect(linkAction(link(), true)).toEqual({ type: "screen", target: "main" });
+        expect(linkAction(link(), true)).toEqual([{ screen: "main" }]);
     });
 });

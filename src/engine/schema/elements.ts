@@ -47,3 +47,8 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
     return modules[element.type] as ModuleDefinition<E, unknown>;
 }
+
+/** The variable an element is bound to (see ModuleDefinition.binding), if any. */
+export function boundVariable(element: Element): string | undefined {
+    return "variable" in element ? element.variable : undefined;
+}

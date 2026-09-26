@@ -7,11 +7,12 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
+- **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add)
 - **Elements:** [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
-- **Shared types:** [Action](#action), [Screen action](#screen-action), [Dialog action](#dialog-action), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
+- **Shared types:** [Action](#action), [Action case](#action-case), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
 
 ## Program
 
@@ -44,6 +45,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `reveal` | [Reveal](#reveal) | `"teletype"` | How text appears on every screen, unless a screen or element says otherwise |
 | `transition` | [Transition](#transition) | `"none"` | How screens leave, unless the next screen says otherwise |
 | `defaults` | [Defaults](#defaults) |  | Default options for each kind of reveal |
+| `variables` | [Variables](#variables) |  | The program's variables and their starting values: true or false, a number, or text. Actions change them with `set`, toggles, sliders and prompts can be bound to them, `if` tests them, and text shows them as "{name}". They reset when the page reloads. |
 | `theme` | [Theme](#theme) | `"default"` | The color scheme: "default" (pale blue on black), "amber", "green" or "white", or your own colors |
 | `font` | `"ast-premiumexec"` \| `"ibm-vga"` \| `"ibm-ega"` \| `"ibm-cga"` \| `"ibm-cga-thin"` \| `"ibm-mda"` \| `"toshiba-satellite"` \| `"departure-mono"` | `"ast-premiumexec"` | The typeface, from a set of period PC fonts |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |
@@ -108,7 +110,99 @@ A way to move on from a screen without a link: after a delay, at a key press, or
 |---|---|---|---|
 | `after` | number, ≥ 0 |  | Milliseconds to wait after the screen has finished revealing |
 | `key` | string \| string[] |  | A key that moves on: "any", a key name like "Enter", "Space", "Escape", "ArrowRight" or "y", or an array of them. Taps and clicks count too, unless keys in different rules lead to different places. |
-| `action` | [Action](#action) | **required** | Where to go |
+| `if` | [Condition](#condition) |  | Only while this holds, e.g. a key that works once a door is unlocked |
+| `action` | [Action](#action) | **required** | What happens |
+
+## Variables
+
+<a id="variables"></a>
+
+### Variables
+
+The program's variables and their starting values: true or false, a number, or text. Actions change them with `set`, toggles, sliders and prompts can be bound to them, `if` tests them, and text shows them as "{name}". They reset when the page reloads.
+
+A map of variable name → boolean | number | string.
+
+<a id="condition"></a>
+
+### Condition
+
+A test of the variables: { "keycard": true }, { "power": { "atLeast": 90 } }, or { "all": [ … ] }, { "any": [ … ] } or { "not": … } to combine them
+
+One of:
+
+- [All](#all)
+- [Any](#any)
+- [Not](#not)
+- [Variable tests](#variable-tests)
+
+<a id="variable-tests"></a>
+
+### Variable tests
+
+Variables and what they must be: a value, e.g. { "keycard": true }, or a test, e.g. { "power": { "atLeast": 90 } }. With several, every one must pass.
+
+A map of variable name → boolean | number | string | [Comparison](#comparison).
+
+<a id="comparison"></a>
+
+### Comparison
+
+A test of one variable's value. Set more than one and the value must pass them all.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `equals` | boolean \| number \| string |  | Exactly this value (text is compared ignoring case and outer spaces) |
+| `atLeast` | number |  | This number or more |
+| `atMost` | number |  | This number or less |
+
+<a id="all"></a>
+
+### All
+
+Holds when every condition in it does
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `all` | [Condition](#condition)[] | **required** | Conditions that must all hold |
+
+<a id="any"></a>
+
+### Any
+
+Holds when at least one condition in it does
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `any` | [Condition](#condition)[] | **required** | Conditions of which at least one must hold |
+
+<a id="not"></a>
+
+### Not
+
+Holds when the condition in it doesn't
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `not` | [Condition](#condition) | **required** | The condition that must not hold |
+
+<a id="set"></a>
+
+### Set
+
+Variables to change, and their new values, e.g. { "keycard": true }, or { "credits": { "add": -10 } } to add to a number
+
+A map of variable name → boolean | number | string | [Add](#add).
+
+<a id="add"></a>
+
+### Add
+
+Adds to a number variable
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `add` | number | **required** | How much to add (negative to subtract) |
 
 ## Elements
 
@@ -124,6 +218,7 @@ A block of text. A bare string is shorthand for this.
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
 <a id="link"></a>
 
@@ -139,35 +234,41 @@ Clickable text that navigates to a screen or opens a dialog
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
 <a id="toggle"></a>
 
 ### Toggle (`"type": "toggle"`)
 
-Text that cycles through states when clicked. It remembers its state when you come back.
+Text that cycles through states when clicked. It remembers its state when you come back, and can keep it in a variable.
 
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `states` | string[] | **required** | The texts to cycle through, one per click |
 | `initial` | whole number, ≥ 0 | `0` | Index of the state shown first |
+| `variable` | id |  | A variable that holds the toggle's state: true or false for two states (the second is true), otherwise the state's index, from 0. It starts from the variable's value, instead of initial. |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
 <a id="prompt"></a>
 
 ### Prompt (`"type": "prompt"`)
 
-A command line. Typed commands navigate or open dialogs.
+A command line. Typed commands navigate, open dialogs or change variables; it can also take free text, such as a name or a password, into a variable.
 
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `prompt` | string | `"> "` | Text shown before the input |
-| `commands` | [Prompt command](#prompt-command)[] | **required** | The commands it understands |
+| `commands` | [Prompt command](#prompt-command)[] |  | The commands it understands |
+| `onEnter` | [Action](#action) |  | What happens when the input matches no command, e.g. after typing a name into a variable. Without it, the prompt says it doesn't understand. |
+| `variable` | id |  | A text variable that gets whatever is entered, before any action |
 | `unknown` | string | `"Unknown command."` | Shown when the input matches no command |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
 <a id="prompt-command"></a>
 
@@ -178,6 +279,7 @@ A command the prompt understands
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `command` | string \| string[] | **required** | What to type (case-insensitive). Use an array for aliases. |
+| `if` | [Condition](#condition) |  | Only understood while this holds |
 | `action` | [Action](#action) | **required** | What happens when the command is entered |
 
 <a id="bitmap"></a>
@@ -194,6 +296,7 @@ An image, revealed in steps from low to high resolution, optionally blended with
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
 <a id="blend"></a>
 
@@ -238,6 +341,7 @@ A text progress bar that runs from one percentage to another over a set time, th
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
 <a id="progress-outcome"></a>
 
@@ -247,8 +351,8 @@ What happens when a progress bar finishes: an action, now or after a pause
 
 One of:
 
-- [Screen action](#screen-action)
-- [Dialog action](#dialog-action)
+- [Action case](#action-case)
+- [Action case](#action-case)[]
 - [Delayed action](#delayed-action)
 
 <a id="delayed-action"></a>
@@ -280,7 +384,7 @@ Makes a progress bar stop short: at a set point (a transfer that fails) and/or w
 
 ### Slider (`"type": "slider"`)
 
-A bar the player sets by dragging, or with the arrow keys. It remembers its value, and can run actions when the value enters a range.
+A bar the player sets by dragging, or with the arrow keys. It remembers its value, can keep it in a variable, and can run actions when the value enters a range.
 
 | Property | Type | Default | Description |
 |---|---|---|---|
@@ -296,9 +400,11 @@ A bar the player sets by dragging, or with the arrow keys. It remembers its valu
 | `empty` | character | `"░"` | Empty cells |
 | `on` | [Slider rule](#slider-rule)[] |  | Actions for ranges of values. The first rule the value moves into fires. |
 | `onEnter` | [Action](#action) |  | What happens when the player presses <enter> on the slider |
+| `variable` | id |  | A number variable that holds the slider's value. It starts from the variable's value, instead of value. |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
 <a id="slider-rule"></a>
 
@@ -694,33 +800,25 @@ Red and cyan fringes on text, like misaligned color guns. Off by default.
 
 ### Action
 
-What an interactive element does: go to a screen, or open a dialog
+What happens: go to a screen, open a dialog, change variables, play a sound. Or a list of these with "if" conditions, where the first whose condition holds happens.
 
 One of:
 
-- [Screen action](#screen-action)
-- [Dialog action](#dialog-action)
+- [Action case](#action-case)
+- [Action case](#action-case)[]
 
-<a id="screen-action"></a>
+<a id="action-case"></a>
 
-### Screen action
+### Action case
 
-Navigate to a screen
-
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `screen` | id | **required** | A screen or dialog id (letters, digits, '_' and '-') |
-| `sound` | id |  | A sound from the program's sounds, played as the action happens |
-
-<a id="dialog-action"></a>
-
-### Dialog action
-
-Open a dialog
+Go to a screen or open a dialog, changing variables and playing a sound on the way
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `dialog` | id | **required** | A screen or dialog id (letters, digits, '_' and '-') |
+| `if` | [Condition](#condition) |  | Only when this holds; otherwise the next case in the list is tried |
+| `screen` | id |  | A screen to go to |
+| `dialog` | id |  | A dialog to open |
+| `set` | [Set](#set) |  | Variables to change first, e.g. { "keycard": true } |
 | `sound` | id |  | A sound from the program's sounds, played as the action happens |
 
 <a id="reveal"></a>

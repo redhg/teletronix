@@ -37,7 +37,7 @@ describe("parseProgram", () => {
                 id: "home#1",
                 type: "link",
                 text: "> NEXT",
-                action: { type: "screen", target: "next" },
+                action: [{ screen: "next" }],
             },
         ]);
     });
@@ -142,7 +142,10 @@ describe("parseProgram", () => {
             },
         });
         expect(errors(input)).toEqual([
-            { path: "screens.home.content[0].action", message: 'Unrecognized key: "dialog"' },
+            {
+                path: "screens.home.content[0].action",
+                message: 'Set "screen" or "dialog", not both',
+            },
         ]);
         expect(errors({ ...file(), extra: true })[0]?.message).toMatch(/extra/);
     });

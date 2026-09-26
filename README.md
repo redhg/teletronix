@@ -56,13 +56,14 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"text"` (or a bare string) | Text. Line breaks are kept; long lines wrap. |
 | `"link"` | Clickable text with an `action`, and optionally a `secondaryAction` for a shift-click, right-click, Shift+Enter or long press. |
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
-| `"prompt"` | A command line. Each of its `commands` has an `action`. |
+| `"prompt"` | A command line. Each of its `commands` has an `action`; `onEnter` takes anything else. |
 | `"bitmap"` | An image (`src`, `alt`) that resolves from blocky to sharp. The screen waits for it to load. |
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 
-Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`. Every element takes an optional
-`className` (e.g. `"alert"`) and `reveal`.
+Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also change variables
+(see [Variables and conditions](#variables-and-conditions)). Every element takes an optional
+`className` (e.g. `"alert"`), `reveal`, and `if`.
 
 ### Progress bars
 ```json
@@ -126,6 +127,58 @@ With empty `content`, a screen can be nothing but effects, e.g. a burst of stati
     "content": []
 }
 ```
+
+### Variables and conditions
+`config.variables` declares the program's variables and their starting values: true or false, a
+number, or text. They last until the page reloads.
+
+```json
+"variables": { "keycard": false, "power": 40, "name": "" }
+```
+
+**Setting them.** Any action can `set` variables, with or without going anywhere. `{ "add": n }`
+adds to a number:
+
+```json
+{ "type": "link", "text": "> TAKE THE KEYCARD", "action": { "set": { "keycard": true }, "screen": "hall" } }
+{ "type": "link", "text": "> BOOST", "action": { "set": { "power": { "add": 10 } } } }
+```
+
+Variables change before the action goes anywhere, so the next screen sees the new values.
+
+**Binding controls.** With `"variable"`, a control keeps its value in a variable (and starts
+from it):
+- a toggle: `true`/`false` for two states (the second is `true`), otherwise the state's index from 0
+- a slider: its value
+- a prompt: whatever's typed. `onEnter` runs for input that matches none of its `commands`,
+  so a prompt can take a name or a password:
+
+```json
+{ "type": "prompt", "prompt": "NAME: ", "variable": "name", "onEnter": { "screen": "welcome" } }
+```
+
+**Conditions.** `if` tests variables: a value (`{ "keycard": true }`), or `atLeast`, `atMost`
+and `equals` (`{ "power": { "atLeast": 90 } }`). Name several variables and all must pass;
+combine conditions with `{ "all": […] }`, `{ "any": […] }` and `{ "not": … }`. Text is compared
+ignoring case and outer spaces. `if` goes on:
+- **elements**: shown only if it holds when the screen starts
+- **`next` rules** and **prompt commands**: only active while it holds
+- **actions**: an action can be a list, and the first whose `if` holds runs. A last entry
+  without `if` is the "else":
+
+```json
+"action": [
+    { "if": { "keycard": true }, "screen": "vault" },
+    { "dialog": "locked" }
+]
+```
+
+**In text.** `{name}` in text, links, toggles, prompts and dialogs shows a variable's value, and
+updates as it changes. Braces around anything that isn't a declared variable are left alone.
+
+Every variable is checked when the program loads: an undeclared name, a type mismatch (like
+`{ "keycard": 1 }` for a true/false variable), or a toggle bound to the wrong kind of variable
+is an error, with its location.
 
 ### Dialogs
 `dialogs` holds modal dialogs, opened by any `{ "dialog": "<id>" }` action:

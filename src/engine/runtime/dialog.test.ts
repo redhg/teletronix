@@ -34,7 +34,7 @@ describe("dialog schema", () => {
             dismiss: "OK",
         });
         expect(result.program.dialogs.get("quiet")).toMatchObject({
-            confirm: { text: "YES", action: { type: "screen", target: "boom" } },
+            confirm: { text: "YES", action: [{ screen: "boom" }] },
             cancel: { text: "NO" },
         });
     });
@@ -62,7 +62,7 @@ describe("dialogs", () => {
     it("closes an alert without doing anything else", () => {
         const { terminal } = createTestTerminal(FILE);
         terminal.start();
-        terminal.dispatch({ type: "dialog", target: "note" });
+        terminal.dispatch([{ dialog: "note" }]);
         terminal.answerDialog(true);
         expect(terminal.getSnapshot().dialog).toBeNull();
         expect(screenId(terminal)).toBe("home");

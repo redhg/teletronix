@@ -22,9 +22,17 @@ import {
 } from "./common.ts";
 import { type Dialog, DialogSchema, dialogAction } from "./dialog.ts";
 import { EffectsSchema, type EffectsSetting } from "./effects.ts";
-import { type Element, ElementSchema, moduleFor } from "./elements.ts";
+import { boundVariable, type Element, ElementSchema, moduleFor } from "./elements.ts";
 import { type NextRule, NextSchema } from "./next.ts";
 import { type ResolvedSound, resolveSound, SoundSchema, type SoundSetting } from "./sound.ts";
+import {
+    type Condition,
+    checkAssignments,
+    checkCondition,
+    unknownVariable,
+    VariablesSchema,
+    type VariableValue,
+} from "./variables.ts";
 
 export type { Dialog } from "./dialog.ts";
 
@@ -92,6 +100,7 @@ export const ConfigSchema = z
                 'How screens leave, unless the next screen says otherwise (default: "none")',
         }),
         defaults: DefaultsSchema.optional(),
+        variables: VariablesSchema.optional(),
         theme: ThemeSchema.optional(),
         font: FontSchema.optional(),
         effects: EffectsSchema.optional(),
@@ -189,6 +198,8 @@ export interface Program {
     dialogs: ReadonlyMap<string, Dialog>;
     /** Sound effects by name, each filled in */
     sounds: ReadonlyMap<string, Recipe>;
+    /** Variables by name, with their starting values */
+    variables: ReadonlyMap<string, VariableValue>;
 }
 
 function normalize(file: z.output<typeof FileSchema>): Program {
@@ -203,6 +214,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         sound,
         theme,
         font,
+        variables,
         ...config
     } = file.config;
 
@@ -244,6 +256,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         sounds: new Map(
             Object.entries(file.sounds ?? {}).map(([name, recipe]) => [name, fillRecipe(recipe)]),
         ),
+        variables: new Map(Object.entries(variables ?? {})),
     };
 }
 
@@ -264,63 +277,67 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
 
     const unknownSound = (name: string | undefined) =>
         name !== undefined && !program.sounds.has(name) ? `Unknown sound "${name}"` : null;
-    const missing = (action: Action): string | null => {
-        const known = action.type === "screen" ? program.screens : program.dialogs;
-        if (!known.has(action.target)) return `Unknown ${action.type} "${action.target}"`;
-        return unknownSound(action.sound);
+    const conditionProblems = (condition: Condition | undefined) =>
+        condition ? checkCondition(condition, program.variables) : [];
+    const actionProblems = (action: Action): string[] =>
+        action.flatMap((choice) => [
+            ...(choice.screen !== undefined && !program.screens.has(choice.screen)
+                ? [`Unknown screen "${choice.screen}"`]
+                : []),
+            ...(choice.dialog !== undefined && !program.dialogs.has(choice.dialog)
+                ? [`Unknown dialog "${choice.dialog}"`]
+                : []),
+            ...[unknownSound(choice.sound) ?? []].flat(),
+            ...conditionProblems(choice.if),
+            ...checkAssignments(choice.set ?? [], program.variables),
+        ]);
+    const report = (path: PropertyKey[], messages: string | string[] | null) => {
+        for (const message of [messages ?? []].flat()) {
+            ctx.addIssue({ code: "custom", path, message });
+        }
     };
-    const report = (path: PropertyKey[], message: string | null) => {
-        if (message) ctx.addIssue({ code: "custom", path, message });
-    };
-    for (const dialog of program.dialogs.values()) {
-        report(["dialogs", dialog.id, "sound"], unknownSound(dialog.sound));
-    }
-    for (const screen of program.screens.values()) {
-        report(["screens", screen.id, "sound"], unknownSound(screen.sound));
-        screen.content.forEach((element, index) => {
-            report(["screens", screen.id, "content", index, "sound"], unknownSound(element.sound));
-        });
-    }
 
     for (const dialog of program.dialogs.values()) {
+        report(["dialogs", dialog.id, "sound"], unknownSound(dialog.sound));
         for (const [answer, confirmed] of [
             ["confirm", true],
             ["cancel", false],
         ] as const) {
             const action = dialogAction(dialog, confirmed);
-            const message = action && missing(action);
-            if (message) {
-                ctx.addIssue({
-                    code: "custom",
-                    path: ["dialogs", dialog.id, answer, "action"],
-                    message,
-                });
-            }
+            if (action) report(["dialogs", dialog.id, answer, "action"], actionProblems(action));
         }
     }
 
     for (const screen of program.screens.values()) {
+        report(["screens", screen.id, "sound"], unknownSound(screen.sound));
+
         screen.next?.forEach((rule, index) => {
-            const message = missing(rule.action);
-            if (message) {
-                ctx.addIssue({
-                    code: "custom",
-                    path: ["screens", screen.id, "next", index, "action"],
-                    message,
-                });
-            }
+            const path = ["screens", screen.id, "next", index];
+            report([...path, "if"], conditionProblems(rule.if));
+            report([...path, "action"], actionProblems(rule.action));
         });
 
         screen.content.forEach((element, index) => {
-            for (const action of moduleFor(element).actions?.(element) ?? []) {
-                const message = missing(action);
-                if (message) {
-                    ctx.addIssue({
-                        code: "custom",
-                        path: ["screens", screen.id, "content", index],
-                        message,
-                    });
-                }
+            const path = ["screens", screen.id, "content", index];
+            const module = moduleFor(element);
+            report([...path, "sound"], unknownSound(element.sound));
+            report([...path, "if"], conditionProblems(element.if));
+            for (const condition of module.conditions?.(element) ?? []) {
+                report(path, conditionProblems(condition));
+            }
+            for (const action of module.actions?.(element) ?? []) {
+                report(path, actionProblems(action));
+            }
+
+            const variable = boundVariable(element);
+            if (variable !== undefined) {
+                const initial = program.variables.get(variable);
+                report(
+                    [...path, "variable"],
+                    initial === undefined
+                        ? unknownVariable(variable)
+                        : (module.binding?.check(element, initial) ?? null),
+                );
             }
         });
     }
@@ -361,6 +378,10 @@ type Issue = z.core.$ZodIssue;
  * the one that didn't fail outright on the value's type.
  */
 function explain(issue: Issue): Issue[] {
+    // a bad key in a map (e.g. a screen id), with the reason inside
+    if (issue.code === "invalid_key" && issue.issues.length > 0) {
+        return issue.issues.map((inner) => ({ ...inner, path: issue.path }) as Issue);
+    }
     if (issue.code !== "invalid_union" || issue.errors.length === 0) return [issue];
 
     const wrongType = (branch: Issue[]) =>

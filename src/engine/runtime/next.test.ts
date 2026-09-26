@@ -180,10 +180,10 @@ describe("next schema", () => {
 
     it("accepts one rule or a list, and normalizes keys", () => {
         expect(rules({ key: "Space", action: { screen: "boot" } })).toEqual([
-            { keys: [" "], action: { type: "screen", target: "boot" } },
+            { keys: [" "], action: [{ screen: "boot" }] },
         ]);
         expect(rules([{ after: 5, key: ["Esc", "F"], action: { screen: "boot" } }])).toEqual([
-            { after: 5, keys: ["escape", "f"], action: { type: "screen", target: "boot" } },
+            { after: 5, keys: ["escape", "f"], action: [{ screen: "boot" }] },
         ]);
     });
 
@@ -206,7 +206,7 @@ describe("next schema", () => {
 });
 
 describe("key helpers", () => {
-    const go = { type: "screen", target: "a" } as const;
+    const go = [{ screen: "a" }];
     it("normalize names", () => {
         expect(normalizeKey("ArrowRight")).toBe("arrowright");
         expect(normalizeKey("Return")).toBe("enter");

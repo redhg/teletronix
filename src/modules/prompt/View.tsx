@@ -23,7 +23,9 @@ export function PromptView({ element, state, run, index }: ElementViewProps<Prom
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
-        const action = matchCommand(element, value);
+        // what's typed goes into the prompt's variable first, so actions can test it
+        if (element.variable && value.trim()) terminal.remember(element.id, value.trim());
+        const action = matchCommand(element, value, terminal.holds);
         setValue("");
         setMessage(action || !value.trim() ? null : element.unknown);
         if (action) {

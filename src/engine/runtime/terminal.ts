@@ -1,14 +1,15 @@
 import type { Random } from "../random.ts";
 import type { Reveal } from "../reveal/index.ts";
 import { resolveTransition, type TransitionSpec } from "../reveal/index.ts";
-import type { Action } from "../schema/common.ts";
+import type { Action, ActionCase } from "../schema/common.ts";
 import { type Dialog, dialogAction } from "../schema/dialog.ts";
 import { type EffectsSetting, type ResolvedEffects, resolveEffects } from "../schema/effects.ts";
 import type { Element } from "../schema/elements.ts";
-import { moduleFor } from "../schema/elements.ts";
+import { boundVariable, moduleFor } from "../schema/elements.ts";
 import { firstTimedRule, type NextRule, ruleForKey, ruleForTap } from "../schema/next.ts";
 import type { Program } from "../schema/program.ts";
 import type { Cue } from "../schema/sound.ts";
+import { assign, type Condition, format, holds, type VariableValue } from "../schema/variables.ts";
 import type { Ticker } from "../time/ticker.ts";
 import { type ElementState, ScreenRun } from "./screen-run.ts";
 
@@ -74,6 +75,10 @@ export class Terminal {
     private readonly load: TerminalOptions["load"];
     /** Per-element state that outlives a screen visit (see ModuleDefinition). */
     private readonly memory = new Map<string, unknown>();
+    /** The program's variables, from their starting values. */
+    private readonly variables: Map<string, VariableValue>;
+    /** Every element in the program, by id. */
+    private readonly elements = new Map<string, Element>();
     private readonly listeners = new Set<() => void>();
     private readonly cueListeners = new Set<(cue: Cue) => void>();
     private columns: number;
@@ -108,6 +113,10 @@ export class Terminal {
         this.random = options.random;
         this.load = options.load;
         this.configEffects = options.program.effects;
+        this.variables = new Map(options.program.variables);
+        for (const screen of options.program.screens.values()) {
+            for (const element of screen.content) this.elements.set(element.id, element);
+        }
     }
 
     // ─── Store interface (e.g. for React's useSyncExternalStore) ────────────
@@ -132,17 +141,38 @@ export class Terminal {
         this.navigate(this.program.start);
     }
 
-    dispatch(action: Action): void {
-        if (action.sound) this.cue({ type: "sound", name: action.sound });
-        switch (action.type) {
-            case "screen":
-                this.navigate(action.target);
-                break;
-            case "dialog":
-                this.openDialog(action.target);
-                break;
+    /**
+     * Runs an action: its first case whose condition holds changes variables, plays a
+     * sound, then goes to a screen or opens a dialog. Returns the case that ran, if any.
+     */
+    dispatch(action: Action): ActionCase | undefined {
+        const chosen = action.find((choice) => !choice.if || this.holds(choice.if));
+        if (!chosen) return undefined;
+        if (chosen.set) {
+            for (const assignment of chosen.set) {
+                const current = this.variables.get(assignment.variable);
+                this.variables.set(assignment.variable, assign(assignment, current));
+            }
+            this.run?.refreshAll();
+            // a timed `next` rule may apply now
+            this.syncTicker();
         }
+        if (chosen.sound) this.cue({ type: "sound", name: chosen.sound });
+        if (chosen.screen !== undefined) this.navigate(chosen.screen);
+        else if (chosen.dialog !== undefined) this.openDialog(chosen.dialog);
+        return chosen;
     }
+
+    /** A variable's current value. */
+    variable(name: string): VariableValue | undefined {
+        return this.variables.get(name);
+    }
+
+    /** Whether a condition holds, with the variables as they are now. */
+    holds = (condition: Condition): boolean => holds(condition, (name) => this.variable(name));
+
+    /** Text with {name} replaced by the variable's value. */
+    format = (text: string): string => format(text, (name) => this.variable(name));
 
     /**
      * Shows a screen from the top. Navigating to the current screen replays it.
@@ -180,7 +210,9 @@ export class Terminal {
             instant: this.instant,
             now: () => this.ticker.now(),
             load: this.load,
-            memory: this.memory,
+            recall: (elementId) => this.recall(elementId),
+            holds: this.holds,
+            format: this.format,
             random: this.random,
             onChange: this.markDirty,
             onWake: this.wake,
@@ -227,20 +259,38 @@ export class Terminal {
         this.flush();
     }
 
-    /** Reads an element's memory. */
+    /** Reads an element's memory: its variable, if it's bound to one. */
     recall<M>(elementId: string): M | undefined {
+        const element = this.elements.get(elementId);
+        const variable = element && boundVariable(element);
+        const value = variable === undefined ? undefined : this.variables.get(variable);
+        if (element && value !== undefined) {
+            return moduleFor(element).binding?.read(element, value) as M | undefined;
+        }
         return this.memory.get(elementId) as M | undefined;
     }
 
-    /** Updates an element's memory, and its text on screen if that depends on it. */
+    /**
+     * Updates an element's memory (or the variable it's bound to), and what's on screen
+     * that depends on it.
+     */
     remember(elementId: string, value: unknown): void {
-        const before = this.memory.get(elementId);
-        this.memory.set(elementId, value);
-        this.run?.refresh(elementId);
+        const before = this.recall(elementId);
+        const element = this.elements.get(elementId);
+        const variable = element && boundVariable(element);
+        const current = variable === undefined ? undefined : this.variables.get(variable);
+        if (element && variable !== undefined && current !== undefined) {
+            const binding = moduleFor(element).binding;
+            if (binding) this.variables.set(variable, binding.write(element, value, current));
+            this.run?.refreshAll();
+        } else {
+            this.memory.set(elementId, value);
+            this.run?.refresh(elementId);
+        }
 
         // the change may trigger an action (e.g. a slider pushed past a threshold)
-        const element = this.run?.elements.find((e) => e.id === elementId);
-        const action = element && moduleFor(element).changed?.(element, before, value);
+        const shown = this.run?.elements.find((e) => e.id === elementId);
+        const action = shown && moduleFor(shown).changed?.(shown, before, value);
         if (action && !this.dialog) this.dispatch(action);
     }
 
@@ -255,8 +305,7 @@ export class Terminal {
             this.settle();
             return true;
         }
-        const rules = this.run?.screen.next;
-        const rule = rules && ruleForKey(rules, key);
+        const rule = ruleForKey(this.rules(), key);
         return rule ? this.trigger(rule) : false;
     }
 
@@ -266,8 +315,7 @@ export class Terminal {
      * it as an ordinary click.
      */
     tap(): boolean {
-        const rules = this.run?.screen.next;
-        const rule = rules && ruleForTap(rules);
+        const rule = ruleForTap(this.rules());
         if (!rule || this.run?.finishedAt === null) return false;
         return this.trigger(rule);
     }
@@ -316,22 +364,30 @@ export class Terminal {
         this.flush();
     };
 
+    /** The current screen's `next` rules whose conditions hold. */
+    private rules(): NextRule[] {
+        return (this.run?.screen.next ?? []).filter((rule) => !rule.if || this.holds(rule.if));
+    }
+
     /** The current screen's first timed `next` rule and when it fires, once that's known. */
     private timedRule(): { rule: NextRule; due: number } | null {
-        const rule = this.run?.screen.next && firstTimedRule(this.run.screen.next);
+        const rule = firstTimedRule(this.rules());
         const finished = this.run?.finishedAt ?? null;
         if (!rule || finished === null || this.nextFired) return null;
         return { rule, due: finished + (rule.after ?? 0) };
     }
 
-    /** Finishes revealing first, if need be; moves on once revealed. */
+    /**
+     * A key rule: finishes revealing first, if need be, then runs. Unlike a timed rule, it
+     * can run again (e.g. a key that only changes a variable).
+     */
     private trigger(rule: NextRule): boolean {
-        if (this.dialog || this.nextFired) return false;
+        if (this.dialog) return false;
         if (this.run?.finishedAt === null) {
             this.skip();
             return true;
         }
-        this.goNext(rule.action);
+        this.dispatch(rule.action);
         return true;
     }
 
@@ -351,10 +407,10 @@ export class Terminal {
             if (!outcome) return;
             this.outcomes.splice(index, 1);
 
-            this.dispatch(outcome.action);
-            // a new screen replaces the old outcomes; a dialog lets the screen carry on
-            if (outcome.action.type === "dialog") outcome.run.resume(now);
-            else return;
+            const chosen = this.dispatch(outcome.action);
+            // a new screen replaces the old outcomes; otherwise the screen carries on
+            if (chosen?.screen !== undefined) return;
+            outcome.run.resume(now);
         }
     }
 

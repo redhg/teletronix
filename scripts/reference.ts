@@ -10,8 +10,8 @@ import { StaticOptionsSchema } from "../src/effects/static/definition.ts";
 import { VignetteOptionsSchema } from "../src/effects/vignette/definition.ts";
 import { CustomThemeSchema, ThemeSchema } from "../src/engine/schema/appearance.ts";
 import {
+    ActionCaseSchema,
     ActionSchema,
-    DialogActionSchema,
     FadeTransitionSchema,
     GlitchOptionsSchema,
     GlitchRevealSchema,
@@ -19,7 +19,6 @@ import {
     InstantRevealSchema,
     NoneTransitionSchema,
     RevealSchema,
-    ScreenActionSchema,
     StaticTransitionSchema,
     TeletypeOptionsSchema,
     TeletypeRevealSchema,
@@ -40,6 +39,17 @@ import {
     ScreenSchema,
 } from "../src/engine/schema/program.ts";
 import { SoundOptionsSchema, SoundSchema } from "../src/engine/schema/sound.ts";
+import {
+    AddSchema,
+    AllConditionSchema,
+    AnyConditionSchema,
+    AssignmentsSchema,
+    ComparisonSchema,
+    ConditionSchema,
+    NotConditionSchema,
+    VariablesSchema,
+    VariableTestsSchema,
+} from "../src/engine/schema/variables.ts";
 import { RecipeSchema } from "../src/engine/sound/recipe.ts";
 import {
     VOICE_PARAMS,
@@ -61,7 +71,9 @@ import { TextSchema } from "../src/modules/text/definition.ts";
 import { ToggleSchema } from "../src/modules/toggle/definition.ts";
 
 interface JsonSchema {
-    type?: string;
+    $ref?: string;
+    $defs?: Record<string, JsonSchema>;
+    type?: string | string[];
     description?: string;
     default?: unknown;
     const?: unknown;
@@ -99,6 +111,20 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Glitch options", GlitchOptionsSchema],
             ["Screen", ScreenSchema],
             ["Next rule", RuleSchema],
+        ],
+    ],
+    [
+        "Variables",
+        [
+            ["Variables", VariablesSchema],
+            ["Condition", ConditionSchema],
+            ["Variable tests", VariableTestsSchema],
+            ["Comparison", ComparisonSchema],
+            ["All", AllConditionSchema],
+            ["Any", AnyConditionSchema],
+            ["Not", NotConditionSchema],
+            ["Set", AssignmentsSchema],
+            ["Add", AddSchema],
         ],
     ],
     [
@@ -160,8 +186,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
         "Shared types",
         [
             ["Action", ActionSchema],
-            ["Screen action", ScreenActionSchema],
-            ["Dialog action", DialogActionSchema],
+            ["Action case", ActionCaseSchema],
             ["Reveal", RevealSchema],
             ["Teletype reveal", TeletypeRevealSchema, '"type": "teletype"'],
             ["Glitch reveal", GlitchRevealSchema, '"type": "glitch"'],
@@ -175,10 +200,28 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
     ],
 ];
 
+/** Where a named type (one with a meta id, such as a recursive one) is referred to. */
+const REF = "#/$defs/";
+
 const toJson = (schema: z.ZodType): JsonSchema => {
-    const { $schema: _, ...json } = z.toJSONSchema(schema, { io: "input", unrepresentable: "any" });
-    return json as JsonSchema;
+    const {
+        $schema: _,
+        $defs: defs = {},
+        ...json
+    } = z.toJSONSchema(schema, { io: "input", unrepresentable: "any" }) as JsonSchema & {
+        $schema?: string;
+    };
+    // a named type on its own is a reference to itself: document what it refers to
+    let resolved: JsonSchema = json;
+    while (resolved.$ref?.startsWith(REF) && Object.keys(resolved).length <= 2) {
+        const { $ref, ...rest } = resolved;
+        resolved = { ...defs[$ref.slice(REF.length)], ...rest };
+    }
+    return resolved;
 };
+
+/** The named types, by meta id, for references to them. */
+const byId = new Map<string, Named>();
 
 /** What makes two schemas the same type: everything but where-it's-used details. */
 const shape = ({ description: _d, default: _f, ...rest }: JsonSchema) => JSON.stringify(rest);
@@ -204,6 +247,11 @@ export function generateReference(): { markdown: string; missing: string[] } {
     );
     const byShape = new Map<string, Named>();
     for (const entry of named) {
+        const schema = GROUPS.flatMap(([, entries]) => entries).find(
+            ([title]) => title === entry.title,
+        )?.[1];
+        const metaId = schema && (z.globalRegistry.get(schema) as { id?: string } | undefined)?.id;
+        if (metaId) byId.set(metaId, entry);
         const key = shape(entry.json);
         if (byShape.has(key))
             throw new Error(`${entry.title} has the same shape as ${byShape.get(key)?.title}`);
@@ -214,12 +262,18 @@ export function generateReference(): { markdown: string; missing: string[] } {
     const link = (entry: Named) => `[${entry.title}](#${entry.id})`;
 
     const typeOf = (json: JsonSchema, self?: Named): string => {
+        if (json.$ref?.startsWith(REF)) {
+            const target = byId.get(json.$ref.slice(REF.length));
+            if (!target) throw new Error(`No reference entry for ${json.$ref}`);
+            return link(target);
+        }
         const known = byShape.get(shape(json));
         if (known && known !== self) return link(known);
         if (json.const !== undefined) return code(json.const);
         if (json.enum) return json.enum.map(code).join(" | ");
         const alternatives = json.anyOf ?? json.oneOf;
         if (alternatives) return [...new Set(alternatives.map((a) => typeOf(a)))].join(" | ");
+        if (Array.isArray(json.type)) return json.type.join(" | ");
 
         switch (json.type) {
             case "array": {
@@ -307,6 +361,18 @@ export function generateReference(): { markdown: string; missing: string[] } {
     const section = (entry: Named): string[] => {
         if (!entry.json.description) missing.push(entry.title);
         const isObject = entry.json.type === "object" && entry.json.properties;
+        const map = entry.json.additionalProperties;
+        if (entry.json.type === "object" && !isObject && typeof map === "object") {
+            return [
+                `<a id="${entry.id}"></a>`,
+                "",
+                `### ${entry.title}`,
+                "",
+                ...(entry.json.description ? [entry.json.description, ""] : []),
+                `A map of variable name → ${typeOf(map)}.`,
+                "",
+            ];
+        }
         return [
             `<a id="${entry.id}"></a>`,
             "",

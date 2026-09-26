@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { type Action, ActionSchema } from "./common.ts";
+import { type Condition, ConditionSchema } from "./variables.ts";
 
 // Friendlier names for keys whose KeyboardEvent.key is awkward to write
 const KEY_ALIASES: Record<string, string> = {
@@ -46,7 +47,10 @@ export const RuleSchema = z
                     '"ArrowRight" or "y", or an array of them. Taps and clicks count too, ' +
                     "unless keys in different rules lead to different places.",
             }),
-        action: ActionSchema.meta({ description: "Where to go" }),
+        if: ConditionSchema.optional().meta({
+            description: "Only while this holds, e.g. a key that works once a door is unlocked",
+        }),
+        action: ActionSchema.meta({ description: "What happens" }),
     })
     .refine((rule) => rule.after !== undefined || rule.key !== undefined, {
         message: 'Set "after", "key", or both',
@@ -56,8 +60,9 @@ export const RuleSchema = z
             "A way to move on from a screen without a link: after a delay, at a key press, or both",
     })
     .transform(
-        ({ after, key, action }): NextRule => ({
+        ({ after, key, if: condition, action }): NextRule => ({
             ...(after === undefined ? {} : { after }),
+            ...(condition === undefined ? {} : { if: condition }),
             ...(key === undefined
                 ? {}
                 : { keys: (Array.isArray(key) ? key : [key]).map(normalizeKey) }),
@@ -79,6 +84,8 @@ export interface NextRule {
     after?: number;
     /** Normalized key names (see normalizeKey), possibly including "any". */
     keys?: string[];
+    /** Only while this holds. */
+    if?: Condition;
     action: Action;
 }
 
@@ -100,7 +107,7 @@ export function ruleForKey(rules: readonly NextRule[], key: string): NextRule | 
 export function ruleForTap(rules: readonly NextRule[]): NextRule | undefined {
     const keyed = rules.filter((rule) => rule.keys);
     const [first] = keyed;
-    const same = (a: Action, b: Action) => a.type === b.type && a.target === b.target;
+    const same = (a: Action, b: Action) => JSON.stringify(a) === JSON.stringify(b);
     return first && keyed.every((rule) => same(rule.action, first.action)) ? first : undefined;
 }
 

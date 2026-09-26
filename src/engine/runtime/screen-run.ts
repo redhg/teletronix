@@ -13,6 +13,7 @@ import type { Element } from "../schema/elements.ts";
 import { moduleFor } from "../schema/elements.ts";
 import type { Defaults, Screen } from "../schema/program.ts";
 import type { Cue } from "../schema/sound.ts";
+import type { Condition } from "../schema/variables.ts";
 import { applyBreaks, type Break, lineBreaks } from "../text/breaks.ts";
 
 /**
@@ -37,8 +38,12 @@ export interface ScreenRunOptions {
     now: () => number;
     /** Starts loading anything an element needs. Returns nothing if it needs nothing. */
     load?: (element: Element) => Promise<unknown> | undefined;
-    /** Per-element memory kept by the terminal (see ModuleDefinition). */
-    memory?: ReadonlyMap<string, unknown>;
+    /** An element's memory, kept by the terminal (see ModuleDefinition). */
+    recall?: (elementId: string) => unknown;
+    /** Whether a condition holds, for elements' `if`. Checked once, as the run starts. */
+    holds?: (condition: Condition) => boolean;
+    /** Fills variables into text. */
+    format?: (text: string) => string;
     /** Skip every reveal (e.g. for prefers-reduced-motion). */
     instant?: boolean;
     random?: Random;
@@ -94,6 +99,8 @@ export class ScreenRun {
     readonly screen: Screen;
 
     private readonly options: ScreenRunOptions;
+    /** The screen's elements whose conditions held when the run started. */
+    private readonly content: readonly Element[];
     private readonly runs: ElementRun[];
     private readonly units: Unit[];
     /** The unit being revealed, or -1. */
@@ -113,8 +120,11 @@ export class ScreenRun {
         this.screen = screen;
         this.options = options;
         this.columns = options.columns;
+        this.content = screen.content.filter(
+            (element) => !element.if || (options.holds?.(element.if) ?? true),
+        );
 
-        this.runs = screen.content.map((element, index) => {
+        this.runs = this.content.map((element, index) => {
             const text = this.textOf(element);
             const loading = options.load?.(element);
             loading?.then(
@@ -137,8 +147,9 @@ export class ScreenRun {
         this.snapshotStates();
     }
 
+    /** The elements on screen this visit: those whose `if` held when it started. */
     get elements(): readonly Element[] {
-        return this.screen.content;
+        return this.content;
     }
 
     /** Element states, as a new array whenever any of them changes. */
@@ -265,6 +276,11 @@ export class ScreenRun {
         this.advance(now);
     }
 
+    /** Re-reads every element's text, e.g. after a variable changed. */
+    refreshAll(): void {
+        for (const run of this.runs) this.refresh(run.element.id);
+    }
+
     /** Re-reads an element's text, e.g. after its memory changed. */
     refresh(elementId: string): void {
         const index = this.runs.findIndex((r) => r.element.id === elementId);
@@ -329,7 +345,8 @@ export class ScreenRun {
     }
 
     private textOf(element: Element): string {
-        return moduleFor(element).text(element, this.options.memory?.get(element.id));
+        const text = moduleFor(element).text(element, this.options.recall?.(element.id));
+        return this.options.format?.(text) ?? text;
     }
 
     private buildUnits(): Unit[] {
@@ -345,7 +362,7 @@ export class ScreenRun {
             const context = {
                 columns: () => this.columns,
                 random,
-                memory: () => this.options.memory?.get(element.id),
+                memory: () => this.options.recall?.(element.id),
             };
             const custom = moduleFor(element).reveal?.(element, spec, context);
             if (custom) {

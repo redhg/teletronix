@@ -1,6 +1,7 @@
 import type { Random } from "./random.ts";
 import type { Reveal, RevealSpec } from "./reveal/index.ts";
 import type { Action } from "./schema/common.ts";
+import type { Condition, VariableValue } from "./schema/variables.ts";
 
 /** Every element gets a stable id when a program is parsed: `<screenId>#<index>`. */
 export interface ElementIdentity {
@@ -22,6 +23,13 @@ export interface ModuleDefinition<E, M = never> {
     text(element: E, memory: M | undefined): string;
     /** Every action the element can dispatch, so targets can be validated when parsing. */
     actions?(element: E): Action[];
+    /** Conditions the element tests besides its `if` (e.g. its commands'), for checking. */
+    conditions?(element: E): Condition[];
+    /**
+     * For elements that can be bound to a variable (with `"variable"`), which then takes the
+     * place of their memory.
+     */
+    binding?: Binding<E, M>;
     /**
      * A custom reveal, for elements that aren't simply revealed text (e.g. images, progress
      * bars). Its frames may change the element's text as they go; views can also follow it
@@ -55,4 +63,14 @@ export interface Outcome {
     action: Action;
     /** Milliseconds to wait before the action runs. */
     after: number;
+}
+
+/** How an element's memory maps to the variable it's bound to. */
+export interface Binding<E, M> {
+    /** What's wrong with binding the element to a variable with this starting value, if anything. */
+    check(element: E, initial: VariableValue): string | null;
+    /** The element's memory, from the variable. */
+    read(element: E, value: VariableValue): M;
+    /** The variable's new value, from the element's memory and the variable's current value. */
+    write(element: E, memory: M, current: VariableValue): VariableValue;
 }
