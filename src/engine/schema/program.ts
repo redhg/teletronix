@@ -63,7 +63,7 @@ const ConfigSchema = z.strictObject({
             'How text appears on every screen, unless a screen or element says otherwise (default: "teletype")',
     }),
     transition: TransitionSchema.optional().meta({
-        description: 'How screens leave, unless the next screen says otherwise (default: "cut")',
+        description: 'How screens leave, unless the next screen says otherwise (default: "none")',
     }),
     defaults: DefaultsSchema.optional(),
     effects: EffectsSchema.optional(),
@@ -132,7 +132,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         start: start ?? screens.keys().next().value ?? "",
         defaults: {
             reveal: reveal ?? { type: "teletype" },
-            transition: transition ?? { type: "cut" },
+            transition: transition ?? { type: "none" },
             teletype: { speed: defaults?.teletype?.speed ?? DEFAULT_TELETYPE_SPEED },
             glitch: { duration: defaults?.glitch?.duration ?? DEFAULT_GLITCH_DURATION },
         },

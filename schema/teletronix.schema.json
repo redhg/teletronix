@@ -89,12 +89,12 @@
                     ]
                 },
                 "transition": {
-                    "description": "How screens leave, unless the next screen says otherwise (default: \"cut\")",
+                    "description": "How screens leave, unless the next screen says otherwise (default: \"none\")",
                     "anyOf": [
                         {
                             "type": "string",
                             "enum": [
-                                "cut",
+                                "none",
                                 "glitch",
                                 "fade"
                             ]
@@ -106,7 +106,7 @@
                                     "properties": {
                                         "type": {
                                             "type": "string",
-                                            "const": "cut"
+                                            "const": "none"
                                         }
                                     },
                                     "required": [
@@ -428,7 +428,7 @@
                             {
                                 "type": "string",
                                 "enum": [
-                                    "cut",
+                                    "none",
                                     "glitch",
                                     "fade"
                                 ]
@@ -440,7 +440,7 @@
                                         "properties": {
                                             "type": {
                                                 "type": "string",
-                                                "const": "cut"
+                                                "const": "none"
                                             }
                                         },
                                         "required": [

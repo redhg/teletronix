@@ -47,7 +47,7 @@ export type RevealOption = z.output<typeof RevealSchema>;
 // How the previous screen leaves when a screen is shown.
 
 const GlitchTransitionSchema = GlitchOptionsSchema.extend({ type: z.literal("glitch") });
-const CutTransitionSchema = z.strictObject({ type: z.literal("cut") });
+const NoneTransitionSchema = z.strictObject({ type: z.literal("none") });
 const FadeTransitionSchema = z.strictObject({
     type: z.literal("fade"),
     duration: z.number().positive().optional().meta({ description: "Milliseconds (default: 600)" }),
@@ -55,9 +55,9 @@ const FadeTransitionSchema = z.strictObject({
 
 export const TransitionSchema = z
     .union([
-        z.enum(["cut", "glitch", "fade"]),
+        z.enum(["none", "glitch", "fade"]),
         z.discriminatedUnion("type", [
-            CutTransitionSchema,
+            NoneTransitionSchema,
             GlitchTransitionSchema,
             FadeTransitionSchema,
         ]),
@@ -68,14 +68,14 @@ export const TransitionSchema = z
     )
     .meta({
         description:
-            'How the previous screen leaves: "cut" (it disappears), "glitch" (it erases ' +
+            'How the previous screen leaves: "none" (it disappears at once), "glitch" (it erases ' +
             'itself over this screen while this screen reveals) or "fade" (it fades out like ' +
             "phosphor afterglow)",
     });
 
 /** A transition as written by an author, normalized to object form. Options are partial. */
 export type TransitionOption =
-    | { type: "cut" }
+    | { type: "none" }
     | { type: "glitch"; duration?: number }
     | { type: "fade"; duration?: number };
 

@@ -27,7 +27,7 @@ describe("parseProgram", () => {
         expect(program.start).toBe("home");
         expect(program.defaults).toEqual({
             reveal: { type: "teletype" },
-            transition: { type: "cut" },
+            transition: { type: "none" },
             teletype: { speed: 10 },
             glitch: { duration: 1000 },
         });

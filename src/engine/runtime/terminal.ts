@@ -35,7 +35,7 @@ export interface ScreenSnapshot {
 
 export interface OutgoingSnapshot extends ScreenSnapshot {
     /** How it's leaving, so the view can animate it. */
-    transition: Exclude<TransitionSpec, { type: "cut" }>;
+    transition: Exclude<TransitionSpec, { type: "none" }>;
 }
 
 /** Structural state for the UI. A new object whenever anything in it changes. */
@@ -141,7 +141,7 @@ export class Terminal {
         const transition = resolveTransition(screen.transition, this.program.defaults);
         // a transition that's still playing is cut short by the next one
         this.outgoing = null;
-        if (this.run && transition.type !== "cut" && !this.instant) {
+        if (this.run && transition.type !== "none" && !this.instant) {
             this.outgoing = this.run;
             this.outgoingTransition = transition;
             this.outgoing.erase(now, transition);

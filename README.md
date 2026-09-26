@@ -120,7 +120,8 @@ Text appears with a **reveal**:
   When a screen or the config sets it, consecutive elements glitch in together as one block.
 - `"instant"`: appears all at once
 
-A screen's `transition` controls how the previous screen leaves: `"cut"` (the default),
+A screen's `transition` controls how the previous screen leaves: `"none"` (the default: it
+disappears at once),
 `"glitch"`, where the old screen erases itself over the new one as it appears, or `"fade"`,
 where it fades out behind the new one like phosphor afterglow (`{ "type": "fade", "duration": 1500 }`
 sets the ms; default 600).

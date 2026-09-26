@@ -38,7 +38,7 @@ export function resolveReveal(
 export const DEFAULT_FADE_DURATION = 600;
 
 export type TransitionSpec =
-    | { type: "cut" }
+    | { type: "none" }
     | { type: "glitch"; duration: number }
     | { type: "fade"; duration: number };
 
@@ -53,8 +53,8 @@ export function resolveTransition(
             return { ...defaults.glitch, ...definedOnly(option), type: "glitch" };
         case "fade":
             return { type: "fade", duration: option.duration ?? DEFAULT_FADE_DURATION };
-        case "cut":
-            return { type: "cut" };
+        case "none":
+            return { type: "none" };
     }
 }
 
