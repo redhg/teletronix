@@ -1,4 +1,6 @@
 import type { Cue, ResolvedSound } from "../../engine/index.ts";
+import type { Recipe } from "../../engine/sound/recipe.ts";
+import { renderRecipe, SAMPLE_RATE } from "../../engine/sound/sfxr.ts";
 import { copyVoices, type VoiceName, type Voices } from "./voices.ts";
 
 /** Sounds the interface asks for directly, on top of the engine's cues. */
@@ -16,6 +18,8 @@ export type SoundCue = Cue | InterfaceCue;
 
 /** Longest a glitch sound runs, however long the glitch. */
 const MAX_BURST = 3;
+/** How many rendered recipes to keep, so repeated sounds aren't rendered again. */
+const RECIPE_CACHE = 32;
 
 /**
  * Makes every sound on the fly with the Web Audio API: filtered noise, simple waves, a
@@ -40,6 +44,7 @@ export class Synth {
         gain: GainNode;
     } | null = null;
     private hissLevel = 0;
+    private rendered = new Map<string, AudioBuffer>();
 
     constructor(voices: Voices = copyVoices()) {
         this.voices = voices;
@@ -113,6 +118,33 @@ export class Synth {
                 if (settings.interface) this.voice("error", now);
                 return;
         }
+    }
+
+    /**
+     * Plays a sound recipe (see src/engine/sound/recipe.ts), whatever the settings; callers
+     * decide whether it should sound. Returns its length in seconds.
+     */
+    playRecipe(recipe: Recipe): number {
+        const { context, master } = this;
+        if (!context || !master) return 0;
+        const key = JSON.stringify(recipe);
+        let buffer = this.rendered.get(key);
+        if (!buffer) {
+            const samples = renderRecipe(recipe);
+            buffer = context.createBuffer(1, Math.max(1, samples.length), SAMPLE_RATE);
+            buffer.getChannelData(0).set(samples);
+            this.rendered.set(key, buffer);
+            // forget the oldest
+            if (this.rendered.size > RECIPE_CACHE) {
+                const oldest = this.rendered.keys().next().value;
+                if (oldest !== undefined) this.rendered.delete(oldest);
+            }
+        }
+        const source = context.createBufferSource();
+        source.buffer = buffer;
+        source.connect(master);
+        source.start();
+        return buffer.duration;
     }
 
     /** Plays one voice now, whatever the settings (for the sound test page). */

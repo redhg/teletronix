@@ -49,3 +49,76 @@
     text-transform: uppercase;
     color: GrayText;
 }
+
+.row.narrow {
+    max-width: 520px;
+}
+
+.tabs {
+    display: flex;
+    gap: 2px;
+    margin: 16px 0 12px;
+    border-bottom: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+}
+
+.tabs [role="tab"] {
+    padding: 6px 14px;
+    border: 1px solid transparent;
+    border-bottom: 0;
+    border-radius: 6px 6px 0 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.tabs [role="tab"][aria-selected="true"] {
+    border-color: color-mix(in srgb, CanvasText 20%, transparent);
+    background: Canvas;
+    font-weight: 600;
+    margin-bottom: -1px;
+}
+
+.designer .presets {
+    margin: 12px 0 6px;
+}
+
+.designer .buttons {
+    align-items: center;
+}
+
+.designer .primary {
+    font-weight: 600;
+}
+
+.designer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+    margin: 12px 0;
+}
+
+.designer-grid .row {
+    grid-template-columns: 130px 1fr 4em;
+}
+
+.waves {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    padding: 4px 0;
+}
+
+.paste {
+    width: 100%;
+    max-width: 640px;
+    font:
+        12px / 1.4 ui-monospace,
+        Menlo,
+        Consolas,
+        monospace;
+}
+
+.paste-error {
+    color: #d33;
+}

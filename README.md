@@ -187,9 +187,14 @@ Sound is on by default, quietly. `config.sound` turns it off (`false`) or adjust
 clicked or pressed a key, so it starts then. Players can mute it with the `[SOUND ON]` toggle in the
 corner, and their choice is remembered.
 
-To tune the sounds themselves, open the **sound test page**: <http://localhost:5173/?sound>. Play
-each sound and adjust it with sliders by ear; your edits are kept in the browser, and the page
-prints them as code to paste over `DEFAULT_VOICES` in `src/ui/sound/voices.ts`.
+The **sound test page**, <http://localhost:5173/?sound>, has two tabs:
+- **Built-in** tunes Teletronix's own sounds: play each one, adjust it with sliders by ear, and
+  copy the result over `DEFAULT_VOICES` in `src/ui/sound/voices.ts`.
+- **Custom** designs brand new sound effects: roll a preset (laser, explosion, pickup, blip…),
+  adjust it, and copy it as JSON. Its synthesizer is a port of [jsfxr](https://github.com/chr15m/jsfxr)
+  (public domain), the JavaScript version of DrPetter's classic sfxr.
+
+Edits on both tabs are kept in the browser.
 
 ### Right-click menu
 The browser's right-click menu is blocked, so a program feels like a terminal rather than a web
