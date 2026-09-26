@@ -6,7 +6,12 @@ export {
     type ProgressListener,
     ScreenRun,
 } from "./runtime/screen-run.ts";
-export { type ScreenSnapshot, Terminal, type TerminalSnapshot } from "./runtime/terminal.ts";
+export {
+    type OutgoingSnapshot,
+    type ScreenSnapshot,
+    Terminal,
+    type TerminalSnapshot,
+} from "./runtime/terminal.ts";
 export type { Action } from "./schema/common.ts";
 export { dialogAction } from "./schema/dialog.ts";
 export type { EffectName, EffectOptions, ResolvedEffects } from "./schema/effects.ts";

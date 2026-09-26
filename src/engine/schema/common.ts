@@ -48,20 +48,36 @@ export type RevealOption = z.output<typeof RevealSchema>;
 
 const GlitchTransitionSchema = GlitchOptionsSchema.extend({ type: z.literal("glitch") });
 const CutTransitionSchema = z.strictObject({ type: z.literal("cut") });
+const FadeTransitionSchema = z.strictObject({
+    type: z.literal("fade"),
+    duration: z.number().positive().optional().meta({ description: "Milliseconds (default: 600)" }),
+});
 
 export const TransitionSchema = z
     .union([
-        z.enum(["cut", "glitch"]),
-        z.discriminatedUnion("type", [CutTransitionSchema, GlitchTransitionSchema]),
+        z.enum(["cut", "glitch", "fade"]),
+        z.discriminatedUnion("type", [
+            CutTransitionSchema,
+            GlitchTransitionSchema,
+            FadeTransitionSchema,
+        ]),
     ])
-    .transform((transition) => (typeof transition === "string" ? { type: transition } : transition))
+    .transform(
+        (transition): TransitionOption =>
+            typeof transition === "string" ? { type: transition } : transition,
+    )
     .meta({
         description:
-            'How the previous screen leaves: "cut" (it disappears) or "glitch" (it erases ' +
-            "itself over this screen while this screen reveals)",
+            'How the previous screen leaves: "cut" (it disappears), "glitch" (it erases ' +
+            'itself over this screen while this screen reveals) or "fade" (it fades out like ' +
+            "phosphor afterglow)",
     });
 
-export type TransitionOption = z.output<typeof TransitionSchema>;
+/** A transition as written by an author, normalized to object form. Options are partial. */
+export type TransitionOption =
+    | { type: "cut" }
+    | { type: "glitch"; duration?: number }
+    | { type: "fade"; duration?: number };
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
 // What an interactive element does. Shared by links, prompts and dialogs.

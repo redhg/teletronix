@@ -122,7 +122,8 @@
                                     "type": "string",
                                     "enum": [
                                         "cut",
-                                        "glitch"
+                                        "glitch",
+                                        "fade"
                                     ]
                                 },
                                 {
@@ -151,6 +152,24 @@
                                                 "type": {
                                                     "type": "string",
                                                     "const": "glitch"
+                                                }
+                                            },
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "additionalProperties": false
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "fade"
+                                                },
+                                                "duration": {
+                                                    "description": "Milliseconds (default: 600)",
+                                                    "type": "number",
+                                                    "exclusiveMinimum": 0
                                                 }
                                             },
                                             "required": [
@@ -218,6 +237,98 @@
                                             "type": "integer",
                                             "minimum": 1,
                                             "maximum": 16
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            ]
+                        },
+                        "bloom": {
+                            "description": "Glow around bright things (off by default)",
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "strength": {
+                                            "description": "From 0 to 1 (default: 0.5)",
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 1
+                                        },
+                                        "radius": {
+                                            "description": "How far the glow spreads, in pixels (default: 8)",
+                                            "type": "number",
+                                            "minimum": 1,
+                                            "maximum": 32
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            ]
+                        },
+                        "vignette": {
+                            "description": "Darkened corners (off by default)",
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "strength": {
+                                            "description": "From 0 to 1 (default: 0.6)",
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 1
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            ]
+                        },
+                        "flicker": {
+                            "description": "An unsteady, dimming picture (off by default)",
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "strength": {
+                                            "description": "From 0 to 1 (default: 0.5)",
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 1
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            ]
+                        },
+                        "fringe": {
+                            "description": "Red and cyan color fringes on text (off by default)",
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "strength": {
+                                            "description": "From 0 to 1 (default: 0.6)",
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 1
+                                        },
+                                        "offset": {
+                                            "description": "How far the colors split, in pixels (default: 1)",
+                                            "type": "number",
+                                            "minimum": 0.5,
+                                            "maximum": 8
                                         }
                                     },
                                     "additionalProperties": false
@@ -317,7 +428,8 @@
                                 "type": "string",
                                 "enum": [
                                     "cut",
-                                    "glitch"
+                                    "glitch",
+                                    "fade"
                                 ]
                             },
                             {
@@ -346,6 +458,24 @@
                                             "type": {
                                                 "type": "string",
                                                 "const": "glitch"
+                                            }
+                                        },
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "additionalProperties": false
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "type": {
+                                                "type": "string",
+                                                "const": "fade"
+                                            },
+                                            "duration": {
+                                                "description": "Milliseconds (default: 600)",
+                                                "type": "number",
+                                                "exclusiveMinimum": 0
                                             }
                                         },
                                         "required": [
@@ -411,6 +541,98 @@
                                                 "type": "integer",
                                                 "minimum": 1,
                                                 "maximum": 16
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            },
+                            "bloom": {
+                                "description": "Glow around bright things (off by default)",
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "strength": {
+                                                "description": "From 0 to 1 (default: 0.5)",
+                                                "type": "number",
+                                                "minimum": 0,
+                                                "maximum": 1
+                                            },
+                                            "radius": {
+                                                "description": "How far the glow spreads, in pixels (default: 8)",
+                                                "type": "number",
+                                                "minimum": 1,
+                                                "maximum": 32
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            },
+                            "vignette": {
+                                "description": "Darkened corners (off by default)",
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "strength": {
+                                                "description": "From 0 to 1 (default: 0.6)",
+                                                "type": "number",
+                                                "minimum": 0,
+                                                "maximum": 1
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            },
+                            "flicker": {
+                                "description": "An unsteady, dimming picture (off by default)",
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "strength": {
+                                                "description": "From 0 to 1 (default: 0.5)",
+                                                "type": "number",
+                                                "minimum": 0,
+                                                "maximum": 1
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            },
+                            "fringe": {
+                                "description": "Red and cyan color fringes on text (off by default)",
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "strength": {
+                                                "description": "From 0 to 1 (default: 0.6)",
+                                                "type": "number",
+                                                "minimum": 0,
+                                                "maximum": 1
+                                            },
+                                            "offset": {
+                                                "description": "How far the colors split, in pixels (default: 1)",
+                                                "type": "number",
+                                                "minimum": 0.5,
+                                                "maximum": 8
                                             }
                                         },
                                         "additionalProperties": false

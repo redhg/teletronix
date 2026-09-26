@@ -35,7 +35,12 @@ export function resolveReveal(
     return { spec: fillOptions(option, defaults), inherited: own === undefined };
 }
 
-export type TransitionSpec = { type: "cut" } | { type: "glitch"; duration: number };
+export const DEFAULT_FADE_DURATION = 600;
+
+export type TransitionSpec =
+    | { type: "cut" }
+    | { type: "glitch"; duration: number }
+    | { type: "fade"; duration: number };
 
 /** The transition used when showing a screen: its own, or the program default. */
 export function resolveTransition(
@@ -43,9 +48,14 @@ export function resolveTransition(
     defaults: Defaults,
 ): TransitionSpec {
     const option = screen ?? defaults.transition;
-    return option.type === "glitch"
-        ? { ...defaults.glitch, ...definedOnly(option), type: "glitch" }
-        : { type: "cut" };
+    switch (option.type) {
+        case "glitch":
+            return { ...defaults.glitch, ...definedOnly(option), type: "glitch" };
+        case "fade":
+            return { type: "fade", duration: option.duration ?? DEFAULT_FADE_DURATION };
+        case "cut":
+            return { type: "cut" };
+    }
 }
 
 export function createReveal(text: string, spec: RevealSpec, random?: Random): Reveal {

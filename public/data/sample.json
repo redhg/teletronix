@@ -28,26 +28,110 @@
             ]
         },
         "effects": {
-            "effects": { "static": { "opacity": 0.25 } },
             "content": [
                 "EFFECTS",
                 "=======",
                 "",
-                "Scanlines are on by default. \"effects\" in the config turns effects on or off and tunes them, and each screen can override that.",
+                "Scanlines are on by default. \"effects\" in the config turns effects on or off and tunes them, and each screen can override that. Each of these screens turns one on:",
                 "",
-                "This screen adds \"static\": analog TV noise.",
+                { "type": "link", "text": "> STATIC", "action": { "screen": "fx-static" } },
+                { "type": "link", "text": "> BLOOM", "action": { "screen": "fx-bloom" } },
+                { "type": "link", "text": "> VIGNETTE", "action": { "screen": "fx-vignette" } },
+                { "type": "link", "text": "> FLICKER", "action": { "screen": "fx-flicker" } },
+                { "type": "link", "text": "> FRINGE", "action": { "screen": "fx-fringe" } },
+                { "type": "link", "text": "> EVERYTHING", "action": { "screen": "fx-all" } },
+                { "type": "link", "text": "> NO SCANLINES", "action": { "screen": "fx-clean" } },
                 "",
-                { "type": "link", "text": "> CLEAN SIGNAL", "action": { "screen": "clean" } },
+                "Phosphor afterglow is a screen transition: the old screen fades out behind the new one.",
+                { "type": "link", "text": "> AFTERGLOW", "action": { "screen": "fx-afterglow" } },
+                "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
-        "clean": {
+        "fx-static": {
+            "effects": { "static": { "opacity": 0.25 } },
+            "content": [
+                "STATIC",
+                "======",
+                "",
+                "Analog TV noise. Options: opacity, fps, scale.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "effects" } }
+            ]
+        },
+        "fx-bloom": {
+            "effects": { "bloom": true },
+            "content": [
+                "BLOOM",
+                "=====",
+                "",
+                "Bright text and images glow into the dark around them. Options: strength, radius.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "effects" } }
+            ]
+        },
+        "fx-vignette": {
+            "effects": { "vignette": true },
+            "content": [
+                "VIGNETTE",
+                "========",
+                "",
+                "The corners of the screen darken, like the edge of a tube. Option: strength.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "effects" } }
+            ]
+        },
+        "fx-flicker": {
+            "effects": { "flicker": true },
+            "content": [
+                "FLICKER",
+                "=======",
+                "",
+                "The picture dims by small, irregular amounts. Option: strength.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "effects" } }
+            ]
+        },
+        "fx-fringe": {
+            "effects": { "fringe": { "offset": 1.5 } },
+            "content": [
+                "FRINGE",
+                "======",
+                "",
+                "Red and cyan fringes on the text, like misaligned color guns. Options: offset, strength.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "effects" } }
+            ]
+        },
+        "fx-all": {
+            "effects": { "bloom": true, "vignette": true, "flicker": { "strength": 0.3 }, "static": { "opacity": 0.1 }, "fringe": true },
+            "content": [
+                "EVERYTHING",
+                "==========",
+                "",
+                "Every effect at once.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "effects" } }
+            ]
+        },
+        "fx-clean": {
             "effects": { "scanlines": false },
             "content": [
-                "CLEAN SIGNAL",
+                "NO SCANLINES",
                 "============",
                 "",
                 "This screen turns the scanlines off.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "effects" } }
+            ]
+        },
+        "fx-afterglow": {
+            "transition": { "type": "fade", "duration": 1500 },
+            "content": [
+                "AFTERGLOW",
+                "=========",
+                "",
+                "This screen sets \"transition\": { \"type\": \"fade\", \"duration\": 1500 }, so the screen you came from faded out slowly behind it.",
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "effects" } }
             ]

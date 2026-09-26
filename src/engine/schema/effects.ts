@@ -1,5 +1,20 @@
 import { z } from "zod";
 import {
+    type BloomOptions,
+    BloomOptionsSchema,
+    bloomEffect,
+} from "../../effects/bloom/definition.ts";
+import {
+    type FlickerOptions,
+    FlickerOptionsSchema,
+    flickerEffect,
+} from "../../effects/flicker/definition.ts";
+import {
+    type FringeOptions,
+    FringeOptionsSchema,
+    fringeEffect,
+} from "../../effects/fringe/definition.ts";
+import {
     type ScanlinesOptions,
     ScanlinesOptionsSchema,
     scanlinesEffect,
@@ -9,6 +24,11 @@ import {
     StaticOptionsSchema,
     staticEffect,
 } from "../../effects/static/definition.ts";
+import {
+    type VignetteOptions,
+    VignetteOptionsSchema,
+    vignetteEffect,
+} from "../../effects/vignette/definition.ts";
 import { type EffectDefinition, effectSetting } from "../effect.ts";
 
 // The registry of effects. Adding an effect means adding it here.
@@ -16,12 +36,26 @@ export const EffectsSchema = z
     .strictObject({
         scanlines: effectSetting(ScanlinesOptionsSchema, "CRT scanlines (on by default)"),
         static: effectSetting(StaticOptionsSchema, "Analog TV noise (off by default)"),
+        bloom: effectSetting(BloomOptionsSchema, "Glow around bright things (off by default)"),
+        vignette: effectSetting(VignetteOptionsSchema, "Darkened corners (off by default)"),
+        flicker: effectSetting(
+            FlickerOptionsSchema,
+            "An unsteady, dimming picture (off by default)",
+        ),
+        fringe: effectSetting(
+            FringeOptionsSchema,
+            "Red and cyan color fringes on text (off by default)",
+        ),
     })
     .meta({ description: "Visual effects: true, false, or an object of options" });
 
 export interface EffectOptions {
     scanlines: ScanlinesOptions;
     static: StaticOptions;
+    bloom: BloomOptions;
+    vignette: VignetteOptions;
+    flicker: FlickerOptions;
+    fringe: FringeOptions;
 }
 
 export type EffectName = keyof EffectOptions;
@@ -29,6 +63,10 @@ export type EffectName = keyof EffectOptions;
 const effects: { [N in EffectName]: EffectDefinition<EffectOptions[N]> } = {
     scanlines: scanlinesEffect,
     static: staticEffect,
+    bloom: bloomEffect,
+    vignette: vignetteEffect,
+    flicker: flickerEffect,
+    fringe: fringeEffect,
 };
 
 /** Effects as a program or screen sets them. */

@@ -1,5 +1,5 @@
 import type { Random } from "../random.ts";
-import { resolveTransition } from "../reveal/index.ts";
+import { resolveTransition, type TransitionSpec } from "../reveal/index.ts";
 import type { Action } from "../schema/common.ts";
 import { type Dialog, dialogAction } from "../schema/dialog.ts";
 import { type ResolvedEffects, resolveEffects } from "../schema/effects.ts";
@@ -30,11 +30,16 @@ export interface ScreenSnapshot {
     states: readonly ElementState[];
 }
 
+export interface OutgoingSnapshot extends ScreenSnapshot {
+    /** How it's leaving, so the view can animate it. */
+    transition: Exclude<TransitionSpec, { type: "cut" }>;
+}
+
 /** Structural state for the UI. A new object whenever anything in it changes. */
 export interface TerminalSnapshot {
     screen: ScreenSnapshot | null;
     /** The previous screen, while it erases itself over the current one. */
-    outgoing: ScreenSnapshot | null;
+    outgoing: OutgoingSnapshot | null;
     dialog: Dialog | null;
     /** The effects that are on for the current screen. */
     effects: ResolvedEffects;
@@ -62,6 +67,7 @@ export class Terminal {
     private columns: number;
     private run: ScreenRun | null = null;
     private outgoing: ScreenRun | null = null;
+    private outgoingTransition: OutgoingSnapshot["transition"] | null = null;
     private dialog: Dialog | null = null;
     /** Resolved once per screen, so effect views see the same object on every visit. */
     private readonly effects = new Map<string, ResolvedEffects>();
@@ -113,8 +119,9 @@ export class Terminal {
     /**
      * Shows a screen from the top. Navigating to the current screen replays it.
      *
-     * With a glitch transition, the current screen stays on screen and erases itself over
-     * the new one while the new one starts revealing, and is dropped once it's erased.
+     * With a glitch or fade transition, the current screen stays on screen and erases (or
+     * fades) itself over the new one while the new one starts revealing, and is dropped
+     * once that's finished.
      */
     navigate(screenId: string): void {
         const screen = this.program.screens.get(screenId);
@@ -125,9 +132,10 @@ export class Terminal {
         const transition = resolveTransition(screen.transition, this.program.defaults);
         // a transition that's still playing is cut short by the next one
         this.outgoing = null;
-        if (this.run && transition.type === "glitch" && !this.instant) {
+        if (this.run && transition.type !== "cut" && !this.instant) {
             this.outgoing = this.run;
-            this.outgoing.erase(now, transition.duration);
+            this.outgoingTransition = transition;
+            this.outgoing.erase(now, transition);
         }
 
         this.run = new ScreenRun(screen, {
@@ -256,7 +264,14 @@ export class Terminal {
         const snapshot = (run: ScreenRun | null) => (run ? { run, states: run.states } : null);
         this.snapshot = {
             screen: snapshot(this.run),
-            outgoing: snapshot(this.outgoing),
+            outgoing:
+                this.outgoing && this.outgoingTransition
+                    ? {
+                          run: this.outgoing,
+                          states: this.outgoing.states,
+                          transition: this.outgoingTransition,
+                      }
+                    : null,
             dialog: this.dialog,
             effects: this.run ? this.effectsFor(this.run.screen.id) : resolveEffects(),
         };

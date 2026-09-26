@@ -1,20 +1,31 @@
-import type { Element, ScreenSnapshot } from "../engine/index.ts";
-import type { ElementView } from "./element-view.ts";
+import type { CSSProperties } from "react";
+import type { Element, OutgoingSnapshot, ScreenSnapshot } from "../engine/index.ts";
+import { classNames, type ElementView } from "./element-view.ts";
 import { views } from "./views.ts";
 
 interface Props {
     screen: ScreenSnapshot;
-    /** The previous screen, erasing itself on top of the current one: shown but inert. */
-    outgoing?: boolean;
+    /**
+     * For the previous screen, how it's leaving. It's shown on top of the current one,
+     * inert, while it erases (glitch) or fades out (fade).
+     */
+    leaving?: OutgoingSnapshot["transition"];
 }
 
-export function ScreenView({ screen, outgoing = false }: Props) {
+export function ScreenView({ screen, leaving }: Props) {
+    const outgoing = leaving !== undefined;
+    const fading = leaving?.type === "fade";
     const { run, states } = screen;
     const firstPending = states.findIndex((state) => state !== "done");
 
     return (
         <section
-            className={outgoing ? "screen outgoing" : "screen"}
+            className={classNames("screen", outgoing && "outgoing", fading && "fading")}
+            style={
+                fading
+                    ? ({ "--fade-duration": `${leaving.duration}ms` } as CSSProperties)
+                    : undefined
+            }
             aria-live={outgoing ? undefined : "polite"}
             aria-hidden={outgoing || undefined}
             inert={outgoing}

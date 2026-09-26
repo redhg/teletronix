@@ -6,6 +6,7 @@
 
 .screens {
     display: grid;
+    isolation: isolate;
 }
 
 .screen {
@@ -85,4 +86,18 @@ button.control.alert:focus-visible {
 
 .error-view code {
     font: inherit;
+}
+
+/* Phosphor afterglow: a screen left with "transition": "fade" dims quickly, then lingers */
+.screen.fading {
+    /* behind the new screen, unlike a glitch, which erases on top */
+    z-index: -1;
+    animation: phosphor-fade var(--fade-duration) cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes phosphor-fade {
+    to {
+        opacity: 0;
+        filter: blur(1px);
+    }
 }

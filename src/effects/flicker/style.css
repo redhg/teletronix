@@ -1,0 +1,102 @@
+.flicker {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: var(--bg);
+    opacity: 0;
+    animation: flicker 4s steps(1, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .flicker {
+        display: none;
+    }
+}
+
+/* irregular steps (generated once), so the dimming doesn't read as a regular pulse */
+@keyframes flicker {
+    0.0% {
+        opacity: calc(var(--flicker-strength) * 0);
+    }
+    6.0% {
+        opacity: calc(var(--flicker-strength) * 0.04);
+    }
+    9.0% {
+        opacity: calc(var(--flicker-strength) * 0.05);
+    }
+    12.0% {
+        opacity: calc(var(--flicker-strength) * 0);
+    }
+    16.0% {
+        opacity: calc(var(--flicker-strength) * 0.05);
+    }
+    20.0% {
+        opacity: calc(var(--flicker-strength) * 0.12);
+    }
+    24.0% {
+        opacity: calc(var(--flicker-strength) * 0);
+    }
+    27.0% {
+        opacity: calc(var(--flicker-strength) * 0.04);
+    }
+    30.0% {
+        opacity: calc(var(--flicker-strength) * 0.08);
+    }
+    33.0% {
+        opacity: calc(var(--flicker-strength) * 0.08);
+    }
+    39.0% {
+        opacity: calc(var(--flicker-strength) * 0.02);
+    }
+    41.0% {
+        opacity: calc(var(--flicker-strength) * 0.05);
+    }
+    43.0% {
+        opacity: calc(var(--flicker-strength) * 0);
+    }
+    44.5% {
+        opacity: calc(var(--flicker-strength) * 0);
+    }
+    50.5% {
+        opacity: calc(var(--flicker-strength) * 0.08);
+    }
+    52.0% {
+        opacity: calc(var(--flicker-strength) * 0);
+    }
+    55.0% {
+        opacity: calc(var(--flicker-strength) * 0.04);
+    }
+    59.0% {
+        opacity: calc(var(--flicker-strength) * 0.12);
+    }
+    65.0% {
+        opacity: calc(var(--flicker-strength) * 0.2);
+    }
+    71.0% {
+        opacity: calc(var(--flicker-strength) * 0);
+    }
+    72.5% {
+        opacity: calc(var(--flicker-strength) * 0.08);
+    }
+    74.5% {
+        opacity: calc(var(--flicker-strength) * 0);
+    }
+    78.5% {
+        opacity: calc(var(--flicker-strength) * 0.04);
+    }
+    81.5% {
+        opacity: calc(var(--flicker-strength) * 0.2);
+    }
+    87.5% {
+        opacity: calc(var(--flicker-strength) * 0.04);
+    }
+    91.5% {
+        opacity: calc(var(--flicker-strength) * 0.05);
+    }
+    97.5% {
+        opacity: calc(var(--flicker-strength) * 0.05);
+    }
+    99.0% {
+        opacity: calc(var(--flicker-strength) * 0);
+    }
+}

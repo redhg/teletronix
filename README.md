@@ -71,8 +71,10 @@ Text appears with a **reveal**, set per element, per screen or in `config.defaul
   When a screen or the config sets it, consecutive elements glitch in together as one block.
 - `"none"`: appears at once
 
-A screen's `transition` controls how the previous screen leaves: `"cut"` (the default) or
-`"glitch"`, where the old screen erases itself over the new one as it appears.
+A screen's `transition` controls how the previous screen leaves: `"cut"` (the default),
+`"glitch"`, where the old screen erases itself over the new one as it appears, or `"fade"`,
+where it fades out behind the new one like phosphor afterglow (`{ "type": "fade", "duration": 1500 }`
+sets the ms; default 600).
 
 ### Effects
 `config.effects` turns visual effects on or off and sets their options. A screen's `effects`
@@ -82,6 +84,10 @@ layers over the config's.
 |---|---|---|
 | `scanlines` | on | `opacity` (0–1, default 0.5), `moving` (a rolling bright band, default true) |
 | `static` | off | `opacity` (0–1, default 0.15), `fps` (default 24), `scale` (noise pixel size, default 3) |
+| `bloom` | off | `strength` (0–1, default 0.5), `radius` (px, default 8) |
+| `vignette` | off | `strength` (0–1, default 0.6) |
+| `flicker` | off | `strength` (0–1, default 0.5) |
+| `fringe` | off | `strength` (0–1, default 0.6), `offset` (px, default 1) |
 
 ```json
 "effects": { "scanlines": { "opacity": 0.3 }, "static": true }

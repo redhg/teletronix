@@ -41,7 +41,13 @@ export function TerminalView() {
                 DOM (and its frame subscriptions) alive as it moves from current to outgoing. */}
                 <div className="screens">
                     {screen && <ScreenView key={screen.run.key} screen={screen} />}
-                    {outgoing && <ScreenView key={outgoing.run.key} screen={outgoing} outgoing />}
+                    {outgoing && (
+                        <ScreenView
+                            key={outgoing.run.key}
+                            screen={outgoing}
+                            leaving={outgoing.transition}
+                        />
+                    )}
                 </div>
             </main>
             <EffectsLayer effects={effects} />

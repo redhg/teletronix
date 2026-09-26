@@ -16,13 +16,14 @@ body {
     font-family: var(--font-family);
     font-size: var(--font-size);
     line-height: var(--line-height);
-    text-shadow: var(--glow);
+    /* --fringe is set by the fringe effect */
+    text-shadow: var(--fringe, 0 0 transparent), var(--glow);
     -webkit-font-smoothing: none;
 }
 
 .alert {
     color: var(--alert);
-    text-shadow: var(--alert-glow);
+    text-shadow: var(--fringe, 0 0 transparent), var(--alert-glow);
 }
 
 .sr-only {

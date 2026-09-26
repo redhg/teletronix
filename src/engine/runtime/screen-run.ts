@@ -2,6 +2,7 @@ import type { Random } from "../random.ts";
 import {
     createGlitchReveal,
     createReveal,
+    createTimedReveal,
     type Frame,
     type Reveal,
     type RevealSpec,
@@ -186,13 +187,20 @@ export class ScreenRun {
     }
 
     /**
-     * Stops revealing and erases everything on screen with a reverse glitch, as one block.
-     * Used when this screen is being navigated away from.
+     * Stops revealing and takes the screen away, when it's being navigated away from. A
+     * glitch erases everything on screen as one block; a fade leaves the text alone for the
+     * view to fade out. Either way the run is `erased` once `duration` has passed.
      */
-    erase(now: number, duration: number): void {
+    erase(now: number, { type, duration }: { type: "glitch" | "fade"; duration: number }): void {
         if (this.eraser || this.erasedFlag) return;
         this.active = -1;
         this.waiting = -1;
+
+        if (type === "fade") {
+            this.eraser = { indices: [], reveal: createTimedReveal(duration), since: now };
+            this.advance(now);
+            return;
+        }
 
         const shown = (run: ElementRun) => run.state === "active" || run.state === "done";
         const indices = this.runs.flatMap((run, i) => (shown(run) ? [i] : []));
