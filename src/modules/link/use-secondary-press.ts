@@ -9,7 +9,7 @@ import {
 } from "react";
 
 /** How long a press has to be held to count as a secondary click. */
-export const LONG_PRESS_MS = 500;
+export const LONG_PRESS_MS = 750;
 /** How far a finger can move while holding before it counts as a scroll instead. */
 const MOVE_TOLERANCE = 10;
 
