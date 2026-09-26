@@ -1,9 +1,10 @@
-.bloom {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    backdrop-filter: blur(var(--bloom-radius)) brightness(1.6);
-    /* adds the glow to the screen beneath instead of covering it */
-    mix-blend-mode: screen;
-    opacity: var(--bloom-strength);
+/* the filter itself lives in an invisible SVG */
+.bloom-filter {
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+:root[data-bloom] .terminal {
+    filter: url("#teletronix-bloom");
 }
