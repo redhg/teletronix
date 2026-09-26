@@ -1,4 +1,5 @@
 import type { Cue, ResolvedSound } from "../../engine/index.ts";
+import { copyVoices, type VoiceName, type Voices } from "./voices.ts";
 
 /** Sounds the interface asks for directly, on top of the engine's cues. */
 export type InterfaceCue =
@@ -13,14 +14,15 @@ export type InterfaceCue =
 
 export type SoundCue = Cue | InterfaceCue;
 
-const KEY_GAP = 0.03;
-const TICK_GAP = 0.04;
+/** Longest a glitch sound runs, however long the glitch. */
 const MAX_BURST = 3;
 
 /**
- * Makes every sound on the fly with the Web Audio API: filtered noise, square waves, a
+ * Makes every sound on the fly with the Web Audio API: filtered noise, simple waves, a
  * mains hum. Nothing is loaded. Browsers only allow sound after the player has clicked or
  * pressed a key, so it stays silent until unlock() is called from such an event.
+ *
+ * Every number it uses comes from `voices` (see voices.ts), which can change at any time.
  */
 export class Synth {
     private context: AudioContext | null = null;
@@ -28,11 +30,20 @@ export class Synth {
     private noise: AudioBuffer | null = null;
     private settings: ResolvedSound | null = null;
     private muted = false;
+    private voices: Voices;
     private lastKey = 0;
     private lastTick = 0;
-    private hum: AudioScheduledSourceNode[] = [];
-    private hiss: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
+    private hum: { oscillators: OscillatorNode[]; gains: GainNode[] } | null = null;
+    private hiss: {
+        source: AudioBufferSourceNode;
+        filter: BiquadFilterNode;
+        gain: GainNode;
+    } | null = null;
     private hissLevel = 0;
+
+    constructor(voices: Voices = copyVoices()) {
+        this.voices = voices;
+    }
 
     get unlocked(): boolean {
         return this.context !== null;
@@ -57,6 +68,12 @@ export class Synth {
         this.apply();
     }
 
+    /** Replaces the voices; sounds already playing (the hum, the hiss) follow along. */
+    setVoices(voices: Voices): void {
+        this.voices = voices;
+        this.apply();
+    }
+
     /** A steady hiss under the static effect, at `level` (0 to 1). */
     setHiss(level: number): void {
         this.hissLevel = level;
@@ -71,77 +88,125 @@ export class Synth {
         switch (cue.type) {
             case "key":
             case "keypress":
-                if (!settings.typing || now - this.lastKey < KEY_GAP) return;
+                if (!settings.typing || now - this.lastKey < this.voices.key.gap) return;
                 this.lastKey = now;
-                this.click(now);
+                this.voice("key", now);
                 return;
             case "glitch":
-                if (settings.glitch) this.glitch(now, Math.min(cue.duration / 1000, MAX_BURST));
+                if (settings.glitch) this.voice("glitch", now, cue.duration / 1000);
                 return;
             case "static":
-                if (settings.static) this.burst(now, cue.duration / 1000);
+                if (settings.static) this.voice("burst", now, cue.duration / 1000);
                 return;
             case "dialog":
-                if (!settings.interface) return;
-                if (cue.alert) {
-                    this.tone(now, 440, 0.12, "square", 0.08);
-                    this.tone(now + 0.14, 330, 0.18, "square", 0.08);
-                } else {
-                    this.tone(now, 660, 0.1, "sine", 0.2);
-                }
+                if (settings.interface) this.voice(cue.alert ? "alert" : "dialog", now);
                 return;
             case "select":
-                if (!settings.interface) return;
-                this.tone(now, 880, 0.03, "square", 0.06);
-                this.tone(now + 0.035, 1320, 0.04, "square", 0.06);
+                if (settings.interface) this.voice("select", now);
                 return;
             case "tick":
-                if (!settings.interface || now - this.lastTick < TICK_GAP) return;
+                if (!settings.interface || now - this.lastTick < this.voices.tick.gap) return;
                 this.lastTick = now;
-                this.tone(now, 1600, 0.015, "square", 0.04);
+                this.voice("tick", now);
                 return;
             case "error":
-                if (settings.interface) this.tone(now, 110, 0.18, "square", 0.08);
+                if (settings.interface) this.voice("error", now);
                 return;
         }
     }
 
+    /** Plays one voice now, whatever the settings (for the sound test page). */
+    preview(name: Exclude<VoiceName, "hum" | "hiss">, duration = 1): void {
+        if (this.context) this.voice(name, this.context.currentTime, duration);
+    }
+
     // ─── Voices ─────────────────────────────────────────────────────────────
 
-    /** A key click: a tiny burst of band-passed noise at a slightly random pitch. */
-    private click(at: number): void {
-        const filter = this.filter("bandpass", 1800 + Math.random() * 1400, 1.2);
-        this.noiseThrough(filter, at, 0.018, 0.5);
+    private voice(name: Exclude<VoiceName, "hum" | "hiss">, at: number, duration = 1): void {
+        const v = this.voices;
+        switch (name) {
+            case "key": {
+                // a tiny burst of band-passed noise at a slightly random pitch
+                const pitch = v.key.pitch + Math.random() * v.key.spread;
+                this.noiseThrough(
+                    this.filter("bandpass", pitch, v.key.q),
+                    at,
+                    v.key.length,
+                    v.key.level,
+                );
+                return;
+            }
+            case "burst":
+                this.noiseThrough(
+                    this.filter("highpass", v.burst.highpass, v.burst.q),
+                    at,
+                    duration,
+                    v.burst.level,
+                );
+                return;
+            case "glitch":
+                this.glitch(at, Math.min(duration, MAX_BURST));
+                return;
+            case "select":
+                this.tone(at, v.select.from, v.select.length, v.select.wave, v.select.level);
+                this.tone(
+                    at + v.select.length,
+                    v.select.to,
+                    v.select.length,
+                    v.select.wave,
+                    v.select.level,
+                );
+                return;
+            case "tick":
+                this.tone(at, v.tick.pitch, v.tick.length, v.tick.wave, v.tick.level);
+                return;
+            case "dialog":
+                this.tone(at, v.dialog.pitch, v.dialog.length, v.dialog.wave, v.dialog.level);
+                return;
+            case "alert":
+                this.tone(at, v.alert.from, v.alert.length, v.alert.wave, v.alert.level);
+                this.tone(
+                    at + v.alert.length,
+                    v.alert.to,
+                    v.alert.length,
+                    v.alert.wave,
+                    v.alert.level,
+                );
+                return;
+            case "error":
+                this.tone(at, v.error.pitch, v.error.length, v.error.wave, v.error.level);
+                return;
+        }
     }
 
-    /** A burst of hiss that fades out. */
-    private burst(at: number, duration: number): void {
-        this.noiseThrough(this.filter("highpass", 1000, 0.7), at, duration, 0.5);
-    }
-
-    /** Digital crackle: noise gated in random stutters, over a hopping square wave. */
+    /** Digital crackle: noise gated in random stutters, over a hopping tone. */
     private glitch(at: number, duration: number): void {
         const context = this.context as AudioContext;
+        const g = this.voices.glitch;
         const gate = context.createGain();
+        gate.gain.value = 0;
         const osc = context.createOscillator();
         const oscGain = context.createGain();
         osc.type = "square";
-        oscGain.gain.value = 0.04;
+        oscGain.gain.value = g.tone;
         osc.connect(oscGain).connect(gate);
 
         const noise = context.createBufferSource();
         noise.buffer = this.noise;
         noise.loop = true;
-        const band = this.filter("bandpass", 2500, 0.8);
-        noise.connect(band).connect(gate);
+        const band = this.filter("bandpass", g.band, 0.8);
+        const noiseGain = context.createGain();
+        noiseGain.gain.value = g.level;
+        noise.connect(band).connect(noiseGain).connect(gate);
         gate.connect(this.master as GainNode);
 
-        for (let t = 0; t < duration; t += 0.012 + Math.random() * 0.03) {
+        for (let t = 0; t < duration; t += g.stutter + Math.random() * g.stutterSpread) {
             // fewer, quieter stutters towards the end
             const fade = 1 - t / duration;
-            gate.gain.setValueAtTime(Math.random() < 0.55 * fade + 0.1 ? 0.3 * fade : 0, at + t);
-            osc.frequency.setValueAtTime(120 + Math.random() * 1800, at + t);
-            band.frequency.setValueAtTime(800 + Math.random() * 4000, at + t);
+            const on = Math.random() < g.density * fade + 0.1;
+            gate.gain.setValueAtTime(on ? fade : 0, at + t);
+            osc.frequency.setValueAtTime(g.pitch + Math.random() * g.pitchSpread, at + t);
+            band.frequency.setValueAtTime(g.band + Math.random() * g.bandSpread, at + t);
         }
         gate.gain.setValueAtTime(0, at + duration);
         osc.start(at);
@@ -157,6 +222,7 @@ export class Synth {
         type: OscillatorType,
         level: number,
     ): void {
+        if (level <= 0) return;
         const context = this.context as AudioContext;
         const osc = context.createOscillator();
         const gain = context.createGain();
@@ -180,6 +246,7 @@ export class Synth {
     }
 
     private noiseThrough(filter: AudioNode, at: number, duration: number, level: number): void {
+        if (level <= 0) return;
         const context = this.context as AudioContext;
         const source = context.createBufferSource();
         source.buffer = this.noise;
@@ -201,52 +268,62 @@ export class Synth {
         return buffer;
     }
 
-    /** Brings the volume, the hum and the hiss in line with the settings. */
+    /** Brings the volume, the hum and the hiss in line with the settings and voices. */
     private apply(): void {
         const { context, master, settings } = this;
         if (!context || !master) return;
+        const now = context.currentTime;
         const on = settings !== null && !this.muted;
-        master.gain.setTargetAtTime(on ? (settings?.volume ?? 0) : 0, context.currentTime, 0.02);
+        master.gain.setTargetAtTime(on ? (settings?.volume ?? 0) : 0, now, 0.02);
 
+        // the hum: mains, its harmonic, and the flyback whine
+        const h = this.voices.hum;
+        const humVoices: [number, number][] = [
+            [h.mains, h.mainsLevel],
+            [h.mains * 2, h.harmonicLevel],
+            [h.whine, h.whineLevel],
+        ];
         const wantHum = on && settings?.hum === true;
-        if (wantHum && this.hum.length === 0) this.startHum(context, master);
-        if (!wantHum && this.hum.length > 0) {
-            for (const source of this.hum) source.stop();
-            this.hum = [];
+        if (wantHum && !this.hum) {
+            const oscillators: OscillatorNode[] = [];
+            const gains: GainNode[] = [];
+            for (const [frequency, level] of humVoices) {
+                const osc = context.createOscillator();
+                const gain = context.createGain();
+                osc.frequency.value = frequency;
+                gain.gain.value = level;
+                osc.connect(gain).connect(master);
+                osc.start();
+                oscillators.push(osc);
+                gains.push(gain);
+            }
+            this.hum = { oscillators, gains };
+        } else if (!wantHum && this.hum) {
+            for (const osc of this.hum.oscillators) osc.stop();
+            this.hum = null;
+        } else if (this.hum) {
+            humVoices.forEach(([frequency, level], i) => {
+                this.hum?.oscillators[i]?.frequency.setTargetAtTime(frequency, now, 0.02);
+                this.hum?.gains[i]?.gain.setTargetAtTime(level, now, 0.02);
+            });
         }
 
-        const hissLevel = on && settings?.static ? this.hissLevel * 0.25 : 0;
+        // the hiss under the static effect
+        const hissLevel = on && settings?.static ? this.hissLevel * this.voices.hiss.level : 0;
         if (hissLevel > 0 && !this.hiss) {
             const source = context.createBufferSource();
             source.buffer = this.noise;
             source.loop = true;
+            const filter = this.filter("highpass", this.voices.hiss.highpass, 0.5);
             const gain = context.createGain();
             gain.gain.value = 0;
-            source
-                .connect(this.filter("highpass", 2000, 0.5))
-                .connect(gain)
-                .connect(master);
+            source.connect(filter).connect(gain).connect(master);
             source.start();
-            this.hiss = { source, gain };
+            this.hiss = { source, filter, gain };
         }
-        this.hiss?.gain.gain.setTargetAtTime(hissLevel, context.currentTime, 0.1);
-    }
-
-    /** A CRT's mains hum (60 Hz and its harmonic) and flyback whine (15.7 kHz). */
-    private startHum(context: AudioContext, master: GainNode): void {
-        const voices: [number, number][] = [
-            [60, 0.05],
-            [120, 0.025],
-            [15734, 0.006],
-        ];
-        this.hum = voices.map(([frequency, level]) => {
-            const osc = context.createOscillator();
-            const gain = context.createGain();
-            osc.frequency.value = frequency;
-            gain.gain.value = level;
-            osc.connect(gain).connect(master);
-            osc.start();
-            return osc;
-        });
+        if (this.hiss) {
+            this.hiss.filter.frequency.setTargetAtTime(this.voices.hiss.highpass, now, 0.05);
+            this.hiss.gain.gain.setTargetAtTime(hissLevel, now, 0.1);
+        }
     }
 }

@@ -187,6 +187,10 @@ Sound is on by default, quietly. `config.sound` turns it off (`false`) or adjust
 clicked or pressed a key, so it starts then. Players can mute it with the `[SOUND ON]` toggle in the
 corner, and their choice is remembered.
 
+To tune the sounds themselves, open the **sound test page**: <http://localhost:5173/?sound>. Play
+each sound and adjust it with sliders by ear; your edits are kept in the browser, and the page
+prints them as code to paste over `DEFAULT_VOICES` in `src/ui/sound/voices.ts`.
+
 ### Right-click menu
 The browser's right-click menu is blocked, so a program feels like a terminal rather than a web
 page; the prompt's text field keeps its menu, for pasting. `"blockContextMenu": false` in `config`
