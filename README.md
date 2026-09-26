@@ -144,7 +144,8 @@ layers over the config's.
 Moving effects hold still when the system asks for reduced motion.
 
 Fonts: AST PremiumExec from [The Ultimate Oldschool PC Font Pack](https://int10h.org/oldschool-pc-fonts/)
-by VileR (CC BY-SA 4.0), and Departure Mono by Helena Zhang (SIL OFL 1.1).
+by VileR (CC BY-SA 4.0), and Departure Mono by Helena Zhang (SIL OFL 1.1). Their license texts
+are in `public/licenses/`, so every build includes them (served at `licenses/`).
 
 The glitch effect is ported from [musicforprogramming.net](https://musicforprogramming.net).
 

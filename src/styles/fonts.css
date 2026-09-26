@@ -1,12 +1,12 @@
 /* AST PremiumExec (formerly "VGA SquarePx") from The Ultimate Oldschool PC Font Pack by VileR,
-   https://int10h.org/oldschool-pc-fonts/, CC BY-SA 4.0 (see oldschool-pc-font-pack.*.txt) */
+   https://int10h.org/oldschool-pc-fonts/, CC BY-SA 4.0 (see public/licenses/oldschool-pc-font-pack.*.txt) */
 @font-face {
     font-family: "AST PremiumExec";
     src: url("../assets/fonts/WebPlus_AST_PremiumExec.woff") format("woff");
     font-display: block;
 }
 
-/* Departure Mono by Helena Zhang, SIL Open Font License 1.1 (see departure-mono.LICENSE.txt) */
+/* Departure Mono by Helena Zhang, SIL Open Font License 1.1 (see public/licenses/departure-mono.LICENSE.txt) */
 @font-face {
     font-family: "Departure Mono";
     src: url("../assets/fonts/departure-mono.woff2") format("woff2");
