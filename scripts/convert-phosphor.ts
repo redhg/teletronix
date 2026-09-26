@@ -7,6 +7,7 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseProgram, type TeletronixFile } from "../src/engine/schema/program.ts";
+import { BLEND_MODES } from "../src/modules/bitmap/definition.ts";
 
 // ─── Phosphor's format ───────────────────────────────────────────────────────
 
@@ -82,14 +83,20 @@ function convertContent(item: PhosphorContent, where: string): Content | null {
         }
 
         case "bitmap":
-        case "image":
+        case "image": {
             if (!item.alt) warnings.push(`${where}: image ${item.src} has no alt text; add one`);
+            // Phosphor blended images with CSS classes; Teletronix has a blend property
+            const classes = (item.className ?? "").split(/\s+/);
+            const blend = BLEND_MODES.find((mode) => classes.includes(mode));
+            const mono = classes.includes("monochrome") ? "luminosity" : undefined;
             return {
                 type: "bitmap",
                 src: item.src,
                 alt: item.alt || "Image",
-                ...className(item.className),
+                ...(blend || mono ? { blend: blend ?? mono } : {}),
+                ...className(item.className, [...BLEND_MODES, "monochrome"]),
             };
+        }
 
         case "prompt": {
             const commands = item.commands.flatMap(({ command, action: a }) => {

@@ -39,7 +39,7 @@ import {
     FileSchema,
     ScreenSchema,
 } from "../src/engine/schema/program.ts";
-import { BitmapSchema } from "../src/modules/bitmap/definition.ts";
+import { BitmapSchema, BlendObjectSchema, BlendSchema } from "../src/modules/bitmap/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
 import {
     DelayedActionSchema,
@@ -101,6 +101,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Prompt", PromptSchema, '"type": "prompt"'],
             ["Prompt command", CommandSchema],
             ["Bitmap", BitmapSchema, '"type": "bitmap"'],
+            ["Blend", BlendSchema],
+            ["Blend with a color", BlendObjectSchema],
             ["Progress", ProgressSchema, '"type": "progress"'],
             ["Progress outcome", OutcomeSchema],
             ["Delayed action", DelayedActionSchema],

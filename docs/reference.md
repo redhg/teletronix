@@ -7,7 +7,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
-- **Elements:** [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt)
+- **Elements:** [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -176,14 +176,37 @@ A command the prompt understands
 
 ### Bitmap (`"type": "bitmap"`)
 
-An image, revealed in steps from low to high resolution. A className naming a blend mode ("luminosity", "lighten", "multiply", "screen", "overlay", …) blends it with the screen's background color; "monochrome" is short for "luminosity".
+An image, revealed in steps from low to high resolution, optionally blended with the screen's colors
 
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `src` | string | **required** | Image URL, or a path relative to the page |
 | `alt` | string | **required** | A description of the image, for screen readers |
+| `blend` | [Blend](#blend) |  | Blends the image with one of the theme's colors: a mode such as "luminosity", "hard-light" or "difference", or { "mode", "with": "text" } to blend with the text color instead of the background |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+
+<a id="blend"></a>
+
+### Blend
+
+Blends the image with one of the theme's colors: a mode such as "luminosity", "hard-light" or "difference", or { "mode", "with": "text" } to blend with the text color instead of the background
+
+One of:
+
+- `"luminosity"` | `"lighten"` | `"darken"` | `"multiply"` | `"screen"` | `"overlay"` | `"color-dodge"` | `"color-burn"` | `"hard-light"` | `"soft-light"` | `"difference"` | `"exclusion"` | `"hue"` | `"saturation"` | `"color"`: How the colors combine
+- [Blend with a color](#blend-with-a-color)
+
+<a id="blend-with-a-color"></a>
+
+### Blend with a color
+
+A blend mode, and the theme color to blend with
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `mode` | `"luminosity"` \| `"lighten"` \| `"darken"` \| `"multiply"` \| `"screen"` \| `"overlay"` \| `"color-dodge"` \| `"color-burn"` \| `"hard-light"` \| `"soft-light"` \| `"difference"` \| `"exclusion"` \| `"hue"` \| `"saturation"` \| `"color"` | **required** | How the colors combine |
+| `with` | `"background"` \| `"text"` | `"background"` | The theme color to blend with |
 
 <a id="progress"></a>
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { seededRandom } from "../../engine/random.ts";
 import { createTestTerminal, deferred, settle } from "../../engine/runtime/test-helpers.ts";
-import { BITMAP_STEP_TIME, BITMAP_STEPS, bitmapBlend, bitmapResolution } from "./definition.ts";
+import { BITMAP_STEP_TIME, BITMAP_STEPS, BlendSchema, bitmapResolution } from "./definition.ts";
 
 const DURATION = BITMAP_STEPS.length * BITMAP_STEP_TIME;
 
@@ -109,12 +109,21 @@ describe("bitmap", () => {
     });
 });
 
-describe("bitmapBlend", () => {
-    it("finds a blend mode among the class names", () => {
-        expect(bitmapBlend("big luminosity")).toBe("luminosity");
-        expect(bitmapBlend("lighten")).toBe("lighten");
-        expect(bitmapBlend("monochrome")).toBe("luminosity");
-        expect(bitmapBlend("alert")).toBeUndefined();
-        expect(bitmapBlend(undefined)).toBeUndefined();
+describe("blend", () => {
+    it("takes a mode, blending with the background unless told otherwise", () => {
+        expect(BlendSchema.parse("luminosity")).toEqual({ mode: "luminosity", with: "background" });
+        expect(BlendSchema.parse({ mode: "difference" })).toEqual({
+            mode: "difference",
+            with: "background",
+        });
+        expect(BlendSchema.parse({ mode: "difference", with: "text" })).toEqual({
+            mode: "difference",
+            with: "text",
+        });
+    });
+
+    it("rejects unknown modes", () => {
+        expect(BlendSchema.safeParse("sparkle").success).toBe(false);
+        expect(BlendSchema.safeParse({ mode: "luminosity", with: "border" }).success).toBe(false);
     });
 });

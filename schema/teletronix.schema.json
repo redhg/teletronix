@@ -1469,6 +1469,71 @@
                                                     "minLength": 1,
                                                     "description": "A description of the image, for screen readers"
                                                 },
+                                                "blend": {
+                                                    "description": "Blends the image with one of the theme's colors: a mode such as \"luminosity\", \"hard-light\" or \"difference\", or { \"mode\", \"with\": \"text\" } to blend with the text color instead of the background",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "luminosity",
+                                                                "lighten",
+                                                                "darken",
+                                                                "multiply",
+                                                                "screen",
+                                                                "overlay",
+                                                                "color-dodge",
+                                                                "color-burn",
+                                                                "hard-light",
+                                                                "soft-light",
+                                                                "difference",
+                                                                "exclusion",
+                                                                "hue",
+                                                                "saturation",
+                                                                "color"
+                                                            ],
+                                                            "description": "How the colors combine"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "mode": {
+                                                                    "type": "string",
+                                                                    "enum": [
+                                                                        "luminosity",
+                                                                        "lighten",
+                                                                        "darken",
+                                                                        "multiply",
+                                                                        "screen",
+                                                                        "overlay",
+                                                                        "color-dodge",
+                                                                        "color-burn",
+                                                                        "hard-light",
+                                                                        "soft-light",
+                                                                        "difference",
+                                                                        "exclusion",
+                                                                        "hue",
+                                                                        "saturation",
+                                                                        "color"
+                                                                    ],
+                                                                    "description": "How the colors combine"
+                                                                },
+                                                                "with": {
+                                                                    "description": "The theme color to blend with (default: \"background\")",
+                                                                    "type": "string",
+                                                                    "enum": [
+                                                                        "background",
+                                                                        "text"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "mode"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "A blend mode, and the theme color to blend with"
+                                                        }
+                                                    ]
+                                                },
                                                 "className": {
                                                     "description": "Space-separated CSS classes, e.g. \"alert\"",
                                                     "type": "string"
@@ -1549,7 +1614,7 @@
                                                 "alt"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "An image, revealed in steps from low to high resolution. A className naming a blend mode (\"luminosity\", \"lighten\", \"multiply\", \"screen\", \"overlay\", …) blends it with the screen's background color; \"monochrome\" is short for \"luminosity\"."
+                                            "description": "An image, revealed in steps from low to high resolution, optionally blended with the screen's colors"
                                         },
                                         {
                                             "type": "object",

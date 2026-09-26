@@ -2,15 +2,16 @@ import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { classNames, type ElementViewProps } from "../../ui/element-view.ts";
 import { loadImage } from "../../ui/load-image.ts";
 import { PaletteContext } from "../../ui/palette-context.ts";
-import { type BitmapElement, type BlendMode, bitmapBlend, bitmapResolution } from "./definition.ts";
+import { type BitmapElement, type BlendMode, bitmapResolution } from "./definition.ts";
 import "./style.css";
 
 export function BitmapView({ element, state, run, index }: ElementViewProps<BitmapElement>) {
     const canvas = useRef<HTMLCanvasElement>(null);
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [failed, setFailed] = useState(false);
-    const blend = bitmapBlend(element.className);
-    const backdrop = useContext(PaletteContext).bg;
+    const palette = useContext(PaletteContext);
+    const mode = element.blend?.mode;
+    const backdrop = element.blend?.with === "text" ? palette.fg : palette.bg;
 
     useEffect(() => {
         let current = true;
@@ -28,9 +29,9 @@ export function BitmapView({ element, state, run, index }: ElementViewProps<Bitm
         const target = canvas.current;
         if (!image || !target) return;
         return run.subscribeProgress(index, (progress) =>
-            draw(target, image, bitmapResolution(progress), blend && { mode: blend, backdrop }),
+            draw(target, image, bitmapResolution(progress), mode && { mode, backdrop }),
         );
-    }, [image, run, index, blend, backdrop]);
+    }, [image, run, index, mode, backdrop]);
 
     const className = classNames("bitmap", element.className);
 
