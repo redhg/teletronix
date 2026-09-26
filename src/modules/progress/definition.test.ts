@@ -14,7 +14,7 @@ const program = (bars: Record<string, object>, extra: Partial<TeletronixFile> = 
         screens[id] = { content: [{ type: "progress", ...bar } as never, "next line"] };
     }
     return {
-        config: { name: "Test", defaults: { reveal: "instant" as const } },
+        config: { name: "Test", reveal: "instant" as const },
         screens,
         dialogs: { oops: { type: "alert" as const, content: "!" } },
         ...extra,

@@ -113,8 +113,9 @@ With empty `content`, a screen can be nothing but effects, e.g. a burst of stati
   a button `text` and an optional `action`.
 
 ### Reveals and transitions
-Text appears with a **reveal**, set per element, per screen or in `config.defaults`:
-- `"teletype"`: one character at a time (`{ "type": "teletype", "speed": 20 }` sets ms per character)
+Text appears with a **reveal**:
+- `"teletype"` (the default): one character at a time (`{ "type": "teletype", "speed": 20 }` sets ms
+  per character)
 - `"glitch"`: resolves out of random glyphs (`{ "type": "glitch", "duration": 2000 }` sets the total ms).
   When a screen or the config sets it, consecutive elements glitch in together as one block.
 - `"instant"`: appears all at once
@@ -123,6 +124,18 @@ A screen's `transition` controls how the previous screen leaves: `"cut"` (the de
 `"glitch"`, where the old screen erases itself over the new one as it appears, or `"fade"`,
 where it fades out behind the new one like phosphor afterglow (`{ "type": "fade", "duration": 1500 }`
 sets the ms; default 600).
+
+Both can be set for the whole program in `config`, per screen, and (for reveals) per element; the
+most specific wins. `config.defaults` sets the default options for each kind of reveal:
+
+```json
+"config": {
+    "name": "My Program",
+    "reveal": "glitch",
+    "transition": "fade",
+    "defaults": { "teletype": { "speed": 20 }, "glitch": { "duration": 800 } }
+}
+```
 
 ### Effects
 `config.effects` turns visual effects on or off and sets their options. A screen's `effects`

@@ -42,24 +42,29 @@ const ScreenSchema = z.strictObject({
         .meta({ description: "The elements, revealed in order. Can be empty." }),
 });
 
-const DefaultsSchema = z.strictObject({
-    reveal: RevealSchema.optional().meta({ description: 'Default reveal (default: "teletype")' }),
-    teletype: TeletypeOptionsSchema.optional().meta({
-        description: "Default teletype options",
-    }),
-    glitch: GlitchOptionsSchema.optional().meta({
-        description: "Default glitch options, for reveals and transitions",
-    }),
-    transition: TransitionSchema.optional().meta({
-        description: 'Default screen transition (default: "cut")',
-    }),
-});
+const DefaultsSchema = z
+    .strictObject({
+        teletype: TeletypeOptionsSchema.optional().meta({
+            description: "Default teletype options",
+        }),
+        glitch: GlitchOptionsSchema.optional().meta({
+            description: "Default glitch options, for reveals and transitions",
+        }),
+    })
+    .meta({ description: "Default options for each kind of reveal" });
 
 const ConfigSchema = z.strictObject({
     name: z.string(),
     author: z.string().optional(),
     description: z.string().optional(),
     start: IdSchema.optional().meta({ description: "The first screen (default: the first one)" }),
+    reveal: RevealSchema.optional().meta({
+        description:
+            'How text appears on every screen, unless a screen or element says otherwise (default: "teletype")',
+    }),
+    transition: TransitionSchema.optional().meta({
+        description: 'How screens leave, unless the next screen says otherwise (default: "cut")',
+    }),
     defaults: DefaultsSchema.optional(),
     effects: EffectsSchema.optional(),
 });
@@ -104,7 +109,7 @@ export interface Program {
 }
 
 function normalize(file: z.output<typeof FileSchema>): Program {
-    const { start, defaults, effects, ...config } = file.config;
+    const { start, reveal, transition, defaults, effects, ...config } = file.config;
 
     const screens = new Map<string, Screen>();
     for (const [id, screen] of Object.entries(file.screens)) {
@@ -126,8 +131,8 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         // an empty `screens` is reported by the reference check below
         start: start ?? screens.keys().next().value ?? "",
         defaults: {
-            reveal: defaults?.reveal ?? { type: "teletype" },
-            transition: defaults?.transition ?? { type: "cut" },
+            reveal: reveal ?? { type: "teletype" },
+            transition: transition ?? { type: "cut" },
             teletype: { speed: defaults?.teletype?.speed ?? DEFAULT_TELETYPE_SPEED },
             glitch: { duration: defaults?.glitch?.duration ?? DEFAULT_GLITCH_DURATION },
         },

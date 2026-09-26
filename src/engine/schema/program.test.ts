@@ -47,12 +47,9 @@ describe("parseProgram", () => {
             file({
                 config: {
                     name: "Test",
-                    defaults: {
-                        reveal: "instant",
-                        transition: "glitch",
-                        teletype: { speed: 3 },
-                        glitch: { duration: 500 },
-                    },
+                    reveal: "instant",
+                    transition: "glitch",
+                    defaults: { teletype: { speed: 3 }, glitch: { duration: 500 } },
                 },
                 screens: {
                     home: {

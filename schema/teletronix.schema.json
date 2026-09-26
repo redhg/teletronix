@@ -22,75 +22,141 @@
                     "type": "string",
                     "pattern": "^[A-Za-z0-9_-]+$"
                 },
+                "reveal": {
+                    "description": "How text appears on every screen, unless a screen or element says otherwise (default: \"teletype\")",
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "enum": [
+                                "teletype",
+                                "glitch",
+                                "instant"
+                            ]
+                        },
+                        {
+                            "oneOf": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "speed": {
+                                            "description": "Milliseconds per character",
+                                            "type": "number",
+                                            "exclusiveMinimum": 0
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "const": "teletype"
+                                        }
+                                    },
+                                    "required": [
+                                        "type"
+                                    ],
+                                    "additionalProperties": false
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "duration": {
+                                            "description": "Total time in milliseconds",
+                                            "type": "number",
+                                            "exclusiveMinimum": 0
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "const": "glitch"
+                                        }
+                                    },
+                                    "required": [
+                                        "type"
+                                    ],
+                                    "additionalProperties": false
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "const": "instant"
+                                        }
+                                    },
+                                    "required": [
+                                        "type"
+                                    ],
+                                    "additionalProperties": false
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "transition": {
+                    "description": "How screens leave, unless the next screen says otherwise (default: \"cut\")",
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "enum": [
+                                "cut",
+                                "glitch",
+                                "fade"
+                            ]
+                        },
+                        {
+                            "oneOf": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "const": "cut"
+                                        }
+                                    },
+                                    "required": [
+                                        "type"
+                                    ],
+                                    "additionalProperties": false
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "duration": {
+                                            "description": "Total time in milliseconds",
+                                            "type": "number",
+                                            "exclusiveMinimum": 0
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "const": "glitch"
+                                        }
+                                    },
+                                    "required": [
+                                        "type"
+                                    ],
+                                    "additionalProperties": false
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "const": "fade"
+                                        },
+                                        "duration": {
+                                            "description": "Milliseconds (default: 600)",
+                                            "type": "number",
+                                            "exclusiveMinimum": 0
+                                        }
+                                    },
+                                    "required": [
+                                        "type"
+                                    ],
+                                    "additionalProperties": false
+                                }
+                            ]
+                        }
+                    ]
+                },
                 "defaults": {
                     "type": "object",
                     "properties": {
-                        "reveal": {
-                            "description": "Default reveal (default: \"teletype\")",
-                            "anyOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "teletype",
-                                        "glitch",
-                                        "instant"
-                                    ]
-                                },
-                                {
-                                    "oneOf": [
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "speed": {
-                                                    "description": "Milliseconds per character",
-                                                    "type": "number",
-                                                    "exclusiveMinimum": 0
-                                                },
-                                                "type": {
-                                                    "type": "string",
-                                                    "const": "teletype"
-                                                }
-                                            },
-                                            "required": [
-                                                "type"
-                                            ],
-                                            "additionalProperties": false
-                                        },
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "duration": {
-                                                    "description": "Total time in milliseconds",
-                                                    "type": "number",
-                                                    "exclusiveMinimum": 0
-                                                },
-                                                "type": {
-                                                    "type": "string",
-                                                    "const": "glitch"
-                                                }
-                                            },
-                                            "required": [
-                                                "type"
-                                            ],
-                                            "additionalProperties": false
-                                        },
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "type": {
-                                                    "type": "string",
-                                                    "const": "instant"
-                                                }
-                                            },
-                                            "required": [
-                                                "type"
-                                            ],
-                                            "additionalProperties": false
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
                         "teletype": {
                             "description": "Default teletype options",
                             "type": "object",
@@ -114,75 +180,10 @@
                                 }
                             },
                             "additionalProperties": false
-                        },
-                        "transition": {
-                            "description": "Default screen transition (default: \"cut\")",
-                            "anyOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "cut",
-                                        "glitch",
-                                        "fade"
-                                    ]
-                                },
-                                {
-                                    "oneOf": [
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "type": {
-                                                    "type": "string",
-                                                    "const": "cut"
-                                                }
-                                            },
-                                            "required": [
-                                                "type"
-                                            ],
-                                            "additionalProperties": false
-                                        },
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "duration": {
-                                                    "description": "Total time in milliseconds",
-                                                    "type": "number",
-                                                    "exclusiveMinimum": 0
-                                                },
-                                                "type": {
-                                                    "type": "string",
-                                                    "const": "glitch"
-                                                }
-                                            },
-                                            "required": [
-                                                "type"
-                                            ],
-                                            "additionalProperties": false
-                                        },
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "type": {
-                                                    "type": "string",
-                                                    "const": "fade"
-                                                },
-                                                "duration": {
-                                                    "description": "Milliseconds (default: 600)",
-                                                    "type": "number",
-                                                    "exclusiveMinimum": 0
-                                                }
-                                            },
-                                            "required": [
-                                                "type"
-                                            ],
-                                            "additionalProperties": false
-                                        }
-                                    ]
-                                }
-                            ]
                         }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "description": "Default options for each kind of reveal"
                 },
                 "effects": {
                     "type": "object",
