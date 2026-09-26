@@ -22,7 +22,33 @@
                 { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } },
                 { "type": "link", "text": "> TOGGLES", "action": { "screen": "toggles" } },
                 { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
-                { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } }
+                { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
+                { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } }
+            ]
+        },
+        "dialogs": {
+            "content": [
+                "DIALOGS",
+                "=======",
+                "",
+                "Links and commands can open dialogs. An alert closes with <enter>, <esc> or a click:",
+                { "type": "link", "text": "> SHOW ALERT", "action": { "dialog": "hello" } },
+                "",
+                "A confirm dialog asks a question, and each answer can do something:",
+                { "type": "link", "text": "> SELF-DESTRUCT", "className": "alert", "action": { "dialog": "destruct" } },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "destroyed": {
+            "transition": "glitch",
+            "reveal": "glitch",
+            "content": [
+                { "type": "text", "text": "SELF-DESTRUCT SEQUENCE INITIATED.", "className": "alert" },
+                "",
+                "Just kidding.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "dialogs" } }
             ]
         },
         "toggles": {
@@ -48,15 +74,17 @@
                 "  HOME     back to the start",
                 "  GLITCH   the glitch demo",
                 "  IMAGES   (or PICS) the image demo",
+                "  HELP     (or ?) a dialog",
                 "",
                 {
                     "type": "prompt",
                     "prompt": "Enter command: ",
-                    "unknown": "Unknown command. Try HOME, GLITCH or IMAGES.",
+                    "unknown": "Unknown command. Try HOME, GLITCH, IMAGES or HELP.",
                     "commands": [
                         { "command": "home", "action": { "screen": "home" } },
                         { "command": "glitch", "action": { "screen": "glitch" } },
-                        { "command": ["images", "pics"], "action": { "screen": "images" } }
+                        { "command": ["images", "pics"], "action": { "screen": "images" } },
+                        { "command": ["help", "?"], "action": { "dialog": "help" } }
                     ]
                 }
             ]
@@ -122,12 +150,12 @@
                 "A link that points to the current screen replays it:",
                 { "type": "link", "text": "> REPLAY THIS SCREEN", "action": { "screen": "links" } },
                 "",
-                "Links can do something different when shift-clicked. This one goes home, but shift-click it to find a hidden screen:",
+                "Links can do something different when shift-clicked. This one shows an alert, but shift-click it to find a hidden screen:",
                 {
                     "type": "link",
                     "text": "> LOCKED. Shift+click to unlock",
                     "className": "alert",
-                    "action": { "screen": "home" },
+                    "action": { "dialog": "locked" },
                     "shiftAction": { "screen": "secret" }
                 },
                 "",
@@ -171,6 +199,33 @@
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "links" } }
             ]
+        }
+    },
+    "dialogs": {
+        "hello": {
+            "type": "alert",
+            "content": ["This is an alert.", "", "Press <enter>, <esc>, or click anywhere to close it."]
+        },
+        "locked": {
+            "type": "alert",
+            "className": "alert",
+            "content": "This link is locked. You'll need to <shift>+click it.",
+            "dismiss": "UNDERSTOOD"
+        },
+        "help": {
+            "type": "alert",
+            "content": "Commands: HOME, GLITCH, IMAGES (or PICS), HELP (or ?)."
+        },
+        "destruct": {
+            "type": "confirm",
+            "className": "alert",
+            "content": ["Initiate the station self-destruct sequence?", "", "This cannot be undone."],
+            "confirm": { "text": "CONFIRM", "action": { "screen": "destroyed" } },
+            "cancel": { "text": "ABORT", "action": { "dialog": "aborted" } }
+        },
+        "aborted": {
+            "type": "alert",
+            "content": "Self-destruct aborted."
         }
     }
 }

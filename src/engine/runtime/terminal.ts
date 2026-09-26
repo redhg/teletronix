@@ -1,8 +1,9 @@
 import type { Random } from "../random.ts";
 import { resolveTransition } from "../reveal/index.ts";
 import type { Action } from "../schema/common.ts";
+import { type Dialog, dialogAction } from "../schema/dialog.ts";
 import type { Element } from "../schema/elements.ts";
-import type { Dialog, Program } from "../schema/program.ts";
+import type { Program } from "../schema/program.ts";
 import type { Ticker } from "../time/ticker.ts";
 import { type ElementState, ScreenRun } from "./screen-run.ts";
 
@@ -109,6 +110,7 @@ export class Terminal {
         const screen = this.program.screens.get(screenId);
         if (!screen) throw new Error(`Unknown screen "${screenId}"`);
         const now = this.ticker.now();
+        this.dialog = null;
 
         const transition = resolveTransition(screen.transition, this.program.defaults);
         // a transition that's still playing is cut short by the next one
@@ -143,10 +145,18 @@ export class Terminal {
         this.flush();
     }
 
-    closeDialog(): void {
-        if (!this.dialog) return;
+    /**
+     * Closes the open dialog with an answer: confirmed (yes, OK) or not (no, dismissed),
+     * then runs the action for that answer, if the dialog has one.
+     */
+    answerDialog(confirmed: boolean): void {
+        const dialog = this.dialog;
+        if (!dialog) return;
         this.dialog = null;
         this.markDirty();
+
+        const action = dialogAction(dialog, confirmed);
+        if (action) this.dispatch(action);
         this.flush();
     }
 

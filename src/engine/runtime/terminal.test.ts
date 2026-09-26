@@ -100,7 +100,7 @@ describe("Terminal", () => {
         terminal.start();
         terminal.dispatch({ type: "dialog", target: "info" });
         expect(terminal.getSnapshot().dialog?.content).toEqual(["Hi"]);
-        terminal.closeDialog();
+        terminal.answerDialog(true);
         expect(terminal.getSnapshot().dialog).toBeNull();
 
         terminal.dispatch({ type: "screen", target: "other" });

@@ -8,6 +8,7 @@ export {
 } from "./runtime/screen-run.ts";
 export { type ScreenSnapshot, Terminal, type TerminalSnapshot } from "./runtime/terminal.ts";
 export type { Action } from "./schema/common.ts";
+export { dialogAction } from "./schema/dialog.ts";
 export type { Element, ElementOf, ElementType } from "./schema/elements.ts";
 export {
     type Dialog,

@@ -58,6 +58,12 @@ A screen's `content` is a list of elements, revealed one after another:
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`. Every element takes an optional
 `className` (e.g. `"alert"`) and `reveal`.
 
+### Dialogs
+`dialogs` holds modal dialogs, opened by any `{ "dialog": "<id>" }` action:
+- `"alert"`: a message with one button (`dismiss`, default `"OK"`). Closes with <enter>, <esc> or a click.
+- `"confirm"`: a question. `confirm` (<enter>) and `cancel` (<esc>, or a click outside) each have
+  a button `text` and an optional `action`.
+
 ### Reveals and transitions
 Text appears with a **reveal**, set per element, per screen or in `config.defaults`:
 - `"teletype"`: one character at a time (`{ "type": "teletype", "speed": 20 }` sets ms per character)

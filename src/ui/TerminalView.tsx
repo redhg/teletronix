@@ -1,4 +1,5 @@
 import { type PointerEvent, useCallback, useLayoutEffect, useRef } from "react";
+import { DialogView } from "./DialogView.tsx";
 import { ScreenView } from "./ScreenView.tsx";
 import { useTerminal, useTerminalSnapshot } from "./terminal-context.ts";
 import { useColumns } from "./use-columns.ts";
@@ -6,7 +7,7 @@ import "./terminal.css";
 
 export function TerminalView() {
     const terminal = useTerminal();
-    const { screen, outgoing } = useTerminalSnapshot();
+    const { screen, outgoing, dialog } = useTerminalSnapshot();
     const ref = useRef<HTMLElement>(null);
 
     const setColumns = useCallback((columns: number) => terminal.setColumns(columns), [terminal]);
@@ -33,13 +34,16 @@ export function TerminalView() {
     };
 
     return (
-        <main ref={ref} className="terminal" onPointerDown={handlePointerDown}>
-            {/* Both screens share one grid cell, the outgoing one on top. Keys keep a screen's
+        <>
+            <main ref={ref} className="terminal" onPointerDown={handlePointerDown}>
+                {/* Both screens share one grid cell, the outgoing one on top. Keys keep a screen's
                 DOM (and its frame subscriptions) alive as it moves from current to outgoing. */}
-            <div className="screens">
-                {screen && <ScreenView key={screen.run.key} screen={screen} />}
-                {outgoing && <ScreenView key={outgoing.run.key} screen={outgoing} outgoing />}
-            </div>
-        </main>
+                <div className="screens">
+                    {screen && <ScreenView key={screen.run.key} screen={screen} />}
+                    {outgoing && <ScreenView key={outgoing.run.key} screen={outgoing} outgoing />}
+                </div>
+            </main>
+            {dialog && <DialogView key={dialog.id} dialog={dialog} />}
+        </>
     );
 }

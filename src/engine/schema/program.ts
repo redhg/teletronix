@@ -9,7 +9,10 @@ import {
     type TransitionOption,
     TransitionSchema,
 } from "./common.ts";
+import { type Dialog, DialogSchema, dialogAction } from "./dialog.ts";
 import { type Element, ElementSchema, moduleFor } from "./elements.ts";
+
+export type { Dialog } from "./dialog.ts";
 
 export const DEFAULT_TELETYPE_SPEED = 10;
 export const DEFAULT_GLITCH_DURATION = 1000;
@@ -29,11 +32,6 @@ const ScreenSchema = z.strictObject({
         description: "How the previous screen leaves when this one is shown",
     }),
     content: z.array(ContentSchema).min(1),
-});
-
-const DialogSchema = z.strictObject({
-    type: z.literal("alert"),
-    content: z.array(z.string()).min(1),
 });
 
 const DefaultsSchema = z.strictObject({
@@ -83,12 +81,6 @@ export interface Screen {
     reveal?: RevealOption;
     transition?: TransitionOption;
     content: Element[];
-}
-
-export interface Dialog {
-    id: string;
-    type: "alert";
-    content: string[];
 }
 
 export interface Program {
@@ -150,6 +142,23 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
         const known = action.type === "screen" ? program.screens : program.dialogs;
         return known.has(action.target) ? null : `Unknown ${action.type} "${action.target}"`;
     };
+
+    for (const dialog of program.dialogs.values()) {
+        for (const [answer, confirmed] of [
+            ["confirm", true],
+            ["cancel", false],
+        ] as const) {
+            const action = dialogAction(dialog, confirmed);
+            const message = action && missing(action);
+            if (message) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["dialogs", dialog.id, answer, "action"],
+                    message,
+                });
+            }
+        }
+    }
 
     for (const screen of program.screens.values()) {
         screen.content.forEach((element, index) => {

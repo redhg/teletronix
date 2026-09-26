@@ -931,25 +931,178 @@
                 "description": "A screen or dialog id (letters, digits, '_' and '-')"
             },
             "additionalProperties": {
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "type": "string",
-                        "const": "alert"
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "const": "alert"
+                            },
+                            "content": {
+                                "description": "The dialog's text: a string, or an array of paragraphs",
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "dismiss": {
+                                "default": "OK",
+                                "description": "The button that closes it (default: \"OK\")",
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "className": {
+                                "description": "Space-separated CSS classes",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "content"
+                        ],
+                        "additionalProperties": false,
+                        "description": "A message. Closes with <enter>, <esc>, or a click."
                     },
-                    "content": {
-                        "minItems": 1,
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "const": "confirm"
+                            },
+                            "content": {
+                                "description": "The dialog's text: a string, or an array of paragraphs",
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                ]
+                            },
+                            "confirm": {
+                                "type": "object",
+                                "properties": {
+                                    "text": {
+                                        "default": "YES",
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "action": {
+                                        "anyOf": [
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "screen": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "screen"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Navigate to a screen"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "dialog": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "dialog"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Open a dialog"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "action"
+                                ],
+                                "additionalProperties": false,
+                                "description": "The \"yes\" button (<enter>) and what it does"
+                            },
+                            "cancel": {
+                                "description": "The \"no\" button (<esc>, or a click outside) and what it does, if anything",
+                                "type": "object",
+                                "properties": {
+                                    "text": {
+                                        "default": "NO",
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "action": {
+                                        "anyOf": [
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "screen": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "screen"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Navigate to a screen"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "dialog": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "dialog"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Open a dialog"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "className": {
+                                "description": "Space-separated CSS classes",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "content",
+                            "confirm"
+                        ],
+                        "additionalProperties": false,
+                        "description": "A yes/no question. Each answer can trigger an action."
                     }
-                },
-                "required": [
-                    "type",
-                    "content"
-                ],
-                "additionalProperties": false
+                ]
             }
         }
     },
