@@ -1398,6 +1398,302 @@
                                             ],
                                             "additionalProperties": false,
                                             "description": "An image, revealed in steps from low to high resolution. Add a className such as \"lighten\" or \"luminosity\" to blend it with the screen."
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "progress"
+                                                },
+                                                "label": {
+                                                    "description": "Text before the bar",
+                                                    "type": "string"
+                                                },
+                                                "from": {
+                                                    "default": 0,
+                                                    "description": "Starting percentage (default: 0)",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 100
+                                                },
+                                                "to": {
+                                                    "default": 100,
+                                                    "description": "Final percentage (default: 100). Lower than `from` runs backwards.",
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 100
+                                                },
+                                                "duration": {
+                                                    "default": 2000,
+                                                    "description": "Milliseconds to go from `from` to `to` (default: 2000)",
+                                                    "type": "number",
+                                                    "exclusiveMinimum": 0
+                                                },
+                                                "percent": {
+                                                    "default": true,
+                                                    "description": "Show the current value (default: true)",
+                                                    "type": "boolean"
+                                                },
+                                                "width": {
+                                                    "description": "Bar width in characters (default: the rest of the line)",
+                                                    "type": "integer",
+                                                    "minimum": 1,
+                                                    "maximum": 9007199254740991
+                                                },
+                                                "fill": {
+                                                    "default": "█",
+                                                    "description": "Filled cells (default: \"█\")",
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 1
+                                                },
+                                                "empty": {
+                                                    "default": "░",
+                                                    "description": "Empty cells (default: \"░\")",
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 1
+                                                },
+                                                "onComplete": {
+                                                    "description": "What happens when the bar reaches `to`: an action, or { after, action } to pause first. Without one, the screen carries on.",
+                                                    "anyOf": [
+                                                        {
+                                                            "anyOf": [
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "screen": {
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "screen"
+                                                                    ],
+                                                                    "additionalProperties": false,
+                                                                    "description": "Navigate to a screen"
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "dialog": {
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "dialog"
+                                                                    ],
+                                                                    "additionalProperties": false,
+                                                                    "description": "Open a dialog"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "after": {
+                                                                    "description": "Milliseconds to wait first",
+                                                                    "type": "number",
+                                                                    "minimum": 0
+                                                                },
+                                                                "action": {
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "screen": {
+                                                                                    "type": "string",
+                                                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "screen"
+                                                                            ],
+                                                                            "additionalProperties": false,
+                                                                            "description": "Navigate to a screen"
+                                                                        },
+                                                                        {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "dialog": {
+                                                                                    "type": "string",
+                                                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "dialog"
+                                                                            ],
+                                                                            "additionalProperties": false,
+                                                                            "description": "Open a dialog"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "action"
+                                                            ],
+                                                            "additionalProperties": false
+                                                        }
+                                                    ]
+                                                },
+                                                "interrupt": {
+                                                    "description": "Makes the bar stop short, at a set point (`at`) or a key press (`key`)",
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "at": {
+                                                            "description": "Stop here instead of reaching `to`: a transfer that fails",
+                                                            "type": "number",
+                                                            "minimum": 0,
+                                                            "maximum": 100
+                                                        },
+                                                        "key": {
+                                                            "description": "A key that aborts the bar while it runs: \"any\", a key name, or an array",
+                                                            "anyOf": [
+                                                                {
+                                                                    "type": "string",
+                                                                    "minLength": 1
+                                                                },
+                                                                {
+                                                                    "minItems": 1,
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string",
+                                                                        "minLength": 1
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        "text": {
+                                                            "default": "INTERRUPTED",
+                                                            "description": "Shown in place of the percentage (default: \"INTERRUPTED\")",
+                                                            "type": "string",
+                                                            "minLength": 1
+                                                        },
+                                                        "action": {
+                                                            "description": "What happens when interrupted, instead of onComplete",
+                                                            "anyOf": [
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "screen": {
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "screen"
+                                                                    ],
+                                                                    "additionalProperties": false,
+                                                                    "description": "Navigate to a screen"
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "dialog": {
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "dialog"
+                                                                    ],
+                                                                    "additionalProperties": false,
+                                                                    "description": "Open a dialog"
+                                                                }
+                                                            ]
+                                                        },
+                                                        "after": {
+                                                            "description": "Milliseconds to wait before the action",
+                                                            "type": "number",
+                                                            "minimum": 0
+                                                        }
+                                                    },
+                                                    "additionalProperties": false
+                                                },
+                                                "className": {
+                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                    "type": "string"
+                                                },
+                                                "reveal": {
+                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"instant\" (all at once). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "teletype",
+                                                                "glitch",
+                                                                "instant"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "speed": {
+                                                                            "description": "Milliseconds per character",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "teletype"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "duration": {
+                                                                            "description": "Total time in milliseconds",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "glitch"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "instant"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "additionalProperties": false,
+                                            "description": "A text progress bar that runs from one percentage to another over a set time, then carries on, or runs an action"
                                         }
                                     ]
                                 }

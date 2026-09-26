@@ -25,6 +25,7 @@
                 { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
                 { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
                 { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
+                { "type": "link", "text": "> PROGRESS", "action": { "screen": "progress" } },
                 { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } }
             ]
         },
@@ -169,6 +170,49 @@
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
+        },
+        "progress": {
+            "content": [
+                "PROGRESS",
+                "========",
+                "",
+                "A bar runs from one value to another over a set time, then the screen carries on. It can run backwards, and hide its value:",
+                "",
+                { "type": "progress", "label": "DOWNLOADING  ", "duration": 2500 },
+                { "type": "progress", "label": "SHIELDS      ", "from": 77, "to": 0, "duration": 2000, "className": "alert" },
+                { "type": "progress", "label": "CALIBRATING  ", "from": 54, "to": 75, "percent": false, "fill": "#", "empty": ".", "duration": 1500 },
+                "",
+                "It can fail partway:",
+                "",
+                {
+                    "type": "progress",
+                    "label": "TRANSFER     ",
+                    "duration": 3000,
+                    "interrupt": { "at": 73, "text": "INTERRUPTED" },
+                    "className": "alert"
+                },
+                "",
+                "Or do something when it's done. This one uploads, and you can abort it with <esc>:",
+                { "type": "link", "text": "> UPLOAD LOGS", "action": { "screen": "upload" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "upload": {
+            "content": [
+                "UPLOADING STATION LOGS. PRESS <ESC> TO ABORT.",
+                "",
+                {
+                    "type": "progress",
+                    "label": "UPLOAD  ",
+                    "duration": 5000,
+                    "onComplete": { "after": 600, "action": { "screen": "upload-done" } },
+                    "interrupt": { "key": "Escape", "text": "ABORTED", "after": 800, "action": { "screen": "progress" } }
+                }
+            ]
+        },
+        "upload-done": {
+            "next": { "key": "any", "action": { "screen": "progress" } },
+            "content": ["UPLOAD COMPLETE.", "", "Press any key."]
         },
         "keys": {
             "next": [

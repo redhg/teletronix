@@ -1,3 +1,4 @@
+import type { Random } from "./random.ts";
 import type { Reveal, RevealSpec } from "./reveal/index.ts";
 import type { Action } from "./schema/common.ts";
 
@@ -22,8 +23,29 @@ export interface ModuleDefinition<E, M = never> {
     /** Every action the element can dispatch, so targets can be validated when parsing. */
     actions?(element: E): Action[];
     /**
-     * A custom reveal, for elements that aren't revealed as text (e.g. images). Views follow
-     * it with ScreenRun.subscribeProgress(). Elements with one never join a glitch block.
+     * A custom reveal, for elements that aren't simply revealed text (e.g. images, progress
+     * bars). Its frames may change the element's text as they go; views can also follow it
+     * with ScreenRun.subscribeProgress(). Elements with one never join a glitch block.
      */
-    reveal?(element: E, spec: RevealSpec): Reveal;
+    reveal?(element: E, spec: RevealSpec, context: RevealContext): Reveal;
+    /**
+     * What happens once the element has finished revealing, given the reveal that ran. An
+     * outcome holds the rest of the screen until its action runs; if the action opens a
+     * dialog, the screen then carries on behind it.
+     */
+    outcome?(element: E, reveal: Reveal): Outcome | undefined;
+    /** Whether a key press (a KeyboardEvent.key) should interrupt the element while it reveals. */
+    interruptKey?(element: E, key: string): boolean;
+}
+
+export interface RevealContext {
+    /** Characters per line, which can change while the reveal runs. */
+    columns: () => number;
+    random?: Random;
+}
+
+export interface Outcome {
+    action: Action;
+    /** Milliseconds to wait before the action runs. */
+    after: number;
 }

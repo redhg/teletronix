@@ -45,6 +45,12 @@ export interface ScreenRunOptions {
     onChange: () => void;
     /** Called when something happens outside a tick or command (e.g. an image loads). */
     onWake?: () => void;
+    /**
+     * Called when an element finishes revealing, at the time it finished. Return true to
+     * hold the rest of the screen until {@link ScreenRun.resume} (e.g. while an outcome
+     * action is pending).
+     */
+    onFinished?: (element: Element, reveal: Reveal, time: number) => boolean;
 }
 
 interface ElementRun {
@@ -66,6 +72,8 @@ interface ElementRun {
 interface Unit {
     indices: number[];
     reveal: Reveal;
+    /** A module's own reveal, whose frames also set the element's text. */
+    custom?: boolean;
 }
 
 interface Eraser extends Unit {
@@ -88,6 +96,8 @@ export class ScreenRun {
     private activeSince = 0;
     /** The unit waiting for its elements to load, or -1. */
     private waiting = -1;
+    /** The unit to activate when a held screen resumes, or -1. */
+    private held = -1;
     private finished: number | null = null;
     private eraser: Eraser | null = null;
     private erasedFlag = false;
@@ -175,21 +185,45 @@ export class ScreenRun {
             }
 
             const end = this.activeSince + unit.reveal.duration;
-            const next = this.active + 1;
-            this.finish(unit);
-            this.active = -1;
-            this.tryActivate(next, end);
+            this.finishActive(unit, end);
         }
+    }
+
+    /**
+     * Offers a key press to the element being revealed, which may interrupt it. Returns
+     * whether it did. `key` is a KeyboardEvent.key value.
+     */
+    pressKey(key: string, now: number): boolean {
+        this.advance(now);
+        const unit = this.units[this.active];
+        const element = unit?.custom && this.runs[unit.indices[0] as number]?.element;
+        if (!unit?.reveal.interrupt || !element) return false;
+        if (!moduleFor(element).interruptKey?.(element, key)) return false;
+
+        unit.reveal.interrupt(Math.max(0, now - this.activeSince));
+        this.finishActive(unit, now);
+        this.advance(now);
+        return true;
+    }
+
+    /** Carries on revealing after a hold (see ScreenRunOptions.onFinished). */
+    resume(now: number): void {
+        if (this.held === -1 || this.eraser) return;
+        const next = this.held;
+        this.held = -1;
+        this.tryActivate(next, now);
+        this.advance(now);
     }
 
     /** Completes every remaining element immediately, including any still loading. */
     skip(now: number): void {
         if (this.eraser || this.erasedFlag) return;
         for (const unit of this.units) {
-            if (unit.indices.some((i) => this.runs[i]?.state !== "done")) this.finish(unit);
+            if (unit.indices.some((i) => this.runs[i]?.state !== "done")) this.finish(unit, now);
         }
         this.active = -1;
         this.waiting = -1;
+        this.held = -1;
         this.finished ??= now;
     }
 
@@ -202,6 +236,7 @@ export class ScreenRun {
         if (this.eraser || this.erasedFlag) return;
         this.active = -1;
         this.waiting = -1;
+        this.held = -1;
 
         if (type === "fade") {
             this.eraser = { indices: [], reveal: createTimedReveal(duration), since: now };
@@ -246,6 +281,12 @@ export class ScreenRun {
             run.breaks = lineBreaks(run.text, columns);
             this.emitFrame(run);
         }
+        // custom reveals may lay themselves out to the width, so redraw finished ones
+        for (const unit of this.units) {
+            const done = unit.indices.every((i) => this.runs[i]?.state === "done");
+            if (unit.custom && done && !this.eraser)
+                this.setUnitFrame(unit, unit.reveal.final(), 1);
+        }
     }
 
     /** Receives the element's current frame immediately, then every change to it. */
@@ -276,6 +317,7 @@ export class ScreenRun {
 
     private buildUnits(): Unit[] {
         const { defaults, instant, random } = this.options;
+        const context = { columns: () => this.columns, random };
         const groups: { indices: number[]; reveal?: Reveal; spec: RevealSpec; block: boolean }[] =
             [];
 
@@ -284,7 +326,7 @@ export class ScreenRun {
                 ? { spec: { type: "instant" } as const, inherited: false }
                 : resolveReveal(element.reveal, this.screen.reveal, defaults);
 
-            const custom = moduleFor(element).reveal?.(element, spec);
+            const custom = moduleFor(element).reveal?.(element, spec, context);
             if (custom) {
                 groups.push({ indices: [index], reveal: custom, spec, block: false });
                 return;
@@ -304,6 +346,7 @@ export class ScreenRun {
             reveal:
                 reveal ??
                 createReveal(indices.map((i) => this.runs[i]?.text).join("\n"), spec, random),
+            custom: reveal !== undefined,
         }));
     }
 
@@ -359,9 +402,28 @@ export class ScreenRun {
         this.options.onChange();
     }
 
-    private finish(unit: Unit): void {
+    /** Finishes the active unit at `time`, then moves on to the next unless held. */
+    private finishActive(unit: Unit, time: number): void {
+        const next = this.active + 1;
+        const hold = this.finish(unit, time);
+        this.active = -1;
+        if (hold) {
+            this.held = next;
+        } else {
+            this.tryActivate(next, time);
+        }
+    }
+
+    /** Shows a unit's final frame and marks it Done. Returns whether to hold the screen. */
+    private finish(unit: Unit, time: number): boolean {
         this.setUnitFrame(unit, unit.reveal.final(), 1);
         this.setStates(unit, "done");
+        let hold = false;
+        for (const index of unit.indices) {
+            const element = this.runs[index]?.element;
+            if (element && this.options.onFinished?.(element, unit.reveal, time)) hold = true;
+        }
+        return hold;
     }
 
     private setStates(unit: Unit, state: ElementState): void {
@@ -381,6 +443,14 @@ export class ScreenRun {
         unit.indices.forEach((index, k) => {
             const run = this.runs[index] as ElementRun;
             const part = parts[k] ?? [];
+            if (unit.custom) {
+                // a custom reveal's frames are the element's text (e.g. a progress bar)
+                const text = part.map((segment) => segment.text).join("");
+                if (text !== run.text) {
+                    run.text = text;
+                    run.breaks = lineBreaks(text, this.columns);
+                }
+            }
             if (!sameFrame(part, run.frame)) {
                 run.frame = part;
                 this.emitFrame(run);

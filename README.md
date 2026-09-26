@@ -54,9 +54,30 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
 | `"prompt"` | A command line. Each of its `commands` has an `action`. |
 | `"bitmap"` | An image (`src`, `alt`) that resolves from blocky to sharp. The screen waits for it to load. |
+| `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`. Every element takes an optional
 `className` (e.g. `"alert"`) and `reveal`.
+
+### Progress bars
+```json
+{
+    "type": "progress",
+    "label": "DOWNLOADING ",
+    "from": 0, "to": 100, "duration": 3000,
+    "onComplete": { "after": 500, "action": { "screen": "done" } },
+    "interrupt": { "key": "Escape", "text": "ABORTED", "action": { "screen": "menu" } }
+}
+```
+- `from`/`to` (default 0 and 100) run backwards when `to` is lower. `percent` (default true) shows
+  the value; `width` (default: the rest of the line), `fill` and `empty` (default `█` and `░`)
+  shape the bar.
+- `onComplete` runs an action, or `{ "after", "action" }` to pause first, when the bar reaches
+  `to`. Without it, the screen carries on. A dialog opens and the screen carries on behind it.
+- `interrupt` makes the bar stop short: at a scripted point (`at`, a transfer that fails) and/or
+  when the player presses a `key`. Its `text` replaces the percentage, and its `action` (with
+  an optional `after`) runs instead of `onComplete`.
+- Skipping jumps the bar to its end, or to its scripted interruption.
 
 ### Moving on without a link
 A screen's `next` moves on without a link. Each rule has an `action` and a trigger:
@@ -121,6 +142,9 @@ layers over the config's.
 ```
 
 Moving effects hold still when the system asks for reduced motion.
+
+Fonts: PxPlus VGA SquarePx by VileR ([int10h.org](https://int10h.org), CC BY-SA 4.0) and
+Departure Mono by Helena Zhang (SIL OFL 1.1).
 
 The glitch effect is ported from [musicforprogramming.net](https://musicforprogramming.net).
 

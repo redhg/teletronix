@@ -140,7 +140,7 @@ describe("parseProgram", () => {
             {
                 path: "screens.home.content[2].type",
                 message:
-                    "Invalid discriminator value. Expected 'text' | 'link' | 'toggle' | 'prompt' | 'bitmap'",
+                    "Invalid discriminator value. Expected 'text' | 'link' | 'toggle' | 'prompt' | 'bitmap' | 'progress'",
             },
         ]);
     });

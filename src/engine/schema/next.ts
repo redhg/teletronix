@@ -20,6 +20,11 @@ export function normalizeKey(key: string): string {
 
 const KeyNameSchema = z.string().min(1);
 
+/** One key name or several, normalized to a list. */
+export const KeysSchema = z
+    .union([KeyNameSchema, z.array(KeyNameSchema).min(1)])
+    .transform((key) => (Array.isArray(key) ? key : [key]).map(normalizeKey));
+
 const RuleSchema = z
     .strictObject({
         after: z
@@ -68,13 +73,15 @@ export interface NextRule {
     action: Action;
 }
 
+/** Whether a key press (a KeyboardEvent.key) matches normalized key names, including "any". */
+export function keyMatches(keys: readonly string[], key: string): boolean {
+    const pressed = normalizeKey(key);
+    return keys.includes(pressed) || (keys.includes("any") && !NOT_ANY.has(pressed));
+}
+
 /** The rule a key press triggers, if any. `key` is a KeyboardEvent.key value. */
 export function ruleForKey(rules: readonly NextRule[], key: string): NextRule | undefined {
-    const pressed = normalizeKey(key);
-    return rules.find(
-        (rule) =>
-            rule.keys?.includes(pressed) || (rule.keys?.includes("any") && !NOT_ANY.has(pressed)),
-    );
+    return rules.find((rule) => rule.keys && keyMatches(rule.keys, key));
 }
 
 /**

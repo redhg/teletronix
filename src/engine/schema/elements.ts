@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { type BitmapElement, BitmapSchema, bitmapModule } from "../../modules/bitmap/definition.ts";
 import { type LinkElement, LinkSchema, linkModule } from "../../modules/link/definition.ts";
+import {
+    type ProgressElement,
+    ProgressSchema,
+    progressModule,
+} from "../../modules/progress/definition.ts";
 import { type PromptElement, PromptSchema, promptModule } from "../../modules/prompt/definition.ts";
 import { type TextElement, TextSchema, textModule } from "../../modules/text/definition.ts";
 import { type ToggleElement, ToggleSchema, toggleModule } from "../../modules/toggle/definition.ts";
@@ -13,9 +18,16 @@ export const ElementSchema = z.discriminatedUnion("type", [
     ToggleSchema,
     PromptSchema,
     BitmapSchema,
+    ProgressSchema,
 ]);
 
-export type Element = TextElement | LinkElement | ToggleElement | PromptElement | BitmapElement;
+export type Element =
+    | TextElement
+    | LinkElement
+    | ToggleElement
+    | PromptElement
+    | BitmapElement
+    | ProgressElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -25,6 +37,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     toggle: toggleModule,
     prompt: promptModule,
     bitmap: bitmapModule,
+    progress: progressModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {

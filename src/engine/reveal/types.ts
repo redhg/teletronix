@@ -21,6 +21,8 @@ export interface Reveal {
      * Return the previous frame object when nothing changed.
      */
     frame(elapsed: number): Frame;
-    /** The fully revealed frame. */
+    /** The fully revealed frame, or the last one if the reveal was interrupted. */
     final(): Frame;
+    /** Stops the reveal where it is, at `elapsed`, if it can be interrupted. */
+    interrupt?(elapsed: number): void;
 }

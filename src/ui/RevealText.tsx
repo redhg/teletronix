@@ -4,13 +4,18 @@ import type { Frame, ScreenRun, SegmentKind } from "../engine/index.ts";
 interface Props {
     run: ScreenRun;
     index: number;
+    /**
+     * What screen readers get instead of the element's text. For text that changes all
+     * the time (e.g. a progress bar), which would otherwise be announced on every frame.
+     */
+    label?: string;
 }
 
 /**
  * Renders an element's frames by writing straight to the DOM. The engine calls this
  * every animation frame, and React never re-renders for it.
  */
-export function RevealText({ run, index }: Props) {
+export function RevealText({ run, index, label }: Props) {
     const full = useRef<HTMLSpanElement>(null);
     const visible = useRef<HTMLSpanElement>(null);
     const cursor = useRef<HTMLSpanElement>(null);
@@ -26,7 +31,10 @@ export function RevealText({ run, index }: Props) {
 
         return run.subscribeFrame(index, (frame: Frame, text: string) => {
             // screen readers get the whole text, never a half-revealed frame
-            if (full.current && full.current.textContent !== text) full.current.textContent = text;
+            const spoken = label ?? text;
+            if (full.current && full.current.textContent !== spoken) {
+                full.current.textContent = spoken;
+            }
 
             const texts: Record<SegmentKind, string> = { visible: "", cursor: "", hidden: "" };
             for (const segment of frame) texts[segment.kind] += segment.text;
@@ -45,7 +53,7 @@ export function RevealText({ run, index }: Props) {
                 span.scrollIntoView({ block: "nearest" });
             }
         });
-    }, [run, index]);
+    }, [run, index, label]);
 
     return (
         <>

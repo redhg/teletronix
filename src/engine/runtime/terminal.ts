@@ -1,9 +1,11 @@
 import type { Random } from "../random.ts";
+import type { Reveal } from "../reveal/index.ts";
 import { resolveTransition, type TransitionSpec } from "../reveal/index.ts";
 import type { Action } from "../schema/common.ts";
 import { type Dialog, dialogAction } from "../schema/dialog.ts";
 import { type ResolvedEffects, resolveEffects } from "../schema/effects.ts";
 import type { Element } from "../schema/elements.ts";
+import { moduleFor } from "../schema/elements.ts";
 import { firstTimedRule, type NextRule, ruleForKey, ruleForTap } from "../schema/next.ts";
 import type { Program } from "../schema/program.ts";
 import type { Ticker } from "../time/ticker.ts";
@@ -71,6 +73,8 @@ export class Terminal {
     private outgoingTransition: OutgoingSnapshot["transition"] | null = null;
     /** Set once the current screen's `next` has fired, so it fires only once per visit. */
     private nextFired = false;
+    /** Element outcomes waiting to run, for the current screen (see ModuleDefinition.outcome). */
+    private outcomes: { run: ScreenRun; action: Action; due: number }[] = [];
     private dialog: Dialog | null = null;
     /** Resolved once per screen, so effect views see the same object on every visit. */
     private readonly effects = new Map<string, ResolvedEffects>();
@@ -132,6 +136,7 @@ export class Terminal {
         const now = this.ticker.now();
         this.dialog = null;
         this.nextFired = false;
+        this.outcomes = [];
 
         const transition = resolveTransition(screen.transition, this.program.defaults);
         // a transition that's still playing is cut short by the next one
@@ -142,7 +147,7 @@ export class Terminal {
             this.outgoing.erase(now, transition);
         }
 
-        this.run = new ScreenRun(screen, {
+        const run: ScreenRun = new ScreenRun(screen, {
             defaults: this.program.defaults,
             columns: this.columns,
             instant: this.instant,
@@ -152,11 +157,12 @@ export class Terminal {
             random: this.random,
             onChange: this.markDirty,
             onWake: this.wake,
+            onFinished: (element, reveal, time) => this.elementFinished(run, element, reveal, time),
         });
+        this.run = run;
         this.run.start(now);
         this.markDirty();
-        this.syncTicker();
-        this.flush();
+        this.settle();
     }
 
     openDialog(dialogId: string): void {
@@ -199,6 +205,11 @@ export class Terminal {
      * Returns whether the key was used. `key` is a KeyboardEvent.key value.
      */
     pressKey(key: string): boolean {
+        // the element being revealed gets first refusal (e.g. to interrupt a progress bar)
+        if (!this.dialog && this.run?.pressKey(key, this.ticker.now())) {
+            this.settle();
+            return true;
+        }
         const rules = this.run?.screen.next;
         const rule = rules && ruleForKey(rules, key);
         return rule ? this.trigger(rule) : false;
@@ -223,8 +234,7 @@ export class Terminal {
             this.outgoing = null;
             this.markDirty();
         }
-        this.syncTicker();
-        this.flush();
+        this.settle();
     }
 
     setColumns(columns: number): void {
@@ -245,6 +255,7 @@ export class Terminal {
 
     private readonly tick = (now: number): void => {
         this.run?.advance(now);
+        this.runOutcomes(now);
         const timed = this.timedRule();
         if (timed && now >= timed.due) this.goNext(timed.rule.action);
         this.outgoing?.advance(now);
@@ -275,6 +286,36 @@ export class Terminal {
         return true;
     }
 
+    /** Queues an element's outcome, if it has one, and holds its screen until it runs. */
+    private elementFinished(run: ScreenRun, element: Element, reveal: Reveal, time: number) {
+        const outcome = moduleFor(element).outcome?.(element, reveal);
+        if (!outcome) return false;
+        this.outcomes.push({ run, action: outcome.action, due: time + outcome.after });
+        return true;
+    }
+
+    /** Runs outcomes that are due: navigating, or opening a dialog and carrying on. */
+    private runOutcomes(now: number): void {
+        while (true) {
+            const index = this.outcomes.findIndex((o) => o.run === this.run && o.due <= now);
+            const outcome = this.outcomes[index];
+            if (!outcome) return;
+            this.outcomes.splice(index, 1);
+
+            this.dispatch(outcome.action);
+            // a new screen replaces the old outcomes; a dialog lets the screen carry on
+            if (outcome.action.type === "dialog") outcome.run.resume(now);
+            else return;
+        }
+    }
+
+    /** After a command that may have finished elements: run what's due, then publish. */
+    private settle(): void {
+        this.runOutcomes(this.ticker.now());
+        this.syncTicker();
+        this.flush();
+    }
+
     private goNext(action: Action): void {
         this.nextFired = true;
         this.dispatch(action);
@@ -285,7 +326,8 @@ export class Terminal {
         const animating =
             (this.run?.animating ?? false) ||
             (this.outgoing?.animating ?? false) ||
-            this.timedRule() !== null;
+            this.timedRule() !== null ||
+            this.outcomes.length > 0;
         if (animating && !this.unsubscribeTicker) {
             this.unsubscribeTicker = this.ticker.subscribe(this.tick);
         } else if (!animating && this.unsubscribeTicker) {
@@ -304,10 +346,7 @@ export class Terminal {
         return effects;
     }
 
-    private readonly wake = (): void => {
-        this.syncTicker();
-        this.flush();
-    };
+    private readonly wake = (): void => this.settle();
 
     private readonly markDirty = (): void => {
         this.dirty = true;
