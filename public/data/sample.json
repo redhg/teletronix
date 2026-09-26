@@ -358,8 +358,16 @@
                 "A bitmap loads, then resolves from blocky to sharp. The screen waits for it to load.",
                 { "type": "bitmap", "src": "data/images/sunset-grid.png", "alt": "A striped sun setting over a neon grid" },
                 "",
-                "A className such as \"luminosity\" or \"lighten\" blends it with the screen:",
-                { "type": "bitmap", "src": "data/images/sunset-grid.png", "alt": "The same sunset, tinted to the screen color", "className": "luminosity" },
+                "A className naming a blend mode blends the image with the screen's background color. Against a dark screen, these three stand out.",
+                "",
+                "\"luminosity\": a monochrome, tinted to the screen:",
+                { "type": "bitmap", "src": "data/images/sunset-grid.png", "alt": "The sunset in monochrome, tinted to the screen color", "className": "luminosity" },
+                "",
+                "\"hard-light\": bright parts burn, dark parts sink:",
+                { "type": "bitmap", "src": "data/images/sunset-grid.png", "alt": "The sunset with a burning red sun over a darkened sky", "className": "hard-light" },
+                "",
+                "\"overlay\": a faint ghost of the image:",
+                { "type": "bitmap", "src": "data/images/sunset-grid.png", "alt": "A faint, dim ghost of the sunset", "className": "overlay" },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
