@@ -76,20 +76,21 @@ export function TerminalView({ layoutKey }: Props) {
             ?.focus({ preventScroll: true });
     };
 
+    const outgoingView = outgoing && (
+        <ScreenView key={outgoing.run.key} screen={outgoing} leaving={outgoing.transition} />
+    );
+
     return (
         <AutoscrollContext value={autoscroll}>
             <main ref={ref} className="terminal" onPointerDown={handlePointerDown}>
-                {/* Both screens share one grid cell, the outgoing one on top. Keys keep a screen's
-                DOM (and its frame subscriptions) alive as it moves from current to outgoing. */}
+                {/* Both screens share one grid cell. Later siblings paint on top, so a fading
+                screen goes before the current one (afterglow behind the new text) and a
+                glitching one after it (erasing over it). Keys keep a screen's DOM, and its frame
+                subscriptions, alive as it moves from current to outgoing. */}
                 <div ref={screensRef} className="screens">
+                    {outgoing?.transition.type === "fade" && outgoingView}
                     {screen && <ScreenView key={screen.run.key} screen={screen} />}
-                    {outgoing && (
-                        <ScreenView
-                            key={outgoing.run.key}
-                            screen={outgoing}
-                            leaving={outgoing.transition}
-                        />
-                    )}
+                    {outgoing?.transition.type === "glitch" && outgoingView}
                 </div>
             </main>
             {/* "transition": "static": noise between screens, under the other effects */}

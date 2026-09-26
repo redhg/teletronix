@@ -4,9 +4,11 @@
     user-select: none;
 }
 
+/* No z-index or isolation around screens: either would wall off an image's mix-blend-mode
+   (e.g. "className": "luminosity") from the background it blends with. Paint order alone
+   decides which screen is on top (see TerminalView). */
 .screens {
     display: grid;
-    isolation: isolate;
 }
 
 .screen {
@@ -90,8 +92,6 @@ button.control.alert:focus-visible {
 
 /* Phosphor afterglow: a screen left with "transition": "fade" dims quickly, then lingers */
 .screen.fading {
-    /* behind the new screen, unlike a glitch, which erases on top */
-    z-index: -1;
     animation: phosphor-fade var(--fade-duration) cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
 }
 
