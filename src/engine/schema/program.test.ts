@@ -102,7 +102,7 @@ describe("parseProgram", () => {
                             type: "link",
                             text: "> GO",
                             action: { screen: "nowhere" },
-                            shiftAction: { dialog: "missing" },
+                            secondaryAction: { dialog: "missing" },
                         },
                     ],
                 },

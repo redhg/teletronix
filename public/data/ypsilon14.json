@@ -293,7 +293,7 @@
                     "action": {
                         "dialog": "lockedDialog"
                     },
-                    "shiftAction": {
+                    "secondaryAction": {
                         "screen": "airlocks"
                     }
                 },
@@ -303,7 +303,7 @@
                     "action": {
                         "dialog": "lockedDialog"
                     },
-                    "shiftAction": {
+                    "secondaryAction": {
                         "screen": "system"
                     }
                 },

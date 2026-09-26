@@ -7,8 +7,10 @@ export const LinkSchema = z
         type: z.literal("link"),
         text: z.string().min(1).meta({ description: "The link's text" }),
         action: ActionSchema.meta({ description: "What happens when the link is clicked" }),
-        shiftAction: ActionSchema.optional().meta({
-            description: "What happens when the link is shift-clicked (defaults to action)",
+        secondaryAction: ActionSchema.optional().meta({
+            description:
+                "What happens on a secondary click: shift-click, right-click, Shift+Enter, or a " +
+                "long press on touch screens (default: the same as action)",
         }),
         ...ElementBaseShape,
     })
@@ -19,10 +21,13 @@ export type LinkElement = z.output<typeof LinkSchema> & ElementIdentity;
 export const linkModule: ModuleDefinition<LinkElement> = {
     text: (element) => element.text,
     actions: (element) =>
-        element.shiftAction ? [element.action, element.shiftAction] : [element.action],
+        element.secondaryAction ? [element.action, element.secondaryAction] : [element.action],
 };
 
-/** The action a click triggers, honoring the shift-click variant. */
-export function linkAction(element: LinkElement, modifiers: { shiftKey: boolean }): Action {
-    return modifiers.shiftKey && element.shiftAction ? element.shiftAction : element.action;
+/**
+ * The action a link triggers. The secondary action (shift-click, right-click, Shift+Enter
+ * or a long press) falls back to the main one when the link doesn't have one.
+ */
+export function linkAction(element: LinkElement, secondary: boolean): Action {
+    return secondary && element.secondaryAction ? element.secondaryAction : element.action;
 }

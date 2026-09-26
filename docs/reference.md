@@ -130,7 +130,7 @@ Clickable text that navigates to a screen or opens a dialog
 |---|---|---|---|
 | `text` | string | **required** | The link's text |
 | `action` | [Action](#action) | **required** | What happens when the link is clicked |
-| `shiftAction` | [Action](#action) |  | What happens when the link is shift-clicked (defaults to action) |
+| `secondaryAction` | [Action](#action) | the same as action | What happens on a secondary click: shift-click, right-click, Shift+Enter, or a long press on touch screens |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 

@@ -77,7 +77,9 @@ function convertContent(item: PhosphorContent, where: string): Content | null {
                 type: "link",
                 text: item.text,
                 action: action(main.type, main.target),
-                ...(plain && shifted ? { shiftAction: action(shifted.type, shifted.target) } : {}),
+                ...(plain && shifted
+                    ? { secondaryAction: action(shifted.type, shifted.target) }
+                    : {}),
                 ...className(item.className),
             };
         }

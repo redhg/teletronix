@@ -53,7 +53,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | Type | |
 |---|---|
 | `"text"` (or a bare string) | Text. Line breaks are kept; long lines wrap. |
-| `"link"` | Clickable text with an `action`, and optionally a `shiftAction` for shift-click. |
+| `"link"` | Clickable text with an `action`, and optionally a `secondaryAction` for a shift-click, right-click, Shift+Enter or long press. |
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
 | `"prompt"` | A command line. Each of its `commands` has an `action`. |
 | `"bitmap"` | An image (`src`, `alt`) that resolves from blocky to sharp. The screen waits for it to load. |

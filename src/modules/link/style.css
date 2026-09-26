@@ -1,0 +1,28 @@
+/* Links with a secondary action take long presses, so keep the phone's own long-press
+   behaviors (the iOS callout, zoom on double tap) out of the way */
+button.link.has-secondary {
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+}
+
+/* While a long press is held, the highlight fills from left to right */
+button.control.link.holding {
+    background:
+        linear-gradient(to right, rgb(from var(--fg) r g b / 0.45) 50%, transparent 50%) 100% 0 /
+        200% 100% no-repeat;
+    animation: link-hold var(--hold-duration) linear forwards;
+}
+
+button.control.link.alert.holding {
+    background-image: linear-gradient(
+        to right,
+        rgb(from var(--alert) r g b / 0.45) 50%,
+        transparent 50%
+    );
+}
+
+@keyframes link-hold {
+    to {
+        background-position: 0 0;
+    }
+}

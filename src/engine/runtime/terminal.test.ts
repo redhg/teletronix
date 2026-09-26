@@ -16,7 +16,7 @@ const FILE: TeletronixFile = {
                     type: "link",
                     text: "go",
                     action: { screen: "other" },
-                    shiftAction: { dialog: "info" },
+                    secondaryAction: { dialog: "info" },
                 },
             ],
         },

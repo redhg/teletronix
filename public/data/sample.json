@@ -425,13 +425,13 @@
                 "A link that points to the current screen replays it:",
                 { "type": "link", "text": "> REPLAY THIS SCREEN", "action": { "screen": "links" } },
                 "",
-                "Links can do something different when shift-clicked. This one shows an alert, but shift-click it to find a hidden screen:",
+                "Links can have a secondary action, for a shift-click, right-click or long press (on touch screens). This one shows an alert, but use its secondary action to find a hidden screen:",
                 {
                     "type": "link",
-                    "text": "> LOCKED. Shift+click to unlock",
+                    "text": "> LOCKED. Shift-click or long-press to unlock",
                     "className": "alert",
                     "action": { "dialog": "locked" },
-                    "shiftAction": { "screen": "secret" }
+                    "secondaryAction": { "screen": "secret" }
                 },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
@@ -484,7 +484,7 @@
         "locked": {
             "type": "alert",
             "className": "alert",
-            "content": "This link is locked. You'll need to <shift>+click it.",
+            "content": "This link is locked. Shift-click, right-click or long-press it instead.",
             "dismiss": "UNDERSTOOD"
         },
         "help": {
