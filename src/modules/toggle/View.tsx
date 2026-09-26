@@ -1,0 +1,26 @@
+import { classNames, type ElementViewProps } from "../../ui/element-view.ts";
+import { RevealText } from "../../ui/RevealText.tsx";
+import { useTerminal } from "../../ui/terminal-context.ts";
+import { nextToggleState, type ToggleElement, type ToggleMemory } from "./definition.ts";
+
+export function ToggleView({ element, state, run, index }: ElementViewProps<ToggleElement>) {
+    const terminal = useTerminal();
+    const className = classNames("toggle control", element.className);
+    const content = <RevealText run={run} index={index} />;
+
+    if (state !== "done") {
+        return <div className={className}>{content}</div>;
+    }
+
+    // the new text arrives through the frame channel, so this doesn't re-render
+    const handleClick = () => {
+        const memory = terminal.recall<ToggleMemory>(element.id);
+        terminal.remember(element.id, nextToggleState(element, memory));
+    };
+
+    return (
+        <button type="button" className={className} onClick={handleClick}>
+            {content}
+        </button>
+    );
+}

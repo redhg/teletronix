@@ -19,7 +19,60 @@
                 { "type": "link", "text": "> TEXT", "action": { "screen": "text" } },
                 { "type": "link", "text": "> REVEALS", "action": { "screen": "reveals" } },
                 { "type": "link", "text": "> LINKS", "action": { "screen": "links" } },
-                { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } }
+                { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } },
+                { "type": "link", "text": "> TOGGLES", "action": { "screen": "toggles" } },
+                { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
+                { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } }
+            ]
+        },
+        "toggles": {
+            "content": [
+                "TOGGLES",
+                "=======",
+                "",
+                "A toggle cycles through its states each time you click it. Toggles remember their state, so leave this screen and come back.",
+                "",
+                { "type": "toggle", "states": ["> Hello.", "> How are you?", "> I am fine, thanks."] },
+                { "type": "toggle", "states": ["[ ] AIRLOCK SEALED", "[X] AIRLOCK SEALED"], "initial": 1, "className": "alert" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "prompt": {
+            "content": [
+                "PROMPT",
+                "======",
+                "",
+                "Type a command and press <enter>. Commands ignore case and extra spaces. Try:",
+                "",
+                "  HOME     back to the start",
+                "  GLITCH   the glitch demo",
+                "  IMAGES   (or PICS) the image demo",
+                "",
+                {
+                    "type": "prompt",
+                    "prompt": "Enter command: ",
+                    "unknown": "Unknown command. Try HOME, GLITCH or IMAGES.",
+                    "commands": [
+                        { "command": "home", "action": { "screen": "home" } },
+                        { "command": "glitch", "action": { "screen": "glitch" } },
+                        { "command": ["images", "pics"], "action": { "screen": "images" } }
+                    ]
+                }
+            ]
+        },
+        "images": {
+            "content": [
+                "IMAGES",
+                "======",
+                "",
+                "A bitmap loads, then resolves from blocky to sharp. The screen waits for it to load.",
+                { "type": "bitmap", "src": "data/images/sunset-grid.png", "alt": "A striped sun setting over a neon grid" },
+                "",
+                "A className such as \"luminosity\" or \"lighten\" blends it with the screen:",
+                { "type": "bitmap", "src": "data/images/sunset-grid.png", "alt": "The same sunset, tinted to the screen color", "className": "luminosity" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
         "text": {

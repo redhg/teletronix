@@ -17,10 +17,19 @@ export function TerminalView() {
         if (!terminal.getSnapshot().screen) terminal.start();
     }, [terminal]);
 
-    // clicking anywhere that isn't a control finishes the current screen
+    // Clicking anywhere that isn't a control finishes the current screen, and keeps (or
+    // puts) the keyboard in the screen's prompt, if it has one.
     const handlePointerDown = (event: PointerEvent) => {
-        if (event.target instanceof Element && event.target.closest("button, a, input")) return;
+        if (event.target instanceof Element && event.target.closest("button, a, input, label")) {
+            return;
+        }
+        // otherwise the click would move focus to the page, away from a prompt that the
+        // skip below (or an earlier reveal) just focused
+        event.preventDefault();
         terminal.skip();
+        ref.current
+            ?.querySelector<HTMLInputElement>(".screen:not(.outgoing) .prompt input:not(:disabled)")
+            ?.focus({ preventScroll: true });
     };
 
     return (

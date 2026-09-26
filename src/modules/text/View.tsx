@@ -6,7 +6,7 @@ import "./style.css";
 export function TextView({ element, run, index }: ElementViewProps<TextElement>) {
     return (
         <div className={classNames("text", element.className)}>
-            <RevealText run={run} index={index} text={element.text} />
+            <RevealText run={run} index={index} />
         </div>
     );
 }

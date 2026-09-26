@@ -16,17 +16,61 @@
     overflow-x: clip;
 }
 
-.cursor {
+.reveal-cursor {
     color: rgb(from var(--bg) r g b / 0.2);
     background: var(--fg);
 }
 
-.alert .cursor {
+.alert .reveal-cursor {
     background: var(--alert);
 }
 
-.hidden {
+.reveal-hidden {
     visibility: hidden;
+}
+
+/* Clickable lines: links, toggles */
+.control {
+    display: block;
+    width: 100%;
+    min-height: 1lh;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    text-shadow: inherit;
+    white-space: inherit;
+}
+
+button.control {
+    cursor: pointer;
+}
+
+button.control:hover,
+button.control:focus-visible {
+    outline: none;
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: var(--inverse-glow);
+    box-shadow: var(--glow);
+}
+
+button.control:active {
+    opacity: 0.5;
+}
+
+button.control.alert:hover,
+button.control.alert:focus-visible {
+    background: var(--alert);
+    box-shadow: var(--alert-glow);
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
 }
 
 .error-view {

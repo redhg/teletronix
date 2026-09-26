@@ -553,6 +553,363 @@
                                             ],
                                             "additionalProperties": false,
                                             "description": "Clickable text that navigates to a screen or opens a dialog"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "toggle"
+                                                },
+                                                "states": {
+                                                    "minItems": 2,
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "description": "The texts to cycle through, one per click"
+                                                },
+                                                "initial": {
+                                                    "description": "Index of the state shown first (default: 0)",
+                                                    "type": "integer",
+                                                    "minimum": 0,
+                                                    "maximum": 9007199254740991
+                                                },
+                                                "className": {
+                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                    "type": "string"
+                                                },
+                                                "reveal": {
+                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "teletype",
+                                                                "glitch",
+                                                                "none"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "speed": {
+                                                                            "description": "Milliseconds per character",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "teletype"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "duration": {
+                                                                            "description": "Total time in milliseconds",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "glitch"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "none"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "type",
+                                                "states"
+                                            ],
+                                            "additionalProperties": false,
+                                            "description": "Text that cycles through states when clicked. It remembers its state when you come back."
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "prompt"
+                                                },
+                                                "prompt": {
+                                                    "default": "> ",
+                                                    "description": "Text shown before the input (default: \"> \")",
+                                                    "type": "string"
+                                                },
+                                                "commands": {
+                                                    "minItems": 1,
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "command": {
+                                                                "anyOf": [
+                                                                    {
+                                                                        "type": "string",
+                                                                        "minLength": 1
+                                                                    },
+                                                                    {
+                                                                        "minItems": 1,
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "string",
+                                                                            "minLength": 1
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                "description": "What to type (case-insensitive). Use an array for aliases."
+                                                            },
+                                                            "action": {
+                                                                "description": "What happens when the command is entered",
+                                                                "anyOf": [
+                                                                    {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "screen": {
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "screen"
+                                                                        ],
+                                                                        "additionalProperties": false,
+                                                                        "description": "Navigate to a screen"
+                                                                    },
+                                                                    {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "dialog": {
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "dialog"
+                                                                        ],
+                                                                        "additionalProperties": false,
+                                                                        "description": "Open a dialog"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "command",
+                                                            "action"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    }
+                                                },
+                                                "unknown": {
+                                                    "default": "Unknown command.",
+                                                    "description": "Shown when the input matches no command",
+                                                    "type": "string"
+                                                },
+                                                "className": {
+                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                    "type": "string"
+                                                },
+                                                "reveal": {
+                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "teletype",
+                                                                "glitch",
+                                                                "none"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "speed": {
+                                                                            "description": "Milliseconds per character",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "teletype"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "duration": {
+                                                                            "description": "Total time in milliseconds",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "glitch"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "none"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "type",
+                                                "commands"
+                                            ],
+                                            "additionalProperties": false,
+                                            "description": "A command line. Typed commands navigate or open dialogs."
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "const": "bitmap"
+                                                },
+                                                "src": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "description": "Image URL, or a path relative to the page"
+                                                },
+                                                "alt": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "description": "A description of the image, for screen readers"
+                                                },
+                                                "className": {
+                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                    "type": "string"
+                                                },
+                                                "reveal": {
+                                                    "description": "How text appears: \"teletype\" (character by character), \"glitch\" (resolves out of random glyphs) or \"none\" (instantly). Use an object to override options, e.g. { \"type\": \"teletype\", \"speed\": 20 }. When a screen or the config sets \"glitch\", consecutive elements that don't set their own reveal glitch in together as one block.",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "teletype",
+                                                                "glitch",
+                                                                "none"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "speed": {
+                                                                            "description": "Milliseconds per character",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "teletype"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "duration": {
+                                                                            "description": "Total time in milliseconds",
+                                                                            "type": "number",
+                                                                            "exclusiveMinimum": 0
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "glitch"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "const": "none"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "type"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "type",
+                                                "src",
+                                                "alt"
+                                            ],
+                                            "additionalProperties": false,
+                                            "description": "An image, revealed in steps from low to high resolution. Add a className such as \"lighten\" or \"luminosity\" to blend it with the screen."
                                         }
                                     ]
                                 }

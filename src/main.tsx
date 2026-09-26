@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Terminal } from "./engine/index.ts";
 import { AnimationFrameTicker } from "./ui/animation-frame-ticker.ts";
 import { ErrorView } from "./ui/ErrorView.tsx";
+import { loadElement } from "./ui/load-element.ts";
 import { loadProgram } from "./ui/load-program.ts";
 import { TerminalView } from "./ui/TerminalView.tsx";
 import { TerminalContext } from "./ui/terminal-context.ts";
@@ -35,6 +36,7 @@ async function main() {
     const terminal = new Terminal({
         program: result.program,
         ticker: new AnimationFrameTicker(),
+        load: loadElement,
         instant: matchMedia("(prefers-reduced-motion: reduce)").matches,
     });
 

@@ -1,0 +1,96 @@
+.bitmap canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+}
+
+.bitmap-loading {
+    min-height: 1lh;
+}
+
+.bitmap-loading::after {
+    content: "";
+    animation: loading-dots 1.5s steps(1) infinite;
+}
+
+@keyframes loading-dots {
+    0% {
+        content: "";
+    }
+    10% {
+        content: ".";
+    }
+    20% {
+        content: "..";
+    }
+    30% {
+        content: "...";
+    }
+    40% {
+        content: "....";
+    }
+    50% {
+        content: ".....";
+    }
+    60% {
+        content: "......";
+    }
+    70% {
+        content: ".......";
+    }
+    80% {
+        content: "........";
+    }
+    90% {
+        content: ".........";
+    }
+}
+
+/* Blend modes, e.g. "className": "lighten" */
+.bitmap.luminosity,
+.bitmap.monochrome {
+    mix-blend-mode: luminosity;
+}
+.bitmap.lighten {
+    mix-blend-mode: lighten;
+}
+.bitmap.multiply {
+    mix-blend-mode: multiply;
+}
+.bitmap.screen {
+    mix-blend-mode: screen;
+}
+.bitmap.overlay {
+    mix-blend-mode: overlay;
+}
+.bitmap.darken {
+    mix-blend-mode: darken;
+}
+.bitmap.color-dodge {
+    mix-blend-mode: color-dodge;
+}
+.bitmap.color-burn {
+    mix-blend-mode: color-burn;
+}
+.bitmap.hard-light {
+    mix-blend-mode: hard-light;
+}
+.bitmap.soft-light {
+    mix-blend-mode: soft-light;
+}
+.bitmap.difference {
+    mix-blend-mode: difference;
+}
+.bitmap.exclusion {
+    mix-blend-mode: exclusion;
+}
+.bitmap.hue {
+    mix-blend-mode: hue;
+}
+.bitmap.saturation {
+    mix-blend-mode: saturation;
+}
+.bitmap.color {
+    mix-blend-mode: color;
+}

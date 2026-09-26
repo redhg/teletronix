@@ -4,7 +4,7 @@ import type { Defaults } from "../schema/program.ts";
 import { createGlitchReveal } from "./glitch-reveal.ts";
 import { createNoneReveal } from "./none.ts";
 import { createTeletype } from "./teletype.ts";
-import type { Reveal } from "./types.ts";
+import type { Frame, Reveal } from "./types.ts";
 
 export { createGlitchReveal } from "./glitch-reveal.ts";
 export { splitFrame } from "./split.ts";
@@ -74,4 +74,10 @@ function definedOnly<T extends object>(value: T): Partial<T> {
     return Object.fromEntries(
         Object.entries(value).filter(([, v]) => v !== undefined),
     ) as Partial<T>;
+}
+
+/** A reveal with no text, for modules that animate something else over a fixed time. */
+export function createTimedReveal(duration: number): Reveal {
+    const frame: Frame = [];
+    return { duration, frame: () => frame, final: () => frame };
 }

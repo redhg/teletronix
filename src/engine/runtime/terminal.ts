@@ -1,6 +1,7 @@
 import type { Random } from "../random.ts";
 import { resolveTransition } from "../reveal/index.ts";
 import type { Action } from "../schema/common.ts";
+import type { Element } from "../schema/elements.ts";
 import type { Dialog, Program } from "../schema/program.ts";
 import type { Ticker } from "../time/ticker.ts";
 import { type ElementState, ScreenRun } from "./screen-run.ts";
@@ -14,6 +15,12 @@ export interface TerminalOptions {
     instant?: boolean;
     /** Randomness for effects. Defaults to Math.random. */
     random?: Random;
+    /**
+     * Starts loading anything an element needs before it can be revealed (e.g. an image),
+     * or returns nothing. The element stays Unloaded, and its screen waits at it, until
+     * the promise settles.
+     */
+    load?: (element: Element) => Promise<unknown> | undefined;
 }
 
 export interface ScreenSnapshot {
@@ -44,6 +51,9 @@ export class Terminal {
     private readonly ticker: Ticker;
     private readonly instant: boolean;
     private readonly random: Random | undefined;
+    private readonly load: TerminalOptions["load"];
+    /** Per-element state that outlives a screen visit (see ModuleDefinition). */
+    private readonly memory = new Map<string, unknown>();
     private readonly listeners = new Set<() => void>();
     private columns: number;
     private run: ScreenRun | null = null;
@@ -59,6 +69,7 @@ export class Terminal {
         this.columns = options.columns ?? DEFAULT_COLUMNS;
         this.instant = options.instant ?? false;
         this.random = options.random;
+        this.load = options.load;
     }
 
     // ─── Store interface (e.g. for React's useSyncExternalStore) ────────────
@@ -111,8 +122,12 @@ export class Terminal {
             defaults: this.program.defaults,
             columns: this.columns,
             instant: this.instant,
+            now: () => this.ticker.now(),
+            load: this.load,
+            memory: this.memory,
             random: this.random,
             onChange: this.markDirty,
+            onWake: this.wake,
         });
         this.run.start(now);
         this.markDirty();
@@ -133,6 +148,17 @@ export class Terminal {
         this.dialog = null;
         this.markDirty();
         this.flush();
+    }
+
+    /** Reads an element's memory. */
+    recall<M>(elementId: string): M | undefined {
+        return this.memory.get(elementId) as M | undefined;
+    }
+
+    /** Updates an element's memory, and its text on screen if that depends on it. */
+    remember(elementId: string, value: unknown): void {
+        this.memory.set(elementId, value);
+        this.run?.refresh(elementId);
     }
 
     /** Finishes revealing the current screen immediately, and any transition with it. */
@@ -183,6 +209,11 @@ export class Terminal {
             this.unsubscribeTicker = null;
         }
     }
+
+    private readonly wake = (): void => {
+        this.syncTicker();
+        this.flush();
+    };
 
     private readonly markDirty = (): void => {
         this.dirty = true;

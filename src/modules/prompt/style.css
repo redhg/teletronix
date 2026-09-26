@@ -1,0 +1,40 @@
+.prompt-line {
+    display: flex;
+    min-height: 1lh;
+    cursor: text;
+}
+
+.prompt-line label {
+    cursor: inherit;
+}
+
+.prompt-field {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.prompt-field input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    opacity: 0;
+}
+
+.prompt-caret {
+    background: currentColor;
+    animation: blink 1s steps(1) infinite;
+}
+
+.prompt-field:not(:focus-within) .prompt-caret {
+    animation: none;
+    opacity: 0.3;
+}
+
+.prompt.disabled .prompt-caret {
+    visibility: hidden;
+}

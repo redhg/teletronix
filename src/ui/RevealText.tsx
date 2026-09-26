@@ -4,15 +4,14 @@ import type { Frame, ScreenRun, SegmentKind } from "../engine/index.ts";
 interface Props {
     run: ScreenRun;
     index: number;
-    /** The element's full text, for screen readers. */
-    text: string;
 }
 
 /**
  * Renders an element's frames by writing straight to the DOM. The engine calls this
  * every animation frame, and React never re-renders for it.
  */
-export function RevealText({ run, index, text }: Props) {
+export function RevealText({ run, index }: Props) {
+    const full = useRef<HTMLSpanElement>(null);
     const visible = useRef<HTMLSpanElement>(null);
     const cursor = useRef<HTMLSpanElement>(null);
     const hidden = useRef<HTMLSpanElement>(null);
@@ -25,7 +24,10 @@ export function RevealText({ run, index, text }: Props) {
         };
         let cursorTop: number | null = null;
 
-        return run.subscribeFrame(index, (frame: Frame) => {
+        return run.subscribeFrame(index, (frame: Frame, text: string) => {
+            // screen readers get the whole text, never a half-revealed frame
+            if (full.current && full.current.textContent !== text) full.current.textContent = text;
+
             const texts: Record<SegmentKind, string> = { visible: "", cursor: "", hidden: "" };
             for (const segment of frame) texts[segment.kind] += segment.text;
             // a cursor on a line break would be invisible, so show it as a block first
@@ -47,11 +49,11 @@ export function RevealText({ run, index, text }: Props) {
 
     return (
         <>
-            <span className="sr-only">{text}</span>
+            <span ref={full} className="sr-only" />
             <span aria-hidden="true">
                 <span ref={visible} />
-                <span ref={cursor} className="cursor" />
-                <span ref={hidden} className="hidden" />
+                <span ref={cursor} className="reveal-cursor" />
+                <span ref={hidden} className="reveal-hidden" />
             </span>
         </>
     );
