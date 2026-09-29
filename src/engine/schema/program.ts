@@ -10,6 +10,7 @@ import {
     ThemeSchema,
     type ThemeSetting,
 } from "./appearance.ts";
+import { type BarLine, BarSchema, barActions } from "./bars.ts";
 import {
     type Action,
     AlignSchema,
@@ -76,6 +77,20 @@ export const ScreenSchema = z
                     "Make links, toggles, sliders, sections and prompts usable only once the whole " +
                     "screen has revealed (default: the config's)",
             }),
+        header: z
+            .union([BarSchema, z.literal(false)])
+            .optional()
+            .meta({
+                description:
+                    "A header bar for this screen instead of the config's, or false for none",
+            }),
+        footer: z
+            .union([BarSchema, z.literal(false)])
+            .optional()
+            .meta({
+                description:
+                    "A status bar for this screen instead of the config's, or false for none",
+            }),
         next: NextSchema.optional(),
         sound: SoundNameSchema.optional().meta({
             description: "A sound from the program's sounds, played as the screen appears",
@@ -119,6 +134,16 @@ export const ConfigSchema = z
             description:
                 "Where text, links and toggles sit across every screen, unless a screen or " +
                 'element says otherwise (default: "left")',
+        }),
+        header: BarSchema.optional().meta({
+            description:
+                "A header bar pinned to the top of the window, on every screen unless it sets " +
+                "its own. Its lines don't scroll or reveal, and show variables as they change.",
+        }),
+        footer: BarSchema.optional().meta({
+            description:
+                "A status bar pinned to the bottom of the window, on every screen unless it " +
+                "sets its own. Its lines don't scroll or reveal, and show variables as they change.",
         }),
         waitForReveal: z
             .boolean()
@@ -209,6 +234,9 @@ export interface Screen {
     autoscroll?: boolean;
     align?: Align;
     waitForReveal?: boolean;
+    /** Its own bars, or false for none (default: the program's). */
+    header?: BarLine[] | false;
+    footer?: BarLine[] | false;
     next?: NextRule[];
     sound?: string;
     content: Element[];
@@ -232,6 +260,9 @@ export interface Program {
     dialogs: ReadonlyMap<string, Dialog>;
     /** Sound effects by name, each filled in */
     sounds: ReadonlyMap<string, Recipe>;
+    /** Bars pinned to the top and bottom of the window, unless a screen has its own */
+    header?: BarLine[];
+    footer?: BarLine[];
     /** Variables by name, with their starting values */
     variables: ReadonlyMap<string, VariableValue>;
 }
@@ -243,6 +274,8 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         transition,
         align,
         waitForReveal,
+        header,
+        footer,
         defaults,
         effects,
         autoscroll,
@@ -257,8 +290,8 @@ function normalize(file: z.output<typeof FileSchema>): Program {
     const screens = new Map<string, Screen>();
     for (const [id, screen] of Object.entries(file.screens)) {
         const content = normalizeContent(screen.content, `${id}#`);
-        const { reveal, transition, effects, autoscroll, align, waitForReveal, next, sound } =
-            screen;
+        const { reveal, transition, effects, autoscroll, align, waitForReveal } = screen;
+        const { header, footer, next, sound } = screen;
         screens.set(id, {
             id,
             reveal,
@@ -267,6 +300,8 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             autoscroll,
             align,
             waitForReveal,
+            header,
+            footer,
             next,
             sound,
             content,
@@ -304,6 +339,8 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             Object.entries(file.sounds ?? {}).map(([name, recipe]) => [name, fillRecipe(recipe)]),
         ),
         variables: new Map(Object.entries(variables ?? {})),
+        header,
+        footer,
     };
 }
 
@@ -360,6 +397,14 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
         }
     };
 
+    const checkBar = (path: PropertyKey[], bar: readonly BarLine[] | false | undefined) => {
+        for (const link of bar ? barActions(bar) : []) {
+            report([...path, ...link.path], actionProblems(link.action));
+        }
+    };
+    checkBar(["config", "header"], program.header);
+    checkBar(["config", "footer"], program.footer);
+
     for (const dialog of program.dialogs.values()) {
         report(["dialogs", dialog.id, "sound"], unknownSound(dialog.sound));
         for (const [answer, confirmed] of [
@@ -373,6 +418,8 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
 
     for (const screen of program.screens.values()) {
         report(["screens", screen.id, "sound"], unknownSound(screen.sound));
+        checkBar(["screens", screen.id, "header"], screen.header);
+        checkBar(["screens", screen.id, "footer"], screen.footer);
 
         screen.next?.forEach((rule, index) => {
             const path = ["screens", screen.id, "next", index];

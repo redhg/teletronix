@@ -9,6 +9,7 @@ import {
 import { staticEffect } from "../effects/static/definition.ts";
 import { StaticView } from "../effects/static/View.tsx";
 import { AutoscrollContext, Autoscroller } from "./autoscroll.ts";
+import { Bar } from "./Bar.tsx";
 import { DialogView } from "./DialogView.tsx";
 import { EffectsLayer } from "./effects.tsx";
 import { ScreenView } from "./ScreenView.tsx";
@@ -40,7 +41,28 @@ export function TerminalView({ layoutKey }: Props) {
         autoscroll.setScreen(screenKey === undefined ? null : (current ?? null), autoscrollOn);
     }, [autoscroll, screenKey, autoscrollOn]);
 
-    const setColumns = useCallback((columns: number) => terminal.setColumns(columns), [terminal]);
+    // the column count also lays out the bars, so it's kept here too
+    const [columns, setColumnsState] = useState(80);
+    const setColumns = useCallback(
+        (columns: number) => {
+            terminal.setColumns(columns);
+            setColumnsState(columns);
+        },
+        [terminal],
+    );
+
+    // the bars: the screen's own, or the program's (a screen's false hides one)
+    const current = screen?.run.screen;
+    const header =
+        current?.header === false ? undefined : (current?.header ?? terminal.program.header);
+    const footer =
+        current?.footer === false ? undefined : (current?.footer ?? terminal.program.footer);
+    // room for them around the screen, and for the sound toggle under the header
+    useLayoutEffect(() => {
+        const root = document.documentElement.style;
+        root.setProperty("--header-lines", String(header?.length ?? 0));
+        root.setProperty("--footer-lines", String(footer?.length ?? 0));
+    }, [header, footer]);
     useColumns(ref, setColumns, layoutKey);
 
     // start once the column count is known, so the first screen wraps correctly
@@ -102,6 +124,8 @@ export function TerminalView({ layoutKey }: Props) {
                     <StaticView options={INTERSTITIAL_STATIC} />
                 </div>
             )}
+            {header && <Bar lines={header} position="header" columns={columns} />}
+            {footer && <Bar lines={footer} position="footer" columns={columns} />}
             <EffectsLayer effects={effects} />
             {dialog && <DialogView key={dialog.id} dialog={dialog} />}
         </AutoscrollContext>

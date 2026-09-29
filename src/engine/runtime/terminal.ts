@@ -6,7 +6,13 @@ import { type Dialog, dialogAction } from "../schema/dialog.ts";
 import { type EffectsSetting, type ResolvedEffects, resolveEffects } from "../schema/effects.ts";
 import type { Element } from "../schema/elements.ts";
 import { boundVariable, forEachElement, moduleFor } from "../schema/elements.ts";
-import { firstTimedRule, type NextRule, ruleForKey, ruleForTap } from "../schema/next.ts";
+import {
+    firstTimedRule,
+    keyMatches,
+    type NextRule,
+    ruleForKey,
+    ruleForTap,
+} from "../schema/next.ts";
 import type { Program } from "../schema/program.ts";
 import type { Cue } from "../schema/sound.ts";
 import { assign, type Condition, format, holds, type VariableValue } from "../schema/variables.ts";
@@ -55,6 +61,8 @@ export interface TerminalSnapshot {
     dialog: Dialog | null;
     /** The effects that are on for the current screen. */
     effects: ResolvedEffects;
+    /** Changes whenever a variable does, for views that show them (e.g. the bars). */
+    variables: number;
 }
 
 const DEFAULT_COLUMNS = 80;
@@ -101,7 +109,9 @@ export class Terminal {
         interstitial: null,
         dialog: null,
         effects: {},
+        variables: 0,
     };
+    private variablesVersion = 0;
     private dirty = false;
     private unsubscribeTicker: (() => void) | null = null;
 
@@ -153,13 +163,14 @@ export class Terminal {
                 const current = this.variables.get(assignment.variable);
                 this.variables.set(assignment.variable, assign(assignment, current));
             }
-            this.run?.refreshAll();
+            this.variablesChanged();
             // a timed `next` rule may apply now
             this.syncTicker();
         }
         if (chosen.sound) this.cue({ type: "sound", name: chosen.sound });
         if (chosen.screen !== undefined) this.navigate(chosen.screen);
         else if (chosen.dialog !== undefined) this.openDialog(chosen.dialog);
+        this.flush();
         return chosen;
     }
 
@@ -235,6 +246,7 @@ export class Terminal {
         this.memory.clear();
         this.variables.clear();
         for (const [name, value] of this.program.variables) this.variables.set(name, value);
+        this.variablesVersion++;
         // no transition from whatever was on screen
         this.run = null;
         this.outgoing = null;
@@ -297,7 +309,7 @@ export class Terminal {
         if (element && variable !== undefined && current !== undefined) {
             const binding = moduleFor(element).binding;
             if (binding) this.variables.set(variable, binding.write(element, value, current));
-            this.run?.refreshAll();
+            this.variablesChanged();
         } else {
             this.memory.set(elementId, value);
             this.run?.refresh(elementId);
@@ -316,6 +328,13 @@ export class Terminal {
      * Returns whether the key was used. `key` is a KeyboardEvent.key value.
      */
     pressKey(key: string): boolean {
+        // a pause in the reveal waits for any key
+        if (!this.dialog && this.run?.paused) {
+            if (!keyMatches(["any"], key)) return false;
+            this.run.continue(this.ticker.now());
+            this.settle();
+            return true;
+        }
         // the element being revealed gets first refusal (e.g. to interrupt a progress bar)
         if (!this.dialog && this.run?.pressKey(key, this.ticker.now())) {
             this.settle();
@@ -331,6 +350,11 @@ export class Terminal {
      * it as an ordinary click.
      */
     tap(): boolean {
+        if (!this.dialog && this.run?.paused) {
+            this.run.continue(this.ticker.now());
+            this.settle();
+            return true;
+        }
         const rule = ruleForTap(this.rules());
         if (!rule || this.run?.finishedAt === null) return false;
         return this.trigger(rule);
@@ -491,6 +515,13 @@ export class Terminal {
         this.markDirty();
     }
 
+    /** Redraws what shows variables: text on screen, and (via the snapshot) the bars. */
+    private variablesChanged(): void {
+        this.run?.refreshAll();
+        this.variablesVersion++;
+        this.markDirty();
+    }
+
     private readonly markDirty = (): void => {
         this.dirty = true;
     };
@@ -513,6 +544,7 @@ export class Terminal {
             interstitial: this.interstitial ? { type: this.interstitial.type } : null,
             dialog: this.dialog,
             effects: this.run ? this.effectsFor(this.run.screen.id) : resolveEffects(),
+            variables: this.variablesVersion,
         };
         for (const listener of this.listeners) listener();
     }

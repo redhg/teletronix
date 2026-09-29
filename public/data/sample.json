@@ -24,6 +24,8 @@
                 { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } },
                 { "type": "link", "text": "> TOGGLES", "action": { "screen": "toggles" } },
                 { "type": "link", "text": "> SECTIONS", "action": { "screen": "sections" } },
+                { "type": "link", "text": "> BARS", "action": { "screen": "bars" } },
+                { "type": "link", "text": "> PAUSES", "action": { "screen": "pauses" } },
                 { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
                 { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
                 { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
@@ -543,6 +545,51 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
+        "bars": {
+            "header": [
+                { "left": "YPSILON-14 // DEEP SPACE RELAY", "right": "SECTOR 14/B" },
+                { "className": "plain", "left": "" }
+            ],
+            "footer": [
+                {
+                    "left": "USER: {name}",
+                    "center": "CREDITS: {credits}",
+                    "right": { "text": "[?] HELP", "action": { "dialog": "bars-help" } }
+                }
+            ],
+            "content": [
+                "BARS",
+                "====",
+                "",
+                "A header and a status bar are lines pinned to the top and bottom of the window. They don't scroll or reveal, and they stay put between screens: set \"header\" and \"footer\" in the config for every screen, or on a screen, like this one, for just that screen (or false to hide them).",
+                "",
+                "A line is text, or \"left\", \"center\" and \"right\" spread across it. They can show variables, which update as they change, and hold links, like [?] HELP below.",
+                "",
+                { "type": "link", "text": "> EARN 10 CREDITS", "action": { "set": { "credits": { "add": 10 } } } },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "pauses": {
+            "content": [
+                "PAUSES",
+                "======",
+                "",
+                "A \"pause\" element stops the reveal and waits for a key or a tap, so a long screen can be read a page at a time.",
+                "",
+                "STATION LOG, DAY 38. Routine maintenance on the lower deck. Mbeki reports the sensors are clean.",
+                { "type": "pause" },
+                "STATION LOG, DAY 39. Night shift heard knocking in the service ducts. Probably thermal contraction.",
+                { "type": "pause", "text": "[ MORE ]", "align": "center" },
+                "STATION LOG, DAY 40. The knocking has a pattern. Three, then two, then three.",
+                { "type": "pause" },
+                { "type": "text", "text": "STATION LOG, DAY 41. [ENTRY CORRUPTED]", "className": "alert" },
+                "",
+                "Skipping stops at each pause too. Its text can be changed, and centered, like the [ MORE ] above.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
         "toggles": {
             "content": [
                 "TOGGLES",
@@ -779,6 +826,10 @@
         "vault-locked": {
             "type": "alert",
             "content": "The vault needs a keycard."
+        },
+        "bars-help": {
+            "type": "alert",
+            "content": "This dialog was opened by a link in the status bar."
         },
         "vance-log": {
             "type": "alert",

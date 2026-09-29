@@ -1,6 +1,7 @@
 import type { ElementOf, ElementType } from "../engine/index.ts";
 import { BitmapView } from "../modules/bitmap/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
+import { PauseView } from "../modules/pause/View.tsx";
 import { ProgressView } from "../modules/progress/View.tsx";
 import { PromptView } from "../modules/prompt/View.tsx";
 import { SectionView } from "../modules/section/View.tsx";
@@ -19,4 +20,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     progress: ProgressView,
     slider: SliderView,
     section: SectionView,
+    pause: PauseView,
 };

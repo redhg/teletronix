@@ -10,6 +10,13 @@ import { StaticOptionsSchema } from "../src/effects/static/definition.ts";
 import { VignetteOptionsSchema } from "../src/effects/vignette/definition.ts";
 import { CustomThemeSchema, ThemeSchema } from "../src/engine/schema/appearance.ts";
 import {
+    BarLineObjectSchema,
+    BarLineSchema,
+    BarLinkSchema,
+    BarSchema,
+    BarSlotSchema,
+} from "../src/engine/schema/bars.ts";
+import {
     ActionCaseSchema,
     ActionSchema,
     FadeTransitionSchema,
@@ -60,6 +67,7 @@ import {
 } from "../src/engine/sound/voices.ts";
 import { BitmapSchema, BlendObjectSchema, BlendSchema } from "../src/modules/bitmap/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
+import { PauseSchema } from "../src/modules/pause/definition.ts";
 import {
     DelayedActionSchema,
     InterruptSchema,
@@ -116,6 +124,16 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
         ],
     ],
     [
+        "Bars",
+        [
+            ["Bar", BarSchema],
+            ["Bar line", BarLineSchema],
+            ["Bar line slots", BarLineObjectSchema],
+            ["Bar slot", BarSlotSchema],
+            ["Bar link", BarLinkSchema],
+        ],
+    ],
+    [
         "Variables",
         [
             ["Variables", VariablesSchema],
@@ -149,6 +167,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Slider rule", SliderRuleSchema],
             ["Section", SectionSchema, '"type": "section"'],
             ["Section markers", SectionMarkersSchema],
+            ["Pause", PauseSchema, '"type": "pause"'],
         ],
     ],
     [
@@ -366,6 +385,17 @@ export function generateReference(): { markdown: string; missing: string[] } {
     const section = (entry: Named): string[] => {
         if (!entry.json.description) missing.push(entry.title);
         const isObject = entry.json.type === "object" && entry.json.properties;
+        if (entry.json.type === "array") {
+            return [
+                `<a id="${entry.id}"></a>`,
+                "",
+                `### ${entry.title}`,
+                "",
+                ...(entry.json.description ? [entry.json.description, ""] : []),
+                `A list of ${typeOf(entry.json.items ?? {})}.`,
+                "",
+            ];
+        }
         const map = entry.json.additionalProperties;
         if (entry.json.type === "object" && !isObject && typeof map === "object") {
             return [

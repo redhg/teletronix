@@ -46,7 +46,7 @@ export class Autoscroller {
     follow(): void {
         const target = this.target();
         if (!this.enabled || !this.following || !target) return;
-        const overflow = target.getBoundingClientRect().bottom + this.margin() - window.innerHeight;
+        const overflow = target.getBoundingClientRect().bottom + this.margin() - visibleBottom();
         if (overflow > 0) this.scrollTo(window.scrollY + overflow);
     }
 
@@ -95,10 +95,15 @@ export class Autoscroller {
         // the reader scrolled: follow only if the newest content is (nearly) in view
         const target = this.target();
         const bottom = target?.getBoundingClientRect().bottom ?? 0;
-        this.following = bottom <= window.innerHeight + 2 * this.margin();
+        this.following = bottom <= visibleBottom() + 2 * this.margin();
     };
 }
 
 const SCROLL_UP_KEYS = new Set(["PageUp", "ArrowUp", "Home"]);
+
+/** The bottom of the part of the window the screen shows in: above the status bar, if any. */
+const visibleBottom = () =>
+    window.innerHeight -
+    (document.querySelector(".bar-footer")?.getBoundingClientRect().height ?? 0);
 
 export const AutoscrollContext = createContext<Autoscroller | null>(null);

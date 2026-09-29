@@ -7,8 +7,9 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
+- **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Section](#section), [Section markers](#section-markers)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Section](#section), [Section markers](#section-markers), [Pause](#pause)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -45,6 +46,8 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `reveal` | [Reveal](#reveal) | `"teletype"` | How text appears on every screen, unless a screen or element says otherwise |
 | `transition` | [Transition](#transition) | `"none"` | How screens leave, unless the next screen says otherwise |
 | `align` | `"left"` \| `"center"` \| `"right"` | `"left"` | Where text, links and toggles sit across every screen, unless a screen or element says otherwise |
+| `header` | [Bar](#bar) |  | A header bar pinned to the top of the window, on every screen unless it sets its own. Its lines don't scroll or reveal, and show variables as they change. |
+| `footer` | [Bar](#bar) |  | A status bar pinned to the bottom of the window, on every screen unless it sets its own. Its lines don't scroll or reveal, and show variables as they change. |
 | `waitForReveal` | boolean | `false` | Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed, as on a real terminal, rather than each as it appears. A tap still finishes the reveal at once |
 | `defaults` | [Defaults](#defaults) |  | Default options for each kind of reveal |
 | `variables` | [Variables](#variables) |  | The program's variables and their starting values: true or false, a number, or text. Actions change them with `set`, toggles, sliders and prompts can be bound to them, `if` tests them, and text shows them as "{name}". They reset when the page reloads. |
@@ -100,6 +103,8 @@ A screen of content. Its elements are revealed one after another.
 | `autoscroll` | boolean | the config's | Keep new content in view as it appears |
 | `align` | `"left"` \| `"center"` \| `"right"` | the config's | Where text, links and toggles sit across the screen, unless they say otherwise |
 | `waitForReveal` | boolean | the config's | Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed |
+| `header` | [Bar](#bar) \| `false` |  | A header bar for this screen instead of the config's, or false for none |
+| `footer` | [Bar](#bar) \| `false` |  | A status bar for this screen instead of the config's, or false for none |
 | `next` | [Next rule](#next-rule) \| [Next rule](#next-rule)[] |  | Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens. |
 | `sound` | id |  | A sound from the program's sounds, played as the screen appears |
 | `content` | [Content](#content)[] | **required** | The elements, revealed in order. Can be empty. |
@@ -116,6 +121,63 @@ A way to move on from a screen without a link: after a delay, at a key press, or
 | `key` | string \| string[] |  | A key that moves on: "any", a key name like "Enter", "Space", "Escape", "ArrowRight" or "y", or an array of them. Taps and clicks count too, unless keys in different rules lead to different places. |
 | `if` | [Condition](#condition) |  | Only while this holds, e.g. a key that works once a door is unlocked |
 | `action` | [Action](#action) | **required** | What happens |
+
+## Bars
+
+<a id="bar"></a>
+
+### Bar
+
+Lines pinned to the edge of the window, in inverse video: they don't scroll, stay put between screens, and show variables as they change
+
+A list of [Bar line](#bar-line).
+
+<a id="bar-line"></a>
+
+### Bar line
+
+A line: text, or { "left", "center", "right" } for up to three things spread across it
+
+One of:
+
+- string
+- [Bar line slots](#bar-line-slots)
+
+<a id="bar-line-slots"></a>
+
+### Bar line slots
+
+A bar line with text or links at its left, middle and right
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `left` | [Bar slot](#bar-slot) |  | At the left edge |
+| `center` | [Bar slot](#bar-slot) |  | In the middle |
+| `right` | [Bar slot](#bar-slot) |  | At the right edge |
+| `className` | string |  | Space-separated CSS classes for the line, e.g. "plain" for normal text instead of the bar's inverse video |
+
+<a id="bar-slot"></a>
+
+### Bar slot
+
+Text, which can show variables ("{credits}"), or a link: { "text", "action" }
+
+One of:
+
+- string: Text
+- [Bar link](#bar-link)
+
+<a id="bar-link"></a>
+
+### Bar link
+
+A link in a bar, usable at any time
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `text` | string | **required** | The link's text |
+| `action` | [Action](#action) | **required** | What happens when it's clicked |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 
 ## Variables
 
@@ -227,6 +289,7 @@ One of:
 - [Progress](#progress)
 - [Slider](#slider)
 - [Section](#section)
+- [Pause](#pause)
 
 <a id="text"></a>
 
@@ -474,6 +537,21 @@ What a section's header shows before its title
 |---|---|---|---|
 | `closed` | string | `"[+]"` | Before the title while collapsed |
 | `open` | string | `"[-]"` | Before the title while expanded |
+
+<a id="pause"></a>
+
+### Pause (`"type": "pause"`)
+
+Stops the screen's reveal and shows a line of text until the player presses a key or taps; then the line goes and the reveal carries on. Skipping stops at it too.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `text` | string | `"-- PRESS ANY KEY TO CONTINUE --"` | What it shows while waiting |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
 ## Dialogs
 

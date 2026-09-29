@@ -61,6 +61,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 | `"section"` | A header that expands and collapses the elements under it. See below. |
+| `"pause"` | Stops the reveal with "-- PRESS ANY KEY TO CONTINUE --" until a key or tap. See below. |
 
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also change variables
 (see [Variables and conditions](#variables-and-conditions)). Every element takes an optional
@@ -149,6 +150,33 @@ starts collapsed unless it sets `"open": true`, in which case its contents revea
 rest of the screen. It remembers whether it's open when you come back. `markers` changes what
 the header shows before the title: `{ "closed": "▶", "open": "▼" }`. `indent` moves the contents
 that many columns in, to show they belong to the header; they wrap to the narrower width.
+
+### Pauses
+```json
+{ "type": "pause", "text": "[ MORE ]", "align": "center" }
+```
+A pause stops the screen's reveal and shows its `text` (default
+`-- PRESS ANY KEY TO CONTINUE --`) until the player presses a key or taps. Then the line goes and
+the reveal carries on, so a long screen can be read a page at a time. Skipping stops at each
+pause too. A pause inside an open section holds the whole screen.
+
+### Header and status bars
+```json
+"config": {
+    "header": [{ "left": "YPSILON-14 CONTROL", "right": "SECTOR 14/B" }],
+    "footer": [{
+        "left": "USER: {name}",
+        "center": "CREDITS: {credits}",
+        "right": { "text": "[?] HELP", "action": { "dialog": "help" } }
+    }]
+}
+```
+`header` and `footer` are lines pinned to the top and bottom of the window, in inverse video.
+They don't scroll or reveal, and stay put between screens. Each line is text, or `left`,
+`center` and `right` spread across the screen's columns; each of those is text or a link
+(`{ "text", "action" }`), which works at any time. Variables in them update as they change.
+A line with `"className": "plain"` uses the screen's own colors, e.g. as a gap under the
+header. A screen can set its own `header`/`footer`, or `false` to hide one.
 
 ### Moving on without a link
 A screen's `next` moves on without a link. Each rule has an `action` and a trigger:

@@ -1,6 +1,9 @@
 .terminal {
     min-height: 100vh;
     padding: 1lh;
+    /* room for the header and status bars, when a program has them */
+    padding-top: calc((1 + var(--header-lines, 0)) * 1lh);
+    padding-bottom: calc((1 + var(--footer-lines, 0)) * 1lh);
     user-select: none;
 }
 

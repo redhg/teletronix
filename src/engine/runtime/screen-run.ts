@@ -118,6 +118,8 @@ export class ScreenRun {
     private readonly children = new Map<number, ScreenRun>();
     /** A section whose contents the run is holding for while they reveal, or -1. */
     private waitingOn = -1;
+    /** A pause element the reveal has stopped at, waiting for a key press or tap, or -1. */
+    private pausedAt = -1;
     private eraser: Eraser | null = null;
     private erasedFlag = false;
     private columns: number;
@@ -192,6 +194,32 @@ export class ScreenRun {
         return this.erasedFlag;
     }
 
+    /** Whether the reveal has stopped at a pause (here, or in an open section). */
+    get paused(): boolean {
+        return this.pausedAt !== -1 || [...this.children.values()].some((child) => child.paused);
+    }
+
+    /** Whether the reveal is waiting at this pause element. */
+    pausedOn(elementId: string): boolean {
+        return this.runs[this.pausedAt]?.element.id === elementId;
+    }
+
+    /** Carries on after a pause, at a key press or tap. */
+    continue(now: number): void {
+        if (this.pausedAt !== -1) {
+            this.pausedAt = -1;
+            this.options.onChange();
+            this.resume(now);
+            return;
+        }
+        for (const child of this.children.values()) {
+            if (child.paused) {
+                child.continue(now);
+                return;
+            }
+        }
+    }
+
     /** The run of an open section's contents, once its turn has come. */
     section(elementId: string): ScreenRun | null {
         const index = this.runs.findIndex((run) => run.element.id === elementId);
@@ -261,18 +289,47 @@ export class ScreenRun {
         this.advance(now);
     }
 
-    /** Completes every remaining element immediately, including any still loading. */
+    /**
+     * Completes the reveal immediately, including anything still loading and the contents
+     * of open sections, up to the next pause: like the reveal, a skip stops there.
+     */
     skip(now: number): void {
-        if (this.eraser || this.erasedFlag) return;
-        for (const unit of this.units) {
-            if (unit.indices.some((i) => this.runs[i]?.state !== "done")) this.finish(unit, now);
+        if (this.eraser || this.erasedFlag || this.pausedAt !== -1) return;
+        // the contents of a section the reveal is holding for come first
+        if (this.waitingOn !== -1 && this.skipSection(this.waitingOn, now)) return;
+
+        for (let u = 0; u < this.units.length; u++) {
+            // (continuing after a section's contents can reach a pause of its own)
+            if (this.pausedAt !== -1) return;
+            const unit = this.units[u] as Unit;
+            if (unit.indices.every((i) => this.runs[i]?.state === "done")) continue;
+            this.active = -1;
+            this.finish(unit, now);
+            const stopped =
+                this.pausedAt !== -1 ||
+                (this.waitingOn !== -1 && this.skipSection(this.waitingOn, now));
+            if (stopped) {
+                this.waiting = -1;
+                this.held = u + 1;
+                return;
+            }
         }
         this.active = -1;
         this.waiting = -1;
         this.held = -1;
         this.waitingOn = -1;
+        // sections opened after the reveal
         for (const child of this.children.values()) child.skip(now);
         this.done(now);
+    }
+
+    /** Skips a section's contents. Returns whether they stopped at a pause. */
+    private skipSection(index: number, now: number): boolean {
+        const child = this.children.get(index);
+        child?.skip(now);
+        if (child?.paused) return true;
+        this.waitingOn = -1;
+        return false;
     }
 
     /**
@@ -482,8 +539,12 @@ export class ScreenRun {
                 return;
             }
 
-            // a section reveals its contents after its header, so it stands alone
-            const block = inherited && spec.type === "glitch" && element.type !== "section";
+            // sections and pauses hold the reveal where they are, so they stand alone
+            const block =
+                inherited &&
+                spec.type === "glitch" &&
+                element.type !== "section" &&
+                element.type !== "pause";
             const last = groups.at(-1);
             if (block && last?.block) {
                 last.indices.push(index);
@@ -581,6 +642,11 @@ export class ScreenRun {
         for (const index of unit.indices) {
             const element = this.runs[index]?.element;
             if (element && this.options.onFinished?.(element, unit.reveal, time, this)) hold = true;
+            // a pause holds the reveal until a key press or tap (see continue)
+            if (element?.type === "pause") {
+                this.pausedAt = index;
+                hold = true;
+            }
             // an open section reveals its contents before the screen carries on
             if (element?.type === "section" && this.isOpen(element) && !this.children.has(index)) {
                 const child = this.openSection(index, time);

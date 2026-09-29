@@ -1,0 +1,58 @@
+/* Header and status bars: pinned to the window's edges, in inverse video, with the same
+   side padding as the terminal so their columns line up with the screen's. */
+.bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+}
+
+.bar-header {
+    top: 0;
+}
+
+.bar-footer {
+    bottom: 0;
+}
+
+.bar-line {
+    height: var(--line-height);
+    padding-inline: var(--line-height);
+    overflow: hidden;
+    white-space: pre;
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: var(--inverse-glow);
+}
+
+/* a line in the screen's own colors, e.g. a separator under an inverse title */
+.bar-line.plain {
+    color: var(--fg);
+    background: var(--bg);
+    text-shadow: var(--glow);
+}
+
+.bar-link {
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: none;
+    font: inherit;
+    text-shadow: inherit;
+    white-space: inherit;
+    cursor: pointer;
+}
+
+.bar-link:hover,
+.bar-link:focus-visible {
+    outline: none;
+    color: var(--fg);
+    background: var(--bg);
+    text-shadow: var(--glow);
+}
+
+.bar-line.plain .bar-link:hover,
+.bar-line.plain .bar-link:focus-visible {
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: var(--inverse-glow);
+}
