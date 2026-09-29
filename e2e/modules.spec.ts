@@ -487,3 +487,67 @@ test.describe("section", () => {
         });
     });
 });
+
+test.describe("buttons", () => {
+    const row: Program = {
+        config: { name: "Buttons", start: "home" },
+        screens: {
+            home: {
+                content: [
+                    "LAUNCH?",
+                    {
+                        type: "buttons",
+                        align: "center",
+                        buttons: [
+                            { text: "ENGAGE", key: "e", action: { screen: "launched" } },
+                            { text: "ABORT", key: "a", action: { dialog: "aborted" } },
+                        ],
+                    },
+                ],
+            },
+            launched: { content: ["LAUNCHED"] },
+        },
+        dialogs: { aborted: { type: "alert", content: "ABORTED" } },
+    };
+    const button = (player: import("./fixtures.ts").Player, name: string) =>
+        player.screen.getByRole("button", { name });
+
+    test("draw as bracketed labels in a row, centered", async ({ player }) => {
+        await player.open(row);
+        const engage = await button(player, "[ ENGAGE ]").boundingBox();
+        const abort = await button(player, "[ ABORT ]").boundingBox();
+        const screen = await player.screen.boundingBox();
+        // side by side, on the same line, only as wide as their labels
+        expect(engage?.y).toBe(abort?.y);
+        expect((engage?.x ?? 0) + (engage?.width ?? 0)).toBeLessThan(abort?.x ?? 0);
+        expect(engage?.width ?? 0).toBeLessThan((screen?.width ?? 0) / 4);
+        // and the pair sits in the middle
+        const middle = ((engage?.x ?? 0) + (abort?.x ?? 0) + (abort?.width ?? 0)) / 2;
+        const center = (screen?.x ?? 0) + (screen?.width ?? 0) / 2;
+        expect(Math.abs(middle - center)).toBeLessThan((engage?.width ?? 0) / 2);
+    });
+
+    test("press with a click", async ({ player }) => {
+        await player.open(row);
+        await button(player, "[ ABORT ]").click();
+        await expect(player.dialog).toContainText("ABORTED");
+    });
+
+    test("press with their hotkeys, underlined in the label", async ({ page, player }) => {
+        await player.open(row);
+        await expect(button(player, "[ ENGAGE ]").locator("u")).toHaveText("E");
+        // even with another control focused
+        await button(player, "[ ABORT ]").focus();
+        await page.keyboard.press("e");
+        await expect(player.screen).toContainText("LAUNCHED");
+    });
+
+    test("move along the row with the arrow keys", async ({ page, player }) => {
+        await player.open(row);
+        await button(player, "[ ENGAGE ]").focus();
+        await page.keyboard.press("ArrowRight");
+        await expect(button(player, "[ ABORT ]")).toBeFocused();
+        await page.keyboard.press("Enter");
+        await expect(player.dialog).toContainText("ABORTED");
+    });
+});

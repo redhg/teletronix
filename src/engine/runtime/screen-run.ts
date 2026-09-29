@@ -1,3 +1,4 @@
+import { type Button, buttonForKey } from "../../modules/buttons/definition.ts";
 import { type SectionElement, sectionOpen } from "../../modules/section/definition.ts";
 import type { Random } from "../random.ts";
 import {
@@ -192,6 +193,22 @@ export class ScreenRun {
     /** True once {@link erase} has finished. */
     get erased(): boolean {
         return this.erasedFlag;
+    }
+
+    /** The usable button this key is the hotkey of, here or in an open section. */
+    hotkey(key: string): Button | undefined {
+        if (this.interactive) {
+            for (const run of this.runs) {
+                if (run.element.type !== "buttons" || run.state !== "done") continue;
+                const button = buttonForKey(run.element, key);
+                if (button) return button;
+            }
+        }
+        for (const child of this.children.values()) {
+            const button = child.hotkey(key);
+            if (button) return button;
+        }
+        return undefined;
     }
 
     /** Whether the reveal has stopped at a pause (here, or in an open section). */

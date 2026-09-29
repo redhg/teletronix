@@ -21,6 +21,7 @@
                 { "type": "link", "text": "> TEXT", "action": { "screen": "text" } },
                 { "type": "link", "text": "> REVEALS", "action": { "screen": "reveals" } },
                 { "type": "link", "text": "> LINKS", "action": { "screen": "links" } },
+                { "type": "link", "text": "> BUTTONS", "action": { "screen": "buttons" } },
                 { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } },
                 { "type": "link", "text": "> TOGGLES", "action": { "screen": "toggles" } },
                 { "type": "link", "text": "> SECTIONS", "action": { "screen": "sections" } },
@@ -587,6 +588,28 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
+        "buttons": {
+            "content": [
+                "BUTTONS",
+                "=======",
+                "",
+                "A row of buttons, each only as wide as its label. Click one, tab to it and press <enter>, or press its hotkey (the underlined letter) from anywhere on the screen. The arrow keys move along the row.",
+                "",
+                "LAUNCH THE PROBE?",
+                "",
+                {
+                    "type": "buttons",
+                    "align": "center",
+                    "buttons": [
+                        { "text": "LAUNCH", "key": "l", "action": { "dialog": "probe-launched" } },
+                        { "text": "DIAGNOSTICS", "key": "d", "action": { "dialog": "probe-diagnostics" } },
+                        { "text": "ABORT", "key": "a", "className": "alert", "action": { "screen": "home" } }
+                    ]
+                },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
         "toggles": {
             "content": [
                 "TOGGLES",
@@ -827,6 +850,14 @@
         "bars-help": {
             "type": "alert",
             "content": "This dialog was opened by a link in the status bar."
+        },
+        "probe-launched": {
+            "type": "alert",
+            "content": "Probe away. Telemetry in 40 minutes."
+        },
+        "probe-diagnostics": {
+            "type": "alert",
+            "content": ["FUEL      98%", "GUIDANCE  OK", "COMMS     OK"]
         },
         "vance-log": {
             "type": "alert",

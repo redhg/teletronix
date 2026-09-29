@@ -1,5 +1,10 @@
 import { z } from "zod";
 import { type BitmapElement, BitmapSchema, bitmapModule } from "../../modules/bitmap/definition.ts";
+import {
+    type ButtonsElement,
+    ButtonsSchema,
+    buttonsModule,
+} from "../../modules/buttons/definition.ts";
 import { type LinkElement, LinkSchema, linkModule } from "../../modules/link/definition.ts";
 import { type PauseElement, PauseSchema, pauseModule } from "../../modules/pause/definition.ts";
 import {
@@ -33,6 +38,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     SliderSchema,
     SectionSchema,
     PauseSchema,
+    ButtonsSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -53,7 +59,8 @@ export type Element =
     | ProgressElement
     | SliderElement
     | SectionElement
-    | PauseElement;
+    | PauseElement
+    | ButtonsElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -67,6 +74,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     slider: sliderModule,
     section: sectionModule,
     pause: pauseModule,
+    buttons: buttonsModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
@@ -79,7 +87,7 @@ export function boundVariable(element: Element): string | undefined {
 }
 
 /** Elements whose text can be aligned, and so follow a screen's or the config's `align`. */
-const ALIGNABLE = new Set<ElementType>(["text", "link", "toggle", "pause"]);
+const ALIGNABLE = new Set<ElementType>(["text", "link", "toggle", "pause", "buttons"]);
 
 /** How an element's text is laid out (see layoutText), given the default alignment. */
 export function layoutOptions(element: Element, fallback: Align): LayoutOptions {

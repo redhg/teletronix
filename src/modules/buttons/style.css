@@ -1,0 +1,37 @@
+/* A row of buttons: a fieldset (a group of controls) with none of its own styling */
+fieldset.buttons {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* A button is only as wide as its [ LABEL ], inline in its row */
+.button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-shadow: inherit;
+    white-space: inherit;
+    cursor: pointer;
+}
+
+.button:hover,
+.button:focus-visible {
+    outline: none;
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: var(--inverse-glow);
+    box-shadow: var(--glow);
+}
+
+.button.alert:hover,
+.button.alert:focus-visible {
+    background: var(--alert);
+}
+
+.button u {
+    text-underline-offset: 0.15em;
+}

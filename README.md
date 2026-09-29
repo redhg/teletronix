@@ -62,6 +62,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 | `"section"` | A header that expands and collapses the elements under it. See below. |
 | `"pause"` | Stops the reveal with "-- PRESS ANY KEY TO CONTINUE --" until a key or tap. See below. |
+| `"buttons"` | A row of `[ BUTTONS ]`, each with an `action` and an optional hotkey. See below. |
 
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also change variables
 (see [Variables and conditions](#variables-and-conditions)). Every element takes an optional
@@ -150,6 +151,23 @@ starts collapsed unless it sets `"open": true`, in which case its contents revea
 rest of the screen. It remembers whether it's open when you come back. `markers` changes what
 the header shows before the title: `{ "closed": "▶", "open": "▼" }`. `indent` moves the contents
 that many columns in, to show they belong to the header; they wrap to the narrower width.
+
+### Buttons
+```json
+{
+    "type": "buttons",
+    "align": "center",
+    "buttons": [
+        { "text": "LAUNCH", "key": "l", "action": { "screen": "launch" } },
+        { "text": "ABORT", "key": "a", "className": "alert", "action": { "screen": "menu" } }
+    ]
+}
+```
+A row of buttons, drawn as `[ LAUNCH ]  [ ABORT ]`, each only as wide as its label (`gap`
+sets the columns between them, default 2). They're pressed with a click, <enter>, or their
+`key` from anywhere on the screen; a letter key is underlined in the label. The arrow keys move
+along the row. Like links, a button can have a `secondaryAction`. A row too wide for the
+screen wraps between buttons.
 
 ### Pauses
 ```json

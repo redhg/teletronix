@@ -18,7 +18,10 @@ import { useColumns } from "./use-columns.ts";
 import "./terminal.css";
 
 const INTERSTITIAL_STATIC = { ...staticEffect.defaults, opacity: 1 };
-const KEY_TARGETS = 'input, textarea, dialog, button, a, [role="slider"]';
+/** Where keys are for typing or adjusting, never for the screen. */
+const KEY_TARGETS = 'input, textarea, dialog, [role="slider"]';
+/** Where <enter> and <space> press the focused control; other keys still reach the screen. */
+const PRESS_TARGETS = "button, a";
 
 interface Props {
     /** Changes when something that affects the line length changes (e.g. the font). */
@@ -75,7 +78,11 @@ export function TerminalView({ layoutKey }: Props) {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.defaultPrevented || event.repeat) return;
-            if (event.target instanceof Element && event.target.closest(KEY_TARGETS)) return;
+            const target = event.target instanceof Element ? event.target : null;
+            if (target?.closest(KEY_TARGETS)) return;
+            if (target?.closest(PRESS_TARGETS) && (event.key === "Enter" || event.key === " ")) {
+                return;
+            }
             if (terminal.pressKey(event.key)) event.preventDefault();
         };
         window.addEventListener("keydown", handleKeyDown);

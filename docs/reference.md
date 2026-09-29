@@ -9,7 +9,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Section](#section), [Section markers](#section-markers), [Pause](#pause)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Section](#section), [Section markers](#section-markers), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -290,6 +290,7 @@ One of:
 - [Slider](#slider)
 - [Section](#section)
 - [Pause](#pause)
+- [Buttons](#buttons)
 
 <a id="text"></a>
 
@@ -552,6 +553,36 @@ Stops the screen's reveal and shows a line of text until the player presses a ke
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 | `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="buttons"></a>
+
+### Buttons (`"type": "buttons"`)
+
+A row of buttons, drawn as [ LABEL ]: each only as wide as its label, pressed with a click, <enter> or its hotkey. The arrow keys move between them.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `buttons` | [Button](#button)[] | **required** | The buttons, left to right |
+| `gap` | whole number, ≥ 0 | `2` | Columns of space between the buttons |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="button"></a>
+
+### Button
+
+A button in a row of buttons
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `text` | string | **required** | The label, shown in brackets |
+| `action` | [Action](#action) | **required** | What happens when it's pressed |
+| `secondaryAction` | [Action](#action) | the same as action | What happens on a secondary click: shift-click, right-click, Shift+Enter, or a long press |
+| `key` | string |  | A key that presses it from anywhere on the screen, e.g. "e" or "Enter". A letter in the label is underlined. |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 
 ## Dialogs
 

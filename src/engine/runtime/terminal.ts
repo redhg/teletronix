@@ -340,6 +340,13 @@ export class Terminal {
             this.settle();
             return true;
         }
+        // a button's hotkey
+        const button = !this.dialog && this.run?.hotkey(key);
+        if (button) {
+            this.cue({ type: "select" });
+            this.dispatch(button.action);
+            return true;
+        }
         const rule = ruleForKey(this.rules(), key);
         return rule ? this.trigger(rule) : false;
     }

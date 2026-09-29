@@ -66,6 +66,7 @@ import {
     voiceSchema,
 } from "../src/engine/sound/voices.ts";
 import { BitmapSchema, BlendObjectSchema, BlendSchema } from "../src/modules/bitmap/definition.ts";
+import { ButtonSchema, ButtonsSchema } from "../src/modules/buttons/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
 import { PauseSchema } from "../src/modules/pause/definition.ts";
 import {
@@ -168,6 +169,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Section", SectionSchema, '"type": "section"'],
             ["Section markers", SectionMarkersSchema],
             ["Pause", PauseSchema, '"type": "pause"'],
+            ["Buttons", ButtonsSchema, '"type": "buttons"'],
+            ["Button", ButtonSchema],
         ],
     ],
     [

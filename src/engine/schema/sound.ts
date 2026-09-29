@@ -98,7 +98,9 @@ export type Cue =
     /** A dialog opening */
     | { type: "dialog"; alert: boolean }
     /** A sound from the program's sounds, by name */
-    | { type: "sound"; name: string };
+    | { type: "sound"; name: string }
+    /** Something chosen without a click, e.g. a button's hotkey */
+    | { type: "select" };
 
 /**
  * Sounds in a program's library with these names replace Teletronix's own: "key" for key

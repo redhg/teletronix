@@ -6821,6 +6821,411 @@
                             ],
                             "additionalProperties": false,
                             "description": "Stops the screen's reveal and shows a line of text until the player presses a key or taps; then the line goes and the reveal carries on. Skipping stops at it too."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "buttons"
+                                },
+                                "buttons": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "text": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "description": "The label, shown in brackets"
+                                            },
+                                            "action": {
+                                                "description": "What happens when it's pressed",
+                                                "anyOf": [
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "if": {
+                                                                "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                "$ref": "#/$defs/Condition"
+                                                            },
+                                                            "screen": {
+                                                                "description": "A screen to go to",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "dialog": {
+                                                                "description": "A dialog to open",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "set": {
+                                                                "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                "type": "object",
+                                                                "propertyNames": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                    "description": "A variable declared in config.variables"
+                                                                },
+                                                                "additionalProperties": {
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "description": "true or false, a number, or text",
+                                                                            "type": [
+                                                                                "boolean",
+                                                                                "number",
+                                                                                "string"
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "add": {
+                                                                                    "type": "number",
+                                                                                    "description": "How much to add (negative to subtract)"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "add"
+                                                                            ],
+                                                                            "additionalProperties": false,
+                                                                            "description": "Adds to a number variable"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "sound": {
+                                                                "description": "A sound from the program's sounds, played as the action happens",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            }
+                                                        },
+                                                        "additionalProperties": false,
+                                                        "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                    },
+                                                    {
+                                                        "minItems": 1,
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "if": {
+                                                                    "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                    "$ref": "#/$defs/Condition"
+                                                                },
+                                                                "screen": {
+                                                                    "description": "A screen to go to",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "dialog": {
+                                                                    "description": "A dialog to open",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "set": {
+                                                                    "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                    "type": "object",
+                                                                    "propertyNames": {
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                        "description": "A variable declared in config.variables"
+                                                                    },
+                                                                    "additionalProperties": {
+                                                                        "anyOf": [
+                                                                            {
+                                                                                "description": "true or false, a number, or text",
+                                                                                "type": [
+                                                                                    "boolean",
+                                                                                    "number",
+                                                                                    "string"
+                                                                                ]
+                                                                            },
+                                                                            {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "add": {
+                                                                                        "type": "number",
+                                                                                        "description": "How much to add (negative to subtract)"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "add"
+                                                                                ],
+                                                                                "additionalProperties": false,
+                                                                                "description": "Adds to a number variable"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "sound": {
+                                                                    "description": "A sound from the program's sounds, played as the action happens",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                }
+                                                            },
+                                                            "additionalProperties": false,
+                                                            "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "secondaryAction": {
+                                                "description": "What happens on a secondary click: shift-click, right-click, Shift+Enter, or a long press (default: the same as action)",
+                                                "anyOf": [
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "if": {
+                                                                "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                "$ref": "#/$defs/Condition"
+                                                            },
+                                                            "screen": {
+                                                                "description": "A screen to go to",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "dialog": {
+                                                                "description": "A dialog to open",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "set": {
+                                                                "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                "type": "object",
+                                                                "propertyNames": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                    "description": "A variable declared in config.variables"
+                                                                },
+                                                                "additionalProperties": {
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "description": "true or false, a number, or text",
+                                                                            "type": [
+                                                                                "boolean",
+                                                                                "number",
+                                                                                "string"
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "add": {
+                                                                                    "type": "number",
+                                                                                    "description": "How much to add (negative to subtract)"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "add"
+                                                                            ],
+                                                                            "additionalProperties": false,
+                                                                            "description": "Adds to a number variable"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "sound": {
+                                                                "description": "A sound from the program's sounds, played as the action happens",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            }
+                                                        },
+                                                        "additionalProperties": false,
+                                                        "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                    },
+                                                    {
+                                                        "minItems": 1,
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "if": {
+                                                                    "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                    "$ref": "#/$defs/Condition"
+                                                                },
+                                                                "screen": {
+                                                                    "description": "A screen to go to",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "dialog": {
+                                                                    "description": "A dialog to open",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "set": {
+                                                                    "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                    "type": "object",
+                                                                    "propertyNames": {
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                        "description": "A variable declared in config.variables"
+                                                                    },
+                                                                    "additionalProperties": {
+                                                                        "anyOf": [
+                                                                            {
+                                                                                "description": "true or false, a number, or text",
+                                                                                "type": [
+                                                                                    "boolean",
+                                                                                    "number",
+                                                                                    "string"
+                                                                                ]
+                                                                            },
+                                                                            {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "add": {
+                                                                                        "type": "number",
+                                                                                        "description": "How much to add (negative to subtract)"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "add"
+                                                                                ],
+                                                                                "additionalProperties": false,
+                                                                                "description": "Adds to a number variable"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "sound": {
+                                                                    "description": "A sound from the program's sounds, played as the action happens",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                }
+                                                            },
+                                                            "additionalProperties": false,
+                                                            "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "key": {
+                                                "description": "A key that presses it from anywhere on the screen, e.g. \"e\" or \"Enter\". A letter in the label is underlined.",
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "className": {
+                                                "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "text",
+                                            "action"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "A button in a row of buttons"
+                                    },
+                                    "description": "The buttons, left to right"
+                                },
+                                "gap": {
+                                    "default": 2,
+                                    "description": "Columns of space between the buttons (default: 2)",
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991
+                                },
+                                "align": {
+                                    "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "left",
+                                        "center",
+                                        "right"
+                                    ]
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "buttons"
+                            ],
+                            "additionalProperties": false,
+                            "description": "A row of buttons, drawn as [ LABEL ]: each only as wide as its label, pressed with a click, <enter> or its hotkey. The arrow keys move between them."
                         }
                     ]
                 }
