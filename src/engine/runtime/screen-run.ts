@@ -1,5 +1,5 @@
-import { columnLayout } from "../../modules/columns/definition.ts";
-import { sectionOpen } from "../../modules/section/definition.ts";
+import { type ColumnsElement, columnLayout } from "../../modules/columns/definition.ts";
+import { type SectionElement, sectionOpen } from "../../modules/section/definition.ts";
 import type { Random } from "../random.ts";
 import {
     createGlitchReveal,
@@ -500,7 +500,7 @@ export class ScreenRun {
 
     /** Starts revealing an element's contents, as a run of their own. */
     private openContents(index: number, time: number): ScreenRun {
-        const section = this.runs[index]?.element as Element & { content: Element[] };
+        const section = this.runs[index]?.element as SectionElement | ColumnsElement;
         const child: ScreenRun = new ScreenRun(
             {
                 ...this.screen,
@@ -568,12 +568,18 @@ export class ScreenRun {
         this.runs.forEach(({ element }, index) => {
             const { spec, inherited } = instant
                 ? { spec: { type: "instant" } as const, inherited: false }
-                : resolveReveal(element.reveal, this.screen.reveal, defaults);
+                : // an image's reveal is its own kind, which its module handles
+                  resolveReveal(
+                      element.type === "bitmap" ? undefined : element.reveal,
+                      this.screen.reveal,
+                      defaults,
+                  );
 
             const context = {
                 columns: () => this.columns,
                 random,
                 memory: () => this.options.recall?.(element.id),
+                instant,
             };
             const custom = moduleFor(element).reveal?.(element, spec, context);
             if (custom) {

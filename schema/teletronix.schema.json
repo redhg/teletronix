@@ -6258,71 +6258,46 @@
                                     "type": "string"
                                 },
                                 "reveal": {
-                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "description": "How the image appears: \"pixelate\", \"raster\", \"dissolve\", \"depth\", \"glitch\" or \"instant\", or { \"type\", \"duration\" } to set its speed (default: \"pixelate\", or \"instant\" when the screen reveals instantly)",
                                     "anyOf": [
                                         {
                                             "type": "string",
                                             "enum": [
-                                                "teletype",
+                                                "pixelate",
+                                                "raster",
+                                                "dissolve",
+                                                "depth",
                                                 "glitch",
                                                 "instant"
-                                            ]
+                                            ],
+                                            "description": "How the image appears: \"pixelate\" (blocky to sharp), \"raster\" (line by line from the top, like a transmission), \"dissolve\" (in random specks), \"depth\" (from 1-bit to full color), \"glitch\" (jumping slices that settle) or \"instant\""
                                         },
                                         {
-                                            "oneOf": [
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "speed": {
-                                                            "description": "Milliseconds per character (default: 10)",
-                                                            "type": "number",
-                                                            "exclusiveMinimum": 0
-                                                        },
-                                                        "type": {
-                                                            "type": "string",
-                                                            "const": "teletype"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "type"
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "pixelate",
+                                                        "raster",
+                                                        "dissolve",
+                                                        "depth",
+                                                        "glitch",
+                                                        "instant"
                                                     ],
-                                                    "additionalProperties": false,
-                                                    "description": "Types the text one character at a time"
+                                                    "description": "How the image appears: \"pixelate\" (blocky to sharp), \"raster\" (line by line from the top, like a transmission), \"dissolve\" (in random specks), \"depth\" (from 1-bit to full color), \"glitch\" (jumping slices that settle) or \"instant\""
                                                 },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "type": {
-                                                            "type": "string",
-                                                            "const": "glitch"
-                                                        },
-                                                        "duration": {
-                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
-                                                            "type": "number",
-                                                            "exclusiveMinimum": 0
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "type"
-                                                    ],
-                                                    "additionalProperties": false,
-                                                    "description": "Resolves the text out of random glyphs, left to right"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "type": {
-                                                            "type": "string",
-                                                            "const": "instant"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "type"
-                                                    ],
-                                                    "additionalProperties": false,
-                                                    "description": "Shows the text all at once"
+                                                "duration": {
+                                                    "description": "Milliseconds it takes (default: 1650 for pixelate, 2500 raster, 1500 dissolve and depth, 1000 glitch)",
+                                                    "type": "number",
+                                                    "exclusiveMinimum": 0
                                                 }
-                                            ]
+                                            },
+                                            "required": [
+                                                "type"
+                                            ],
+                                            "additionalProperties": false,
+                                            "description": "An image's reveal, with its speed"
                                         }
                                     ]
                                 },
@@ -6342,7 +6317,7 @@
                                 "alt"
                             ],
                             "additionalProperties": false,
-                            "description": "An image, revealed in steps from low to high resolution, optionally blended with the screen's colors"
+                            "description": "An image, revealed with an effect (blocky to sharp, by default), optionally blended with the screen's colors"
                         },
                         {
                             "type": "object",

@@ -1,4 +1,9 @@
-import { expect, type Page, type Player, type Program, test } from "./fixtures.ts";
+import { expect, type Page, type Player, type Program, serveTestImages, test } from "./fixtures.ts";
+
+// (some tests use a test image, served from e2e/fixtures)
+test.beforeEach(async ({ page }) => {
+    await serveTestImages(page);
+});
 
 const back = { type: "link" as const, text: "> BACK", action: { screen: "home" } };
 const IMAGE = "e2e-images/sunset-grid.png";
@@ -832,5 +837,67 @@ test.describe("bitmap width in columns", () => {
             () => document.documentElement.scrollWidth > window.innerWidth,
         );
         expect(overflows).toBe(false);
+    });
+});
+
+test.describe("image reveal effects", () => {
+    test.use({ reducedMotion: "no-preference" });
+    const effects = ["pixelate", "raster", "dissolve", "depth", "glitch"] as const;
+
+    /** Some pixels of the canvas: whether each is drawn (not transparent). */
+    const coverage = (page: import("./fixtures.ts").Page) =>
+        page.$eval(".bitmap canvas", (canvas) => {
+            const c = canvas as HTMLCanvasElement;
+            const data = c.getContext("2d")?.getImageData(0, 0, c.width, c.height).data;
+            const at = (fx: number, fy: number) =>
+                (data?.[
+                    (Math.floor(fy * (c.height - 1)) * c.width + Math.floor(fx * (c.width - 1))) *
+                        4 +
+                        3
+                ] ?? 0) > 0;
+            return { top: at(0.5, 0.05), bottom: at(0.5, 0.95) };
+        });
+
+    for (const effect of effects) {
+        test(`"${effect}" ends on the whole picture`, async ({ page, player }) => {
+            await player.open({
+                config: { name: "Fx", start: "home", reveal: "instant" },
+                screens: {
+                    home: {
+                        content: [
+                            {
+                                type: "bitmap",
+                                src: "e2e-images/sunset-grid.png",
+                                alt: "PIC",
+                                reveal: { type: effect, duration: 400 },
+                            },
+                            "AFTER",
+                        ],
+                    },
+                },
+            });
+            await expect(player.screen).toContainText("AFTER");
+            expect(await coverage(page)).toEqual({ top: true, bottom: true });
+        });
+    }
+
+    test('"raster" draws from the top down', async ({ page, player }) => {
+        await player.open({
+            config: { name: "Fx", start: "home", reveal: "instant" },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "bitmap",
+                            src: "e2e-images/sunset-grid.png",
+                            alt: "PIC",
+                            reveal: { type: "raster", duration: 6000 },
+                        },
+                    ],
+                },
+            },
+        });
+        await expect.poll(async () => (await coverage(page)).top, { timeout: 5000 }).toBe(true);
+        expect((await coverage(page)).bottom).toBe(false);
     });
 });

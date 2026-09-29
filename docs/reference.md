@@ -9,7 +9,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -525,7 +525,7 @@ A clock on the screen: a program timer (with "timer"), or a timer of its own, wh
 
 ### Bitmap (`"type": "bitmap"`)
 
-An image, revealed in steps from low to high resolution, optionally blended with the screen's colors
+An image, revealed with an effect (blocky to sharp, by default), optionally blended with the screen's colors
 
 | Property | Type | Default | Description |
 |---|---|---|---|
@@ -534,7 +534,7 @@ An image, revealed in steps from low to high resolution, optionally blended with
 | `blend` | [Blend](#blend) |  | Blends the image with one of the theme's colors: a mode such as "luminosity", "hard-light" or "difference", or { "mode", "with": "text" } to blend with the text color instead of the background |
 | `cols` | whole number, ≥ 1 | the image's own width, or the screen's | Its width in character columns, e.g. to line it up with a line of text that many characters long; its height follows, keeping its shape. On a narrower screen, it shrinks to fit |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
-| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `reveal` | [Image reveal](#image-reveal) | "pixelate", or "instant" when the screen reveals instantly | How the image appears: "pixelate", "raster", "dissolve", "depth", "glitch" or "instant", or { "type", "duration" } to set its speed |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 | `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
@@ -559,6 +559,28 @@ A blend mode, and the theme color to blend with
 |---|---|---|---|
 | `mode` | `"luminosity"` \| `"lighten"` \| `"darken"` \| `"multiply"` \| `"screen"` \| `"overlay"` \| `"color-dodge"` \| `"color-burn"` \| `"hard-light"` \| `"soft-light"` \| `"difference"` \| `"exclusion"` \| `"hue"` \| `"saturation"` \| `"color"` | **required** | How the colors combine |
 | `with` | `"background"` \| `"text"` | `"background"` | The theme color to blend with |
+
+<a id="image-reveal"></a>
+
+### Image reveal
+
+How the image appears: "pixelate", "raster", "dissolve", "depth", "glitch" or "instant", or { "type", "duration" } to set its speed (default: "pixelate", or "instant" when the screen reveals instantly)
+
+One of:
+
+- `"pixelate"` | `"raster"` | `"dissolve"` | `"depth"` | `"glitch"` | `"instant"`: How the image appears: "pixelate" (blocky to sharp), "raster" (line by line from the top, like a transmission), "dissolve" (in random specks), "depth" (from 1-bit to full color), "glitch" (jumping slices that settle) or "instant"
+- [Image reveal options](#image-reveal-options)
+
+<a id="image-reveal-options"></a>
+
+### Image reveal options
+
+An image's reveal, with its speed
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `type` | `"pixelate"` \| `"raster"` \| `"dissolve"` \| `"depth"` \| `"glitch"` \| `"instant"` | **required** | How the image appears: "pixelate" (blocky to sharp), "raster" (line by line from the top, like a transmission), "dissolve" (in random specks), "depth" (from 1-bit to full color), "glitch" (jumping slices that settle) or "instant" |
+| `duration` | number, > 0 | 1650 for pixelate, 2500 raster, 1500 dissolve and depth, 1000 glitch | Milliseconds it takes |
 
 <a id="progress"></a>
 

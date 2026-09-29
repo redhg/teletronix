@@ -61,7 +61,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"choice"` | One of several `options`, shown side by side like radio buttons. See below. |
 | `"prompt"` | A command line. Each of its `commands` has an `action`; `onEnter` takes anything else. |
 | `"number"` | A prompt for whole numbers only: codes, keypads, settings. See below. |
-| `"bitmap"` | An image (`src`, `alt`) that resolves from blocky to sharp. The screen waits for it to load. `cols` sets its width in characters (its height follows), e.g. to match a line of text. |
+| `"bitmap"` | An image (`src`, `alt`). The screen waits for it to load. `cols` sets its width in characters (its height follows), e.g. to match a line of text. See [Image reveals](#image-reveals). |
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 | `"meter"` | A gauge: a bar showing a variable or timer, live. See below. |
@@ -75,6 +75,27 @@ A screen's `content` is a list of elements, revealed one after another:
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also change variables
 (see [Variables and conditions](#variables-and-conditions)). Every element takes an optional
 `className` (e.g. `"alert"`), `reveal`, and `if`.
+
+### Image reveals
+An image's `reveal` picks how it appears, and `duration` how long it takes:
+
+```json
+{ "type": "bitmap", "src": "data/images/orbit.jpg", "alt": "…", "reveal": { "type": "raster", "duration": 4000 } }
+```
+
+| `reveal` | | Default duration |
+|---|---|---|
+| `"pixelate"` | blocky to sharp (the default) | 1650 ms |
+| `"raster"` | line by line from the top, with a bright scan line, like a transmission | 2500 ms |
+| `"dissolve"` | in random specks | 1500 ms |
+| `"depth"` | from 1-bit black and white, through 8, 64 and 512 dithered colors, to full color | 1500 ms |
+| `"glitch"` | slices jumping sideways, with bars of noise, settling as it finishes | 1000 ms |
+| `"instant"` | all at once | |
+
+A bare name (`"reveal": "dissolve"`) uses its default speed. Without a `reveal`, an image
+pixelates in, or appears at once on a screen that reveals instantly. A `blend` applies
+throughout. `"depth"` needs to read the image's pixels, so an image from another site (without
+permission to share them) pixelates instead.
 
 ### Alignment and preformatted text
 `"align": "center"` or `"right"` places text, links and toggles across the screen. A screen or

@@ -14,6 +14,21 @@ export const oneScreen = (
     screens: { home: { content } },
 });
 
+/**
+ * Serves the test images in e2e/fixtures at `e2e-images/<name>` (e.g. one with a bright,
+ * saturated spot to check blending by). Only for the tests that need them: in Firefox, a
+ * route takes requests from the offline cache's service worker.
+ */
+export async function serveTestImages(page: Page): Promise<void> {
+    await page.route("**/e2e-images/*", (route) =>
+        route.fulfill({
+            path: fileURLToPath(
+                new URL(`fixtures/${route.request().url().split("/").at(-1)}`, import.meta.url),
+            ),
+        }),
+    );
+}
+
 /** The running player, as a user sees it. */
 export class Player {
     readonly page: Page;
@@ -191,14 +206,6 @@ export const test = base.extend<Fixtures>({
         { auto: true },
     ],
     player: async ({ page }, use) => {
-        // test images, such as one with a bright, saturated spot to check blending by
-        await page.route("**/e2e-images/*", (route) =>
-            route.fulfill({
-                path: fileURLToPath(
-                    new URL(`fixtures/${route.request().url().split("/").at(-1)}`, import.meta.url),
-                ),
-            }),
-        );
         await use(new Player(page));
     },
     audio: async ({ page }, use) => {

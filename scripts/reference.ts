@@ -66,7 +66,13 @@ import {
     VoicesSchema,
     voiceSchema,
 } from "../src/engine/sound/voices.ts";
-import { BitmapSchema, BlendObjectSchema, BlendSchema } from "../src/modules/bitmap/definition.ts";
+import {
+    BitmapSchema,
+    BlendObjectSchema,
+    BlendSchema,
+    ImageRevealObjectSchema,
+    ImageRevealSchema,
+} from "../src/modules/bitmap/definition.ts";
 import { ButtonSchema, ButtonsSchema } from "../src/modules/buttons/definition.ts";
 import { ChoiceMarkersSchema, ChoiceSchema } from "../src/modules/choice/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
@@ -176,6 +182,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Bitmap", BitmapSchema, '"type": "bitmap"'],
             ["Blend", BlendSchema],
             ["Blend with a color", BlendObjectSchema],
+            ["Image reveal", ImageRevealSchema],
+            ["Image reveal options", ImageRevealObjectSchema],
             ["Progress", ProgressSchema, '"type": "progress"'],
             ["Progress outcome", OutcomeSchema],
             ["Delayed action", DelayedActionSchema],

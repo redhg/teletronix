@@ -56,6 +56,63 @@ export const BlendSchema = z
 
 export type Blend = z.output<typeof BlendSchema>;
 
+// ─── Reveals ─────────────────────────────────────────────────────────────────
+// How an image appears. The engine only times it; the view draws each effect.
+
+export const IMAGE_REVEALS = [
+    "pixelate",
+    "raster",
+    "dissolve",
+    "depth",
+    "glitch",
+    "instant",
+] as const;
+export type ImageRevealType = (typeof IMAGE_REVEALS)[number];
+
+/** How long each effect takes, unless the image says otherwise, in ms. */
+export const IMAGE_REVEAL_DURATIONS: Record<ImageRevealType, number> = {
+    pixelate: 1650,
+    raster: 2500,
+    dissolve: 1500,
+    depth: 1500,
+    glitch: 1000,
+    instant: 0,
+};
+
+const ImageRevealTypeSchema = z.enum(IMAGE_REVEALS).meta({
+    description:
+        'How the image appears: "pixelate" (blocky to sharp), "raster" (line by line from the ' +
+        'top, like a transmission), "dissolve" (in random specks), "depth" (from 1-bit to full ' +
+        'color), "glitch" (jumping slices that settle) or "instant"',
+});
+
+export const ImageRevealObjectSchema = z
+    .strictObject({
+        type: ImageRevealTypeSchema,
+        duration: z
+            .number()
+            .positive()
+            .optional()
+            .meta({
+                description:
+                    "Milliseconds it takes (default: 1650 for pixelate, 2500 raster, 1500 dissolve " +
+                    "and depth, 1000 glitch)",
+            }),
+    })
+    .meta({ description: "An image's reveal, with its speed" });
+
+export const ImageRevealSchema = z
+    .union([ImageRevealTypeSchema, ImageRevealObjectSchema])
+    .transform((reveal) => (typeof reveal === "string" ? { type: reveal } : reveal))
+    .meta({
+        description:
+            'How the image appears: "pixelate", "raster", "dissolve", "depth", "glitch" or ' +
+            '"instant", or { "type", "duration" } to set its speed (default: "pixelate", or ' +
+            '"instant" when the screen reveals instantly)',
+    });
+
+export type ImageReveal = z.output<typeof ImageRevealSchema>;
+
 export const BitmapSchema = z
     .strictObject({
         type: z.literal("bitmap"),
@@ -76,11 +133,13 @@ export const BitmapSchema = z
                     "screen, it shrinks to fit (default: the image's own width, or the screen's)",
             }),
         ...ElementBaseShape,
+        // (an image's reveal is its own kind, in place of text's)
+        reveal: ImageRevealSchema.optional(),
     })
     .meta({
         description:
-            "An image, revealed in steps from low to high resolution, optionally blended with " +
-            "the screen's colors",
+            "An image, revealed with an effect (blocky to sharp, by default), optionally " +
+            "blended with the screen's colors",
     });
 
 export type BitmapElement = z.output<typeof BitmapSchema> & ElementIdentity;
@@ -90,10 +149,29 @@ export const BITMAP_STEPS = [0.01, 0.02, 0.03, 0.05, 0.08, 0.13, 0.21, 0.34, 0.5
 /** Time each step is shown, in ms. */
 export const BITMAP_STEP_TIME = 150;
 
+/**
+ * The reveal an image uses: its own, unless everything is instant (reduced motion);
+ * otherwise instant if its screen is, or pixelate.
+ */
+export function imageReveal(
+    element: BitmapElement,
+    screenInstant: boolean,
+    forcedInstant: boolean,
+): { type: ImageRevealType; duration: number } {
+    const type: ImageRevealType = forcedInstant
+        ? "instant"
+        : (element.reveal?.type ?? (screenInstant ? "instant" : "pixelate"));
+    const duration =
+        type === "instant" ? 0 : (element.reveal?.duration ?? IMAGE_REVEAL_DURATIONS[type]);
+    return { type, duration };
+}
+
 export const bitmapModule: ModuleDefinition<BitmapElement> = {
     text: () => "",
-    reveal: (_element, spec) =>
-        createTimedReveal(spec.type === "instant" ? 0 : BITMAP_STEPS.length * BITMAP_STEP_TIME),
+    reveal: (element, spec, context) =>
+        createTimedReveal(
+            imageReveal(element, spec.type === "instant", context.instant ?? false).duration,
+        ),
 };
 
 /** The resolution to draw at a given reveal progress, or 0 for nothing. */

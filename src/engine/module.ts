@@ -70,6 +70,8 @@ export interface RevealContext {
     random?: Random;
     /** The element's current memory (see ModuleDefinition), which can change while it shows. */
     memory: () => unknown;
+    /** Whether everything shows at once (e.g. for reduced motion), whatever it asks for. */
+    instant?: boolean;
 }
 
 export interface Outcome {

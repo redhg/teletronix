@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { seededRandom } from "../../engine/random.ts";
 import { createTestTerminal, deferred, settle } from "../../engine/runtime/test-helpers.ts";
-import { BITMAP_STEP_TIME, BITMAP_STEPS, BlendSchema, bitmapResolution } from "./definition.ts";
+import {
+    BITMAP_STEP_TIME,
+    BITMAP_STEPS,
+    type BitmapElement,
+    BlendSchema,
+    bitmapResolution,
+    imageReveal,
+} from "./definition.ts";
 
 const DURATION = BITMAP_STEPS.length * BITMAP_STEP_TIME;
 
@@ -125,5 +132,33 @@ describe("blend", () => {
     it("rejects unknown modes", () => {
         expect(BlendSchema.safeParse("sparkle").success).toBe(false);
         expect(BlendSchema.safeParse({ mode: "luminosity", with: "border" }).success).toBe(false);
+    });
+});
+
+describe("image reveals", () => {
+    const image = (reveal?: object) =>
+        ({ id: "i", type: "bitmap", src: "x.png", alt: "x", reveal }) as unknown as BitmapElement;
+
+    it("default to pixelate, or instant when the screen reveals instantly", () => {
+        expect(imageReveal(image(), false, false)).toEqual({ type: "pixelate", duration: 1650 });
+        expect(imageReveal(image(), true, false)).toEqual({ type: "instant", duration: 0 });
+    });
+
+    it("use the image's own effect and speed, over the screen's", () => {
+        expect(imageReveal(image({ type: "raster" }), true, false)).toEqual({
+            type: "raster",
+            duration: 2500,
+        });
+        expect(imageReveal(image({ type: "glitch", duration: 300 }), false, false)).toEqual({
+            type: "glitch",
+            duration: 300,
+        });
+    });
+
+    it("are instant when everything is (reduced motion)", () => {
+        expect(imageReveal(image({ type: "dissolve" }), false, true)).toEqual({
+            type: "instant",
+            duration: 0,
+        });
     });
 });

@@ -779,6 +779,37 @@
                 }
             ]
         },
+        "image-effects": {
+            "content": [
+                "IMAGE REVEAL EFFECTS",
+                "====================",
+                "",
+                "An image's \"reveal\" picks how it appears, with an optional \"duration\": { \"type\": \"raster\", \"duration\": 3000 }. These run one after another; press > AGAIN to watch them again.",
+                "",
+                {
+                    "type": "columns",
+                    "count": 2,
+                    "minWidth": 30,
+                    "content": [
+                        "\"pixelate\" (the default)",
+                        { "type": "bitmap", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "The Gulf at night, resolving from blocky to sharp", "cols": 30, "reveal": { "type": "pixelate", "duration": 3000 } },
+                        "\"raster\": line by line",
+                        { "type": "bitmap", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "The Gulf at night, arriving line by line", "cols": 30, "reveal": { "type": "raster", "duration": 3000 } },
+                        "\"dissolve\": in random specks",
+                        { "type": "bitmap", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "The Gulf at night, appearing in random specks", "cols": 30, "reveal": { "type": "dissolve", "duration": 3000 } },
+                        "\"depth\": 1-bit up to full color",
+                        { "type": "bitmap", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "The Gulf at night, from 1-bit to full color", "cols": 30, "reveal": { "type": "depth", "duration": 3000 } },
+                        "\"glitch\": jumping slices",
+                        { "type": "bitmap", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "The Gulf at night, glitching into place", "cols": 30, "reveal": { "type": "glitch", "duration": 3000 } },
+                        "\"instant\": no effect",
+                        { "type": "bitmap", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "The Gulf at night, shown at once", "cols": 30, "reveal": "instant" }
+                    ]
+                },
+                "",
+                { "type": "link", "text": "> AGAIN", "action": { "screen": "image-effects" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "images" } }
+            ]
+        },
         "toggles": {
             "content": [
                 "TOGGLES & CHOICES",
@@ -838,7 +869,7 @@
                 "IMAGES",
                 "======",
                 "",
-                "A bitmap loads, then resolves from blocky to sharp. The screen waits for it to load.",
+                "A bitmap loads, then resolves from blocky to sharp. The screen waits for it to load. It can appear in other ways too: see REVEAL EFFECTS at the bottom.",
                 { "type": "bitmap", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "The Gulf of Mexico at night, from orbit: city lights along a dark coast" },
                 "",
                 "\"cols\" sets an image's width in characters, and its height follows. This one is \"cols\": 25, as wide as the line above it:",
@@ -863,6 +894,7 @@
                 "...or \"difference\" for a negative:",
                 { "type": "bitmap", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "A photographic negative of the Gulf at night", "blend": { "mode": "difference", "with": "text" } },
                 "",
+                { "type": "link", "text": "> REVEAL EFFECTS", "action": { "screen": "image-effects" } },
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
