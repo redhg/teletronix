@@ -147,7 +147,8 @@ can be any elements, including other sections. Expanding reveals them in place, 
 section's `reveal` (e.g. `"instant"`) or the screen's; collapsing hides them at once. A section
 starts collapsed unless it sets `"open": true`, in which case its contents reveal before the
 rest of the screen. It remembers whether it's open when you come back. `markers` changes what
-the header shows before the title: `{ "closed": "▶", "open": "▼" }`.
+the header shows before the title: `{ "closed": "▶", "open": "▼" }`. `indent` moves the contents
+that many columns in, to show they belong to the header; they wrap to the narrower width.
 
 ### Moving on without a link
 A screen's `next` moves on without a link. Each rule has an `action` and a trigger:

@@ -455,6 +455,7 @@ A header that expands and collapses the elements under it. Expanding reveals the
 | `title` | string | **required** | The header's text |
 | `open` | boolean | `false` | Start expanded |
 | `markers` | [Section markers](#section-markers) | `{"closed":"[+]","open":"[-]"}` | What the header shows before its title, e.g. ▶ and ▼ |
+| `indent` | whole number, ≥ 0 | `0` | Columns to indent the contents by, to show they belong to the header. They wrap to the narrower width |
 | `content` | [Content](#content)[] | **required** | The elements shown when expanded, revealed in order like a screen's. They can include other sections. |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |

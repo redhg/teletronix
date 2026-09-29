@@ -340,7 +340,7 @@ export class ScreenRun {
     setColumns(columns: number): void {
         if (columns === this.columns) return;
         this.columns = columns;
-        for (const child of this.children.values()) child.setColumns(columns);
+        for (const [index, child] of this.children) child.setColumns(this.sectionColumns(index));
         for (const run of this.runs) {
             run.layout = this.layout(run.element, run.text);
             this.emitFrame(run);
@@ -386,6 +386,12 @@ export class ScreenRun {
         return sectionOpen(section, this.options.recall?.(section.id) as boolean | undefined);
     }
 
+    /** The columns a section's contents have: the run's, less the section's indent. */
+    private sectionColumns(index: number): number {
+        const section = this.runs[index]?.element as SectionElement | undefined;
+        return Math.max(1, this.columns - (section?.indent ?? 0));
+    }
+
     /** Starts revealing a section's contents, as a run of their own. */
     private openSection(index: number, time: number): ScreenRun {
         const section = this.runs[index]?.element as SectionElement;
@@ -400,7 +406,7 @@ export class ScreenRun {
             },
             {
                 ...this.options,
-                columns: this.columns,
+                columns: this.sectionColumns(index),
                 onDone: (done) => {
                     if (this.waitingOn !== index || this.children.get(index) !== child) return;
                     this.waitingOn = -1;

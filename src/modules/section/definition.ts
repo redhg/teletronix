@@ -36,6 +36,15 @@ export const createSectionSchema = (content: () => z.ZodType<RawContent[], RawCo
             markers: SectionMarkersSchema.default({ closed: "[+]", open: "[-]" }).meta({
                 description: "What the header shows before its title, e.g. ▶ and ▼",
             }),
+            indent: z
+                .int()
+                .min(0)
+                .default(0)
+                .meta({
+                    description:
+                        "Columns to indent the contents by, to show they belong to the header. " +
+                        "They wrap to the narrower width (default: 0)",
+                }),
             content: z.lazy(content).meta({
                 description:
                     "The elements shown when expanded, revealed in order like a screen's. They " +

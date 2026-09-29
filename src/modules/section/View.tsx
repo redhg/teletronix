@@ -40,7 +40,14 @@ export function SectionView({ element, state, run, index }: ElementViewProps<Sec
                 {header}
             </button>
             {contents && (
-                <div id={contentId} className="section-content">
+                <div
+                    id={contentId}
+                    className="section-content"
+                    // whole character cells, matching the columns the engine gives the contents
+                    style={
+                        element.indent ? { paddingInlineStart: `${element.indent}ch` } : undefined
+                    }
+                >
                     <ElementList run={contents} states={contents.states} />
                 </div>
             )}

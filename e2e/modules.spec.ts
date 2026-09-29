@@ -394,6 +394,7 @@ test.describe("section", () => {
                     {
                         type: "section",
                         title: "CREW MANIFEST",
+                        indent: 4,
                         content: [
                             "CAPT. R. OKAFOR      COMMAND",
                             { type: "link", text: "> VANCE'S LOG", action: { screen: "log" } },
@@ -432,6 +433,27 @@ test.describe("section", () => {
 
         await crew.click();
         await expect(player.screen).not.toContainText("OKAFOR");
+    });
+
+    test("indents its contents by whole columns", async ({ player }) => {
+        await player.open(sections);
+        const crew = header(player, "CREW MANIFEST");
+        await crew.click();
+        const line = player.screen.locator(".section-content .text").first();
+        await expect(line).toContainText("OKAFOR");
+        const [headerBox, lineBox, charWidth] = await Promise.all([
+            crew.boundingBox(),
+            line.boundingBox(),
+            crew.evaluate((element) => {
+                const probe = document.createElement("span");
+                probe.textContent = "0".repeat(100);
+                element.append(probe);
+                const width = probe.getBoundingClientRect().width / 100;
+                probe.remove();
+                return width;
+            }),
+        ]);
+        expect((lineBox?.x ?? 0) - (headerBox?.x ?? 0)).toBeCloseTo(4 * charWidth, 0);
     });
 
     test("can start open, with its own markers", async ({ player }) => {

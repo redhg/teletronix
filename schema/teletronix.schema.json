@@ -4565,6 +4565,13 @@
                                     },
                                     "additionalProperties": false
                                 },
+                                "indent": {
+                                    "default": 0,
+                                    "description": "Columns to indent the contents by, to show they belong to the header. They wrap to the narrower width (default: 0)",
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991
+                                },
                                 "content": {
                                     "description": "The elements shown when expanded, revealed in order like a screen's. They can include other sections.",
                                     "type": "array",

@@ -151,6 +151,35 @@ describe("sections", () => {
         expect(run.states).toEqual(["done", "done"]);
     });
 
+    it("indent their contents, which wrap to the narrower width", () => {
+        const { terminal } = createTestTerminal(
+            {
+                config: { name: "Test" },
+                screens: {
+                    home: {
+                        content: [
+                            {
+                                type: "section",
+                                title: "S",
+                                open: true,
+                                indent: 4,
+                                content: ["one two three"],
+                            },
+                        ],
+                    },
+                },
+            },
+            { instant: true, columns: 12 },
+        );
+        terminal.start();
+        const run = terminal.getSnapshot().screen?.run as ScreenRun;
+        const contents = run.section("home#0") as ScreenRun;
+        // 12 columns, less 4
+        expect(text(contents, 0)).toBe("one two\nthree");
+        terminal.setColumns(20);
+        expect(text(contents, 0)).toBe("one two three");
+    });
+
     it("remember whether they're open", () => {
         const { terminal } = createTestTerminal(FILE, { instant: true });
         terminal.start();
