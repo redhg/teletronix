@@ -28,6 +28,7 @@ describe("parseProgram", () => {
         expect(program.defaults).toEqual({
             reveal: { type: "teletype" },
             align: "left",
+            waitForReveal: false,
             transition: { type: "none" },
             teletype: { speed: 10 },
             glitch: { duration: 1000 },
@@ -65,6 +66,7 @@ describe("parseProgram", () => {
         expect(result.program.defaults).toEqual({
             reveal: { type: "instant" },
             align: "left",
+            waitForReveal: false,
             transition: { type: "glitch" },
             teletype: { speed: 3 },
             glitch: { duration: 500 },

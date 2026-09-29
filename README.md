@@ -262,6 +262,13 @@ most specific wins. `config.defaults` sets the default options for each kind of 
 }
 ```
 
+### Waiting for the reveal
+By default, each link, toggle, slider, section and prompt works as soon as it has been revealed,
+while the rest of the screen may still be typing. Set `"waitForReveal": true` in the config
+(or on a screen) and they all stay locked until the whole screen has revealed, then unlock
+together, as on a real terminal. A tap still finishes the reveal at once. An expanded
+section's contents wait for their own reveal in the same way.
+
 ### Autoscroll
 When a screen is taller than the window, the view scrolls to keep the newest content in view:
 the typing cursor, or the element being revealed. Scrolling up to reread stops it; scrolling

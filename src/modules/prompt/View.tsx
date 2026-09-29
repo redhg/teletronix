@@ -6,7 +6,7 @@ import { useTerminal, useTerminalSnapshot } from "../../ui/terminal-context.ts";
 import { matchCommand, type PromptElement } from "./definition.ts";
 import "./style.css";
 
-export function PromptView({ element, state, run, index }: ElementViewProps<PromptElement>) {
+export function PromptView({ element, interactive, run, index }: ElementViewProps<PromptElement>) {
     const terminal = useTerminal();
     const sound = useSound();
     const disabled = useTerminalSnapshot().dialog !== null;
@@ -14,7 +14,7 @@ export function PromptView({ element, state, run, index }: ElementViewProps<Prom
     const inputId = useId();
     const [value, setValue] = useState("");
     const [message, setMessage] = useState<string | null>(null);
-    const done = state === "done";
+    const done = interactive;
 
     // take the keyboard once revealed, and back after a dialog closes
     useEffect(() => {

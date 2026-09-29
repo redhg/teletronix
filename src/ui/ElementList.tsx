@@ -5,6 +5,7 @@ import { views } from "./views.ts";
 /** A run's elements, each once its turn comes: a screen's, or an open section's. */
 export function ElementList({ run, states }: { run: ScreenRun; states: readonly ElementState[] }) {
     const firstPending = states.findIndex((state) => state !== "done");
+    const unlocked = run.interactive;
     return run.elements.map((element, index) => {
         const state = states[index] ?? "ready";
         // elements appear when their turn comes; one still loading shows when the run is
@@ -16,6 +17,15 @@ export function ElementList({ run, states }: { run: ScreenRun; states: readonly 
         if (!shown) return null;
 
         const View = views[element.type] as ElementView<Element>;
-        return <View key={element.id} element={element} state={state} run={run} index={index} />;
+        return (
+            <View
+                key={element.id}
+                element={element}
+                state={state}
+                interactive={state === "done" && unlocked}
+                run={run}
+                index={index}
+            />
+        );
     });
 }

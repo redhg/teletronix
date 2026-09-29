@@ -45,6 +45,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `reveal` | [Reveal](#reveal) | `"teletype"` | How text appears on every screen, unless a screen or element says otherwise |
 | `transition` | [Transition](#transition) | `"none"` | How screens leave, unless the next screen says otherwise |
 | `align` | `"left"` \| `"center"` \| `"right"` | `"left"` | Where text, links and toggles sit across every screen, unless a screen or element says otherwise |
+| `waitForReveal` | boolean | `false` | Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed, as on a real terminal, rather than each as it appears. A tap still finishes the reveal at once |
 | `defaults` | [Defaults](#defaults) |  | Default options for each kind of reveal |
 | `variables` | [Variables](#variables) |  | The program's variables and their starting values: true or false, a number, or text. Actions change them with `set`, toggles, sliders and prompts can be bound to them, `if` tests them, and text shows them as "{name}". They reset when the page reloads. |
 | `theme` | [Theme](#theme) | `"default"` | The color scheme: "default" (pale blue on black), "amber", "green" or "white", or your own colors |
@@ -98,6 +99,7 @@ A screen of content. Its elements are revealed one after another.
 | `effects` | [Effects](#effects) |  | Effects for this screen, layered over the config's |
 | `autoscroll` | boolean | the config's | Keep new content in view as it appears |
 | `align` | `"left"` \| `"center"` \| `"right"` | the config's | Where text, links and toggles sit across the screen, unless they say otherwise |
+| `waitForReveal` | boolean | the config's | Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed |
 | `next` | [Next rule](#next-rule) \| [Next rule](#next-rule)[] |  | Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens. |
 | `sound` | id |  | A sound from the program's sounds, played as the screen appears |
 | `content` | [Content](#content)[] | **required** | The elements, revealed in order. Can be empty. |

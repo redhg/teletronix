@@ -5,6 +5,7 @@
         "author": "@redhg",
         "description": "Demonstrates every Teletronix feature.",
         "start": "home",
+        "waitForReveal": true,
         "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true }
     },
     "screens": {
@@ -15,7 +16,7 @@
                 "",
                 "Each line of a screen appears in turn. A bare string is a line of text. Long lines wrap at word boundaries to fit the window, so try resizing it.",
                 "",
-                "Click anywhere (except a link) to skip to the end of a screen.",
+                "Click anywhere (except a link) to skip to the end of a screen. This program sets \"waitForReveal\": true, so links and other controls only work once their screen has finished revealing, as on a real terminal.",
                 "",
                 { "type": "link", "text": "> TEXT", "action": { "screen": "text" } },
                 { "type": "link", "text": "> REVEALS", "action": { "screen": "reveals" } },

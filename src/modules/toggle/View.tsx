@@ -4,13 +4,13 @@ import { useSound } from "../../ui/sound/context.ts";
 import { useTerminal } from "../../ui/terminal-context.ts";
 import { nextToggleState, type ToggleElement, type ToggleMemory } from "./definition.ts";
 
-export function ToggleView({ element, state, run, index }: ElementViewProps<ToggleElement>) {
+export function ToggleView({ element, interactive, run, index }: ElementViewProps<ToggleElement>) {
     const terminal = useTerminal();
     const sound = useSound();
     const className = classNames("toggle control", element.className);
     const content = <RevealText run={run} index={index} />;
 
-    if (state !== "done") {
+    if (!interactive) {
         return <div className={className}>{content}</div>;
     }
 

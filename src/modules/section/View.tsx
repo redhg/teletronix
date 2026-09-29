@@ -6,39 +6,39 @@ import { useSound } from "../../ui/sound/context.ts";
 import { useTerminal } from "../../ui/terminal-context.ts";
 import { type SectionElement, type SectionMemory, sectionOpen } from "./definition.ts";
 
-export function SectionView({ element, state, run, index }: ElementViewProps<SectionElement>) {
+export function SectionView({
+    element,
+    interactive,
+    run,
+    index,
+}: ElementViewProps<SectionElement>) {
     const terminal = useTerminal();
     const sound = useSound();
     const contentId = useId();
     const header = <RevealText run={run} index={index} />;
-    const className = classNames("section", element.className);
-
-    if (state !== "done") {
-        return (
-            <div className={className}>
-                <div className="section-header control">{header}</div>
-            </div>
-        );
-    }
-
     // this re-renders whenever the terminal publishes a change, which a click causes
     const open = sectionOpen(element, terminal.recall<SectionMemory>(element.id));
     const contents = run.section(element.id);
 
     return (
-        <div className={className}>
-            <button
-                type="button"
-                className="section-header control"
-                aria-expanded={open}
-                aria-controls={contents ? contentId : undefined}
-                onClick={() => {
-                    sound({ type: "select" });
-                    terminal.remember(element.id, !open);
-                }}
-            >
-                {header}
-            </button>
+        <div className={classNames("section", element.className)}>
+            {interactive ? (
+                <button
+                    type="button"
+                    className="section-header control"
+                    aria-expanded={open}
+                    aria-controls={contents ? contentId : undefined}
+                    onClick={() => {
+                        sound({ type: "select" });
+                        terminal.remember(element.id, !open);
+                    }}
+                >
+                    {header}
+                </button>
+            ) : (
+                <div className="section-header control">{header}</div>
+            )}
+            {/* an open section's contents show as they reveal, even before it can be clicked */}
             {contents && (
                 <div
                     id={contentId}

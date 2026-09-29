@@ -193,6 +193,10 @@
                         "right"
                     ]
                 },
+                "waitForReveal": {
+                    "description": "Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed, as on a real terminal, rather than each as it appears. A tap still finishes the reveal at once (default: false)",
+                    "type": "boolean"
+                },
                 "defaults": {
                     "type": "object",
                     "properties": {
@@ -1238,6 +1242,10 @@
                             "center",
                             "right"
                         ]
+                    },
+                    "waitForReveal": {
+                        "description": "Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed (default: the config's)",
+                        "type": "boolean"
                     },
                     "next": {
                         "description": "Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens.",

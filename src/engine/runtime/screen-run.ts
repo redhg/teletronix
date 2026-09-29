@@ -173,6 +173,15 @@ export class ScreenRun {
         );
     }
 
+    /**
+     * Whether its controls can be used yet: always, or, if its screen waits for the whole
+     * reveal (waitForReveal), once everything has been revealed.
+     */
+    get interactive(): boolean {
+        const wait = this.screen.waitForReveal ?? this.options.defaults.waitForReveal;
+        return !wait || this.finished !== null;
+    }
+
     /** When every element finished revealing (or was skipped), or null if not yet. */
     get finishedAt(): number | null {
         return this.finished;
@@ -379,6 +388,8 @@ export class ScreenRun {
     private done(now: number): void {
         if (this.finished !== null) return;
         this.finished = now;
+        // (the view may be waiting for this to make the controls usable)
+        this.options.onChange();
         this.options.onDone?.(now);
     }
 

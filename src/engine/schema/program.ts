@@ -68,6 +68,14 @@ export const ScreenSchema = z
                 "Where text, links and toggles sit across the screen, unless they say " +
                 "otherwise (default: the config's)",
         }),
+        waitForReveal: z
+            .boolean()
+            .optional()
+            .meta({
+                description:
+                    "Make links, toggles, sliders, sections and prompts usable only once the whole " +
+                    "screen has revealed (default: the config's)",
+            }),
         next: NextSchema.optional(),
         sound: SoundNameSchema.optional().meta({
             description: "A sound from the program's sounds, played as the screen appears",
@@ -112,6 +120,15 @@ export const ConfigSchema = z
                 "Where text, links and toggles sit across every screen, unless a screen or " +
                 'element says otherwise (default: "left")',
         }),
+        waitForReveal: z
+            .boolean()
+            .optional()
+            .meta({
+                description:
+                    "Make links, toggles, sliders, sections and prompts usable only once the " +
+                    "whole screen has revealed, as on a real terminal, rather than each as it " +
+                    "appears. A tap still finishes the reveal at once (default: false)",
+            }),
         defaults: DefaultsSchema.optional(),
         variables: VariablesSchema.optional(),
         theme: ThemeSchema.optional(),
@@ -178,6 +195,7 @@ export type TeletronixFile = z.input<typeof FileSchema>;
 export interface Defaults {
     reveal: RevealOption;
     align: Align;
+    waitForReveal: boolean;
     transition: TransitionOption;
     teletype: { speed: number };
     glitch: { duration: number };
@@ -190,6 +208,7 @@ export interface Screen {
     effects?: EffectsSetting;
     autoscroll?: boolean;
     align?: Align;
+    waitForReveal?: boolean;
     next?: NextRule[];
     sound?: string;
     content: Element[];
@@ -223,6 +242,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         reveal,
         transition,
         align,
+        waitForReveal,
         defaults,
         effects,
         autoscroll,
@@ -237,7 +257,8 @@ function normalize(file: z.output<typeof FileSchema>): Program {
     const screens = new Map<string, Screen>();
     for (const [id, screen] of Object.entries(file.screens)) {
         const content = normalizeContent(screen.content, `${id}#`);
-        const { reveal, transition, effects, autoscroll, align, next, sound } = screen;
+        const { reveal, transition, effects, autoscroll, align, waitForReveal, next, sound } =
+            screen;
         screens.set(id, {
             id,
             reveal,
@@ -245,6 +266,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             effects,
             autoscroll,
             align,
+            waitForReveal,
             next,
             sound,
             content,
@@ -263,6 +285,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         defaults: {
             reveal: reveal ?? { type: "teletype" },
             align: align ?? "left",
+            waitForReveal: waitForReveal ?? false,
             transition: transition ?? { type: "none" },
             teletype: { speed: defaults?.teletype?.speed ?? DEFAULT_TELETYPE_SPEED },
             glitch: { duration: defaults?.glitch?.duration ?? DEFAULT_GLITCH_DURATION },

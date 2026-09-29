@@ -7,7 +7,7 @@ import { type LinkElement, linkAction } from "./definition.ts";
 import { LONG_PRESS_MS, useSecondaryPress } from "./use-secondary-press.ts";
 import "./style.css";
 
-export function LinkView({ element, state, run, index }: ElementViewProps<LinkElement>) {
+export function LinkView({ element, interactive, run, index }: ElementViewProps<LinkElement>) {
     const terminal = useTerminal();
     const sound = useSound();
     const hasSecondary = element.secondaryAction !== undefined;
@@ -17,8 +17,8 @@ export function LinkView({ element, state, run, index }: ElementViewProps<LinkEl
     });
     const content = <RevealText run={run} index={index} />;
 
-    // a link only becomes usable once it has been fully revealed
-    if (state !== "done") {
+    // a link only becomes usable once it has been fully revealed (and maybe its screen too)
+    if (!interactive) {
         return <div className={classNames("link control", element.className)}>{content}</div>;
     }
 

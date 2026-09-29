@@ -13,7 +13,7 @@ import {
 } from "./definition.ts";
 import "./style.css";
 
-export function SliderView({ element, state, run, index }: ElementViewProps<SliderElement>) {
+export function SliderView({ element, interactive, run, index }: ElementViewProps<SliderElement>) {
     const terminal = useTerminal();
     const sound = useSound();
     const ref = useRef<HTMLDivElement>(null);
@@ -36,7 +36,7 @@ export function SliderView({ element, state, run, index }: ElementViewProps<Slid
     );
     const content = <RevealText run={run} index={index} label={label} />;
 
-    if (state !== "done") {
+    if (!interactive) {
         return <div className={className}>{content}</div>;
     }
 
