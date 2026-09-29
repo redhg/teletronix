@@ -69,6 +69,7 @@ import {
 import { BitmapSchema, BlendObjectSchema, BlendSchema } from "../src/modules/bitmap/definition.ts";
 import { ButtonSchema, ButtonsSchema } from "../src/modules/buttons/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
+import { MeterRangeSchema, MeterSchema } from "../src/modules/meter/definition.ts";
 import { NumberRuleSchema, NumberSchema } from "../src/modules/number/definition.ts";
 import { PauseSchema } from "../src/modules/pause/definition.ts";
 import {
@@ -174,6 +175,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Progress interrupt", InterruptSchema],
             ["Slider", SliderSchema, '"type": "slider"'],
             ["Slider rule", SliderRuleSchema],
+            ["Meter", MeterSchema, '"type": "meter"'],
+            ["Meter range", MeterRangeSchema],
             ["Section", SectionSchema, '"type": "section"'],
             ["Section markers", SectionMarkersSchema],
             ["Columns", ColumnsSchema, '"type": "columns"'],

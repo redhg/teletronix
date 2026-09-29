@@ -471,6 +471,18 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
             }
 
             if (element.type === "timer") report([...path, "timer"], unknownTimer(element.timer));
+            const source = module.source?.(element);
+            if (source !== undefined) {
+                const value = testable.get(source);
+                report(
+                    [...path, "variable"],
+                    value === undefined
+                        ? `Unknown variable or timer "${source}"`
+                        : typeof value === "number"
+                          ? null
+                          : `"${source}" isn't a number`,
+                );
+            }
             const variable = boundVariable(element);
             if (variable !== undefined) {
                 const initial = program.variables.get(variable);

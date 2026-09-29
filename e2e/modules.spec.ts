@@ -623,3 +623,35 @@ test.describe("number", () => {
         await expect(field(player, 0).locator("input")).toHaveAttribute("inputmode", "numeric");
     });
 });
+
+test.describe("meter", () => {
+    const gauges: Program = {
+        config: { name: "Meters", start: "home", variables: { hull: 60 } },
+        screens: {
+            home: {
+                content: [
+                    {
+                        type: "meter",
+                        label: "HULL ",
+                        variable: "hull",
+                        unit: "%",
+                        on: [{ atMost: 40, className: "alert" }],
+                    },
+                    { type: "slider", label: "SET ", variable: "hull", step: 10 },
+                ],
+            },
+        },
+    };
+
+    test("follows its variable, and turns red when it's low", async ({ page, player }) => {
+        await player.open(gauges);
+        const meter = player.screen.locator(".meter");
+        await expect(meter).toContainText("60%");
+        await expect(meter).not.toHaveClass(/\balert\b/);
+        await player.screen.getByRole("slider", { name: "SET" }).focus();
+        await page.keyboard.press("ArrowLeft");
+        await page.keyboard.press("ArrowLeft");
+        await expect(meter).toContainText("40%");
+        await expect(meter).toHaveClass(/\balert\b/);
+    });
+});

@@ -9,7 +9,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -318,6 +318,7 @@ One of:
 - [Number](#number)
 - [Timer element](#timer-element)
 - [Columns](#columns)
+- [Meter](#meter)
 
 <a id="text"></a>
 
@@ -591,6 +592,43 @@ A range of values, with an action that fires each time the value moves into it, 
 | `equals` | number |  | Fires when the value lands on exactly this |
 | `action` | [Action](#action) |  | What happens each time the value moves into the range |
 | `className` | string |  | Space-separated CSS classes the slider has while its value is in the range, e.g. "alert" to turn it red |
+
+<a id="meter"></a>
+
+### Meter (`"type": "meter"`)
+
+A gauge: a bar showing a number variable or a timer, which moves whenever it changes, e.g. oxygen running out. It can't be changed by the player (a slider can).
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `variable` | id | **required** | The number variable, or timer (in seconds), it shows |
+| `label` | string |  | Text before the bar |
+| `min` | number | `0` | The value of an empty bar |
+| `max` | number | `100` | The value of a full bar |
+| `step` | number, > 0 | `1` | How precisely the value is shown, e.g. 0.1 |
+| `unit` | string | `""` | Shown after the value, e.g. "%" or " L" |
+| `showValue` | boolean | `true` | Show the value after the bar |
+| `width` | whole number, ≥ 1 | the rest of the line | Bar width in characters |
+| `fill` | character | `"█"` | Filled cells |
+| `empty` | character | `"░"` | Empty cells |
+| `on` | [Meter range](#meter-range)[] |  | Classes for ranges of values; every range the value is in adds its own |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="meter-range"></a>
+
+### Meter range
+
+Classes for a range of values, e.g. red when it's low
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `atLeast` | number |  | This value or more |
+| `atMost` | number |  | This value or less |
+| `equals` | number |  | Exactly this value |
+| `className` | string | **required** | Space-separated CSS classes the meter has while its value is in the range, e.g. "alert" |
 
 <a id="section"></a>
 

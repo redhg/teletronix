@@ -23,6 +23,11 @@ export interface ModuleDefinition<E, M = never> {
     text(element: E, memory: M | undefined): string;
     /** Every action the element can dispatch, so targets can be validated when parsing. */
     actions?(element: E): Action[];
+    /**
+     * For elements that show a variable or timer (by name): its value, which the terminal
+     * gives the element as its memory.
+     */
+    source?(element: E): string;
     /** Conditions the element tests besides its `if` (e.g. its commands'), for checking. */
     conditions?(element: E): Condition[];
     /**

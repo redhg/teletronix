@@ -61,6 +61,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"bitmap"` | An image (`src`, `alt`) that resolves from blocky to sharp. The screen waits for it to load. |
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
+| `"meter"` | A gauge: a bar showing a variable or timer, live. See below. |
 | `"section"` | A header that expands and collapses the elements under it. See below. |
 | `"columns"` | Lays elements out in columns, e.g. a long list of links. See below. |
 | `"pause"` | Stops the reveal with "-- PRESS ANY KEY TO CONTINUE --" until a key or tap. See below. |
@@ -235,6 +236,18 @@ They don't scroll or reveal, and stay put between screens. Each line is text, or
 (`{ "text", "action" }`), which works at any time. Variables in them update as they change.
 A line with `"className": "plain"` uses the screen's own colors instead, e.g. a subtitle
 under an inverse title line. A screen can set its own `header`/`footer`, or `false` to hide one.
+
+### Meters
+```json
+{ "type": "meter", "label": "O2 ", "variable": "oxygen", "unit": "%",
+  "on": [{ "atMost": 20, "className": "alert" }] }
+```
+A meter draws a number variable, or a timer's seconds, as a bar like a slider's, and moves
+whenever the value changes: an action's `set`, a slider bound to the same variable, a timer
+running down. `min` and `max` (default 0 and 100) are the empty and full ends; `step`
+(default 1) is how precisely the value is shown. Each `on` range adds its `className` while
+the value is in it. `width`, `fill`, `empty` and `showValue` shape it like a slider. Unlike a
+progress bar, it doesn't hold up the screen or ever finish: it's a display.
 
 ### Moving on without a link
 A screen's `next` moves on without a link. Each rule has an `action` and a trigger:

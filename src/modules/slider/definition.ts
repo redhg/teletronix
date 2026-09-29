@@ -129,6 +129,19 @@ export type SliderElement = z.output<typeof SliderSchema> & ElementIdentity;
 /** A slider's memory is its current value. */
 export type SliderMemory = number;
 
+/** What a bar is drawn from: a slider's settings, which a meter shares. */
+export interface BarShape {
+    label?: string;
+    min: number;
+    max: number;
+    step: number;
+    unit: string;
+    showValue: boolean;
+    width?: number;
+    fill: string;
+    empty: string;
+}
+
 const decimals = (step: number) => (String(step).split(".")[1] ?? "").length;
 
 /** Rounds a value to the slider's steps and range. */
@@ -144,11 +157,11 @@ export function sliderValue(slider: SliderElement, memory: SliderMemory | undefi
     return memory ?? snapValue(slider, slider.value ?? slider.min);
 }
 
-const formatValue = (slider: SliderElement, value: number) =>
+const formatValue = (slider: BarShape, value: number) =>
     `${value.toFixed(decimals(slider.step))}${slider.unit}`;
 
 /** Where the bar sits in the line, in characters. */
-export function sliderLayout(slider: SliderElement, columns: number) {
+export function sliderLayout(slider: BarShape, columns: number) {
     const label = slider.label ?? "";
     // room for the widest value, so the bar never changes width
     const valueWidth = slider.showValue
@@ -160,9 +173,10 @@ export function sliderLayout(slider: SliderElement, columns: number) {
 }
 
 /** The line for a slider at `value`, fitted to `columns`. */
-export function sliderLine(slider: SliderElement, value: number, columns: number): string {
+export function sliderLine(slider: BarShape, value: number, columns: number): string {
     const { width, valueWidth } = sliderLayout(slider, columns);
-    const fraction = (value - slider.min) / (slider.max - slider.min);
+    // (a meter's value can stray outside its range; the bar just stops at the ends)
+    const fraction = Math.min(Math.max((value - slider.min) / (slider.max - slider.min), 0), 1);
     const filled = Math.round(width * fraction);
     const shown = slider.showValue ? ` ${formatValue(slider, value).padStart(valueWidth)}` : "";
     return `${slider.label ?? ""}[${slider.fill.repeat(filled)}${slider.empty.repeat(width - filled)}]${shown}`;
@@ -186,18 +200,14 @@ const matches = (rule: SliderRule, value: number, step: number) =>
     (rule.atMost === undefined || value <= rule.atMost) &&
     (rule.equals === undefined || Math.abs(value - rule.equals) < step / 2);
 
-/** The line appears with the element's reveal, then follows the value. */
-function createSliderReveal(
-    slider: SliderElement,
+/** A bar's line appears with the element's reveal, then follows `value`. */
+export function createBarReveal(
+    bar: BarShape,
     spec: RevealSpec,
     context: RevealContext,
+    value: () => number,
 ): Reveal {
-    const line = () =>
-        sliderLine(
-            slider,
-            sliderValue(slider, context.memory() as SliderMemory | undefined),
-            context.columns(),
-        );
+    const line = () => sliderLine(bar, value(), context.columns());
     const intro = createReveal(line(), spec, context.random);
     let last: Frame = [];
     const current = (): Frame => {
@@ -214,7 +224,10 @@ export const sliderModule: ModuleDefinition<SliderElement, SliderMemory> = {
         ...(slider.on ?? []).flatMap((rule) => (rule.action ? [rule.action] : [])),
         ...(slider.onEnter ? [slider.onEnter] : []),
     ],
-    reveal: createSliderReveal,
+    reveal: (slider, spec, context) =>
+        createBarReveal(slider, spec, context, () =>
+            sliderValue(slider, context.memory() as SliderMemory | undefined),
+        ),
     binding: {
         check(slider, initial) {
             if (slider.value !== undefined) {

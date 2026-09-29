@@ -11,6 +11,7 @@ import {
     createColumnsSchema,
 } from "../../modules/columns/definition.ts";
 import { type LinkElement, LinkSchema, linkModule } from "../../modules/link/definition.ts";
+import { type MeterElement, MeterSchema, meterModule } from "../../modules/meter/definition.ts";
 import { type NumberElement, NumberSchema, numberModule } from "../../modules/number/definition.ts";
 import { type PauseElement, PauseSchema, pauseModule } from "../../modules/pause/definition.ts";
 import {
@@ -55,6 +56,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     NumberSchema,
     TimerElementSchema,
     ColumnsSchema,
+    MeterSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -79,7 +81,8 @@ export type Element =
     | ButtonsElement
     | NumberElement
     | TimerElement
-    | ColumnsElement;
+    | ColumnsElement
+    | MeterElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -97,6 +100,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     number: numberModule,
     timer: timerModule,
     columns: columnsModule,
+    meter: meterModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
@@ -105,6 +109,8 @@ export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, un
 
 /** The variable an element is bound to (see ModuleDefinition.binding), if any. */
 export function boundVariable(element: Element): string | undefined {
+    // (a meter's variable is one it shows, not one it's bound to)
+    if (!moduleFor(element).binding) return undefined;
     return "variable" in element ? element.variable : undefined;
 }
 

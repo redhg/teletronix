@@ -317,6 +317,9 @@ export class Terminal {
     /** Reads an element's memory: its variable, if it's bound to one. */
     recall<M>(elementId: string): M | undefined {
         const element = this.elements.get(elementId);
+        // an element that shows a variable or timer has its value
+        const source = element && moduleFor(element).source?.(element);
+        if (source !== undefined) return this.variable(source) as M | undefined;
         // a timer element shows its timer's time
         if (element?.type === "timer") {
             const timer = this.timers.get(element.timer ?? `@${element.id}`);

@@ -6,7 +6,7 @@
         "description": "Demonstrates every Teletronix feature.",
         "start": "home",
         "waitForReveal": true,
-        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50 },
+        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100 },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
     "screens": {
@@ -33,6 +33,7 @@
                         { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
                         { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
                         { "type": "link", "text": "> LINKS", "action": { "screen": "links" } },
+                        { "type": "link", "text": "> METERS", "action": { "screen": "meters" } },
                         { "type": "link", "text": "> NUMBERS", "action": { "screen": "numbers" } },
                         { "type": "link", "text": "> PAUSES", "action": { "screen": "pauses" } },
                         { "type": "link", "text": "> PROGRESS", "action": { "screen": "progress" } },
@@ -687,6 +688,37 @@
                 "The station is gone. That's what a program timer's onComplete can do, wherever you were.",
                 "",
                 { "type": "link", "text": "> START OVER", "action": { "resetTimer": "destruct", "screen": "home" } }
+            ]
+        },
+        "meters": {
+            "content": [
+                "METERS",
+                "======",
+                "",
+                "A meter is a gauge: a bar showing a number variable or a timer, which moves whenever the value does. The player can't change it directly; actions and sliders can.",
+                "",
+                {
+                    "type": "meter",
+                    "label": "HULL       ",
+                    "variable": "hull",
+                    "unit": "%",
+                    "on": [{ "atMost": 40, "className": "alert" }]
+                },
+                "",
+                {
+                    "type": "buttons",
+                    "buttons": [
+                        { "text": "TAKE A HIT", "key": "t", "action": [{ "if": { "hull": { "atLeast": 20 } }, "set": { "hull": { "add": -20 } } }] },
+                        { "text": "REPAIR", "key": "r", "action": [{ "if": { "hull": { "atMost": 80 } }, "set": { "hull": { "add": 20 } } }] }
+                    ]
+                },
+                "",
+                "A slider and a meter can share a variable: one to set it, one to show it.",
+                "",
+                { "type": "slider", "label": "FUEL MIX   ", "variable": "fuel", "unit": "%" },
+                { "type": "meter", "label": "FUEL FLOW  ", "variable": "fuel", "unit": "%", "fill": "#", "empty": "." },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
         "toggles": {
