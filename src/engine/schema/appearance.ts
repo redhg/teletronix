@@ -4,6 +4,15 @@ import { z } from "zod";
 // Pixel fonts are only crisp at whole multiples of their pixel height, so each font
 // records it. All but Departure Mono are from The Ultimate Oldschool PC Font Pack by
 // VileR (int10h.org, CC BY-SA 4.0); Departure Mono is by Helena Zhang (SIL OFL 1.1).
+// System fonts aren't bundled: they're used if the player's computer has them, and the
+// browser's own monospace font if not. They can be any size.
+
+interface FontInfo {
+    name: string;
+    pixelHeight: number;
+    /** For a font installed on the player's computer: its CSS family name. */
+    system?: string;
+}
 
 export const FONTS = {
     "ast-premiumexec": { name: "AST Premium Exec", pixelHeight: 19 },
@@ -14,13 +23,22 @@ export const FONTS = {
     "ibm-mda": { name: "IBM MDA", pixelHeight: 14 },
     "toshiba-satellite": { name: "Toshiba Satellite", pixelHeight: 16 },
     "departure-mono": { name: "Departure Mono", pixelHeight: 11 },
-} as const;
+    "courier-new": { name: "Courier New (installed)", pixelHeight: 1, system: '"Courier New"' },
+    consolas: { name: "Consolas (installed, Windows)", pixelHeight: 1, system: "Consolas" },
+    menlo: { name: "Menlo (installed, macOS)", pixelHeight: 1, system: "Menlo" },
+} as const satisfies Record<string, FontInfo>;
+
+/** Whether a font is one installed on the player's computer, rather than bundled. */
+export const isSystemFont = (font: FontId): boolean => "system" in FONTS[font];
 
 export type FontId = keyof typeof FONTS;
 export const DEFAULT_FONT: FontId = "ast-premiumexec";
 
 export const FontSchema = z.enum(Object.keys(FONTS) as [FontId, ...FontId[]]).meta({
-    description: 'The typeface, from a set of period PC fonts (default: "ast-premiumexec")',
+    description:
+        "The typeface: a period PC font, or one installed on the player's computer " +
+        '("courier-new", "consolas" on Windows, "menlo" on macOS; the browser\'s own ' +
+        'monospace font where it isn\'t) (default: "ast-premiumexec")',
 });
 
 // ─── Themes ──────────────────────────────────────────────────────────────────

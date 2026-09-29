@@ -56,6 +56,23 @@ test.describe("the player", () => {
             .toBe(true);
     });
 
+    test("can use a font installed on the computer, smoothed, at any size", async ({
+        page,
+        player,
+    }) => {
+        await player.open(withConfig({ font: "courier-new" }));
+        const style = await styles(page);
+        expect(style.fontFamily).toContain("Courier New");
+        expect(style.fontFamily).toContain("monospace");
+        expect(style.fontSize).toBe(Math.round(style.fontSize));
+        // smoothed, unlike the pixel fonts (in the browsers that can turn smoothing off)
+        const smoothing = await page.evaluate(() =>
+            getComputedStyle(document.documentElement).getPropertyValue("--font-smoothing"),
+        );
+        expect(smoothing).toBe("auto");
+        await expect(player.screen).toContainText("HOME");
+    });
+
     test("sets the page title", async ({ page, player }) => {
         await player.open(program);
         await expect(page).toHaveTitle("Appearance");

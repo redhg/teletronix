@@ -1695,9 +1695,12 @@
                         "ibm-cga-thin",
                         "ibm-mda",
                         "toshiba-satellite",
-                        "departure-mono"
+                        "departure-mono",
+                        "courier-new",
+                        "consolas",
+                        "menlo"
                     ],
-                    "description": "The typeface, from a set of period PC fonts (default: \"ast-premiumexec\")"
+                    "description": "The typeface: a period PC font, or one installed on the player's computer (\"courier-new\", \"consolas\" on Windows, \"menlo\" on macOS; the browser's own monospace font where it isn't) (default: \"ast-premiumexec\")"
                 },
                 "effects": {
                     "type": "object",

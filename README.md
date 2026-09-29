@@ -520,7 +520,9 @@ off, in `config` for the whole program or on a screen.
 own, e.g. `{ "fg": "#33ff66", "bg": "#001100" }`. `config.font` picks a typeface: `"ast-premiumexec"`
 (the default), `"ibm-vga"`, `"ibm-ega"`, `"ibm-cga"`, `"ibm-cga-thin"`, `"ibm-mda"`,
 `"toshiba-satellite"` or `"departure-mono"`. Text is sized to whole multiples of the font's pixel
-height, so it stays crisp.
+height, so it stays crisp. Or a font installed on the player's computer: `"courier-new"`,
+`"consolas"` (Windows) or `"menlo"` (macOS). These aren't bundled, so where one isn't
+installed, the browser's own monospace font stands in; they can be any size.
 
 The easiest way to choose is the **settings page**: add `&config` to a program's address, e.g.
 <http://localhost:5173/?data=sample&config>. Change the theme, font and effects and watch the

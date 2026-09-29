@@ -19,6 +19,7 @@ export {
     DEFAULT_THEME,
     FONTS,
     type FontId,
+    isSystemFont,
     type Palette,
     resolveTheme,
     THEMES,
