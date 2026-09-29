@@ -404,7 +404,7 @@ A bar the player sets by dragging, or with the arrow keys. It remembers its valu
 | `width` | whole number, ≥ 1 | the rest of the line | Bar width in characters |
 | `fill` | character | `"█"` | Filled cells |
 | `empty` | character | `"░"` | Empty cells |
-| `on` | [Slider rule](#slider-rule)[] |  | Actions for ranges of values. The first rule the value moves into fires. |
+| `on` | [Slider rule](#slider-rule)[] |  | Ranges of values, with actions and classes. When the value moves into ranges with actions, the first one's fires; every range the value is in adds its classes. |
 | `onEnter` | [Action](#action) |  | What happens when the player presses <enter> on the slider |
 | `variable` | id |  | A number variable that holds the slider's value. It starts from the variable's value, instead of value. |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
@@ -416,14 +416,15 @@ A bar the player sets by dragging, or with the arrow keys. It remembers its valu
 
 ### Slider rule
 
-An action for a range of values. It fires each time the value moves into the range; set more than one condition and the value must meet them all.
+A range of values, with an action that fires each time the value moves into it, and/or classes the slider has while the value is in it. Set more than one of "atLeast", "atMost" and "equals" and the value must meet them all.
 
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `atLeast` | number |  | Fires when the value rises to this or above |
 | `atMost` | number |  | Fires when the value falls to this or below |
 | `equals` | number |  | Fires when the value lands on exactly this |
-| `action` | [Action](#action) | **required** | What happens |
+| `action` | [Action](#action) |  | What happens each time the value moves into the range |
+| `className` | string |  | Space-separated CSS classes the slider has while its value is in the range, e.g. "alert" to turn it red |
 
 ## Dialogs
 

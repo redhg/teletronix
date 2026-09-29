@@ -1,4 +1,4 @@
-import { type KeyboardEvent, type PointerEvent, useRef, useState } from "react";
+import { type KeyboardEvent, type PointerEvent, useEffect, useRef, useState } from "react";
 import { classNames, type ElementViewProps } from "../../ui/element-view.ts";
 import { RevealText } from "../../ui/RevealText.tsx";
 import { useSound } from "../../ui/sound/context.ts";
@@ -6,6 +6,7 @@ import { useTerminal } from "../../ui/terminal-context.ts";
 import {
     type SliderElement,
     type SliderMemory,
+    sliderClasses,
     sliderValue,
     snapValue,
     valueAt,
@@ -17,10 +18,22 @@ export function SliderView({ element, state, run, index }: ElementViewProps<Slid
     const sound = useSound();
     const ref = useRef<HTMLDivElement>(null);
     const current = () => sliderValue(element, terminal.recall<SliderMemory>(element.id));
-    // kept in state only for the ARIA attributes; the bar redraws through the engine
+    // kept in state for the ARIA attributes and range classes; the bar redraws through the
+    // engine, which also says when the value changes some other way (e.g. a bound variable)
     const [value, setValue] = useState(current);
+    useEffect(
+        () =>
+            run.subscribeFrame(index, () =>
+                setValue(sliderValue(element, terminal.recall<SliderMemory>(element.id))),
+            ),
+        [run, index, element, terminal],
+    );
     const label = element.label?.trim() || "Slider";
-    const className = classNames("slider control", element.className);
+    const className = classNames(
+        "slider control",
+        element.className,
+        ...sliderClasses(element, value),
+    );
     const content = <RevealText run={run} index={index} label={label} />;
 
     if (state !== "done") {

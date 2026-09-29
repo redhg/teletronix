@@ -52,7 +52,10 @@ const program: Program = {
                     step: 10,
                     value: 50,
                     unit: "%",
-                    on: [{ atLeast: 90, action: { dialog: "hot" } }],
+                    on: [
+                        { atLeast: 70, className: "alert" },
+                        { atLeast: 90, action: { dialog: "hot" } },
+                    ],
                     onEnter: { dialog: "set" },
                 },
                 back,
@@ -190,6 +193,20 @@ test.describe("slider", () => {
         await page.keyboard.press("ArrowRight");
         await page.keyboard.press("ArrowRight");
         await expect(player.screen).toContainText("TUNED IN");
+    });
+
+    test("turns red while its value is in a range", async ({ page, player }) => {
+        const power = slider(player, "POWER");
+        await power.focus();
+        await expect(power).not.toHaveClass(/\balert\b/);
+        await page.keyboard.press("ArrowRight");
+        await page.keyboard.press("ArrowRight");
+        await expect(power).toHaveClass(/\balert\b/);
+        await expect(power).toHaveCSS("color", "rgb(255, 60, 0)");
+        await page.keyboard.press("ArrowLeft");
+        await expect(power).not.toHaveClass(/\balert\b/);
+        // still focused, so the keys still work
+        await expect(power).toBeFocused();
     });
 
     test("acts on Enter", async ({ page, player }) => {

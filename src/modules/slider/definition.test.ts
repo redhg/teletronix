@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Frame } from "../../engine/reveal/types.ts";
 import { createTestTerminal } from "../../engine/runtime/test-helpers.ts";
 import { parseProgram } from "../../engine/schema/program.ts";
-import { type SliderElement, sliderLine, snapValue, valueAt } from "./definition.ts";
+import { type SliderElement, sliderClasses, sliderLine, snapValue, valueAt } from "./definition.ts";
 
 const slider = (overrides: Partial<SliderElement> = {}): SliderElement => ({
     id: "x",
@@ -115,6 +115,51 @@ describe("slider in a program", () => {
     });
 });
 
+describe("slider range classes", () => {
+    const reactor = slider({
+        on: [
+            { atLeast: 60, className: "warm" },
+            { atLeast: 80, className: "alert" },
+            { atLeast: 95, action: [{ dialog: "hot" }] },
+        ],
+    });
+
+    it("apply while the value is in their range, adding up", () => {
+        expect(sliderClasses(reactor, 50)).toEqual([]);
+        expect(sliderClasses(reactor, 60)).toEqual(["warm"]);
+        expect(sliderClasses(reactor, 85)).toEqual(["warm", "alert"]);
+    });
+
+    it("don't fire, but let a rule with an action behind them fire", () => {
+        const { terminal } = createTestTerminal(
+            {
+                config: { name: "T" },
+                screens: {
+                    s: {
+                        content: [
+                            {
+                                type: "slider",
+                                on: [
+                                    { atLeast: 80, className: "alert" },
+                                    { atLeast: 95, action: { dialog: "hot" } },
+                                ],
+                            },
+                        ],
+                    },
+                },
+                dialogs: { hot: { type: "alert", content: "!" } },
+            },
+            { instant: true },
+        );
+        terminal.start();
+        const id = terminal.getSnapshot().screen?.run.elements[0]?.id ?? "";
+        terminal.remember(id, 85);
+        expect(terminal.getSnapshot().dialog).toBeNull();
+        terminal.remember(id, 95);
+        expect(terminal.getSnapshot().dialog?.id).toBe("hot");
+    });
+});
+
 describe("slider schema", () => {
     const parse = (props: object) =>
         parseProgram({
@@ -127,6 +172,13 @@ describe("slider schema", () => {
         expect(result.ok ? [] : result.errors.map((e) => e.path)).toEqual([
             "screens.s.content[0].max",
             "screens.s.content[0].value",
+        ]);
+    });
+
+    it("wants each rule to have an action or a class", () => {
+        const result = parse({ on: [{ atLeast: 5 }] });
+        expect(result.ok ? [] : result.errors.map((e) => e.message)).toEqual([
+            'Set "action", "className", or both',
         ]);
     });
 

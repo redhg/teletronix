@@ -361,14 +361,17 @@
                     "on": [{ "equals": 101.1, "action": { "screen": "transmission" } }]
                 },
                 "",
-                "Push the reactor into the red, or press <enter> on it to confirm a setting:",
+                "Push the reactor past 80% and it turns red; past 95% sounds the alarm. Or press <enter> on it to confirm a setting:",
                 {
                     "type": "slider",
                     "label": "REACTOR    ",
                     "step": 5,
                     "value": 40,
                     "unit": "%",
-                    "on": [{ "atLeast": 95, "action": { "dialog": "reactor-hot" } }],
+                    "on": [
+                        { "atLeast": 80, "className": "alert" },
+                        { "atLeast": 95, "action": { "dialog": "reactor-hot" } }
+                    ],
                     "onEnter": { "dialog": "reactor-set" }
                 },
                 "",

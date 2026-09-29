@@ -3467,7 +3467,7 @@
                                                     "maxLength": 1
                                                 },
                                                 "on": {
-                                                    "description": "Actions for ranges of values. The first rule the value moves into fires.",
+                                                    "description": "Ranges of values, with actions and classes. When the value moves into ranges with actions, the first one's fires; every range the value is in adds its classes.",
                                                     "type": "array",
                                                     "items": {
                                                         "type": "object",
@@ -3485,7 +3485,7 @@
                                                                 "type": "number"
                                                             },
                                                             "action": {
-                                                                "description": "What happens",
+                                                                "description": "What happens each time the value moves into the range",
                                                                 "anyOf": [
                                                                     {
                                                                         "type": "object",
@@ -3614,13 +3614,14 @@
                                                                         }
                                                                     }
                                                                 ]
+                                                            },
+                                                            "className": {
+                                                                "description": "Space-separated CSS classes the slider has while its value is in the range, e.g. \"alert\" to turn it red",
+                                                                "type": "string"
                                                             }
                                                         },
-                                                        "required": [
-                                                            "action"
-                                                        ],
                                                         "additionalProperties": false,
-                                                        "description": "An action for a range of values. It fires each time the value moves into the range; set more than one condition and the value must meet them all."
+                                                        "description": "A range of values, with an action that fires each time the value moves into it, and/or classes the slider has while the value is in it. Set more than one of \"atLeast\", \"atMost\" and \"equals\" and the value must meet them all."
                                                     }
                                                 },
                                                 "onEnter": {

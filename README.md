@@ -123,8 +123,10 @@ edge to edge.
 }
 ```
 The player drags the bar (it snaps to each `step`) or focuses it with <tab> and uses ←/→, PageUp/PageDown
-and Home/End. It remembers its value. Each `on` rule fires when the value moves into its range
-(`atLeast`, `atMost`, `equals`, or a combination); the first rule entered wins. `onEnter` runs when
+and Home/End. It remembers its value. Each `on` rule is a range (`atLeast`, `atMost`, `equals`,
+or a combination) with an `action`, a `className`, or both. An action fires when the value moves
+into its range (the first rule entered wins); a class applies for as long as the value is in the
+range, so `{ "atLeast": 80, "className": "alert" }` turns the slider red from 80 up. `onEnter` runs when
 the player presses <enter> on the slider. `width`, `fill`, `empty` and `showValue` shape it like a
 progress bar.
 

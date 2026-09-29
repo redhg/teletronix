@@ -23,17 +23,27 @@ export const SliderRuleSchema = z
             .number()
             .optional()
             .meta({ description: "Fires when the value lands on exactly this" }),
-        action: ActionSchema.meta({ description: "What happens" }),
+        action: ActionSchema.optional().meta({
+            description: "What happens each time the value moves into the range",
+        }),
+        className: z.string().optional().meta({
+            description:
+                'Space-separated CSS classes the slider has while its value is in the range, e.g. "alert" to turn it red',
+        }),
     })
     .refine(
         (rule) =>
             rule.atLeast !== undefined || rule.atMost !== undefined || rule.equals !== undefined,
         { message: 'Set "atLeast", "atMost" or "equals" (or a combination)' },
     )
+    .refine((rule) => rule.action !== undefined || rule.className !== undefined, {
+        message: 'Set "action", "className", or both',
+    })
     .meta({
         description:
-            "An action for a range of values. It fires each time the value moves into the range; " +
-            "set more than one condition and the value must meet them all.",
+            "A range of values, with an action that fires each time the value moves into it, " +
+            "and/or classes the slider has while the value is in it. Set more than one of " +
+            '"atLeast", "atMost" and "equals" and the value must meet them all.',
     });
 
 export type SliderRule = z.output<typeof SliderRuleSchema>;
@@ -73,9 +83,14 @@ export const SliderSchema = z
             .length(1)
             .default("░")
             .meta({ description: 'Empty cells (default: "░")' }),
-        on: z.array(SliderRuleSchema).optional().meta({
-            description: "Actions for ranges of values. The first rule the value moves into fires.",
-        }),
+        on: z
+            .array(SliderRuleSchema)
+            .optional()
+            .meta({
+                description:
+                    "Ranges of values, with actions and classes. When the value moves into ranges " +
+                    "with actions, the first one's fires; every range the value is in adds its classes.",
+            }),
         onEnter: ActionSchema.optional().meta({
             description: "What happens when the player presses <enter> on the slider",
         }),
@@ -159,6 +174,13 @@ export function valueAt(slider: SliderElement, fraction: number): number {
     return snapValue(slider, slider.min + clamped * (slider.max - slider.min));
 }
 
+/** The classes a slider has at `value`, from the rules whose range it's in. */
+export function sliderClasses(slider: SliderElement, value: number): string[] {
+    return (slider.on ?? []).flatMap((rule) =>
+        rule.className && matches(rule, value, slider.step) ? [rule.className] : [],
+    );
+}
+
 const matches = (rule: SliderRule, value: number, step: number) =>
     (rule.atLeast === undefined || value >= rule.atLeast) &&
     (rule.atMost === undefined || value <= rule.atMost) &&
@@ -189,7 +211,7 @@ function createSliderReveal(
 export const sliderModule: ModuleDefinition<SliderElement, SliderMemory> = {
     text: (slider, memory) => sliderLine(slider, sliderValue(slider, memory), 80),
     actions: (slider) => [
-        ...(slider.on ?? []).map((rule) => rule.action),
+        ...(slider.on ?? []).flatMap((rule) => (rule.action ? [rule.action] : [])),
         ...(slider.onEnter ? [slider.onEnter] : []),
     ],
     reveal: createSliderReveal,
@@ -211,7 +233,10 @@ export const sliderModule: ModuleDefinition<SliderElement, SliderMemory> = {
         const previous = sliderValue(slider, before);
         // the first rule the value has just moved into
         const rule = (slider.on ?? []).find(
-            (r) => matches(r, after, slider.step) && !matches(r, previous, slider.step),
+            (r) =>
+                r.action !== undefined &&
+                matches(r, after, slider.step) &&
+                !matches(r, previous, slider.step),
         );
         return rule?.action;
     },
