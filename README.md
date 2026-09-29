@@ -62,6 +62,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 | `"section"` | A header that expands and collapses the elements under it. See below. |
+| `"columns"` | Lays elements out in columns, e.g. a long list of links. See below. |
 | `"pause"` | Stops the reveal with "-- PRESS ANY KEY TO CONTINUE --" until a key or tap. See below. |
 | `"buttons"` | A row of `[ BUTTONS ]`, each with an `action` and an optional hotkey. See below. |
 | `"timer"` | A clock on the screen, counting down or up. See [Timers](#timers). |
@@ -188,6 +189,25 @@ sets the columns between them, default 2). They're pressed with a click, <enter>
 `key` from anywhere on the screen; a letter key is underlined in the label. The arrow keys move
 along the row. Like links, a button can have a `secondaryAction`. A row too wide for the
 screen wraps between buttons.
+
+### Columns
+```json
+{
+    "type": "columns",
+    "count": 3,
+    "minWidth": 16,
+    "content": [
+        { "type": "link", "text": "> AUTOSCROLL", "action": { "screen": "autoscroll" } },
+        { "type": "link", "text": "> BARS", "action": { "screen": "bars" } }
+    ]
+}
+```
+Lays its `content` out in `count` equal columns on the character grid, with `gap` characters
+between them (default 2); each item wraps to its column's width. Items fill each column in
+turn, like a directory listing, so a sorted list reads top to bottom; `"order": "across"`
+fills each row instead. With `minWidth` (in characters), a narrow screen gets fewer columns,
+e.g. 3 on a monitor and 2 on a phone. The contents reveal in order, before the rest of the
+screen.
 
 ### Pauses
 ```json

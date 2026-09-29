@@ -18,7 +18,7 @@ export function SectionView({
     const header = <RevealText run={run} index={index} />;
     // this re-renders whenever the terminal publishes a change, which a click causes
     const open = sectionOpen(element, terminal.recall<SectionMemory>(element.id));
-    const contents = run.section(element.id);
+    const contents = run.contents(element.id);
 
     return (
         <div className={classNames("section", element.className)}>

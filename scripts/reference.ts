@@ -38,7 +38,7 @@ import {
     ConfirmSchema,
 } from "../src/engine/schema/dialog.ts";
 import { EffectsSchema } from "../src/engine/schema/effects.ts";
-import { ContentSchema, SectionSchema } from "../src/engine/schema/elements.ts";
+import { ColumnsSchema, ContentSchema, SectionSchema } from "../src/engine/schema/elements.ts";
 import { RuleSchema } from "../src/engine/schema/next.ts";
 import {
     ConfigSchema,
@@ -176,6 +176,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Slider rule", SliderRuleSchema],
             ["Section", SectionSchema, '"type": "section"'],
             ["Section markers", SectionMarkersSchema],
+            ["Columns", ColumnsSchema, '"type": "columns"'],
             ["Pause", PauseSchema, '"type": "pause"'],
             ["Buttons", ButtonsSchema, '"type": "buttons"'],
             ["Button", ButtonSchema],

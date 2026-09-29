@@ -197,3 +197,93 @@ test.describe("alignment and preformatted text", () => {
         expect(Math.abs(middle - (screen.x + screen.width / 2))).toBeLessThan(20);
     });
 });
+
+test.describe("columns", () => {
+    const names = ["ALPHA", "BRAVO", "CHARLIE", "DELTA", "ECHO", "FOXTROT"];
+    const program = (order: "down" | "across" = "down"): Program => ({
+        config: { name: "Columns", start: "home" },
+        screens: {
+            home: {
+                content: [
+                    {
+                        type: "columns",
+                        count: 3,
+                        minWidth: 12,
+                        order,
+                        content: names.map((name) => ({
+                            type: "link" as const,
+                            text: `> ${name}`,
+                            action: { screen: "picked" },
+                        })),
+                    },
+                ],
+            },
+            picked: { content: ["PICKED"] },
+        },
+    });
+
+    /** Each link's column and row, by its left and top edges. */
+    const grid = async (page: Page) => {
+        const boxes = await page.locator(".columns button.link").evaluateAll((links) =>
+            links.map((link) => {
+                const box = link.getBoundingClientRect();
+                return {
+                    name: link.textContent?.replace(/^> /, "").slice(0, 7),
+                    x: box.x,
+                    y: box.y,
+                };
+            }),
+        );
+        const xs = [...new Set(boxes.map((box) => Math.round(box.x)))].sort((a, b) => a - b);
+        const ys = [...new Set(boxes.map((box) => Math.round(box.y)))].sort((a, b) => a - b);
+        return boxes.map((box) => ({
+            name: box.name,
+            column: xs.indexOf(Math.round(box.x)),
+            row: ys.indexOf(Math.round(box.y)),
+        }));
+    };
+
+    test("fill each column in turn", async ({ page, player }) => {
+        await player.open(program());
+        const cells = await grid(page);
+        expect(cells.map((cell) => [cell.column, cell.row])).toEqual([
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1],
+            [2, 0],
+            [2, 1],
+        ]);
+    });
+
+    test("or each row in turn", async ({ page, player }) => {
+        await player.open(program("across"));
+        const cells = await grid(page);
+        expect(cells.map((cell) => [cell.column, cell.row])).toEqual([
+            [0, 0],
+            [1, 0],
+            [2, 0],
+            [0, 1],
+            [1, 1],
+            [2, 1],
+        ]);
+    });
+
+    test("use fewer columns on a narrow screen", async ({ page, player }) => {
+        await player.open(program());
+        await page.setViewportSize({ width: 360, height: 700 });
+        await expect
+            .poll(async () => Math.max(...(await grid(page)).map((cell) => cell.column)))
+            .toBeLessThan(2);
+        const overflows = await page.evaluate(
+            () => document.documentElement.scrollWidth > window.innerWidth,
+        );
+        expect(overflows).toBe(false);
+    });
+
+    test("hold links that work", async ({ player }) => {
+        await player.open(program());
+        await player.link("> ECHO").click();
+        await expect(player.screen).toContainText("PICKED");
+    });
+});

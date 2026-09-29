@@ -359,7 +359,7 @@ function normalizeContent(items: readonly unknown[], prefix: string): Element[] 
         const id = `${prefix}${index}`;
         if (typeof item === "string") return { type: "text", text: item, wrap: true, id };
         const element = { ...(item as Element), id };
-        if (element.type === "section") {
+        if (element.type === "section" || element.type === "columns") {
             element.content = normalizeContent(element.content, `${id}.`);
         }
         return element;

@@ -63,7 +63,7 @@ describe("waitForReveal", () => {
         terminal.start();
         terminal.skip();
         terminal.remember("home#2", true);
-        const contents = run(terminal).section("home#2") as ScreenRun;
+        const contents = run(terminal).contents("home#2") as ScreenRun;
         ticker.advance(20, 10);
         expect(contents.interactive).toBe(false);
         expect(run(terminal).interactive).toBe(true);

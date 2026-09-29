@@ -78,7 +78,7 @@ describe("pause", () => {
     it("inside an open section, holds the whole screen", () => {
         const { terminal, ticker } = start("nested");
         terminal.skip();
-        const contents = run(terminal).section("nested#0") as ScreenRun;
+        const contents = run(terminal).contents("nested#0") as ScreenRun;
         expect(contents.pausedOn("nested#0.1")).toBe(true);
         expect(run(terminal).paused).toBe(true);
         expect(run(terminal).states[1]).toBe("ready");

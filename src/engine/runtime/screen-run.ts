@@ -1,5 +1,6 @@
 import { type Button, buttonForKey } from "../../modules/buttons/definition.ts";
-import { type SectionElement, sectionOpen } from "../../modules/section/definition.ts";
+import { columnLayout } from "../../modules/columns/definition.ts";
+import { sectionOpen } from "../../modules/section/definition.ts";
 import type { Random } from "../random.ts";
 import {
     createGlitchReveal,
@@ -115,7 +116,10 @@ export class ScreenRun {
     /** The unit to activate when a held screen resumes, or -1. */
     private held = -1;
     private finished: number | null = null;
-    /** The contents of open sections, each a run of its own, by the section's index. */
+    /**
+     * The contents of open sections and of columns, each a run of its own, by the index of
+     * the element that holds them.
+     */
     private readonly children = new Map<number, ScreenRun>();
     /** A section whose contents the run is holding for while they reveal, or -1. */
     private waitingOn = -1;
@@ -237,8 +241,13 @@ export class ScreenRun {
         }
     }
 
-    /** The run of an open section's contents, once its turn has come. */
-    section(elementId: string): ScreenRun | null {
+    /** Characters per line. */
+    get width(): number {
+        return this.columns;
+    }
+
+    /** The run of an open section's (or columns') contents, once its turn has come. */
+    contents(elementId: string): ScreenRun | null {
         const index = this.runs.findIndex((run) => run.element.id === elementId);
         return this.children.get(index) ?? null;
     }
@@ -423,7 +432,7 @@ export class ScreenRun {
     setColumns(columns: number): void {
         if (columns === this.columns) return;
         this.columns = columns;
-        for (const [index, child] of this.children) child.setColumns(this.sectionColumns(index));
+        for (const [index, child] of this.children) child.setColumns(this.contentColumns(index));
         for (const run of this.runs) {
             run.layout = this.layout(run.element, run.text);
             this.emitFrame(run);
@@ -467,23 +476,33 @@ export class ScreenRun {
         this.options.onDone?.(now);
     }
 
-    private isOpen(section: SectionElement): boolean {
-        return sectionOpen(section, this.options.recall?.(section.id) as boolean | undefined);
+    /** Whether an element's contents are showing: an open section's, or columns'. */
+    private hasContents(element: Element): boolean {
+        if (element.type === "columns") return true;
+        return (
+            element.type === "section" &&
+            sectionOpen(element, this.options.recall?.(element.id) as boolean | undefined)
+        );
     }
 
-    /** The columns a section's contents have: the run's, less the section's indent. */
-    private sectionColumns(index: number): number {
-        const section = this.runs[index]?.element as SectionElement | undefined;
-        return Math.max(1, this.columns - (section?.indent ?? 0));
+    /**
+     * The characters per line an element's contents have: a section's, less its indent; a
+     * column's width, for columns.
+     */
+    private contentColumns(index: number): number {
+        const element = this.runs[index]?.element;
+        if (element?.type === "columns") return columnLayout(element, this.columns).width;
+        const indent = element?.type === "section" ? element.indent : 0;
+        return Math.max(1, this.columns - indent);
     }
 
-    /** Starts revealing a section's contents, as a run of their own. */
-    private openSection(index: number, time: number): ScreenRun {
-        const section = this.runs[index]?.element as SectionElement;
+    /** Starts revealing an element's contents, as a run of their own. */
+    private openContents(index: number, time: number): ScreenRun {
+        const section = this.runs[index]?.element as Element & { content: Element[] };
         const child: ScreenRun = new ScreenRun(
             {
                 ...this.screen,
-                // the section's reveal is its contents' default
+                // the element's reveal is its contents' default
                 reveal: section.reveal ?? this.screen.reveal,
                 next: undefined,
                 sound: undefined,
@@ -491,7 +510,7 @@ export class ScreenRun {
             },
             {
                 ...this.options,
-                columns: this.sectionColumns(index),
+                columns: this.contentColumns(index),
                 onDone: (done) => {
                     if (this.waitingOn !== index || this.children.get(index) !== child) return;
                     this.waitingOn = -1;
@@ -510,9 +529,9 @@ export class ScreenRun {
         const run = this.runs[index];
         if (run?.element.type !== "section" || run.state !== "done" || this.eraser) return;
         const now = this.options.now();
-        const open = this.isOpen(run.element);
+        const open = this.hasContents(run.element);
         if (open && !this.children.has(index)) {
-            this.openSection(index, now);
+            this.openContents(index, now);
         } else if (!open && this.children.has(index)) {
             this.children.delete(index);
             this.options.onChange();
@@ -561,6 +580,7 @@ export class ScreenRun {
                 inherited &&
                 spec.type === "glitch" &&
                 element.type !== "section" &&
+                element.type !== "columns" &&
                 element.type !== "pause";
             const last = groups.at(-1);
             if (block && last?.block) {
@@ -665,8 +685,8 @@ export class ScreenRun {
                 hold = true;
             }
             // an open section reveals its contents before the screen carries on
-            if (element?.type === "section" && this.isOpen(element) && !this.children.has(index)) {
-                const child = this.openSection(index, time);
+            if (element && this.hasContents(element) && !this.children.has(index)) {
+                const child = this.openContents(index, time);
                 if (child.finishedAt === null) {
                     this.waitingOn = index;
                     hold = true;

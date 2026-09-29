@@ -5,6 +5,11 @@ import {
     ButtonsSchema,
     buttonsModule,
 } from "../../modules/buttons/definition.ts";
+import {
+    type ColumnsElement,
+    columnsModule,
+    createColumnsSchema,
+} from "../../modules/columns/definition.ts";
 import { type LinkElement, LinkSchema, linkModule } from "../../modules/link/definition.ts";
 import { type NumberElement, NumberSchema, numberModule } from "../../modules/number/definition.ts";
 import { type PauseElement, PauseSchema, pauseModule } from "../../modules/pause/definition.ts";
@@ -32,6 +37,8 @@ import type { Align, LayoutOptions } from "../text/layout.ts";
 
 /** A section's contents are elements, so its schema refers back to them (lazily). */
 export const SectionSchema = createSectionSchema(() => z.array(ContentSchema));
+/** Likewise for columns. */
+export const ColumnsSchema = createColumnsSchema(() => z.array(ContentSchema));
 
 // The registry of element modules. Adding a module means adding it here.
 export const ElementSchema = z.discriminatedUnion("type", [
@@ -47,6 +54,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     ButtonsSchema,
     NumberSchema,
     TimerElementSchema,
+    ColumnsSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -70,7 +78,8 @@ export type Element =
     | PauseElement
     | ButtonsElement
     | NumberElement
-    | TimerElement;
+    | TimerElement
+    | ColumnsElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -87,6 +96,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     buttons: buttonsModule,
     number: numberModule,
     timer: timerModule,
+    columns: columnsModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
@@ -121,8 +131,12 @@ export function forEachElement(
 ): void {
     content.forEach((element, index) => {
         visit(element, [...path, index]);
-        if (element.type === "section") {
-            forEachElement(element.content, visit, [...path, index, "content"]);
-        }
+        const contents = contentsOf(element);
+        if (contents) forEachElement(contents, visit, [...path, index, "content"]);
     });
+}
+
+/** The elements an element holds (a section's or columns' contents), if it holds any. */
+export function contentsOf(element: Element): Element[] | undefined {
+    return element.type === "section" || element.type === "columns" ? element.content : undefined;
 }

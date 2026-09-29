@@ -75,12 +75,12 @@ describe("sections", () => {
         ticker.advance(1000, 10);
 
         expect(text(run, 0)).toBe("[+] LOGS");
-        expect(run.section("home#0")).toBeNull();
+        expect(run.contents("home#0")).toBeNull();
         expect(text(run, 1)).toBe("v OPEN");
-        const open = run.section("home#1") as ScreenRun;
+        const open = run.contents("home#1") as ScreenRun;
         // conditions are checked as it opens
         expect(open.elements.map((e) => e.id)).toEqual(["home#1.0", "home#1.2"]);
-        expect(text(open.section("home#1.2") as ScreenRun, 0)).toBe("i");
+        expect(text(open.contents("home#1.2") as ScreenRun, 0)).toBe("i");
         expect(text(run, 2)).toBe("end");
 
         // "end" came after everything in the open section: 8 + 6 + 3 + 9 + 1 + 3 characters
@@ -96,7 +96,7 @@ describe("sections", () => {
 
         terminal.remember("home#0", true);
         expect(text(run, 0)).toBe("[-] LOGS");
-        const logs = run.section("home#0") as ScreenRun;
+        const logs = run.contents("home#0") as ScreenRun;
         expect(logs.finishedAt).toBeNull();
         ticker.advance(20, 10);
         expect(text(logs, 0)).toMatch(/^ab/);
@@ -105,7 +105,7 @@ describe("sections", () => {
         expect(run.finishedAt).toBe(finished);
 
         terminal.remember("home#0", false);
-        expect(run.section("home#0")).toBeNull();
+        expect(run.contents("home#0")).toBeNull();
         expect(text(run, 0)).toBe("[+] LOGS");
     });
 
@@ -114,7 +114,7 @@ describe("sections", () => {
         terminal.start();
         terminal.skip();
         const run = terminal.getSnapshot().screen?.run as ScreenRun;
-        expect(text(run.section("home#1") as ScreenRun, 0)).toBe("xyz");
+        expect(text(run.contents("home#1") as ScreenRun, 0)).toBe("xyz");
         expect(run.animating).toBe(false);
     });
 
@@ -147,7 +147,7 @@ describe("sections", () => {
         ticker.advance(200, 10);
         const run = terminal.getSnapshot().screen?.run as ScreenRun;
         expect(terminal.getSnapshot().dialog?.id).toBe("done");
-        expect(run.section("home#0")?.states).toEqual(["done", "done"]);
+        expect(run.contents("home#0")?.states).toEqual(["done", "done"]);
         expect(run.states).toEqual(["done", "done"]);
     });
 
@@ -173,7 +173,7 @@ describe("sections", () => {
         );
         terminal.start();
         const run = terminal.getSnapshot().screen?.run as ScreenRun;
-        const contents = run.section("home#0") as ScreenRun;
+        const contents = run.contents("home#0") as ScreenRun;
         // 12 columns, less 4
         expect(text(contents, 0)).toBe("one two\nthree");
         terminal.setColumns(20);
@@ -188,7 +188,7 @@ describe("sections", () => {
         terminal.navigate("away");
         terminal.navigate("home");
         const run = terminal.getSnapshot().screen?.run as ScreenRun;
-        expect(run.section("home#0")).not.toBeNull();
-        expect(run.section("home#1")).toBeNull();
+        expect(run.contents("home#0")).not.toBeNull();
+        expect(run.contents("home#1")).toBeNull();
     });
 });

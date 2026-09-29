@@ -1,0 +1,9 @@
+/* whole character cells wide (see ColumnsView), so each column is on the screen's grid */
+.columns {
+    display: grid;
+    justify-content: start;
+}
+
+.columns > * {
+    min-width: 0;
+}
