@@ -123,3 +123,11 @@ test("reduced motion shows everything at once", async ({ browser }) => {
     await expect(page.locator(".screen button.link", { hasText: "> BACK" })).toBeVisible();
     await context.close();
 });
+
+test("Esc finishes the reveal, like a click", async ({ page, player }) => {
+    await player.link("> TYPE").click();
+    await expect.poll(() => player.text()).toContain("The quick");
+    await page.keyboard.press("Escape");
+    await expect(player.link("> BACK")).toBeVisible();
+    expect((await player.text()).replace(/\s+/g, " ")).toContain(LONG);
+});

@@ -53,11 +53,26 @@ export function SoundLayer({ terminal, sound, children }: Props) {
 
     const play = useCallback((cue: InterfaceCue) => synth.play(cue), [synth]);
 
-    const toggle = () => {
+    const toggle = useCallback(() => {
         synth.unlock();
-        setMuted(!muted);
-        writeMuted(!muted);
-    };
+        setMuted((was) => {
+            writeMuted(!was);
+            return !was;
+        });
+    }, [synth]);
+
+    // Ctrl+M mutes or unmutes from anywhere (not Cmd+M: that minimizes the window on a Mac)
+    useEffect(() => {
+        if (!sound) return;
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const plainCtrl = event.ctrlKey && !event.altKey && !event.metaKey && !event.shiftKey;
+            if (!plainCtrl || event.key.toLowerCase() !== "m" || event.repeat) return;
+            event.preventDefault();
+            toggle();
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [sound, toggle]);
 
     return (
         <SoundContext value={play}>

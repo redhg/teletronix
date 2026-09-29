@@ -381,7 +381,13 @@ export class Terminal {
             return true;
         }
         const rule = ruleForKey(this.rules(), key);
-        return rule ? this.trigger(rule) : false;
+        if (rule) return this.trigger(rule);
+        // last of all: a key that finishes the reveal, like a click
+        if (!this.dialog && this.revealing && keyMatches(this.program.skipKeys, key)) {
+            this.skip();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -398,6 +404,15 @@ export class Terminal {
         const rule = ruleForTap(this.rules());
         if (!rule || this.run?.finishedAt === null) return false;
         return this.trigger(rule);
+    }
+
+    /**
+     * Whether anything is still appearing: the screen, an opened section's contents, a
+     * transition, or the static between screens.
+     */
+    get revealing(): boolean {
+        if (this.interstitial || this.outgoing) return true;
+        return this.run !== null && (this.run.finishedAt === null || this.run.animating);
     }
 
     /** Finishes revealing the current screen immediately, and any transition with it. */

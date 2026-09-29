@@ -52,6 +52,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `defaults` | [Defaults](#defaults) |  | Default options for each kind of reveal |
 | `variables` | [Variables](#variables) |  | The program's variables and their starting values: true or false, a number, or text. Actions change them with `set`, toggles, sliders and prompts can be bound to them, `if` tests them, and text shows them as "{name}". They reset when the page reloads. |
 | `timers` | [Timers](#timers) |  | The program's timers, by name: clocks that keep running from screen to screen, such as a self-destruct countdown |
+| `skipKeys` | string[] | ["Escape"] | Keys that finish revealing the screen at once, like a click, when the program doesn't use them for anything else: key names like "Escape" or "Space", or [] for none. In kiosk mode, Esc also leaves full screen, so try ["Space"] |
 | `theme` | [Theme](#theme) | `"default"` | The color scheme: "default" (pale blue on black), "amber", "green" or "white", or your own colors |
 | `font` | `"ast-premiumexec"` \| `"ibm-vga"` \| `"ibm-ega"` \| `"ibm-cga"` \| `"ibm-cga-thin"` \| `"ibm-mda"` \| `"toshiba-satellite"` \| `"departure-mono"` | `"ast-premiumexec"` | The typeface, from a set of period PC fonts |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |

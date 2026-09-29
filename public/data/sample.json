@@ -17,7 +17,7 @@
                 "",
                 "Each line of a screen appears in turn. A bare string is a line of text. Long lines wrap at word boundaries to fit the window, so try resizing it.",
                 "",
-                "Click anywhere to skip to the end of a screen. This program sets \"waitForReveal\": true, so links and other controls only work once their screen has finished revealing, as on a real terminal: until then, clicking one skips ahead too.",
+                "Click anywhere, or press <esc>, to skip to the end of a screen. This program sets \"waitForReveal\": true, so links and other controls only work once their screen has finished revealing, as on a real terminal: until then, clicking one skips ahead too.",
                 "",
                 {
                     "type": "columns",

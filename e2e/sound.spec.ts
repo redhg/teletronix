@@ -103,6 +103,15 @@ test("can be muted, and stays muted", async ({ page, player, audio }) => {
     await expect(page.locator(".sound-toggle")).toHaveText("[SOUND OFF]");
 });
 
+test("mutes and unmutes with Ctrl+M", async ({ page, player }) => {
+    await player.open(program);
+    const toggle = page.locator(".sound-toggle");
+    await page.keyboard.press("Control+m");
+    await expect(toggle).toHaveText("[SOUND OFF]");
+    await page.keyboard.press("Control+m");
+    await expect(toggle).toHaveText("[SOUND ON]");
+});
+
 test("can be turned off by the program", async ({ page, player }) => {
     await player.open({ ...program, config: { ...program.config, sound: false } });
     await expect(page.locator(".sound-toggle")).toHaveCount(0);

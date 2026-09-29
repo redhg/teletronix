@@ -32,7 +32,7 @@ import {
     forEachElement,
     moduleFor,
 } from "./elements.ts";
-import { type NextRule, NextSchema } from "./next.ts";
+import { DEFAULT_SKIP_KEYS, type NextRule, NextSchema, SkipKeysSchema } from "./next.ts";
 import { type ResolvedSound, resolveSound, SoundSchema, type SoundSetting } from "./sound.ts";
 import { type Timer, TimersSchema } from "./timers.ts";
 import {
@@ -158,6 +158,7 @@ export const ConfigSchema = z
         defaults: DefaultsSchema.optional(),
         variables: VariablesSchema.optional(),
         timers: TimersSchema.optional(),
+        skipKeys: SkipKeysSchema.optional(),
         theme: ThemeSchema.optional(),
         font: FontSchema.optional(),
         effects: EffectsSchema.optional(),
@@ -265,6 +266,8 @@ export interface Program {
     /** Bars pinned to the top and bottom of the window, unless a screen has its own */
     header?: BarLine[];
     footer?: BarLine[];
+    /** Keys that finish a screen's reveal, when nothing else wants them (normalized) */
+    skipKeys: string[];
     /** Timers by name: clocks that keep running from screen to screen */
     timers: ReadonlyMap<string, Timer>;
     /** Variables by name, with their starting values */
@@ -289,6 +292,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         font,
         variables,
         timers,
+        skipKeys,
         ...config
     } = file.config;
 
@@ -345,6 +349,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         ),
         variables: new Map(Object.entries(variables ?? {})),
         timers: new Map(Object.entries(timers ?? {})),
+        skipKeys: skipKeys ?? DEFAULT_SKIP_KEYS,
         header,
         footer,
     };

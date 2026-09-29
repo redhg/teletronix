@@ -1637,6 +1637,14 @@
                     },
                     "description": "The program's timers, by name: clocks that keep running from screen to screen, such as a self-destruct countdown"
                 },
+                "skipKeys": {
+                    "description": "Keys that finish revealing the screen at once, like a click, when the program doesn't use them for anything else: key names like \"Escape\" or \"Space\", or [] for none. In kiosk mode, Esc also leaves full screen, so try [\"Space\"] (default: [\"Escape\"])",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
                 "theme": {
                     "anyOf": [
                         {

@@ -373,6 +373,16 @@ most specific wins. `config.defaults` sets the default options for each kind of 
 }
 ```
 
+### Keys
+Wherever the program doesn't use them for anything else:
+- **Esc** finishes revealing the screen at once, like a click (stopping at a `pause`, as a
+  click does). `"skipKeys"` in the config changes which keys do this, e.g. `["Space"]`, or
+  `[]` for none.
+- **Ctrl+M** mutes or unmutes the sound.
+
+A key the program uses comes first: a dialog, a focused control, a pause, a progress bar's
+abort key, a button's hotkey, or a screen's `next` rule.
+
 ### Waiting for the reveal
 By default, each link, toggle, slider, section and prompt works as soon as it has been revealed,
 while the rest of the screen may still be typing. Set `"waitForReveal": true` in the config
@@ -484,6 +494,9 @@ screen:
 - It keeps the screen from sleeping, hides the mouse pointer when it's still, blocks text
   selection and zooming, and asks before the page is closed or left.
 - **Ctrl+Alt+R** restarts the program from its start screen, with variables reset.
+- In full screen, the browser also uses Esc to leave full screen, and a web page can't stop
+  it; kiosk mode goes back to full screen at the next key or tap. For a smoother kiosk, set
+  `"skipKeys": ["Space"]` so players skip with Space instead.
 
 ### Offline
 Once Teletronix has been opened, it works without a network: the app, its fonts, and every

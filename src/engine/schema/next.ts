@@ -21,6 +21,19 @@ export function normalizeKey(key: string): string {
 
 const KeyNameSchema = z.string().min(1);
 
+/** The keys that finish a screen's reveal, unless the program sets its own. */
+export const DEFAULT_SKIP_KEYS = ["escape"];
+
+export const SkipKeysSchema = z
+    .array(KeyNameSchema)
+    .transform((keys) => keys.map(normalizeKey))
+    .meta({
+        description:
+            "Keys that finish revealing the screen at once, like a click, when the program " +
+            'doesn\'t use them for anything else: key names like "Escape" or "Space", or [] for ' +
+            'none. In kiosk mode, Esc also leaves full screen, so try ["Space"] (default: ["Escape"])',
+    });
+
 /** One key name or several, normalized to a list. */
 export const KeysSchema = z
     .union([KeyNameSchema, z.array(KeyNameSchema).min(1)])
