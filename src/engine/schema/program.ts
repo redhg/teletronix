@@ -24,7 +24,13 @@ import {
 } from "./common.ts";
 import { type Dialog, DialogSchema, dialogAction } from "./dialog.ts";
 import { EffectsSchema, type EffectsSetting } from "./effects.ts";
-import { boundVariable, type Element, ElementSchema, moduleFor } from "./elements.ts";
+import {
+    boundVariable,
+    ContentSchema,
+    type Element,
+    forEachElement,
+    moduleFor,
+} from "./elements.ts";
 import { type NextRule, NextSchema } from "./next.ts";
 import { type ResolvedSound, resolveSound, SoundSchema, type SoundSetting } from "./sound.ts";
 import {
@@ -42,11 +48,6 @@ export const DEFAULT_TELETYPE_SPEED = 10;
 export const DEFAULT_GLITCH_DURATION = 1000;
 
 // ─── Authoring schema (what a JSON file contains) ────────────────────────────
-
-const ContentSchema = z.union([
-    z.string().meta({ description: "Shorthand for a text element" }),
-    ElementSchema,
-]);
 
 export const ScreenSchema = z
     .strictObject({
@@ -235,11 +236,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
 
     const screens = new Map<string, Screen>();
     for (const [id, screen] of Object.entries(file.screens)) {
-        const content = screen.content.map((item, index): Element => {
-            const element =
-                typeof item === "string" ? { type: "text" as const, text: item, wrap: true } : item;
-            return { ...element, id: `${id}#${index}` };
-        });
+        const content = normalizeContent(screen.content, `${id}#`);
         const { reveal, transition, effects, autoscroll, align, next, sound } = screen;
         screens.set(id, {
             id,
@@ -285,6 +282,22 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         ),
         variables: new Map(Object.entries(variables ?? {})),
     };
+}
+
+/**
+ * Gives every element an id (`<screen>#<index>`, and `<section id>.<index>` inside a
+ * section) and turns bare strings into text elements.
+ */
+function normalizeContent(items: readonly unknown[], prefix: string): Element[] {
+    return items.map((item, index): Element => {
+        const id = `${prefix}${index}`;
+        if (typeof item === "string") return { type: "text", text: item, wrap: true, id };
+        const element = { ...(item as Element), id };
+        if (element.type === "section") {
+            element.content = normalizeContent(element.content, `${id}.`);
+        }
+        return element;
+    });
 }
 
 /** Cross-reference checks that a JSON Schema can't express. */
@@ -344,8 +357,8 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
             report([...path, "action"], actionProblems(rule.action));
         });
 
-        screen.content.forEach((element, index) => {
-            const path = ["screens", screen.id, "content", index];
+        forEachElement(screen.content, (element, at) => {
+            const path = ["screens", screen.id, "content", ...at];
             const module = moduleFor(element);
             report([...path, "sound"], unknownSound(element.sound));
             report([...path, "if"], conditionProblems(element.if));

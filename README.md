@@ -60,6 +60,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"bitmap"` | An image (`src`, `alt`) that resolves from blocky to sharp. The screen waits for it to load. |
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
+| `"section"` | A header that expands and collapses the elements under it. See below. |
 
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also change variables
 (see [Variables and conditions](#variables-and-conditions)). Every element takes an optional
@@ -129,6 +130,24 @@ into its range (the first rule entered wins); a class applies for as long as the
 range, so `{ "atLeast": 80, "className": "alert" }` turns the slider red from 80 up. `onEnter` runs when
 the player presses <enter> on the slider. `width`, `fill`, `empty` and `showValue` shape it like a
 progress bar.
+
+### Sections
+```json
+{
+    "type": "section",
+    "title": "CREW MANIFEST",
+    "content": [
+        "CAPT. R. OKAFOR      COMMAND",
+        { "type": "link", "text": "> VANCE'S LOG", "action": { "screen": "vance-log" } }
+    ]
+}
+```
+A section's header (`[+] CREW MANIFEST`) expands and collapses the elements in its `content`, which
+can be any elements, including other sections. Expanding reveals them in place, with the
+section's `reveal` (e.g. `"instant"`) or the screen's; collapsing hides them at once. A section
+starts collapsed unless it sets `"open": true`, in which case its contents reveal before the
+rest of the screen. It remembers whether it's open when you come back. `markers` changes what
+the header shows before the title: `{ "closed": "▶", "open": "▼" }`.
 
 ### Moving on without a link
 A screen's `next` moves on without a link. Each rule has an `action` and a trigger:

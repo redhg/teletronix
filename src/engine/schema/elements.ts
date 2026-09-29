@@ -7,11 +7,19 @@ import {
     progressModule,
 } from "../../modules/progress/definition.ts";
 import { type PromptElement, PromptSchema, promptModule } from "../../modules/prompt/definition.ts";
+import {
+    createSectionSchema,
+    type SectionElement,
+    sectionModule,
+} from "../../modules/section/definition.ts";
 import { type SliderElement, SliderSchema, sliderModule } from "../../modules/slider/definition.ts";
 import { type TextElement, TextSchema, textModule } from "../../modules/text/definition.ts";
 import { type ToggleElement, ToggleSchema, toggleModule } from "../../modules/toggle/definition.ts";
 import type { ModuleDefinition } from "../module.ts";
 import type { Align, LayoutOptions } from "../text/layout.ts";
+
+/** A section's contents are elements, so its schema refers back to them (lazily). */
+export const SectionSchema = createSectionSchema(() => z.array(ContentSchema));
 
 // The registry of element modules. Adding a module means adding it here.
 export const ElementSchema = z.discriminatedUnion("type", [
@@ -22,7 +30,17 @@ export const ElementSchema = z.discriminatedUnion("type", [
     BitmapSchema,
     ProgressSchema,
     SliderSchema,
+    SectionSchema,
 ]);
+
+/** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
+export const ContentSchema = z
+    .union([z.string().meta({ description: "Shorthand for a text element" }), ElementSchema])
+    .meta({
+        // named, so a section's contents (which can hold sections) can refer back to it
+        id: "Content",
+        description: "An element, or a string: shorthand for a line of text",
+    });
 
 export type Element =
     | TextElement
@@ -31,7 +49,8 @@ export type Element =
     | PromptElement
     | BitmapElement
     | ProgressElement
-    | SliderElement;
+    | SliderElement
+    | SectionElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -43,6 +62,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     bitmap: bitmapModule,
     progress: progressModule,
     slider: sliderModule,
+    section: sectionModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
@@ -64,4 +84,21 @@ export function layoutOptions(element: Element, fallback: Align): LayoutOptions 
         wrap: "wrap" in element ? element.wrap : true,
         align: ("align" in element ? element.align : undefined) ?? fallback,
     };
+}
+
+/**
+ * Calls `visit` for every element in some content, including those inside sections, with
+ * its path from the content (e.g. [2, "content", 0]).
+ */
+export function forEachElement(
+    content: readonly Element[],
+    visit: (element: Element, path: PropertyKey[]) => void,
+    path: PropertyKey[] = [],
+): void {
+    content.forEach((element, index) => {
+        visit(element, [...path, index]);
+        if (element.type === "section") {
+            forEachElement(element.content, visit, [...path, index, "content"]);
+        }
+    });
 }

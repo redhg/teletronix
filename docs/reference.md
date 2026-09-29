@@ -8,7 +8,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add)
-- **Elements:** [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Section](#section), [Section markers](#section-markers)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -100,7 +100,7 @@ A screen of content. Its elements are revealed one after another.
 | `align` | `"left"` \| `"center"` \| `"right"` | the config's | Where text, links and toggles sit across the screen, unless they say otherwise |
 | `next` | [Next rule](#next-rule) \| [Next rule](#next-rule)[] |  | Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens. |
 | `sound` | id |  | A sound from the program's sounds, played as the screen appears |
-| `content` | (string \| [Text](#text) \| [Link](#link) \| [Toggle](#toggle) \| [Prompt](#prompt) \| [Bitmap](#bitmap) \| [Progress](#progress) \| [Slider](#slider))[] | **required** | The elements, revealed in order. Can be empty. |
+| `content` | [Content](#content)[] | **required** | The elements, revealed in order. Can be empty. |
 
 <a id="next-rule"></a>
 
@@ -207,6 +207,24 @@ Adds to a number variable
 | `add` | number | **required** | How much to add (negative to subtract) |
 
 ## Elements
+
+<a id="content"></a>
+
+### Content
+
+An element, or a string: shorthand for a line of text
+
+One of:
+
+- string: Shorthand for a text element
+- [Text](#text)
+- [Link](#link)
+- [Toggle](#toggle)
+- [Prompt](#prompt)
+- [Bitmap](#bitmap)
+- [Progress](#progress)
+- [Slider](#slider)
+- [Section](#section)
 
 <a id="text"></a>
 
@@ -425,6 +443,34 @@ A range of values, with an action that fires each time the value moves into it, 
 | `equals` | number |  | Fires when the value lands on exactly this |
 | `action` | [Action](#action) |  | What happens each time the value moves into the range |
 | `className` | string |  | Space-separated CSS classes the slider has while its value is in the range, e.g. "alert" to turn it red |
+
+<a id="section"></a>
+
+### Section (`"type": "section"`)
+
+A header that expands and collapses the elements under it. Expanding reveals them (set the section's reveal to change how, e.g. "instant"); collapsing hides them at once. It remembers whether it's open when you come back.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `title` | string | **required** | The header's text |
+| `open` | boolean | `false` | Start expanded |
+| `markers` | [Section markers](#section-markers) | `{"closed":"[+]","open":"[-]"}` | What the header shows before its title, e.g. ▶ and ▼ |
+| `content` | [Content](#content)[] | **required** | The elements shown when expanded, revealed in order like a screen's. They can include other sections. |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="section-markers"></a>
+
+### Section markers
+
+What a section's header shows before its title
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `closed` | string | `"[+]"` | Before the title while collapsed |
+| `open` | string | `"[-]"` | Before the title while expanded |
 
 ## Dialogs
 

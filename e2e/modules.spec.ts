@@ -384,3 +384,84 @@ test.describe("progress", () => {
         await expect(player.link("> RUN")).toBeVisible();
     });
 });
+
+test.describe("section", () => {
+    const sections: Program = {
+        config: { name: "Sections", start: "home" },
+        screens: {
+            home: {
+                content: [
+                    {
+                        type: "section",
+                        title: "CREW MANIFEST",
+                        content: [
+                            "CAPT. R. OKAFOR      COMMAND",
+                            { type: "link", text: "> VANCE'S LOG", action: { screen: "log" } },
+                        ],
+                    },
+                    {
+                        type: "section",
+                        title: "CARGO",
+                        open: true,
+                        markers: { closed: "▶", open: "▼" },
+                        content: ["12 CRATES"],
+                    },
+                    "END OF DIRECTORY",
+                ],
+            },
+            log: { content: ["LOG", { type: "link", text: "> BACK", action: { screen: "home" } }] },
+        },
+    };
+    const header = (player: import("./fixtures.ts").Player, title: string) =>
+        player.screen.locator("button.section-header", { hasText: title });
+
+    test("starts collapsed, and expands and collapses with a click", async ({ player }) => {
+        await player.open(sections);
+        const crew = header(player, "CREW MANIFEST");
+        await expect(crew).toContainText("[+] CREW MANIFEST");
+        await expect(crew).toHaveAttribute("aria-expanded", "false");
+        await expect(player.screen).not.toContainText("OKAFOR");
+
+        await crew.click();
+        await expect(crew).toContainText("[-] CREW MANIFEST");
+        await expect(crew).toHaveAttribute("aria-expanded", "true");
+        await expect(player.screen).toContainText("OKAFOR");
+        // the rest of the screen moves down, under it
+        const order = await player.screen.evaluate((screen) => screen.textContent ?? "");
+        expect(order.indexOf("OKAFOR")).toBeLessThan(order.indexOf("END OF DIRECTORY"));
+
+        await crew.click();
+        await expect(player.screen).not.toContainText("OKAFOR");
+    });
+
+    test("can start open, with its own markers", async ({ player }) => {
+        await player.open(sections);
+        await expect(header(player, "CARGO")).toContainText("▼ CARGO");
+        await expect(player.screen).toContainText("12 CRATES");
+    });
+
+    test("works from the keyboard, and its contents work", async ({ page, player }) => {
+        await player.open(sections);
+        await header(player, "CREW MANIFEST").focus();
+        await page.keyboard.press("Enter");
+        await player.link("> VANCE'S LOG").click();
+        await expect(player.screen).toContainText("LOG");
+        // and it's still open on the way back
+        await player.link("> BACK").click();
+        await expect(player.screen).toContainText("OKAFOR");
+    });
+
+    test.describe("with motion", () => {
+        test.use({ reducedMotion: "no-preference" });
+
+        test("types its contents in as it expands", async ({ player }) => {
+            await player.open(sections);
+            await player.tap();
+            await header(player, "CREW MANIFEST").click();
+            await expect(player.screen.locator(".section-content .reveal-cursor")).not.toHaveCount(
+                0,
+            );
+            await expect(player.link("> VANCE'S LOG")).toBeVisible();
+        });
+    });
+});

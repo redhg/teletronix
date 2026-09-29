@@ -22,6 +22,7 @@
                 { "type": "link", "text": "> LINKS", "action": { "screen": "links" } },
                 { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } },
                 { "type": "link", "text": "> TOGGLES", "action": { "screen": "toggles" } },
+                { "type": "link", "text": "> SECTIONS", "action": { "screen": "sections" } },
                 { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
                 { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
                 { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
@@ -483,6 +484,58 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "dialogs" } }
             ]
         },
+        "sections": {
+            "content": [
+                "SECTIONS",
+                "========",
+                "",
+                "A section is a header that expands and collapses the elements under it. Click one, or focus it with <tab> and press <enter>. They remember whether they're open.",
+                "",
+                {
+                    "type": "section",
+                    "title": "CREW MANIFEST",
+                    "content": [
+                        "CAPT. R. OKAFOR      COMMAND",
+                        "DR. L. VANCE         MEDICAL",
+                        "J. MBEKI             ENGINEERING",
+                        "S. HALVORSEN         CARGO",
+                        { "type": "link", "text": "> READ VANCE'S LOG", "action": { "dialog": "vance-log" } }
+                    ]
+                },
+                {
+                    "type": "section",
+                    "title": "CARGO HOLD",
+                    "markers": { "closed": "▶", "open": "▼" },
+                    "content": [
+                        "12 CRATES     MINING EQUIPMENT",
+                        " 3 CRATES     MEDICAL SUPPLIES",
+                        {
+                            "type": "section",
+                            "title": "SEALED CONTAINER",
+                            "markers": { "closed": "▶", "open": "▼" },
+                            "reveal": "glitch",
+                            "content": [
+                                { "type": "text", "text": "CONTENTS: [REDACTED]", "className": "alert" },
+                                "Sections can hold sections. This one sets \"reveal\": \"glitch\"."
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "section",
+                    "title": "STATION STATUS",
+                    "open": true,
+                    "content": [
+                        "This one sets \"open\": true, so it starts expanded, and its contents reveal before the rest of the screen.",
+                        "",
+                        "REACTOR      NOMINAL",
+                        "LIFE SUPPORT NOMINAL"
+                    ]
+                },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
         "toggles": {
             "content": [
                 "TOGGLES",
@@ -719,6 +772,10 @@
         "vault-locked": {
             "type": "alert",
             "content": "The vault needs a keycard."
+        },
+        "vance-log": {
+            "type": "alert",
+            "content": ["DAY 41. The readings from the lower deck are wrong. I've asked Mbeki to check the sensors, but I don't think it's the sensors."]
         },
         "door": {
             "type": "alert",

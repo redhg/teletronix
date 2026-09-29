@@ -31,6 +31,7 @@ import {
     ConfirmSchema,
 } from "../src/engine/schema/dialog.ts";
 import { EffectsSchema } from "../src/engine/schema/effects.ts";
+import { ContentSchema, SectionSchema } from "../src/engine/schema/elements.ts";
 import { RuleSchema } from "../src/engine/schema/next.ts";
 import {
     ConfigSchema,
@@ -66,6 +67,7 @@ import {
     ProgressSchema,
 } from "../src/modules/progress/definition.ts";
 import { CommandSchema, PromptSchema } from "../src/modules/prompt/definition.ts";
+import { SectionMarkersSchema } from "../src/modules/section/definition.ts";
 import { SliderRuleSchema, SliderSchema } from "../src/modules/slider/definition.ts";
 import { TextSchema } from "../src/modules/text/definition.ts";
 import { ToggleSchema } from "../src/modules/toggle/definition.ts";
@@ -130,6 +132,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
     [
         "Elements",
         [
+            ["Content", ContentSchema],
             ["Text", TextSchema, '"type": "text", or a bare string'],
             ["Link", LinkSchema, '"type": "link"'],
             ["Toggle", ToggleSchema, '"type": "toggle"'],
@@ -144,6 +147,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Progress interrupt", InterruptSchema],
             ["Slider", SliderSchema, '"type": "slider"'],
             ["Slider rule", SliderRuleSchema],
+            ["Section", SectionSchema, '"type": "section"'],
+            ["Section markers", SectionMarkersSchema],
         ],
     ],
     [

@@ -5,7 +5,7 @@ import type { Action, ActionCase } from "../schema/common.ts";
 import { type Dialog, dialogAction } from "../schema/dialog.ts";
 import { type EffectsSetting, type ResolvedEffects, resolveEffects } from "../schema/effects.ts";
 import type { Element } from "../schema/elements.ts";
-import { boundVariable, moduleFor } from "../schema/elements.ts";
+import { boundVariable, forEachElement, moduleFor } from "../schema/elements.ts";
 import { firstTimedRule, type NextRule, ruleForKey, ruleForTap } from "../schema/next.ts";
 import type { Program } from "../schema/program.ts";
 import type { Cue } from "../schema/sound.ts";
@@ -89,7 +89,7 @@ export class Terminal {
     /** Set once the current screen's `next` has fired, so it fires only once per visit. */
     private nextFired = false;
     /** Element outcomes waiting to run, for the current screen (see ModuleDefinition.outcome). */
-    private outcomes: { run: ScreenRun; action: Action; due: number }[] = [];
+    private outcomes: { run: ScreenRun; holder: ScreenRun; action: Action; due: number }[] = [];
     private dialog: Dialog | null = null;
     /** Resolved once per screen, so effect views see the same object on every visit. */
     private readonly effects = new Map<string, ResolvedEffects>();
@@ -115,7 +115,7 @@ export class Terminal {
         this.configEffects = options.program.effects;
         this.variables = new Map(options.program.variables);
         for (const screen of options.program.screens.values()) {
-            for (const element of screen.content) this.elements.set(element.id, element);
+            forEachElement(screen.content, (element) => this.elements.set(element.id, element));
         }
     }
 
@@ -216,7 +216,8 @@ export class Terminal {
             random: this.random,
             onChange: this.markDirty,
             onWake: this.wake,
-            onFinished: (element, reveal, time) => this.elementFinished(run, element, reveal, time),
+            onFinished: (element, reveal, time, holder) =>
+                this.elementFinished(run, holder, element, reveal, time),
             onCue: this.cue,
         });
         this.run = run;
@@ -303,9 +304,10 @@ export class Terminal {
         }
 
         // the change may trigger an action (e.g. a slider pushed past a threshold)
-        const shown = this.run?.elements.find((e) => e.id === elementId);
-        const action = shown && moduleFor(shown).changed?.(shown, before, value);
+        const action = element && moduleFor(element).changed?.(element, before, value);
         if (action && !this.dialog) this.dispatch(action);
+        // e.g. a section opening, whose contents start revealing
+        this.settle();
     }
 
     /**
@@ -405,11 +407,20 @@ export class Terminal {
         return true;
     }
 
-    /** Queues an element's outcome, if it has one, and holds its screen until it runs. */
-    private elementFinished(run: ScreenRun, element: Element, reveal: Reveal, time: number) {
+    /**
+     * Queues an element's outcome, if it has one, and holds the run it's in (the screen's,
+     * or an open section's) until it runs.
+     */
+    private elementFinished(
+        run: ScreenRun,
+        holder: ScreenRun,
+        element: Element,
+        reveal: Reveal,
+        time: number,
+    ) {
         const outcome = moduleFor(element).outcome?.(element, reveal);
         if (!outcome) return false;
-        this.outcomes.push({ run, action: outcome.action, due: time + outcome.after });
+        this.outcomes.push({ run, holder, action: outcome.action, due: time + outcome.after });
         return true;
     }
 
@@ -424,7 +435,7 @@ export class Terminal {
             const chosen = this.dispatch(outcome.action);
             // a new screen replaces the old outcomes; otherwise the screen carries on
             if (chosen?.screen !== undefined) return;
-            outcome.run.resume(now);
+            outcome.holder.resume(now);
         }
     }
 

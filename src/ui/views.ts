@@ -3,6 +3,7 @@ import { BitmapView } from "../modules/bitmap/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
 import { ProgressView } from "../modules/progress/View.tsx";
 import { PromptView } from "../modules/prompt/View.tsx";
+import { SectionView } from "../modules/section/View.tsx";
 import { SliderView } from "../modules/slider/View.tsx";
 import { TextView } from "../modules/text/View.tsx";
 import { ToggleView } from "../modules/toggle/View.tsx";
@@ -17,4 +18,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     bitmap: BitmapView,
     progress: ProgressView,
     slider: SliderView,
+    section: SectionView,
 };

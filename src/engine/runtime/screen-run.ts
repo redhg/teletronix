@@ -1,3 +1,4 @@
+import { type SectionElement, sectionOpen } from "../../modules/section/definition.ts";
 import type { Random } from "../random.ts";
 import {
     createGlitchReveal,
@@ -56,7 +57,9 @@ export interface ScreenRunOptions {
      * hold the rest of the screen until {@link ScreenRun.resume} (e.g. while an outcome
      * action is pending).
      */
-    onFinished?: (element: Element, reveal: Reveal, time: number) => boolean;
+    onFinished?: (element: Element, reveal: Reveal, time: number, run: ScreenRun) => boolean;
+    /** Called once, when every element has finished revealing (or been skipped). */
+    onDone?: (time: number) => void;
     /** Moments worth a sound (see Cue). */
     onCue?: (cue: Cue) => void;
 }
@@ -111,6 +114,10 @@ export class ScreenRun {
     /** The unit to activate when a held screen resumes, or -1. */
     private held = -1;
     private finished: number | null = null;
+    /** The contents of open sections, each a run of its own, by the section's index. */
+    private readonly children = new Map<number, ScreenRun>();
+    /** A section whose contents the run is holding for while they reveal, or -1. */
+    private waitingOn = -1;
     private eraser: Eraser | null = null;
     private erasedFlag = false;
     private columns: number;
@@ -159,7 +166,11 @@ export class ScreenRun {
 
     /** True while revealing or erasing. */
     get animating(): boolean {
-        return this.active !== -1 || this.eraser !== null;
+        return (
+            this.active !== -1 ||
+            this.eraser !== null ||
+            [...this.children.values()].some((child) => child.animating)
+        );
     }
 
     /** When every element finished revealing (or was skipped), or null if not yet. */
@@ -170,6 +181,12 @@ export class ScreenRun {
     /** True once {@link erase} has finished. */
     get erased(): boolean {
         return this.erasedFlag;
+    }
+
+    /** The run of an open section's contents, once its turn has come. */
+    section(elementId: string): ScreenRun | null {
+        const index = this.runs.findIndex((run) => run.element.id === elementId);
+        return this.children.get(index) ?? null;
     }
 
     /** Activates the first element. */
@@ -185,6 +202,7 @@ export class ScreenRun {
      * starts from there, so timing is independent of the frame rate.
      */
     advance(now: number): void {
+        for (const child of this.children.values()) child.advance(now);
         if (this.eraser) {
             this.advanceEraser(now);
             return;
@@ -211,6 +229,9 @@ export class ScreenRun {
      */
     pressKey(key: string, now: number): boolean {
         this.advance(now);
+        for (const child of this.children.values()) {
+            if (child.pressKey(key, now)) return true;
+        }
         const unit = this.units[this.active];
         const element = unit?.custom && this.runs[unit.indices[0] as number]?.element;
         if (!unit?.reveal.interrupt || !element) return false;
@@ -240,7 +261,9 @@ export class ScreenRun {
         this.active = -1;
         this.waiting = -1;
         this.held = -1;
-        this.finished ??= now;
+        this.waitingOn = -1;
+        for (const child of this.children.values()) child.skip(now);
+        this.done(now);
     }
 
     /**
@@ -250,6 +273,7 @@ export class ScreenRun {
      */
     erase(now: number, { type, duration }: { type: "glitch" | "fade"; duration: number }): void {
         if (this.eraser || this.erasedFlag) return;
+        for (const child of this.children.values()) child.erase(now, { type, duration });
         this.active = -1;
         this.waiting = -1;
         this.held = -1;
@@ -279,13 +303,19 @@ export class ScreenRun {
     /** Re-reads every element's text, e.g. after a variable changed. */
     refreshAll(): void {
         for (const run of this.runs) this.refresh(run.element.id);
+        for (const child of this.children.values()) child.refreshAll();
     }
 
     /** Re-reads an element's text, e.g. after its memory changed. */
     refresh(elementId: string): void {
         const index = this.runs.findIndex((r) => r.element.id === elementId);
         const run = this.runs[index];
-        if (!run) return;
+        if (!run) {
+            // an element in an open section
+            for (const child of this.children.values()) child.refresh(elementId);
+            return;
+        }
+        if (run.element.type === "section") this.syncSection(index);
 
         // a custom reveal draws the element itself, from its memory
         const unit = this.units.find((u) => u.custom && u.indices.includes(index));
@@ -310,6 +340,7 @@ export class ScreenRun {
     setColumns(columns: number): void {
         if (columns === this.columns) return;
         this.columns = columns;
+        for (const child of this.children.values()) child.setColumns(columns);
         for (const run of this.runs) {
             run.layout = this.layout(run.element, run.text);
             this.emitFrame(run);
@@ -344,6 +375,64 @@ export class ScreenRun {
         return run;
     }
 
+    /** Marks the run finished revealing, once. */
+    private done(now: number): void {
+        if (this.finished !== null) return;
+        this.finished = now;
+        this.options.onDone?.(now);
+    }
+
+    private isOpen(section: SectionElement): boolean {
+        return sectionOpen(section, this.options.recall?.(section.id) as boolean | undefined);
+    }
+
+    /** Starts revealing a section's contents, as a run of their own. */
+    private openSection(index: number, time: number): ScreenRun {
+        const section = this.runs[index]?.element as SectionElement;
+        const child: ScreenRun = new ScreenRun(
+            {
+                ...this.screen,
+                // the section's reveal is its contents' default
+                reveal: section.reveal ?? this.screen.reveal,
+                next: undefined,
+                sound: undefined,
+                content: section.content,
+            },
+            {
+                ...this.options,
+                columns: this.columns,
+                onDone: (done) => {
+                    if (this.waitingOn !== index || this.children.get(index) !== child) return;
+                    this.waitingOn = -1;
+                    this.resume(done);
+                },
+            },
+        );
+        this.children.set(index, child);
+        child.start(time);
+        this.options.onChange();
+        return child;
+    }
+
+    /** After a section's header has been clicked: shows or hides its contents to match. */
+    private syncSection(index: number): void {
+        const run = this.runs[index];
+        if (run?.element.type !== "section" || run.state !== "done" || this.eraser) return;
+        const now = this.options.now();
+        const open = this.isOpen(run.element);
+        if (open && !this.children.has(index)) {
+            this.openSection(index, now);
+        } else if (!open && this.children.has(index)) {
+            this.children.delete(index);
+            this.options.onChange();
+            // the screen may have been holding for the contents to finish revealing
+            if (this.waitingOn === index) {
+                this.waitingOn = -1;
+                this.resume(now);
+            }
+        }
+    }
+
     /** Where an element's text goes in the columns: its line breaks and alignment. */
     private layout(element: Element, text: string): Layout {
         const fallback = this.screen.align ?? this.options.defaults.align;
@@ -376,7 +465,8 @@ export class ScreenRun {
                 return;
             }
 
-            const block = inherited && spec.type === "glitch";
+            // a section reveals its contents after its header, so it stands alone
+            const block = inherited && spec.type === "glitch" && element.type !== "section";
             const last = groups.at(-1);
             if (block && last?.block) {
                 last.indices.push(index);
@@ -415,7 +505,7 @@ export class ScreenRun {
         this.waiting = -1;
         if (!unit) {
             // past the last unit: the screen has finished revealing
-            this.finished ??= now;
+            this.done(now);
             return;
         }
 
@@ -473,7 +563,15 @@ export class ScreenRun {
         let hold = false;
         for (const index of unit.indices) {
             const element = this.runs[index]?.element;
-            if (element && this.options.onFinished?.(element, unit.reveal, time)) hold = true;
+            if (element && this.options.onFinished?.(element, unit.reveal, time, this)) hold = true;
+            // an open section reveals its contents before the screen carries on
+            if (element?.type === "section" && this.isOpen(element) && !this.children.has(index)) {
+                const child = this.openSection(index, time);
+                if (child.finishedAt === null) {
+                    this.waitingOn = index;
+                    hold = true;
+                }
+            }
         }
         return hold;
     }
