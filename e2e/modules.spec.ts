@@ -655,3 +655,40 @@ test.describe("meter", () => {
         await expect(meter).toHaveClass(/\balert\b/);
     });
 });
+
+test.describe("choice", () => {
+    const choosing: Program = {
+        config: { name: "Choice", start: "home", variables: { power: "NORMAL" } },
+        screens: {
+            home: {
+                content: [
+                    {
+                        type: "choice",
+                        label: "POWER: ",
+                        options: ["ECO", "NORMAL", "MAX"],
+                        variable: "power",
+                    },
+                    "NOW {power}",
+                ],
+            },
+        },
+    };
+
+    test("chooses with a click, or with the arrow keys", async ({ page, player }) => {
+        await player.open(choosing);
+        const choice = player.screen.locator(".choice");
+        await expect(choice).toContainText("(•) NORMAL");
+        await expect(player.screen).toContainText("NOW NORMAL");
+
+        await choice.locator("label", { hasText: "MAX" }).click();
+        await expect(choice).toContainText("(•) MAX");
+        await expect(player.screen).toContainText("NOW MAX");
+        await expect(choice.getByRole("radio", { name: "MAX" })).toBeChecked();
+
+        // (Safari doesn't focus a radio button that's clicked, so focus it as a tab would)
+        await choice.getByRole("radio", { name: "MAX" }).focus();
+        await page.keyboard.press("ArrowLeft");
+        await expect(choice).toContainText("(•) NORMAL");
+        await expect(player.screen).toContainText("NOW NORMAL");
+    });
+});

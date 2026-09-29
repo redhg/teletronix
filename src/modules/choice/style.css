@@ -1,0 +1,21 @@
+fieldset.choice {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* a box of its own, holding its hidden radio button, so a click anywhere on the text lands on it */
+.choice-option {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.choice-option:hover,
+.choice-option:has(input:focus-visible) {
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: var(--inverse-glow);
+    box-shadow: var(--glow);
+}

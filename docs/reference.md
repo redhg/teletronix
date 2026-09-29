@@ -9,7 +9,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -320,6 +320,7 @@ One of:
 - [Columns](#columns)
 - [Meter](#meter)
 - [Table](#table)
+- [Choice](#choice)
 
 <a id="text"></a>
 
@@ -370,6 +371,38 @@ Text that cycles through states when clicked. It remembers its state when you co
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 | `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="choice"></a>
+
+### Choice (`"type": "choice"`)
+
+One of several options, chosen with a click or the arrow keys, shown side by side like radio buttons. It remembers the choice, and can keep it in a variable.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `label` | string | `""` | Text before the options, e.g. "POWER: " |
+| `options` | string[] | **required** | The options, left to right |
+| `initial` | whole number, ≥ 0 | `0` | Index of the option chosen at first |
+| `variable` | id |  | A variable that holds the choice: the option's text for a text variable, its index (from 0) for a number. It starts from the variable's value, instead of initial. |
+| `onChange` | [Action](#action) |  | What happens when the player chooses a different option |
+| `markers` | [Choice markers](#choice-markers) | `{"off":"( )","on":"(•)"}` | What each option shows before its text, e.g. "[ ]" and "[X]" |
+| `gap` | whole number, ≥ 1 | `2` | Characters between the options |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="choice-markers"></a>
+
+### Choice markers
+
+What each option shows before its text
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `off` | string | `"( )"` | Before an option not chosen |
+| `on` | string | `"(•)"` | Before the chosen option |
 
 <a id="prompt"></a>
 

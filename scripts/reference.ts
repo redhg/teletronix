@@ -68,6 +68,7 @@ import {
 } from "../src/engine/sound/voices.ts";
 import { BitmapSchema, BlendObjectSchema, BlendSchema } from "../src/modules/bitmap/definition.ts";
 import { ButtonSchema, ButtonsSchema } from "../src/modules/buttons/definition.ts";
+import { ChoiceMarkersSchema, ChoiceSchema } from "../src/modules/choice/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
 import { MeterRangeSchema, MeterSchema } from "../src/modules/meter/definition.ts";
 import { NumberRuleSchema, NumberSchema } from "../src/modules/number/definition.ts";
@@ -162,6 +163,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Text", TextSchema, '"type": "text", or a bare string'],
             ["Link", LinkSchema, '"type": "link"'],
             ["Toggle", ToggleSchema, '"type": "toggle"'],
+            ["Choice", ChoiceSchema, '"type": "choice"'],
+            ["Choice markers", ChoiceMarkersSchema],
             ["Prompt", PromptSchema, '"type": "prompt"'],
             ["Prompt command", CommandSchema],
             ["Number", NumberSchema, '"type": "number"'],

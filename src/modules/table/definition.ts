@@ -54,7 +54,7 @@ export type TableElement = z.output<typeof TableSchema> & ElementIdentity;
 type Align = "left" | "center" | "right";
 
 /** Text fitted to exactly `width` characters, placed by `align`. */
-function fit(text: string, width: number, align: Align): string {
+function fitCell(text: string, width: number, align: Align): string {
     const cut = text.length > width ? text.slice(0, width) : text;
     const room = width - cut.length;
     if (align === "right") return " ".repeat(room) + cut;
@@ -86,7 +86,7 @@ export function tableText(
     );
     const cells = (row: string[], heading = false) =>
         row.map((cell, i) =>
-            fit(cell, widths[i] ?? 1, heading ? "left" : (column(i)?.align ?? "left")),
+            fitCell(cell, widths[i] ?? 1, heading ? "left" : (column(i)?.align ?? "left")),
         );
 
     if (table.border === "box") {

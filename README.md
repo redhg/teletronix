@@ -56,6 +56,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"text"` (or a bare string) | Text: a string, or a list of lines. Line breaks are kept; long lines wrap unless `"wrap": false`. |
 | `"link"` | Clickable text with an `action`, and optionally a `secondaryAction` for a shift-click, right-click, Shift+Enter or long press. |
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
+| `"choice"` | One of several `options`, shown side by side like radio buttons. See below. |
 | `"prompt"` | A command line. Each of its `commands` has an `action`; `onEnter` takes anything else. |
 | `"number"` | A prompt for whole numbers only: codes, keypads, settings. See below. |
 | `"bitmap"` | An image (`src`, `alt`) that resolves from blocky to sharp. The screen waits for it to load. |
@@ -119,6 +120,16 @@ edge to edge.
   when the player presses a `key`. Its `text` replaces the percentage, and its `action` (with
   an optional `after`) runs instead of `onComplete`.
 - Skipping jumps the bar to its end, or to its scripted interruption.
+
+### Choices
+```json
+{ "type": "choice", "label": "POWER: ", "options": ["ECO", "NORMAL", "OVERDRIVE"], "variable": "power" }
+```
+Shows every option at once, `(•) ECO  ( ) NORMAL  ( ) OVERDRIVE`, and the player picks one with
+a click, or tabs to it and uses the arrow keys. It remembers the choice; with `"variable"`, it
+keeps it there: the option's text in a text variable, or its index (from 0) in a number
+variable. `onChange` runs when the choice changes. `markers` changes the marks, e.g.
+`{ "off": "[ ]", "on": "[X]" }`; `gap` sets the characters between options (default 2).
 
 ### Sliders
 ```json

@@ -5,6 +5,7 @@ import {
     ButtonsSchema,
     buttonsModule,
 } from "../../modules/buttons/definition.ts";
+import { type ChoiceElement, ChoiceSchema, choiceModule } from "../../modules/choice/definition.ts";
 import {
     type ColumnsElement,
     columnsModule,
@@ -59,6 +60,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     ColumnsSchema,
     MeterSchema,
     TableSchema,
+    ChoiceSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -85,7 +87,8 @@ export type Element =
     | TimerElement
     | ColumnsElement
     | MeterElement
-    | TableElement;
+    | TableElement
+    | ChoiceElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -105,6 +108,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     columns: columnsModule,
     meter: meterModule,
     table: tableModule,
+    choice: choiceModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
@@ -120,6 +124,7 @@ export function boundVariable(element: Element): string | undefined {
 
 /** Elements whose text can be aligned, and so follow a screen's or the config's `align`. */
 const ALIGNABLE = new Set<ElementType>([
+    "choice",
     "text",
     "link",
     "toggle",

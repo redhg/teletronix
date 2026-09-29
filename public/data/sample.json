@@ -6,7 +6,7 @@
         "description": "Demonstrates every Teletronix feature.",
         "start": "home",
         "waitForReveal": true,
-        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100 },
+        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL" },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
     "screens": {
@@ -45,7 +45,7 @@
                         { "type": "link", "text": "> TABLES", "action": { "screen": "tables" } },
                         { "type": "link", "text": "> TEXT", "action": { "screen": "text" } },
                         { "type": "link", "text": "> TIMERS", "action": { "screen": "timers" } },
-                        { "type": "link", "text": "> TOGGLES", "action": { "screen": "toggles" } },
+                        { "type": "link", "text": "> TOGGLES & CHOICES", "action": { "screen": "toggles" } },
                         { "type": "link", "text": "> VARIABLES", "action": { "screen": "variables" } }
                     ]
                 }
@@ -759,13 +759,21 @@
         },
         "toggles": {
             "content": [
-                "TOGGLES",
-                "=======",
+                "TOGGLES & CHOICES",
+                "=================",
                 "",
                 "A toggle cycles through its states each time you click it. Toggles remember their state, so leave this screen and come back.",
                 "",
                 { "type": "toggle", "states": ["> Hello.", "> How are you?", "> I am fine, thanks."] },
                 { "type": "toggle", "states": ["[ ] AIRLOCK SEALED", "[X] AIRLOCK SEALED"], "initial": 1, "className": "alert" },
+                "",
+                "A choice shows all its options at once. Click one, or tab to it and use the arrow keys. This one keeps its choice in a variable:",
+                "",
+                { "type": "choice", "label": "POWER MODE: ", "options": ["ECO", "NORMAL", "OVERDRIVE"], "variable": "power" },
+                "",
+                "And this one has its own markers:",
+                "",
+                { "type": "choice", "label": "DOCKING: ", "options": ["AUTO", "MANUAL"], "markers": { "off": "[ ]", "on": "[X]" } },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]

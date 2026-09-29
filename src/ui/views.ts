@@ -1,6 +1,7 @@
 import type { ElementOf, ElementType } from "../engine/index.ts";
 import { BitmapView } from "../modules/bitmap/View.tsx";
 import { ButtonsView } from "../modules/buttons/View.tsx";
+import { ChoiceView } from "../modules/choice/View.tsx";
 import { ColumnsView } from "../modules/columns/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
 import { MeterView } from "../modules/meter/View.tsx";
@@ -33,4 +34,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     columns: ColumnsView,
     meter: MeterView,
     table: TableView,
+    choice: ChoiceView,
 };
