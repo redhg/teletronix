@@ -7,6 +7,7 @@ import type { EffectsSetting, FontId, SoundSetting, ThemeSetting } from "../engi
 export interface AppearanceSettings {
     theme: ThemeSetting | undefined;
     font: FontId;
+    fontScale: number;
     effects: EffectsSetting | undefined;
     sound: SoundSetting | undefined;
 }

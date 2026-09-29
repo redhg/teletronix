@@ -41,6 +41,19 @@ export const FontSchema = z.enum(Object.keys(FONTS) as [FontId, ...FontId[]]).me
         'monospace font where it isn\'t) (default: "ast-premiumexec")',
 });
 
+/** How much bigger (or smaller) than usual text is. */
+export const DEFAULT_FONT_SCALE = 1;
+
+export const FontScaleSchema = z
+    .number()
+    .min(0.5)
+    .max(2)
+    .meta({
+        description:
+            "How big text is, from 0.5 (half the usual size) to 2 (twice). A pixel font still " +
+            "snaps to whole multiples of its pixels, so it grows in steps (default: 1)",
+    });
+
 // ─── Themes ──────────────────────────────────────────────────────────────────
 
 export interface Palette {

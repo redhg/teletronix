@@ -73,6 +73,16 @@ test.describe("the player", () => {
         await expect(player.screen).toContainText("HOME");
     });
 
+    test("scales text, in steps of a pixel font's pixels", async ({ page, player }) => {
+        // (a 1000px window aims for 32px text; IBM VGA is 16 pixels tall)
+        await player.open(withConfig({ font: "ibm-vga", fontScale: 1.5 }));
+        expect((await styles(page)).fontSize).toBe(48);
+        await player.open(withConfig({ font: "ibm-vga", fontScale: 0.5 }));
+        expect((await styles(page)).fontSize).toBe(16);
+        await player.open(withConfig({ font: "courier-new", fontScale: 1.25 }));
+        expect((await styles(page)).fontSize).toBe(40);
+    });
+
     test("sets the page title", async ({ page, player }) => {
         await player.open(program);
         await expect(page).toHaveTitle("Appearance");
@@ -118,6 +128,20 @@ test.describe("the settings page", () => {
         await page.locator('input[type="color"]').first().fill("#33ff66");
         await expect.poll(async () => (await styles(previewFrame(page))).fg).toBe("#33ff66");
         expect(JSON.parse(await output(page).innerText()).theme.fg).toBe("#33ff66");
+    });
+
+    test("previews a text size, and writes its JSON", async ({ page, player }) => {
+        await open(page, player);
+        await page.getByLabel("Typeface").selectOption("ibm-vga");
+        const slider = page.getByLabel("Text size");
+        await slider.fill("1.5");
+        await expect
+            .poll(async () => (await styles(previewFrame(page))).fontSize)
+            .toBeGreaterThan(40);
+        expect(JSON.parse(await output(page).innerText())).toMatchObject({ fontScale: 1.5 });
+        await expect(page.locator(".hint", { hasText: "Text is" })).toContainText(
+            "px in the preview",
+        );
     });
 
     test("previews effects", async ({ page, player }) => {

@@ -3,7 +3,9 @@ import { fillRecipe, type Recipe, RecipeSchema } from "../sound/recipe.ts";
 import type { Align } from "../text/layout.ts";
 import {
     DEFAULT_FONT,
+    DEFAULT_FONT_SCALE,
     type FontId,
+    FontScaleSchema,
     FontSchema,
     type Palette,
     resolveTheme,
@@ -161,6 +163,7 @@ export const ConfigSchema = z
         skipKeys: SkipKeysSchema.optional(),
         theme: ThemeSchema.optional(),
         font: FontSchema.optional(),
+        fontScale: FontScaleSchema.optional(),
         effects: EffectsSchema.optional(),
         sound: SoundSchema.optional(),
         blockContextMenu: z
@@ -259,6 +262,8 @@ export interface Program {
     theme?: ThemeSetting;
     palette: Palette;
     font: FontId;
+    /** How much bigger (or smaller) than usual text is */
+    fontScale: number;
     screens: ReadonlyMap<string, Screen>;
     dialogs: ReadonlyMap<string, Dialog>;
     /** Sound effects by name, each filled in */
@@ -290,6 +295,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         sound,
         theme,
         font,
+        fontScale,
         variables,
         timers,
         skipKeys,
@@ -342,6 +348,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         theme,
         palette: resolveTheme(theme),
         font: font ?? DEFAULT_FONT,
+        fontScale: fontScale ?? DEFAULT_FONT_SCALE,
         screens,
         dialogs,
         sounds: new Map(

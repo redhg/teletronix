@@ -28,7 +28,7 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
     const { program } = result;
     if (!params.has("preview")) rememberProgram(location.search);
     document.title = program.config.name;
-    applyAppearance(program.palette, program.font);
+    applyAppearance(program.palette, program.font, program.fontScale);
     // wait briefly for the font, so the first measurement of the line length is right
     await Promise.race([
         loadFont(program.font).catch(() => undefined),
@@ -46,7 +46,7 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
         <StrictMode>
             <Player
                 terminal={terminal}
-                initial={{ theme: program.theme, font: program.font }}
+                initial={{ theme: program.theme, font: program.font, fontScale: program.fontScale }}
                 preview={params.has("preview")}
                 kiosk={params.has("kiosk") && !params.has("preview")}
             />

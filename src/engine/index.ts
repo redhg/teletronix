@@ -16,6 +16,7 @@ export {
 } from "./runtime/terminal.ts";
 export {
     DEFAULT_FONT,
+    DEFAULT_FONT_SCALE,
     DEFAULT_THEME,
     FONTS,
     type FontId,

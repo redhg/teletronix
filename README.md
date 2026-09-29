@@ -524,6 +524,10 @@ height, so it stays crisp. Or a font installed on the player's computer: `"couri
 `"consolas"` (Windows) or `"menlo"` (macOS). These aren't bundled, so where one isn't
 installed, the browser's own monospace font stands in; they can be any size.
 
+`config.fontScale` makes text bigger or smaller, from 0.5 to 2 (default 1). It scales the
+usual size, which already adapts to the window, so text stays in proportion on a phone and a
+big monitor. Pixel fonts still snap to whole multiples of their pixels, so they grow in steps.
+
 The easiest way to choose is the **settings page**: add `&config` to a program's address, e.g.
 <http://localhost:5173/?data=sample&config>. Change the theme, font and effects and watch the
 program update beside you, then copy the resulting `config` properties or download the program

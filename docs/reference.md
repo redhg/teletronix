@@ -55,6 +55,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `skipKeys` | string[] | ["Escape"] | Keys that finish revealing the screen at once, like a click, when the program doesn't use them for anything else: key names like "Escape" or "Space", or [] for none. In kiosk mode, Esc also leaves full screen, so try ["Space"] |
 | `theme` | [Theme](#theme) | `"default"` | The color scheme: "default" (pale blue on black), "amber", "green" or "white", or your own colors |
 | `font` | `"ast-premiumexec"` \| `"ibm-vga"` \| `"ibm-ega"` \| `"ibm-cga"` \| `"ibm-cga-thin"` \| `"ibm-mda"` \| `"toshiba-satellite"` \| `"departure-mono"` \| `"courier-new"` \| `"consolas"` \| `"menlo"` | `"ast-premiumexec"` | The typeface: a period PC font, or one installed on the player's computer ("courier-new", "consolas" on Windows, "menlo" on macOS; the browser's own monospace font where it isn't) |
+| `fontScale` | number, 0.5–2 | `1` | How big text is, from 0.5 (half the usual size) to 2 (twice). A pixel font still snaps to whole multiples of its pixels, so it grows in steps |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |
 | `sound` | [Sound](#sound) |  | Generated retro sound effects: true, false, or an object of options. On by default; players can mute them with the sound toggle. |
 | `blockContextMenu` | boolean | `true` | Block the browser's right-click menu, so the program feels like a terminal rather than a web page. Text fields keep theirs |

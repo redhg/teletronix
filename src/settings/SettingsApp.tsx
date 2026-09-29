@@ -3,6 +3,7 @@ import {
     compactEffects,
     compactSound,
     DEFAULT_FONT,
+    DEFAULT_FONT_SCALE,
     DEFAULT_THEME,
     type EffectsState,
     expandEffects,
@@ -42,6 +43,7 @@ export function SettingsApp({ name, file, program }: Props) {
         () => ({
             theme: program.theme,
             font: program.font,
+            fontScale: program.fontScale,
             effects: expandEffects(program.effects),
             sound: program.sound,
         }),
@@ -49,14 +51,23 @@ export function SettingsApp({ name, file, program }: Props) {
     );
     const [theme, setTheme] = useState<ThemeSetting | undefined>(initial.theme);
     const [font, setFont] = useState<FontId>(initial.font);
+    const [fontScale, setFontScale] = useState(initial.fontScale);
+    // the size text comes out at in the preview, which depends on its width and the font
+    const [shownSize, setShownSize] = useState<number | null>(null);
     const [effects, setEffects] = useState<EffectsState>(initial.effects);
     const [sound, setSound] = useState<ResolvedSound | null>(initial.sound);
     const [copied, setCopied] = useState(false);
     const preview = useRef<HTMLIFrameElement>(null);
 
     const settings: AppearanceSettings = useMemo(
-        () => ({ theme, font, effects: compactEffects(effects), sound: compactSound(sound) }),
-        [theme, font, effects, sound],
+        () => ({
+            theme,
+            font,
+            fontScale,
+            effects: compactEffects(effects),
+            sound: compactSound(sound),
+        }),
+        [theme, font, fontScale, effects, sound],
     );
 
     // the config properties to write: only what differs from the defaults
@@ -64,10 +75,11 @@ export function SettingsApp({ name, file, program }: Props) {
         const out: Record<string, unknown> = {};
         if (theme !== undefined && theme !== DEFAULT_THEME) out.theme = theme;
         if (font !== DEFAULT_FONT) out.font = font;
+        if (fontScale !== DEFAULT_FONT_SCALE) out.fontScale = fontScale;
         if (settings.effects) out.effects = settings.effects;
         if (settings.sound !== undefined) out.sound = settings.sound;
         return out;
-    }, [theme, font, settings.effects, settings.sound]);
+    }, [theme, font, fontScale, settings.effects, settings.sound]);
     const json = JSON.stringify(config, null, 4);
 
     // keep the preview in step, including when it (re)loads and says it's ready
@@ -87,6 +99,22 @@ export function SettingsApp({ name, file, program }: Props) {
         return () => window.removeEventListener("message", handleMessage);
     }, [settings]);
 
+    // read the text size back from the preview, once it has applied the settings
+    // biome-ignore lint/correctness/useExhaustiveDependencies: new settings mean measure again
+    useEffect(() => {
+        const measure = () => {
+            const body = preview.current?.contentDocument?.body;
+            if (body) setShownSize(Number.parseFloat(getComputedStyle(body).fontSize));
+        };
+        const timer = setTimeout(measure, 100);
+        const frame = preview.current;
+        frame?.addEventListener("load", measure);
+        return () => {
+            clearTimeout(timer);
+            frame?.removeEventListener("load", measure);
+        };
+    }, [settings]);
+
     const palette = resolveTheme(theme);
     const themeChoice = typeof theme === "object" ? "custom" : (theme ?? DEFAULT_THEME);
     const chooseTheme = (choice: string) =>
@@ -101,7 +129,7 @@ export function SettingsApp({ name, file, program }: Props) {
 
     const download = () => {
         const merged: ProgramFile = { ...file, config: { ...file.config } };
-        for (const key of ["theme", "font", "effects", "sound"]) {
+        for (const key of ["theme", "font", "fontScale", "effects", "sound"]) {
             if (key in config) merged.config[key] = config[key];
             else delete merged.config[key];
         }
@@ -118,6 +146,7 @@ export function SettingsApp({ name, file, program }: Props) {
     const reset = () => {
         setTheme(initial.theme);
         setFont(initial.font);
+        setFontScale(initial.fontScale);
         setEffects(initial.effects);
         setSound(initial.sound);
     };
@@ -170,6 +199,24 @@ export function SettingsApp({ name, file, program }: Props) {
                             ))}
                         </select>
                     </label>
+                    <label className="row">
+                        <span>Text size</span>
+                        <input
+                            type="range"
+                            min={0.5}
+                            max={2}
+                            step={0.05}
+                            value={fontScale}
+                            onChange={(e) => setFontScale(Number(e.target.value))}
+                        />
+                        <output>{fontScale.toFixed(2)}×</output>
+                    </label>
+                    <p className="hint">
+                        {shownSize !== null && `Text is ${shownSize}px in the preview. `}
+                        {FONTS[font].pixelHeight > 1
+                            ? "A pixel font stays crisp by growing in steps of its own pixels, so the size jumps rather than slides."
+                            : "Installed fonts can be any size."}
+                    </p>
                 </section>
 
                 <section>
