@@ -1,9 +1,14 @@
 /* Header and status bars: pinned to the window's edges, in inverse video, with the same
-   side padding as the terminal so their columns line up with the screen's. */
+   side padding as the terminal so their columns line up with the screen's. They're on the
+   same glass as the screen, so they get its effects: the fringe here, bloom in its own CSS. */
 .bar {
     position: fixed;
     left: 0;
     right: 0;
+    /* above the screen (whose bloom filter gives it a layer of its own), below the effects */
+    z-index: 1;
+    /* hides the screen scrolling under the bar, even where a bloomed line's edge is soft */
+    background: var(--bg);
 }
 
 .bar-header {
@@ -21,14 +26,14 @@
     white-space: pre;
     color: var(--bg);
     background: var(--fg);
-    text-shadow: var(--inverse-glow);
+    text-shadow: var(--fringe, 0 0 transparent), var(--inverse-glow);
 }
 
 /* a line in the screen's own colors, e.g. a separator under an inverse title */
 .bar-line.plain {
     color: var(--fg);
     background: var(--bg);
-    text-shadow: var(--glow);
+    text-shadow: var(--fringe, 0 0 transparent), var(--glow);
 }
 
 .bar-link {
@@ -47,12 +52,12 @@
     outline: none;
     color: var(--fg);
     background: var(--bg);
-    text-shadow: var(--glow);
+    text-shadow: var(--fringe, 0 0 transparent), var(--glow);
 }
 
 .bar-line.plain .bar-link:hover,
 .bar-line.plain .bar-link:focus-visible {
     color: var(--bg);
     background: var(--fg);
-    text-shadow: var(--inverse-glow);
+    text-shadow: var(--fringe, 0 0 transparent), var(--inverse-glow);
 }

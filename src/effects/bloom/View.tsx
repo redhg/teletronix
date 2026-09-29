@@ -5,7 +5,7 @@ import "./style.css";
 export const BLOOM_FILTER_ID = "teletronix-bloom";
 
 /**
- * Bright things glow: an SVG filter on the terminal blurs its content, strengthens the
+ * Bright things glow: an SVG filter on the terminal (and its bars) blurs its content, strengthens the
  * blur, and puts it back behind the sharp original. SVG filters on HTML work in
  * every engine, unlike the backdrop-filter-and-blend-mode approach this replaced.
  */

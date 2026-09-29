@@ -104,3 +104,9 @@ button.control.alert:focus-visible {
         filter: blur(1px);
     }
 }
+
+/* Effects are drawn over everything on the glass: the screen, the bars and the sound toggle.
+   They never take clicks. */
+.effects > * {
+    z-index: 2;
+}

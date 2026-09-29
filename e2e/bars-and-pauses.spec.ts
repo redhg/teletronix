@@ -82,6 +82,16 @@ test.describe("bars", () => {
         await expect(player.dialog).toContainText("HELP");
     });
 
+    test("get the screen's bloom and fringe", async ({ page, player }) => {
+        await player.open({
+            ...bars,
+            config: { ...bars.config, effects: { bloom: true, fringe: true } },
+        });
+        const line = page.locator(".bar-header .bar-line");
+        await expect(line).toHaveCSS("filter", /teletronix-bloom/);
+        await expect(line).toHaveCSS("text-shadow", /255, 40, 80/);
+    });
+
     test("can be hidden by a screen", async ({ page, player }) => {
         await player.open(bars);
         await player.link("> BARE").click();

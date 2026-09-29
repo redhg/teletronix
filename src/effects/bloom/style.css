@@ -5,6 +5,8 @@
     height: 0;
 }
 
-:root[data-bloom] .terminal {
+/* the screen, and the header and status bars on the same glass (their lines, over a solid
+   backing, so the blur can't let the screen show through the bars' softened edges) */
+:root[data-bloom] :is(.terminal, .bar-line) {
     filter: url("#teletronix-bloom");
 }
