@@ -19,8 +19,12 @@ export interface ElementIdentity {
  * as a toggle's current position.
  */
 export interface ModuleDefinition<E, M = never> {
-    /** The element's text: what's revealed while active, and shown once done. */
-    text(element: E, memory: M | undefined): string;
+    /**
+     * The element's text: what's revealed while active, and shown once done. Variables are
+     * filled in afterwards; a module that lays text out by its length (e.g. a table) can use
+     * `format` to fill them in first.
+     */
+    text(element: E, memory: M | undefined, format?: (text: string) => string): string;
     /** Every action the element can dispatch, so targets can be validated when parsing. */
     actions?(element: E): Action[];
     /**

@@ -26,6 +26,7 @@ import {
     sectionModule,
 } from "../../modules/section/definition.ts";
 import { type SliderElement, SliderSchema, sliderModule } from "../../modules/slider/definition.ts";
+import { type TableElement, TableSchema, tableModule } from "../../modules/table/definition.ts";
 import { type TextElement, TextSchema, textModule } from "../../modules/text/definition.ts";
 import {
     type TimerElement,
@@ -57,6 +58,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     TimerElementSchema,
     ColumnsSchema,
     MeterSchema,
+    TableSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -82,7 +84,8 @@ export type Element =
     | NumberElement
     | TimerElement
     | ColumnsElement
-    | MeterElement;
+    | MeterElement
+    | TableElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -101,6 +104,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     timer: timerModule,
     columns: columnsModule,
     meter: meterModule,
+    table: tableModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
@@ -115,13 +119,22 @@ export function boundVariable(element: Element): string | undefined {
 }
 
 /** Elements whose text can be aligned, and so follow a screen's or the config's `align`. */
-const ALIGNABLE = new Set<ElementType>(["text", "link", "toggle", "pause", "buttons", "timer"]);
+const ALIGNABLE = new Set<ElementType>([
+    "text",
+    "link",
+    "toggle",
+    "pause",
+    "buttons",
+    "timer",
+    "table",
+]);
 
 /** How an element's text is laid out (see layoutText), given the default alignment. */
 export function layoutOptions(element: Element, fallback: Align): LayoutOptions {
     if (!ALIGNABLE.has(element.type)) return {};
     return {
-        wrap: "wrap" in element ? element.wrap : true,
+        // a table is laid out in columns of its own, so it's never wrapped
+        wrap: element.type === "table" ? false : "wrap" in element ? element.wrap : true,
         align: ("align" in element ? element.align : undefined) ?? fallback,
     };
 }

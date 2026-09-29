@@ -1,0 +1,5 @@
+/* Lines exactly as tall as the font, so a box's vertical lines join up from row to row
+   (the pixel fonts draw box-drawing characters to the full height of the character cell) */
+.table-box {
+    line-height: var(--font-size);
+}

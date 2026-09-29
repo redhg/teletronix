@@ -293,3 +293,28 @@ test.describe("columns", () => {
         await expect(player.screen).toContainText("PICKED");
     });
 });
+
+test("a table is laid out in columns, and kept whole", async ({ page, player }) => {
+    await page.setViewportSize({ width: 360, height: 700 });
+    await player.open(
+        oneScreen([
+            {
+                type: "table",
+                border: "box",
+                columns: [{ title: "NAME" }, { title: "NOTES" }],
+                rows: [["OKAFOR", "A long note that is far wider than a phone screen can show"]],
+            },
+        ]),
+    );
+    const drawn = await player.screen
+        .locator(".table [aria-hidden='true']")
+        .evaluate((element) => element.textContent ?? "");
+    const lines = drawn.split("\n");
+    expect(lines).toHaveLength(5);
+    expect(lines[0]).toMatch(/^┌─+┬─+┐$/);
+    expect(new Set(lines.map((line) => line.length)).size).toBe(1);
+    const overflows = await page.evaluate(
+        () => document.documentElement.scrollWidth > window.innerWidth,
+    );
+    expect(overflows).toBe(false);
+});

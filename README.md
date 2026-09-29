@@ -62,6 +62,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 | `"meter"` | A gauge: a bar showing a variable or timer, live. See below. |
+| `"table"` | Rows and columns of text, with optional box-drawn borders. See below. |
 | `"section"` | A header that expands and collapses the elements under it. See below. |
 | `"columns"` | Lays elements out in columns, e.g. a long list of links. See below. |
 | `"pause"` | Stops the reveal with "-- PRESS ANY KEY TO CONTINUE --" until a key or tap. See below. |
@@ -248,6 +249,22 @@ running down. `min` and `max` (default 0 and 100) are the empty and full ends; `
 (default 1) is how precisely the value is shown. Each `on` range adds its `className` while
 the value is in it. `width`, `fill`, `empty` and `showValue` shape it like a slider. Unlike a
 progress bar, it doesn't hold up the screen or ever finish: it's a display.
+
+### Tables
+```json
+{
+    "type": "table",
+    "border": "box",
+    "columns": [{ "title": "CARGO" }, { "title": "QTY", "align": "right" }],
+    "rows": [["MINING EQUIPMENT", 12], ["MEDICAL SUPPLIES", 3]]
+}
+```
+Each column is as wide as its widest cell (or its own `width`, cutting longer cells short),
+and `align`s its cells left, right or center. Titles in `columns` make a header row. With
+`"border": "none"` (the default), columns are `gap` characters apart and the header is
+underlined; `"box"` draws box-drawing lines around every cell. Cells can show variables. A
+table is never wrapped; one too wide for the screen is cut off at the right edge. The
+element's own `align` places the whole table, e.g. centered.
 
 ### Moving on without a link
 A screen's `next` moves on without a link. Each rule has an `action` and a trigger:

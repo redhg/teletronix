@@ -42,6 +42,7 @@
                         { "type": "link", "text": "> SECTIONS", "action": { "screen": "sections" } },
                         { "type": "link", "text": "> SLIDERS", "action": { "screen": "sliders" } },
                         { "type": "link", "text": "> SOUNDS", "action": { "screen": "sounds" } },
+                        { "type": "link", "text": "> TABLES", "action": { "screen": "tables" } },
                         { "type": "link", "text": "> TEXT", "action": { "screen": "text" } },
                         { "type": "link", "text": "> TIMERS", "action": { "screen": "timers" } },
                         { "type": "link", "text": "> TOGGLES", "action": { "screen": "toggles" } },
@@ -717,6 +718,41 @@
                 "",
                 { "type": "slider", "label": "FUEL MIX   ", "variable": "fuel", "unit": "%" },
                 { "type": "meter", "label": "FUEL FLOW  ", "variable": "fuel", "unit": "%", "fill": "#", "empty": "." },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "tables": {
+            "content": [
+                "TABLES",
+                "======",
+                "",
+                "A table lays rows and columns out in character columns, each as wide as its widest cell. Columns can be aligned left, right or center; cells can show variables.",
+                "",
+                {
+                    "type": "table",
+                    "border": "box",
+                    "align": "center",
+                    "columns": [{ "title": "CREW" }, { "title": "ROLE" }, { "title": "STATUS", "align": "center" }],
+                    "rows": [
+                        ["CAPT. R. OKAFOR", "COMMAND", "ACTIVE"],
+                        ["DR. L. VANCE", "MEDICAL", "MISSING"],
+                        ["J. MBEKI", "ENGINEERING", "ACTIVE"],
+                        ["{name}", "VISITOR", "ON BOARD"]
+                    ]
+                },
+                "",
+                "Without a box, its columns are simply spaced apart:",
+                "",
+                {
+                    "type": "table",
+                    "columns": [{ "title": "CARGO" }, { "title": "QTY", "align": "right" }, { "title": "MASS (T)", "align": "right" }],
+                    "rows": [
+                        ["MINING EQUIPMENT", 12, 38.5],
+                        ["MEDICAL SUPPLIES", 3, 0.9],
+                        ["SEALED CONTAINER", 1, "???"]
+                    ]
+                },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]

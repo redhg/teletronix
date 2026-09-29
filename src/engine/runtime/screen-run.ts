@@ -550,7 +550,11 @@ export class ScreenRun {
     }
 
     private textOf(element: Element): string {
-        const text = moduleFor(element).text(element, this.options.recall?.(element.id));
+        const text = moduleFor(element).text(
+            element,
+            this.options.recall?.(element.id),
+            this.options.format,
+        );
         return this.options.format?.(text) ?? text;
     }
 

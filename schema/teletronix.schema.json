@@ -9346,6 +9346,174 @@
                             ],
                             "additionalProperties": false,
                             "description": "A gauge: a bar showing a number variable or a timer, which moves whenever it changes, e.g. oxygen running out. It can't be changed by the player (a slider can)."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "table"
+                                },
+                                "columns": {
+                                    "description": "Each column's heading and layout, left to right. With titles, the table has a header row.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "title": {
+                                                "description": "Its heading",
+                                                "type": "string"
+                                            },
+                                            "align": {
+                                                "default": "left",
+                                                "description": "Where its cells sit: \"left\", \"center\" or \"right\" (default: \"left\")",
+                                                "type": "string",
+                                                "enum": [
+                                                    "left",
+                                                    "center",
+                                                    "right"
+                                                ]
+                                            },
+                                            "width": {
+                                                "description": "Its width in characters; longer cells are cut short (default: its widest cell)",
+                                                "type": "integer",
+                                                "minimum": 1,
+                                                "maximum": 9007199254740991
+                                            }
+                                        },
+                                        "additionalProperties": false,
+                                        "description": "A column's heading and layout"
+                                    }
+                                },
+                                "rows": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                            "type": [
+                                                "string",
+                                                "number"
+                                            ]
+                                        }
+                                    },
+                                    "description": "The rows, each a list of cells (text, which can show variables as \"{name}\", or numbers)"
+                                },
+                                "border": {
+                                    "default": "none",
+                                    "description": "How it's drawn: \"none\" (columns spaced apart, the header underlined) or \"box\" (box-drawing lines around every cell) (default: \"none\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "none",
+                                        "box"
+                                    ]
+                                },
+                                "gap": {
+                                    "default": 2,
+                                    "description": "Characters between columns, with \"border\": \"none\" (default: 2)",
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                },
+                                "align": {
+                                    "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "left",
+                                        "center",
+                                        "right"
+                                    ]
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "rows"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Rows and columns of text, laid out in character columns: a crew manifest, a cargo list, a sensor readout. It's kept exactly as written, never wrapped."
                         }
                     ]
                 }

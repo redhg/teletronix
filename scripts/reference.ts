@@ -81,6 +81,7 @@ import {
 import { CommandSchema, PromptSchema } from "../src/modules/prompt/definition.ts";
 import { SectionMarkersSchema } from "../src/modules/section/definition.ts";
 import { SliderRuleSchema, SliderSchema } from "../src/modules/slider/definition.ts";
+import { TableColumnSchema, TableSchema } from "../src/modules/table/definition.ts";
 import { TextSchema } from "../src/modules/text/definition.ts";
 import { TimerElementSchema } from "../src/modules/timer/definition.ts";
 import { ToggleSchema } from "../src/modules/toggle/definition.ts";
@@ -177,6 +178,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Slider rule", SliderRuleSchema],
             ["Meter", MeterSchema, '"type": "meter"'],
             ["Meter range", MeterRangeSchema],
+            ["Table", TableSchema, '"type": "table"'],
+            ["Table column", TableColumnSchema],
             ["Section", SectionSchema, '"type": "section"'],
             ["Section markers", SectionMarkersSchema],
             ["Columns", ColumnsSchema, '"type": "columns"'],

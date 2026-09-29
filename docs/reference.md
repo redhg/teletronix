@@ -9,7 +9,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -319,6 +319,7 @@ One of:
 - [Timer element](#timer-element)
 - [Columns](#columns)
 - [Meter](#meter)
+- [Table](#table)
 
 <a id="text"></a>
 
@@ -629,6 +630,36 @@ Classes for a range of values, e.g. red when it's low
 | `atMost` | number |  | This value or less |
 | `equals` | number |  | Exactly this value |
 | `className` | string | **required** | Space-separated CSS classes the meter has while its value is in the range, e.g. "alert" |
+
+<a id="table"></a>
+
+### Table (`"type": "table"`)
+
+Rows and columns of text, laid out in character columns: a crew manifest, a cargo list, a sensor readout. It's kept exactly as written, never wrapped.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `columns` | [Table column](#table-column)[] |  | Each column's heading and layout, left to right. With titles, the table has a header row. |
+| `rows` | ((string \| number)[])[] | **required** | The rows, each a list of cells (text, which can show variables as "{name}", or numbers) |
+| `border` | `"none"` \| `"box"` | `"none"` | How it's drawn: "none" (columns spaced apart, the header underlined) or "box" (box-drawing lines around every cell) |
+| `gap` | whole number, ≥ 1 | `2` | Characters between columns, with "border": "none" |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="table-column"></a>
+
+### Table column
+
+A column's heading and layout
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `title` | string |  | Its heading |
+| `align` | `"left"` \| `"center"` \| `"right"` | `"left"` | Where its cells sit: "left", "center" or "right" |
+| `width` | whole number, ≥ 1 | its widest cell | Its width in characters; longer cells are cut short |
 
 <a id="section"></a>
 
