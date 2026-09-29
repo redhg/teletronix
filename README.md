@@ -20,6 +20,7 @@ Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `s
 | `npm run build` | Typecheck and build to `dist/` |
 | `npm test` | Unit tests |
 | `npm run test:e2e` | Browser tests, in Chromium, Firefox and WebKit (see [Tests](#tests)) |
+| `npm run test:e2e:quick` | Browser tests in Chromium only: about a third of the time |
 | `npm run lint` / `npm run format` | Biome check / fix |
 | `npm run gen` | Regenerate `schema/teletronix.schema.json` and `docs/reference.md` after changing the schema |
 | `node scripts/convert-phosphor.ts <in> <out>` | Convert a Phosphor JSON file |
@@ -592,8 +593,14 @@ Two suites, both run on every push by GitHub Actions:
 
 The first time, install the browsers with `npx playwright install`. Then:
 
+While working on something, run its own browser tests; before committing, the quick run;
+CI runs everything, in all three browsers, on every push. Changes to shared foundations (the
+engine's reveal and timing, key handling, layout, autoscroll) are worth a full local run,
+since they can break one browser only.
+
 ```sh
 npm run test:e2e                         # everything
+npm run test:e2e:quick                   # everything, in Chromium only
 npx playwright test e2e/dialogs.spec.ts  # one file
 npx playwright test --project=webkit     # one browser
 npm run test:e2e:ui                      # step through tests, with a live view
