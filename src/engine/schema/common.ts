@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AssignmentsSchema, ConditionSchema } from "./variables.ts";
+import { AssignmentsSchema, ConditionSchema, VariableNameSchema } from "./variables.ts";
 
 // ─── Ids ─────────────────────────────────────────────────────────────────────
 
@@ -174,6 +174,15 @@ export const ActionCaseSchema = z
         set: AssignmentsSchema.optional().meta({
             description: 'Variables to change first, e.g. { "keycard": true }',
         }),
+        startTimer: VariableNameSchema.optional().meta({
+            description: "A timer to start (or carry on, if it was stopped partway)",
+        }),
+        stopTimer: VariableNameSchema.optional().meta({
+            description: "A timer to stop where it is",
+        }),
+        resetTimer: VariableNameSchema.optional().meta({
+            description: "A timer to stop and put back to its start",
+        }),
         sound: actionSound,
     })
     .refine((action) => !(action.screen && action.dialog), {
@@ -184,8 +193,11 @@ export const ActionCaseSchema = z
             action.screen !== undefined ||
             action.dialog !== undefined ||
             action.set !== undefined ||
-            action.sound !== undefined,
-        { message: 'Set "screen", "dialog", "set" or "sound"' },
+            action.sound !== undefined ||
+            action.startTimer !== undefined ||
+            action.stopTimer !== undefined ||
+            action.resetTimer !== undefined,
+        { message: 'Set "screen", "dialog", "set", "sound" or a timer to start, stop or reset' },
     )
     .meta({
         description:

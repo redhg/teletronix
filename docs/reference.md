@@ -8,8 +8,8 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
-- **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Section](#section), [Section markers](#section-markers), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Section](#section), [Section markers](#section-markers), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -51,6 +51,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `waitForReveal` | boolean | `false` | Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed, as on a real terminal, rather than each as it appears. A tap still finishes the reveal at once |
 | `defaults` | [Defaults](#defaults) |  | Default options for each kind of reveal |
 | `variables` | [Variables](#variables) |  | The program's variables and their starting values: true or false, a number, or text. Actions change them with `set`, toggles, sliders and prompts can be bound to them, `if` tests them, and text shows them as "{name}". They reset when the page reloads. |
+| `timers` | [Timers](#timers) |  | The program's timers, by name: clocks that keep running from screen to screen, such as a self-destruct countdown |
 | `theme` | [Theme](#theme) | `"default"` | The color scheme: "default" (pale blue on black), "amber", "green" or "white", or your own colors |
 | `font` | `"ast-premiumexec"` \| `"ibm-vga"` \| `"ibm-ega"` \| `"ibm-cga"` \| `"ibm-cga-thin"` \| `"ibm-mda"` \| `"toshiba-satellite"` \| `"departure-mono"` | `"ast-premiumexec"` | The typeface, from a set of period PC fonts |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |
@@ -270,6 +271,28 @@ Adds to a number variable
 |---|---|---|---|
 | `add` | number | **required** | How much to add (negative to subtract) |
 
+<a id="timers"></a>
+
+### Timers
+
+The program's timers, by name: clocks that keep running from screen to screen, such as a self-destruct countdown
+
+A map of variable name → [Timer](#timer).
+
+<a id="timer"></a>
+
+### Timer
+
+A clock that keeps running from screen to screen: started, stopped and reset by actions ("startTimer", "stopTimer", "resetTimer"), shown in text as "{name}" and by timer elements, and tested by conditions as its seconds. Its onComplete runs on whatever screen the player is on.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `from` | number, ≥ 0 | `0` | Seconds it starts at |
+| `to` | number, ≥ 0 | `0` | Seconds it stops at: lower than from to count down, higher to count up |
+| `format` | `"mm:ss"` \| `"hh:mm:ss"` \| `"ss"` | `"mm:ss"` | How the time is shown: "mm:ss", "hh:mm:ss" or "ss" |
+| `onComplete` | [Action](#action) |  | What happens when it reaches to |
+| `autostart` | boolean | `false` | Start running when the program does, rather than at a "startTimer" action |
+
 ## Elements
 
 <a id="content"></a>
@@ -292,6 +315,7 @@ One of:
 - [Pause](#pause)
 - [Buttons](#buttons)
 - [Number](#number)
+- [Timer element](#timer-element)
 
 <a id="text"></a>
 
@@ -407,6 +431,26 @@ An action for numbers in a range. Set more than one condition and the number mus
 | `atLeast` | number |  | This number or more |
 | `atMost` | number |  | This number or less |
 | `action` | [Action](#action) | **required** | What happens |
+
+<a id="timer-element"></a>
+
+### Timer element (`"type": "timer"`)
+
+A clock on the screen: a program timer (with "timer"), or a timer of its own, which starts once it's revealed, runs while the screen is showing, and runs onComplete when it reaches to.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `label` | string | `""` | Text before the time, e.g. "T-MINUS " |
+| `timer` | id |  | A timer from config.timers to show. Without one, the element runs a timer of its own, set up with from, to, format and onComplete. |
+| `from` | number, ≥ 0 | `0` | Seconds it starts at |
+| `to` | number, ≥ 0 | `0` | Seconds it stops at: lower than from to count down, higher to count up |
+| `format` | `"mm:ss"` \| `"hh:mm:ss"` \| `"ss"` | `"mm:ss"` | How the time is shown: "mm:ss", "hh:mm:ss" or "ss" |
+| `onComplete` | [Action](#action) |  | What happens when it reaches to |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
 <a id="bitmap"></a>
 
@@ -1020,6 +1064,9 @@ Go to a screen or open a dialog, changing variables and playing a sound on the w
 | `screen` | id |  | A screen to go to |
 | `dialog` | id |  | A dialog to open |
 | `set` | [Set](#set) |  | Variables to change first, e.g. { "keycard": true } |
+| `startTimer` | id |  | A timer to start (or carry on, if it was stopped partway) |
+| `stopTimer` | id |  | A timer to stop where it is |
+| `resetTimer` | id |  | A timer to stop and put back to its start |
 | `sound` | id |  | A sound from the program's sounds, played as the action happens |
 
 <a id="reveal"></a>

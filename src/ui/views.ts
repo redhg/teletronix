@@ -9,6 +9,7 @@ import { PromptView } from "../modules/prompt/View.tsx";
 import { SectionView } from "../modules/section/View.tsx";
 import { SliderView } from "../modules/slider/View.tsx";
 import { TextView } from "../modules/text/View.tsx";
+import { TimerView } from "../modules/timer/View.tsx";
 import { ToggleView } from "../modules/toggle/View.tsx";
 import type { ElementView } from "./element-view.ts";
 
@@ -25,4 +26,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     pause: PauseView,
     buttons: ButtonsView,
     number: NumberView,
+    timer: TimerView,
 };

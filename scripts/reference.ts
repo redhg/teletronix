@@ -47,6 +47,7 @@ import {
     ScreenSchema,
 } from "../src/engine/schema/program.ts";
 import { SoundOptionsSchema, SoundSchema } from "../src/engine/schema/sound.ts";
+import { TimerSchema, TimersSchema } from "../src/engine/schema/timers.ts";
 import {
     AddSchema,
     AllConditionSchema,
@@ -80,6 +81,7 @@ import { CommandSchema, PromptSchema } from "../src/modules/prompt/definition.ts
 import { SectionMarkersSchema } from "../src/modules/section/definition.ts";
 import { SliderRuleSchema, SliderSchema } from "../src/modules/slider/definition.ts";
 import { TextSchema } from "../src/modules/text/definition.ts";
+import { TimerElementSchema } from "../src/modules/timer/definition.ts";
 import { ToggleSchema } from "../src/modules/toggle/definition.ts";
 
 interface JsonSchema {
@@ -147,6 +149,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Not", NotConditionSchema],
             ["Set", AssignmentsSchema],
             ["Add", AddSchema],
+            ["Timers", TimersSchema],
+            ["Timer", TimerSchema],
         ],
     ],
     [
@@ -160,6 +164,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Prompt command", CommandSchema],
             ["Number", NumberSchema, '"type": "number"'],
             ["Number rule", NumberRuleSchema],
+            ["Timer element", TimerElementSchema, '"type": "timer"'],
             ["Bitmap", BitmapSchema, '"type": "bitmap"'],
             ["Blend", BlendSchema],
             ["Blend with a color", BlendObjectSchema],

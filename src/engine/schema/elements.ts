@@ -21,6 +21,11 @@ import {
 } from "../../modules/section/definition.ts";
 import { type SliderElement, SliderSchema, sliderModule } from "../../modules/slider/definition.ts";
 import { type TextElement, TextSchema, textModule } from "../../modules/text/definition.ts";
+import {
+    type TimerElement,
+    TimerElementSchema,
+    timerModule,
+} from "../../modules/timer/definition.ts";
 import { type ToggleElement, ToggleSchema, toggleModule } from "../../modules/toggle/definition.ts";
 import type { ModuleDefinition } from "../module.ts";
 import type { Align, LayoutOptions } from "../text/layout.ts";
@@ -41,6 +46,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     PauseSchema,
     ButtonsSchema,
     NumberSchema,
+    TimerElementSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -63,7 +69,8 @@ export type Element =
     | SectionElement
     | PauseElement
     | ButtonsElement
-    | NumberElement;
+    | NumberElement
+    | TimerElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -79,6 +86,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     pause: pauseModule,
     buttons: buttonsModule,
     number: numberModule,
+    timer: timerModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
@@ -91,7 +99,7 @@ export function boundVariable(element: Element): string | undefined {
 }
 
 /** Elements whose text can be aligned, and so follow a screen's or the config's `align`. */
-const ALIGNABLE = new Set<ElementType>(["text", "link", "toggle", "pause", "buttons"]);
+const ALIGNABLE = new Set<ElementType>(["text", "link", "toggle", "pause", "buttons", "timer"]);
 
 /** How an element's text is laid out (see layoutText), given the default alignment. */
 export function layoutOptions(element: Element, fallback: Align): LayoutOptions {

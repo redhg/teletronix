@@ -64,6 +64,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"section"` | A header that expands and collapses the elements under it. See below. |
 | `"pause"` | Stops the reveal with "-- PRESS ANY KEY TO CONTINUE --" until a key or tap. See below. |
 | `"buttons"` | A row of `[ BUTTONS ]`, each with an `action` and an optional hotkey. See below. |
+| `"timer"` | A clock on the screen, counting down or up. See [Timers](#timers). |
 
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also change variables
 (see [Variables and conditions](#variables-and-conditions)). Every element takes an optional
@@ -293,6 +294,31 @@ updates as it changes. Braces around anything that isn't a declared variable are
 Every variable is checked when the program loads: an undeclared name, a type mismatch (like
 `{ "keycard": 1 }` for a true/false variable), or a toggle bound to the wrong kind of variable
 is an error, with its location.
+
+### Timers
+`config.timers` declares clocks that keep running from screen to screen, such as a
+self-destruct countdown:
+
+```json
+"timers": { "destruct": { "from": 300, "onComplete": { "screen": "boom" } } }
+```
+
+- A timer counts from `from` to `to` in seconds (`to` defaults to 0: a countdown; set it
+  higher than `from` to count up). `format` is `"mm:ss"` (the default), `"hh:mm:ss"` or `"ss"`.
+- Actions control it: `"startTimer": "destruct"` (carries on if it was stopped partway, starts
+  over if it had finished), `"stopTimer"` and `"resetTimer"`. `"autostart": true` starts it
+  with the program.
+- `{destruct}` shows it in text, dialogs and bars, updating every second, and conditions test
+  it as its seconds: `{ "destruct": { "atMost": 30 } }`.
+- When it gets to `to`, its `onComplete` runs on whatever screen the player is on.
+
+A `"timer"` element shows a clock on the screen, after its `label`: a program timer
+(`"timer": "destruct"`), or a timer of its own, set up with `from`, `to`, `format` and
+`onComplete`, which starts once it's revealed and stops when the player leaves the screen:
+
+```json
+{ "type": "timer", "label": "AIRLOCK CYCLE: ", "from": 10, "onComplete": { "dialog": "cycled" } }
+```
 
 ### Dialogs
 `dialogs` holds modal dialogs, opened by any `{ "dialog": "<id>" }` action:

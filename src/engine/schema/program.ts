@@ -34,6 +34,7 @@ import {
 } from "./elements.ts";
 import { type NextRule, NextSchema } from "./next.ts";
 import { type ResolvedSound, resolveSound, SoundSchema, type SoundSetting } from "./sound.ts";
+import { type Timer, TimersSchema } from "./timers.ts";
 import {
     type Condition,
     checkAssignments,
@@ -156,6 +157,7 @@ export const ConfigSchema = z
             }),
         defaults: DefaultsSchema.optional(),
         variables: VariablesSchema.optional(),
+        timers: TimersSchema.optional(),
         theme: ThemeSchema.optional(),
         font: FontSchema.optional(),
         effects: EffectsSchema.optional(),
@@ -263,6 +265,8 @@ export interface Program {
     /** Bars pinned to the top and bottom of the window, unless a screen has its own */
     header?: BarLine[];
     footer?: BarLine[];
+    /** Timers by name: clocks that keep running from screen to screen */
+    timers: ReadonlyMap<string, Timer>;
     /** Variables by name, with their starting values */
     variables: ReadonlyMap<string, VariableValue>;
 }
@@ -284,6 +288,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         theme,
         font,
         variables,
+        timers,
         ...config
     } = file.config;
 
@@ -339,6 +344,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             Object.entries(file.sounds ?? {}).map(([name, recipe]) => [name, fillRecipe(recipe)]),
         ),
         variables: new Map(Object.entries(variables ?? {})),
+        timers: new Map(Object.entries(timers ?? {})),
         header,
         footer,
     };
@@ -377,8 +383,15 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
 
     const unknownSound = (name: string | undefined) =>
         name !== undefined && !program.sounds.has(name) ? `Unknown sound "${name}"` : null;
+    // conditions can test timers too, as their seconds
+    const testable = new Map<string, VariableValue>(program.variables);
+    for (const name of program.timers.keys()) testable.set(name, 0);
     const conditionProblems = (condition: Condition | undefined) =>
-        condition ? checkCondition(condition, program.variables) : [];
+        condition ? checkCondition(condition, testable) : [];
+    const unknownTimer = (name: string | undefined) =>
+        name !== undefined && !program.timers.has(name)
+            ? [`Unknown timer "${name}" (declare it in config.timers)`]
+            : [];
     const actionProblems = (action: Action): string[] =>
         action.flatMap((choice) => [
             ...(choice.screen !== undefined && !program.screens.has(choice.screen)
@@ -390,6 +403,9 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
             ...[unknownSound(choice.sound) ?? []].flat(),
             ...conditionProblems(choice.if),
             ...checkAssignments(choice.set ?? [], program.variables),
+            ...unknownTimer(choice.startTimer),
+            ...unknownTimer(choice.stopTimer),
+            ...unknownTimer(choice.resetTimer),
         ]);
     const report = (path: PropertyKey[], messages: string | string[] | null) => {
         for (const message of [messages ?? []].flat()) {
@@ -402,6 +418,16 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
             report([...path, ...link.path], actionProblems(link.action));
         }
     };
+    for (const [name, timer] of program.timers) {
+        if (program.variables.has(name)) {
+            report(
+                ["config", "timers", name],
+                `"${name}" is a variable already; name the timer differently`,
+            );
+        }
+        if (timer.onComplete)
+            report(["config", "timers", name, "onComplete"], actionProblems(timer.onComplete));
+    }
     checkBar(["config", "header"], program.header);
     checkBar(["config", "footer"], program.footer);
 
@@ -439,6 +465,7 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
                 report(path, actionProblems(action));
             }
 
+            if (element.type === "timer") report([...path, "timer"], unknownTimer(element.timer));
             const variable = boundVariable(element);
             if (variable !== undefined) {
                 const initial = program.variables.get(variable);

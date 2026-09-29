@@ -1,3 +1,4 @@
+import { ownClock } from "../../modules/timer/definition.ts";
 import type { Random } from "../random.ts";
 import type { Reveal } from "../reveal/index.ts";
 import { resolveTransition, type TransitionSpec } from "../reveal/index.ts";
@@ -15,6 +16,7 @@ import {
 } from "../schema/next.ts";
 import type { Program } from "../schema/program.ts";
 import type { Cue } from "../schema/sound.ts";
+import { type Clock, countsDown, formatTime, shownSeconds } from "../schema/timers.ts";
 import { assign, type Condition, format, holds, type VariableValue } from "../schema/variables.ts";
 import type { Ticker } from "../time/ticker.ts";
 import { type ElementState, ScreenRun } from "./screen-run.ts";
@@ -87,6 +89,11 @@ export class Terminal {
     private readonly variables: Map<string, VariableValue>;
     /** Every element in the program, by id. */
     private readonly elements = new Map<string, Element>();
+    /**
+     * The program's timers, by name, and timer elements' own, by "@" and their element's id
+     * (those only last while their screen does).
+     */
+    private readonly timers = new Map<string, TimerState>();
     private readonly listeners = new Set<() => void>();
     private readonly cueListeners = new Set<(cue: Cue) => void>();
     private columns: number;
@@ -127,6 +134,7 @@ export class Terminal {
         for (const screen of options.program.screens.values()) {
             forEachElement(screen.content, (element) => this.elements.set(element.id, element));
         }
+        this.resetTimers();
     }
 
     // ─── Store interface (e.g. for React's useSyncExternalStore) ────────────
@@ -146,8 +154,9 @@ export class Terminal {
 
     // ─── Commands ───────────────────────────────────────────────────────────
 
-    /** Shows the start screen. */
+    /** Shows the start screen, and starts the timers that start with the program. */
     start(): void {
+        this.startTimers();
         this.navigate(this.program.start);
     }
 
@@ -167,6 +176,14 @@ export class Terminal {
             // a timed `next` rule may apply now
             this.syncTicker();
         }
+        if (chosen.startTimer || chosen.stopTimer || chosen.resetTimer) {
+            const now = this.ticker.now();
+            if (chosen.stopTimer) this.stopTimer(chosen.stopTimer, now);
+            if (chosen.resetTimer) this.resetTimer(chosen.resetTimer);
+            if (chosen.startTimer) this.startTimer(chosen.startTimer, now);
+            this.variablesChanged();
+            this.syncTicker();
+        }
         if (chosen.sound) this.cue({ type: "sound", name: chosen.sound });
         if (chosen.screen !== undefined) this.navigate(chosen.screen);
         else if (chosen.dialog !== undefined) this.openDialog(chosen.dialog);
@@ -174,16 +191,21 @@ export class Terminal {
         return chosen;
     }
 
-    /** A variable's current value. */
+    /** A variable's current value, or a timer's, in whole seconds. */
     variable(name: string): VariableValue | undefined {
-        return this.variables.get(name);
+        const timer = this.timers.get(name);
+        return this.variables.get(name) ?? (timer && shownSeconds(timer.clock, timer.ms));
     }
 
     /** Whether a condition holds, with the variables as they are now. */
     holds = (condition: Condition): boolean => holds(condition, (name) => this.variable(name));
 
     /** Text with {name} replaced by the variable's value. */
-    format = (text: string): string => format(text, (name) => this.variable(name));
+    format = (text: string): string =>
+        format(text, (name) => {
+            const timer = this.timers.get(name);
+            return timer ? formatTime(timer.clock, timer.ms) : this.variables.get(name);
+        });
 
     /**
      * Shows a screen from the top. Navigating to the current screen replays it.
@@ -199,6 +221,10 @@ export class Terminal {
         this.dialog = null;
         this.nextFired = false;
         this.outcomes = [];
+        // timer elements' own timers go with their screen
+        for (const key of [...this.timers.keys()]) {
+            if (key.startsWith("@")) this.timers.delete(key);
+        }
 
         const transition = resolveTransition(screen.transition, this.program.defaults);
         // a transition that's still playing is cut short by the next one
@@ -247,6 +273,8 @@ export class Terminal {
         this.variables.clear();
         for (const [name, value] of this.program.variables) this.variables.set(name, value);
         this.variablesVersion++;
+        this.resetTimers();
+        this.startTimers();
         // no transition from whatever was on screen
         this.run = null;
         this.outgoing = null;
@@ -289,6 +317,11 @@ export class Terminal {
     /** Reads an element's memory: its variable, if it's bound to one. */
     recall<M>(elementId: string): M | undefined {
         const element = this.elements.get(elementId);
+        // a timer element shows its timer's time
+        if (element?.type === "timer") {
+            const timer = this.timers.get(element.timer ?? `@${element.id}`);
+            return (timer && formatTime(timer.clock, timer.ms)) as M | undefined;
+        }
         const variable = element && boundVariable(element);
         const value = variable === undefined ? undefined : this.variables.get(variable);
         if (element && value !== undefined) {
@@ -395,6 +428,7 @@ export class Terminal {
     // ─── Internals ──────────────────────────────────────────────────────────
 
     private readonly tick = (now: number): void => {
+        this.advanceTimers(now);
         if (this.interstitial && now >= this.interstitial.until) {
             this.endInterstitial(this.interstitial.until);
         }
@@ -449,6 +483,16 @@ export class Terminal {
         reveal: Reveal,
         time: number,
     ) {
+        // a timer element's own timer starts once it's been revealed
+        if (element.type === "timer" && !element.timer) {
+            const clock = ownClock(element);
+            this.timers.set(`@${element.id}`, {
+                clock,
+                ms: clock.from * 1000,
+                running: true,
+                since: time,
+            });
+        }
         const outcome = moduleFor(element).outcome?.(element, reveal);
         if (!outcome) return false;
         this.outcomes.push({ run, holder, action: outcome.action, due: time + outcome.after });
@@ -489,6 +533,7 @@ export class Terminal {
             (this.outgoing?.animating ?? false) ||
             this.timedRule() !== null ||
             this.outcomes.length > 0 ||
+            [...this.timers.values()].some((timer) => timer.running) ||
             this.interstitial !== null;
         if (animating && !this.unsubscribeTicker) {
             this.unsubscribeTicker = this.ticker.subscribe(this.tick);
@@ -520,6 +565,74 @@ export class Terminal {
         this.interstitial = null;
         this.run?.start(time);
         this.markDirty();
+    }
+
+    // ─── Timers ────────────────────────────────────────────────────────────
+
+    /** The program's timers back at their start, stopped; timer elements' own, gone. */
+    private resetTimers(): void {
+        this.timers.clear();
+        for (const [name, timer] of this.program.timers) {
+            this.timers.set(name, {
+                clock: timer,
+                ms: timer.from * 1000,
+                running: false,
+                since: 0,
+            });
+        }
+    }
+
+    /** Starts the timers that start with the program. */
+    private startTimers(): void {
+        for (const [name, timer] of this.program.timers) {
+            if (timer.autostart) this.startTimer(name, this.ticker.now());
+        }
+    }
+
+    /** Starts a timer, carrying on from where it stopped, or from its start if it had finished. */
+    private startTimer(name: string, now: number): void {
+        const timer = this.timers.get(name);
+        if (!timer || timer.running) return;
+        if (timer.ms === timer.clock.to * 1000) timer.ms = timer.clock.from * 1000;
+        timer.running = true;
+        timer.since = now;
+    }
+
+    private stopTimer(name: string, now: number): void {
+        const timer = this.timers.get(name);
+        if (!timer?.running) return;
+        timer.ms = timerMs(timer, now);
+        timer.running = false;
+    }
+
+    private resetTimer(name: string): void {
+        const timer = this.timers.get(name);
+        if (!timer) return;
+        timer.ms = timer.clock.from * 1000;
+        timer.running = false;
+    }
+
+    /**
+     * Moves running timers to `now`: redraws what shows them when a second ticks over, and
+     * runs the onComplete of any that finished.
+     */
+    private advanceTimers(now: number): void {
+        let changed = false;
+        const finished: Action[] = [];
+        for (const timer of this.timers.values()) {
+            if (!timer.running) continue;
+            const before = shownSeconds(timer.clock, timer.ms);
+            timer.ms = timerMs(timer, now);
+            timer.since = now;
+            if (shownSeconds(timer.clock, timer.ms) !== before) changed = true;
+            if (timer.ms === timer.clock.to * 1000) {
+                timer.running = false;
+                if (timer.clock.onComplete) finished.push(timer.clock.onComplete);
+            }
+        }
+        if (changed) this.variablesChanged();
+        // after the loop: an action may navigate, which drops screen timers
+        for (const action of finished) this.dispatch(action);
     }
 
     /** Redraws what shows variables: text on screen, and (via the snapshot) the bars. */
@@ -555,4 +668,23 @@ export class Terminal {
         };
         for (const listener of this.listeners) listener();
     }
+}
+
+interface TimerState {
+    clock: Clock;
+    /** Its time, as of `since`. */
+    ms: number;
+    running: boolean;
+    /** When `ms` was last brought up to date (ticker time). */
+    since: number;
+}
+
+/** A timer's time at `now`: moving towards its end while it runs, and stopping there. */
+function timerMs(timer: TimerState, now: number): number {
+    if (!timer.running) return timer.ms;
+    const elapsed = Math.max(0, now - timer.since);
+    const end = timer.clock.to * 1000;
+    return countsDown(timer.clock)
+        ? Math.max(end, timer.ms - elapsed)
+        : Math.min(end, timer.ms + elapsed);
 }

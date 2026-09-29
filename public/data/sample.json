@@ -6,7 +6,8 @@
         "description": "Demonstrates every Teletronix feature.",
         "start": "home",
         "waitForReveal": true,
-        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50 }
+        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50 },
+        "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
     "screens": {
         "home": {
@@ -27,6 +28,7 @@
                 { "type": "link", "text": "> SECTIONS", "action": { "screen": "sections" } },
                 { "type": "link", "text": "> BARS", "action": { "screen": "bars" } },
                 { "type": "link", "text": "> PAUSES", "action": { "screen": "pauses" } },
+                { "type": "link", "text": "> TIMERS", "action": { "screen": "timers" } },
                 { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
                 { "type": "link", "text": "> NUMBERS", "action": { "screen": "numbers" } },
                 { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
@@ -643,6 +645,43 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
+        "timers": {
+            "footer": [{ "left": "SELF-DESTRUCT: {destruct}", "right": "SECTOR 14/B" }],
+            "content": [
+                "TIMERS",
+                "======",
+                "",
+                "A program's timers keep running from screen to screen. Actions start, stop and reset them, text and bars show them by name in braces (this one's is ticking in the status bar), and when one runs out, its action happens wherever the player is. Arm this one and go somewhere else, if you dare.",
+                "",
+                { "type": "timer", "label": "SELF-DESTRUCT IN ", "timer": "destruct", "align": "center", "className": "alert" },
+                "",
+                {
+                    "type": "buttons",
+                    "align": "center",
+                    "buttons": [
+                        { "text": "ARM", "key": "a", "className": "alert", "action": { "startTimer": "destruct" } },
+                        { "text": "HOLD", "key": "h", "action": { "stopTimer": "destruct" } },
+                        { "text": "DISARM", "key": "d", "action": { "resetTimer": "destruct" } }
+                    ]
+                },
+                "",
+                "A timer element can also run a timer of its own, which starts when it appears and stops when you leave:",
+                "",
+                { "type": "timer", "label": "AIRLOCK CYCLE: ", "from": 10, "format": "ss", "onComplete": { "dialog": "airlock-cycled" } },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "timer-boom": {
+            "transition": "static",
+            "content": [
+                { "type": "text", "text": "SELF-DESTRUCT COMPLETE.", "className": "alert" },
+                "",
+                "The station is gone. That's what a program timer's onComplete can do, wherever you were.",
+                "",
+                { "type": "link", "text": "> START OVER", "action": { "resetTimer": "destruct", "screen": "home" } }
+            ]
+        },
         "toggles": {
             "content": [
                 "TOGGLES",
@@ -909,6 +948,10 @@
         "fuel-set": {
             "type": "alert",
             "content": "Fuel mix set to {fuel}%."
+        },
+        "airlock-cycled": {
+            "type": "alert",
+            "content": "Airlock cycled. Outer door open."
         },
         "vance-log": {
             "type": "alert",
