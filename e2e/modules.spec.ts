@@ -786,3 +786,51 @@ test.describe("multiple choice", () => {
         await expect(player.screen).toContainText("LIGHTS true, AIR false");
     });
 });
+
+test.describe("bitmap width in columns", () => {
+    const sized: Program = {
+        config: { name: "Sized", start: "home" },
+        screens: {
+            home: {
+                content: [
+                    "12345678901234567890",
+                    { type: "bitmap", src: "data/images/sunset-grid.png", alt: "SUNSET", cols: 20 },
+                    { type: "bitmap", src: "data/images/sunset-grid.png", alt: "HUGE", cols: 500 },
+                ],
+            },
+        },
+    };
+
+    test("is that many characters wide, with its height in proportion", async ({ player }) => {
+        await player.open(sized);
+        const image = player.screen.getByRole("img", { name: "SUNSET" });
+        await expect(image).toBeVisible();
+        const { width, height, natural, line } = await image.evaluate((canvas) => {
+            const text = document.querySelector(".screen .text [aria-hidden='true']");
+            const c = canvas as HTMLCanvasElement;
+            const box = c.getBoundingClientRect();
+            return {
+                width: box.width,
+                height: box.height,
+                natural: c.width / c.height,
+                line: text?.getBoundingClientRect().width ?? 0,
+            };
+        });
+        // as wide as the 20-character line above it
+        expect(width).toBeCloseTo(line, 0);
+        expect(width / height).toBeCloseTo(natural, 1);
+    });
+
+    test("shrinks to fit a narrower screen, keeping its shape", async ({ page, player }) => {
+        await player.open(sized);
+        const image = player.screen.getByRole("img", { name: "HUGE" });
+        await expect(image).toBeVisible();
+        const box = await image.boundingBox();
+        const screen = await player.screen.boundingBox();
+        expect(box?.width).toBeLessThanOrEqual((screen?.width ?? 0) + 1);
+        const overflows = await page.evaluate(
+            () => document.documentElement.scrollWidth > window.innerWidth,
+        );
+        expect(overflows).toBe(false);
+    });
+});

@@ -60,7 +60,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"choice"` | One of several `options`, shown side by side like radio buttons. See below. |
 | `"prompt"` | A command line. Each of its `commands` has an `action`; `onEnter` takes anything else. |
 | `"number"` | A prompt for whole numbers only: codes, keypads, settings. See below. |
-| `"bitmap"` | An image (`src`, `alt`) that resolves from blocky to sharp. The screen waits for it to load. |
+| `"bitmap"` | An image (`src`, `alt`) that resolves from blocky to sharp. The screen waits for it to load. `cols` sets its width in characters (its height follows), e.g. to match a line of text. |
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 | `"meter"` | A gauge: a bar showing a variable or timer, live. See below. |

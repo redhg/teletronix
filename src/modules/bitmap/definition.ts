@@ -65,6 +65,16 @@ export const BitmapSchema = z
             .min(1)
             .meta({ description: "A description of the image, for screen readers" }),
         blend: BlendSchema.optional(),
+        cols: z
+            .int()
+            .min(1)
+            .optional()
+            .meta({
+                description:
+                    "Its width in character columns, e.g. to line it up with a line of text that " +
+                    "many characters long; its height follows, keeping its shape. On a narrower " +
+                    "screen, it shrinks to fit (default: the image's own width, or the screen's)",
+            }),
         ...ElementBaseShape,
     })
     .meta({

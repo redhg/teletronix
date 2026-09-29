@@ -532,6 +532,7 @@ An image, revealed in steps from low to high resolution, optionally blended with
 | `src` | string | **required** | Image URL, or a path relative to the page |
 | `alt` | string | **required** | A description of the image, for screen readers |
 | `blend` | [Blend](#blend) |  | Blends the image with one of the theme's colors: a mode such as "luminosity", "hard-light" or "difference", or { "mode", "with": "text" } to blend with the text color instead of the background |
+| `cols` | whole number, ≥ 1 | the image's own width, or the screen's | Its width in character columns, e.g. to line it up with a line of text that many characters long; its height follows, keeping its shape. On a narrower screen, it shrinks to fit |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |

@@ -6247,6 +6247,12 @@
                                         }
                                     ]
                                 },
+                                "cols": {
+                                    "description": "Its width in character columns, e.g. to line it up with a line of text that many characters long; its height follows, keeping its shape. On a narrower screen, it shrinks to fit (default: the image's own width, or the screen's)",
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                },
                                 "className": {
                                     "description": "Space-separated CSS classes, e.g. \"alert\"",
                                     "type": "string"

@@ -55,6 +55,8 @@ export function BitmapView({ element, state, run, index }: ElementViewProps<Bitm
                 height={image.naturalHeight}
                 role="img"
                 aria-label={element.alt}
+                // character cells wide, like the text (its height follows, keeping its shape)
+                style={element.cols ? { width: `${element.cols}ch` } : undefined}
             />
         </div>
     );
