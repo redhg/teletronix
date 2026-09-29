@@ -411,7 +411,7 @@ Options shown side by side: one chosen, like radio buttons, or with multiple, an
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `label` | string | `""` | Text before the options, e.g. "POWER: " |
-| `options` | string[] | **required** | The options, left to right |
+| `options` | string[] | **required** | The options, left to right: at least two, or with multiple, one for a single checkbox |
 | `multiple` | boolean | `false` | Let the player tick any number of options, like checkboxes, rather than choosing one |
 | `initial` | whole number, ≥ 0 \| whole number, ≥ 0[] | 0); with multiple, a list of the options ticked at first (default: none | The option chosen at first, by index from 0 |
 | `variable` | id |  | A variable that holds the choice: the option's text for a text variable, its index (from 0) for a number. It starts from the variable's value, instead of initial. (Not with multiple: see variables.) |

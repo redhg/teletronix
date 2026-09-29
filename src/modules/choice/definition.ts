@@ -23,8 +23,12 @@ export const ChoiceSchema = z
             .meta({ description: 'Text before the options, e.g. "POWER: "' }),
         options: z
             .array(z.string().min(1))
-            .min(2)
-            .meta({ description: "The options, left to right" }),
+            .min(1)
+            .meta({
+                description:
+                    "The options, left to right: at least two, or with multiple, one for a " +
+                    "single checkbox",
+            }),
         multiple: z
             .boolean()
             .default(false)
@@ -88,6 +92,12 @@ export const ChoiceSchema = z
                 problem(["variables"], "There are more variables than options");
             }
         } else {
+            if (choice.options.length < 2) {
+                problem(
+                    ["options"],
+                    'A choice needs two options, or "multiple": true for a checkbox',
+                );
+            }
             if (Array.isArray(choice.initial)) {
                 problem(["initial"], 'initial is a list only with "multiple": true');
             }

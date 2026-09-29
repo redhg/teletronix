@@ -118,6 +118,40 @@ describe("multiple choice", () => {
         expect(drawn(run, 0)).toBe("SYSTEMS: [X] LIGHTS  [X] HEAT  [X] AIR");
     });
 
+    it("can be a single checkbox, but a single choice needs two options", () => {
+        const { terminal } = createTestTerminal(
+            {
+                config: { name: "T", variables: { sealed: true } },
+                screens: {
+                    home: {
+                        content: [
+                            {
+                                type: "choice",
+                                multiple: true,
+                                options: ["AIRLOCK SEALED"],
+                                variables: ["sealed"],
+                            },
+                        ],
+                    },
+                },
+            },
+            { instant: true },
+        );
+        terminal.start();
+        const run = terminal.getSnapshot().screen?.run as ScreenRun;
+        expect(drawn(run, 0)).toBe("[X] AIRLOCK SEALED");
+        terminal.remember("home#0", []);
+        expect(terminal.variable("sealed")).toBe(false);
+
+        const single = parseProgram({
+            config: { name: "T" },
+            screens: { home: { content: [{ type: "choice", options: ["ONLY"] }] } },
+        });
+        expect(single.ok ? [] : single.errors.map((e) => e.message)).toEqual([
+            'A choice needs two options, or "multiple": true for a checkbox',
+        ]);
+    });
+
     it("checks how it's set up", () => {
         const result = parseProgram({
             config: { name: "T", variables: { count: 1, name: "x" } },

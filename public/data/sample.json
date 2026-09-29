@@ -787,7 +787,7 @@
                 "A toggle cycles through its states each time you click it. Toggles remember their state, so leave this screen and come back.",
                 "",
                 { "type": "toggle", "states": ["> Hello.", "> How are you?", "> I am fine, thanks."] },
-                { "type": "toggle", "states": ["[ ] AIRLOCK SEALED", "[X] AIRLOCK SEALED"], "initial": 1, "className": "alert" },
+                { "type": "toggle", "states": ["DOOR: SHUT", "DOOR: AJAR", "DOOR: OPEN"], "className": "alert" },
                 "",
                 "A choice shows all its options at once. Click one, or tab to it and use the arrow keys. This one keeps its choice in a variable:",
                 "",
@@ -800,6 +800,10 @@
                 "With \"multiple\": true, any number of options can be ticked, like checkboxes:",
                 "",
                 { "type": "choice", "label": "SYSTEMS: ", "multiple": true, "options": ["LIGHTS", "HEATING", "AIR"], "initial": [0, 2] },
+                "",
+                "With just one option, it's a single checkbox:",
+                "",
+                { "type": "choice", "multiple": true, "options": ["AIRLOCK SEALED"], "initial": [0], "className": "alert" },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]

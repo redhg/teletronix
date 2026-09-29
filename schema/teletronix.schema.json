@@ -9528,13 +9528,13 @@
                                     "type": "string"
                                 },
                                 "options": {
-                                    "minItems": 2,
+                                    "minItems": 1,
                                     "type": "array",
                                     "items": {
                                         "type": "string",
                                         "minLength": 1
                                     },
-                                    "description": "The options, left to right"
+                                    "description": "The options, left to right: at least two, or with multiple, one for a single checkbox"
                                 },
                                 "multiple": {
                                     "default": false,

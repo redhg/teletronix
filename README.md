@@ -136,7 +136,12 @@ With `"multiple": true`, any number of options can be ticked, like checkboxes:
 `[X] LIGHTS  [ ] HEATING  [X] AIR`. A click (or <space>) ticks one on or off; `initial` lists
 the options ticked at first (e.g. `[0, 2]`). Instead of one `variable`, `variables` gives each
 option a true/false variable of its own, in order (`null` for an option without one), so
-conditions and text can use each: `"variables": ["lights", "heat", "air"]`.
+conditions and text can use each: `"variables": ["lights", "heat", "air"]`. A multiple choice
+with a single option is a checkbox: `{ "type": "choice", "multiple": true, "options": ["AIRLOCK
+SEALED"], "variables": ["sealed"] }`.
+
+(A toggle is still the element for one line that cycles through texts, like `SHUT` → `AJAR` →
+`OPEN`; a choice shows every option at once.)
 
 ### Sliders
 ```json
