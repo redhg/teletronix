@@ -2,6 +2,10 @@
 // (https://alexharri.com/blog/ascii-rendering): each character, and each cell of the
 // picture, is measured in six regions, and each cell gets the character whose shape is
 // closest. Images are converted once, when they load.
+//
+// WORK IN PROGRESS: results are recognizable only for bold, simple pictures. Ideas to try:
+// the article's directional contrast (sampling just outside each cell), a gamma or
+// threshold before matching, fewer candidate characters, and more regions per cell.
 
 import type { AsciiElement } from "./definition.ts";
 

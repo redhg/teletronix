@@ -588,7 +588,7 @@ An image's reveal, with its speed
 
 ### ASCII image (`"type": "ascii"`)
 
-An image turned into text: each character cell picks the character that best matches the picture there. It's real text, so it reveals like text (typed out, glitched in).
+Experimental, a work in progress: its results aren't good enough yet, and how it works may change. An image turned into text: each character cell picks the character that best matches the picture there. It's real text, so it reveals like text (typed out, glitched in).
 
 | Property | Type | Default | Description |
 |---|---|---|---|

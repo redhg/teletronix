@@ -818,14 +818,6 @@
                 "",
                 { "type": "text", "src": "data/art/satellite.txt", "wrap": false, "align": "center", "reveal": { "type": "teletype", "speed": 3 } },
                 "",
-                "An \"ascii\" element turns an image into text: each character is picked to match the shape of the picture under it. This is the Teletronix icon:",
-                "",
-                { "type": "ascii", "src": "icons/icon-512.png", "alt": "The Teletronix icon, a prompt and cursor, in characters", "cols": 30, "align": "center" },
-                "",
-                "Photos with fine detail work less well. \"mode\": \"ramp\" picks characters by brightness alone, which suits soft shapes like the curve of the Earth, glitched in here:",
-                "",
-                { "type": "ascii", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "The Gulf of Mexico at night, in characters", "cols": 56, "mode": "ramp", "align": "center", "reveal": "glitch" },
-                "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },

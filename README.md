@@ -55,7 +55,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | Type | |
 |---|---|
 | `"text"` (or a bare string) | Text: a string, a list of lines, or a text file (`src`). Line breaks are kept; long lines wrap unless `"wrap": false`. |
-| `"ascii"` | An image turned into text, character by character. See [ASCII art](#ascii-art). |
+| `"ascii"` | *Experimental:* an image turned into text, character by character. See [ASCII art](#ascii-art). |
 | `"link"` | Clickable text with an `action`, and optionally a `secondaryAction` for a shift-click, right-click, Shift+Enter or long press. |
 | `"menu"` | A list of `items` navigated with the arrow keys, like a BIOS menu. See below. |
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
@@ -86,7 +86,9 @@ text, it reveals with the screen's reveal: typed out, glitched in.
 { "type": "text", "src": "data/art/satellite.txt", "wrap": false, "align": "center" }
 ```
 
-An `"ascii"` element turns an image into text instead, `cols` characters wide (default 60),
+**Experimental, a work in progress:** an `"ascii"` element turns an image into text instead.
+Its results aren't good enough yet (so the sample doesn't show it), and its options may
+change. It's `cols` characters wide (default 60),
 its height following the image's shape:
 
 ```json

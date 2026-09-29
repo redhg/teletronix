@@ -1,3 +1,7 @@
+// EXPERIMENTAL, a work in progress: the conversion (see convert.ts) gives recognizable
+// results only for bold, simple pictures so far, and isn't shown in the sample. Its options
+// may change.
+
 import { z } from "zod";
 import { type ElementIdentity, LOAD_FAILED, type ModuleDefinition } from "../../engine/module.ts";
 import { ElementAlignSchema, ElementBaseShape } from "../../engine/schema/common.ts";
@@ -40,8 +44,10 @@ export const AsciiSchema = z
     })
     .meta({
         description:
-            "An image turned into text: each character cell picks the character that best matches " +
-            "the picture there. It's real text, so it reveals like text (typed out, glitched in).",
+            "Experimental, a work in progress: its results aren't good enough yet, and how it " +
+            "works may change. An image turned into text: each character cell picks the " +
+            "character that best matches the picture there. It's real text, so it reveals like " +
+            "text (typed out, glitched in).",
     });
 
 export type AsciiElement = z.output<typeof AsciiSchema> & ElementIdentity;
