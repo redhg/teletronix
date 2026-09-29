@@ -1,7 +1,7 @@
 import { expect, type Page, type Player, type Program, test } from "./fixtures.ts";
 
 const back = { type: "link" as const, text: "> BACK", action: { screen: "home" } };
-const IMAGE = "data/images/sunset-grid.png";
+const IMAGE = "e2e-images/sunset-grid.png";
 
 const program: Program = {
     config: { name: "Modules", start: "home" },
@@ -794,8 +794,8 @@ test.describe("bitmap width in columns", () => {
             home: {
                 content: [
                     "12345678901234567890",
-                    { type: "bitmap", src: "data/images/sunset-grid.png", alt: "SUNSET", cols: 20 },
-                    { type: "bitmap", src: "data/images/sunset-grid.png", alt: "HUGE", cols: 500 },
+                    { type: "bitmap", src: "e2e-images/sunset-grid.png", alt: "SUNSET", cols: 20 },
+                    { type: "bitmap", src: "e2e-images/sunset-grid.png", alt: "HUGE", cols: 500 },
                 ],
             },
         },

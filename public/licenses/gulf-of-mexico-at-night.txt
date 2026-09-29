@@ -1,0 +1,8 @@
+data/images/gulf-of-mexico-at-night.jpg
+
+Photo of the Gulf of Mexico at night, from orbit, by NASA (@nasa) on Unsplash:
+https://unsplash.com/photos/photo-of-outer-space-Q1p7bh3SHj8
+
+Used under the Unsplash License (https://unsplash.com/license): free to use, for commercial
+and non-commercial purposes, without asking permission; attribution isn't required but is
+appreciated. Scaled down from the original (4256×2832) to 1280×851 for Teletronix.

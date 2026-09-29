@@ -550,6 +550,10 @@ Fonts: AST PremiumExec from [The Ultimate Oldschool PC Font Pack](https://int10h
 by VileR (CC BY-SA 4.0), and Departure Mono by Helena Zhang (SIL OFL 1.1). Their license texts
 are in `public/licenses/`, so every build includes them (served at `licenses/`).
 
+The sample's photo of the Gulf of Mexico at night, from orbit, is by
+[NASA on Unsplash](https://unsplash.com/photos/photo-of-outer-space-Q1p7bh3SHj8), under the
+[Unsplash License](https://unsplash.com/license) (noted in `public/licenses/`).
+
 The glitch effect is ported from [musicforprogramming.net](https://musicforprogramming.net).
 
 ## At the table

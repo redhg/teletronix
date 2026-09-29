@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { test as base, expect, type Locator, type Page } from "@playwright/test";
 import type { TeletronixFile } from "../src/engine/schema/program.ts";
 
@@ -190,6 +191,14 @@ export const test = base.extend<Fixtures>({
         { auto: true },
     ],
     player: async ({ page }, use) => {
+        // test images, such as one with a bright, saturated spot to check blending by
+        await page.route("**/e2e-images/*", (route) =>
+            route.fulfill({
+                path: fileURLToPath(
+                    new URL(`fixtures/${route.request().url().split("/").at(-1)}`, import.meta.url),
+                ),
+            }),
+        );
         await use(new Player(page));
     },
     audio: async ({ page }, use) => {
