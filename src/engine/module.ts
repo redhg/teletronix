@@ -41,6 +41,8 @@ export interface ModuleDefinition<E, M = never> {
      * place of their memory.
      */
     binding?: Binding<E, M>;
+    /** For elements whose memory is kept in several true/false variables (see MultiBinding). */
+    multiBinding?: MultiBinding<E, M>;
     /**
      * A custom reveal, for elements that aren't simply revealed text (e.g. images, progress
      * bars). Its frames may change the element's text as they go; views can also follow it
@@ -84,4 +86,17 @@ export interface Binding<E, M> {
     read(element: E, value: VariableValue): M;
     /** The variable's new value, from the element's memory and the variable's current value. */
     write(element: E, memory: M, current: VariableValue): VariableValue;
+}
+
+/**
+ * How an element's memory maps to several true/false variables, each for one part of it
+ * (e.g. a multiple choice's options). Parts without a variable stay in the element's memory.
+ */
+export interface MultiBinding<E, M> {
+    /** A variable name for each part, in order, or null for a part without one. */
+    variables(element: E): (string | null)[];
+    /** The element's memory, from its variables' values (undefined for parts without one). */
+    read(element: E, values: (VariableValue | undefined)[], memory: M | undefined): M;
+    /** Each part's value, in order, from the element's memory. */
+    write(element: E, memory: M): VariableValue[];
 }

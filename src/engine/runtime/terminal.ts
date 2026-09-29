@@ -330,6 +330,14 @@ export class Terminal {
         if (element && value !== undefined) {
             return moduleFor(element).binding?.read(element, value) as M | undefined;
         }
+        const multi = element && moduleFor(element).multiBinding;
+        const names = element && multi ? multi.variables(element) : [];
+        if (element && multi && names.some((name) => name !== null)) {
+            const values = names.map((name) =>
+                name === null ? undefined : this.variables.get(name),
+            );
+            return multi.read(element, values, this.memory.get(elementId)) as M;
+        }
         return this.memory.get(elementId) as M | undefined;
     }
 
@@ -348,7 +356,19 @@ export class Terminal {
             this.variablesChanged();
         } else {
             this.memory.set(elementId, value);
-            this.run?.refresh(elementId);
+            // parts of it kept in variables (e.g. a multiple choice's ticks)
+            const multi = element && moduleFor(element).multiBinding;
+            const names = element && multi ? multi.variables(element) : [];
+            if (element && multi && names.some((name) => name !== null)) {
+                const values = multi.write(element, value);
+                names.forEach((name, i) => {
+                    const part = values[i];
+                    if (name !== null && part !== undefined) this.variables.set(name, part);
+                });
+                this.variablesChanged();
+            } else {
+                this.run?.refresh(elementId);
+            }
         }
 
         // the change may trigger an action (e.g. a slider pushed past a threshold)

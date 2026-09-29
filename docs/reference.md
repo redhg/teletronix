@@ -406,16 +406,18 @@ Text that cycles through states when clicked. It remembers its state when you co
 
 ### Choice (`"type": "choice"`)
 
-One of several options, chosen with a click or the arrow keys, shown side by side like radio buttons. It remembers the choice, and can keep it in a variable.
+Options shown side by side: one chosen, like radio buttons, or with multiple, any number ticked, like checkboxes. It remembers the choice, and can keep it in variables.
 
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `label` | string | `""` | Text before the options, e.g. "POWER: " |
 | `options` | string[] | **required** | The options, left to right |
-| `initial` | whole number, ≥ 0 | `0` | Index of the option chosen at first |
-| `variable` | id |  | A variable that holds the choice: the option's text for a text variable, its index (from 0) for a number. It starts from the variable's value, instead of initial. |
-| `onChange` | [Action](#action) |  | What happens when the player chooses a different option |
-| `markers` | [Choice markers](#choice-markers) | `{"off":"( )","on":"(•)"}` | What each option shows before its text, e.g. "[ ]" and "[X]" |
+| `multiple` | boolean | `false` | Let the player tick any number of options, like checkboxes, rather than choosing one |
+| `initial` | whole number, ≥ 0 \| whole number, ≥ 0[] | 0); with multiple, a list of the options ticked at first (default: none | The option chosen at first, by index from 0 |
+| `variable` | id |  | A variable that holds the choice: the option's text for a text variable, its index (from 0) for a number. It starts from the variable's value, instead of initial. (Not with multiple: see variables.) |
+| `variables` | (id \| any)[] |  | With multiple: a true/false variable for each option, in order, that holds whether it's ticked (null for an option without one). The options start from the variables, instead of initial. |
+| `onChange` | [Action](#action) |  | What happens when the player changes the choice |
+| `markers` | [Choice markers](#choice-markers) |  | What each option shows before its text, e.g. "[ ]" and "[X]" |
 | `gap` | whole number, ≥ 1 | `2` | Characters between the options |
 | `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
@@ -431,8 +433,8 @@ What each option shows before its text
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `off` | string | `"( )"` | Before an option not chosen |
-| `on` | string | `"(•)"` | Before the chosen option |
+| `off` | string | "( )", or "[ ]" with multiple | Before an option not chosen |
+| `on` | string | "(•)", or "[X]" with multiple | Before a chosen option |
 
 <a id="prompt"></a>
 

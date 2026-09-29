@@ -795,7 +795,11 @@
                 "",
                 "And this one has its own markers:",
                 "",
-                { "type": "choice", "label": "DOCKING: ", "options": ["AUTO", "MANUAL"], "markers": { "off": "[ ]", "on": "[X]" } },
+                { "type": "choice", "label": "DOCKING: ", "options": ["AUTO", "MANUAL"], "markers": { "off": "< >", "on": "<*>" } },
+                "",
+                "With \"multiple\": true, any number of options can be ticked, like checkboxes:",
+                "",
+                { "type": "choice", "label": "SYSTEMS: ", "multiple": true, "options": ["LIGHTS", "HEATING", "AIR"], "initial": [0, 2] },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]

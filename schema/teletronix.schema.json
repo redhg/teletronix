@@ -9536,19 +9536,52 @@
                                     },
                                     "description": "The options, left to right"
                                 },
+                                "multiple": {
+                                    "default": false,
+                                    "description": "Let the player tick any number of options, like checkboxes, rather than choosing one (default: false)",
+                                    "type": "boolean"
+                                },
                                 "initial": {
-                                    "description": "Index of the option chosen at first (default: 0)",
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 9007199254740991
+                                    "description": "The option chosen at first, by index from 0 (default: 0); with multiple, a list of the options ticked at first (default: none)",
+                                    "anyOf": [
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 9007199254740991
+                                        },
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "integer",
+                                                "minimum": 0,
+                                                "maximum": 9007199254740991
+                                            }
+                                        }
+                                    ]
                                 },
                                 "variable": {
-                                    "description": "A variable that holds the choice: the option's text for a text variable, its index (from 0) for a number. It starts from the variable's value, instead of initial.",
+                                    "description": "A variable that holds the choice: the option's text for a text variable, its index (from 0) for a number. It starts from the variable's value, instead of initial. (Not with multiple: see variables.)",
                                     "type": "string",
                                     "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
                                 },
+                                "variables": {
+                                    "description": "With multiple: a true/false variable for each option, in order, that holds whether it's ticked (null for an option without one). The options start from the variables, instead of initial.",
+                                    "type": "array",
+                                    "items": {
+                                        "anyOf": [
+                                            {
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                "description": "A variable declared in config.variables"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ]
+                                    }
+                                },
                                 "onChange": {
-                                    "description": "What happens when the player chooses a different option",
+                                    "description": "What happens when the player changes the choice",
                                     "anyOf": [
                                         {
                                             "type": "object",
@@ -9709,21 +9742,15 @@
                                     ]
                                 },
                                 "markers": {
-                                    "default": {
-                                        "off": "( )",
-                                        "on": "(•)"
-                                    },
                                     "description": "What each option shows before its text, e.g. \"[ ]\" and \"[X]\"",
                                     "type": "object",
                                     "properties": {
                                         "off": {
-                                            "default": "( )",
-                                            "description": "Before an option not chosen (default: \"( )\")",
+                                            "description": "Before an option not chosen (default: \"( )\", or \"[ ]\" with multiple)",
                                             "type": "string"
                                         },
                                         "on": {
-                                            "default": "(•)",
-                                            "description": "Before the chosen option (default: \"(•)\")",
+                                            "description": "Before a chosen option (default: \"(•)\", or \"[X]\" with multiple)",
                                             "type": "string"
                                         }
                                     },
@@ -9833,7 +9860,7 @@
                                 "options"
                             ],
                             "additionalProperties": false,
-                            "description": "One of several options, chosen with a click or the arrow keys, shown side by side like radio buttons. It remembers the choice, and can keep it in a variable."
+                            "description": "Options shown side by side: one chosen, like radio buttons, or with multiple, any number ticked, like checkboxes. It remembers the choice, and can keep it in variables."
                         },
                         {
                             "type": "object",

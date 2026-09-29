@@ -749,3 +749,40 @@ test.describe("menu", () => {
         await expect(player.dialog).toContainText("SHUTTING DOWN");
     });
 });
+
+test.describe("multiple choice", () => {
+    const ticking: Program = {
+        config: { name: "Choices", start: "home", variables: { lights: false, air: true } },
+        screens: {
+            home: {
+                content: [
+                    {
+                        type: "choice",
+                        label: "SYSTEMS: ",
+                        multiple: true,
+                        options: ["LIGHTS", "AIR"],
+                        variables: ["lights", "air"],
+                    },
+                    "LIGHTS {lights}, AIR {air}",
+                ],
+            },
+        },
+    };
+
+    test("ticks options on and off, with a click or Space", async ({ page, player }) => {
+        await player.open(ticking);
+        const choice = player.screen.locator(".choice");
+        await expect(choice).toContainText("[ ] LIGHTS");
+        await expect(choice).toContainText("[X] AIR");
+
+        await choice.locator("label", { hasText: "LIGHTS" }).click();
+        await expect(choice).toContainText("[X] LIGHTS");
+        await expect(choice).toContainText("[X] AIR");
+        await expect(player.screen).toContainText("LIGHTS true, AIR true");
+
+        await choice.getByRole("checkbox", { name: "AIR" }).focus();
+        await page.keyboard.press("Space");
+        await expect(choice).toContainText("[ ] AIR");
+        await expect(player.screen).toContainText("LIGHTS true, AIR false");
+    });
+});

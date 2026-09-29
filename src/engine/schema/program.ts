@@ -471,6 +471,19 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
             }
 
             if (element.type === "timer") report([...path, "timer"], unknownTimer(element.timer));
+            // a multiple choice's option variables must be true/false
+            module.multiBinding?.variables(element).forEach((name, i) => {
+                if (name === null) return;
+                const value = program.variables.get(name);
+                report(
+                    [...path, "variables", i],
+                    value === undefined
+                        ? unknownVariable(name)
+                        : typeof value === "boolean"
+                          ? null
+                          : `"${name}" must be true or false`,
+                );
+            });
             const source = module.source?.(element);
             if (source !== undefined) {
                 const value = testable.get(source);

@@ -130,7 +130,13 @@ Shows every option at once, `(•) ECO  ( ) NORMAL  ( ) OVERDRIVE`, and the play
 a click, or tabs to it and uses the arrow keys. It remembers the choice; with `"variable"`, it
 keeps it there: the option's text in a text variable, or its index (from 0) in a number
 variable. `onChange` runs when the choice changes. `markers` changes the marks, e.g.
-`{ "off": "[ ]", "on": "[X]" }`; `gap` sets the characters between options (default 2).
+`{ "off": "< >", "on": "<*>" }`; `gap` sets the characters between options (default 2).
+
+With `"multiple": true`, any number of options can be ticked, like checkboxes:
+`[X] LIGHTS  [ ] HEATING  [X] AIR`. A click (or <space>) ticks one on or off; `initial` lists
+the options ticked at first (e.g. `[0, 2]`). Instead of one `variable`, `variables` gives each
+option a true/false variable of its own, in order (`null` for an option without one), so
+conditions and text can use each: `"variables": ["lights", "heat", "air"]`.
 
 ### Sliders
 ```json

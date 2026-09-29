@@ -72,3 +72,99 @@ describe("choice", () => {
         ]);
     });
 });
+
+describe("multiple choice", () => {
+    const MULTIPLE: TeletronixFile = {
+        config: { name: "T", variables: { lights: true, air: false } },
+        screens: {
+            home: {
+                content: [
+                    {
+                        type: "choice",
+                        label: "SYSTEMS: ",
+                        multiple: true,
+                        options: ["LIGHTS", "HEAT", "AIR"],
+                        variables: ["lights", null, "air"],
+                        onChange: { dialog: "changed" },
+                    },
+                    { type: "choice", multiple: true, options: ["A", "B", "C"], initial: [0, 2] },
+                ],
+            },
+        },
+        dialogs: { changed: { type: "alert", content: "!" } },
+    };
+    const start = () => {
+        const test = createTestTerminal(MULTIPLE, { instant: true });
+        test.terminal.start();
+        return { ...test, run: test.terminal.getSnapshot().screen?.run as ScreenRun };
+    };
+
+    it("ticks any number of options, drawn as checkboxes", () => {
+        const { run } = start();
+        expect(drawn(run, 0)).toBe("SYSTEMS: [X] LIGHTS  [ ] HEAT  [ ] AIR");
+        expect(drawn(run, 1)).toBe("[X] A  [ ] B  [X] C");
+    });
+
+    it("keeps each tick in its option's variable, and the rest in memory", () => {
+        const { terminal, run } = start();
+        terminal.remember("home#0", [1, 2]);
+        expect(terminal.variable("lights")).toBe(false);
+        expect(terminal.variable("air")).toBe(true);
+        expect(drawn(run, 0)).toBe("SYSTEMS: [ ] LIGHTS  [X] HEAT  [X] AIR");
+        expect(terminal.getSnapshot().dialog?.id).toBe("changed");
+        // and follows its variables when an action changes them
+        terminal.answerDialog(true);
+        terminal.dispatch([{ set: [{ variable: "lights", value: true }] }]);
+        expect(drawn(run, 0)).toBe("SYSTEMS: [X] LIGHTS  [X] HEAT  [X] AIR");
+    });
+
+    it("checks how it's set up", () => {
+        const result = parseProgram({
+            config: { name: "T", variables: { count: 1, name: "x" } },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "choice",
+                            multiple: true,
+                            options: ["A", "B"],
+                            variables: ["count", "nope"],
+                        },
+                        {
+                            type: "choice",
+                            multiple: true,
+                            options: ["A", "B"],
+                            variable: "name",
+                            initial: 1,
+                        },
+                        { type: "choice", options: ["A", "B"], initial: [1] },
+                    ],
+                },
+            },
+        });
+        expect(result.ok ? [] : result.errors.map((e) => `${e.path}: ${e.message}`)).toEqual([
+            "screens.home.content[1].initial: With multiple, initial is a list of options, e.g. [0, 2]",
+            'screens.home.content[1].variable: With multiple, use "variables": one for each option',
+            'screens.home.content[2].initial: initial is a list only with "multiple": true',
+        ]);
+        const bound = parseProgram({
+            config: { name: "T", variables: { count: 1 } },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "choice",
+                            multiple: true,
+                            options: ["A", "B"],
+                            variables: ["count", "nope"],
+                        },
+                    ],
+                },
+            },
+        });
+        expect(bound.ok ? [] : bound.errors.map((e) => e.message)).toEqual([
+            '"count" must be true or false',
+            'Unknown variable "nope" (declare it in config.variables)',
+        ]);
+    });
+});
