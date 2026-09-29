@@ -93,3 +93,107 @@ test.describe("autoscroll", () => {
         expect(await page.evaluate(() => window.scrollY)).toBe(0);
     });
 });
+
+test.describe("alignment and preformatted text", () => {
+    const ART = ["+--------+", "|  ART   |", "+--------+"];
+    const program: Program = {
+        config: { name: "Align", start: "home" },
+        screens: {
+            home: {
+                content: [
+                    { type: "text", text: "CENTERED TITLE", align: "center" },
+                    { type: "text", text: ART, wrap: false, align: "center" },
+                    { type: "text", text: `WIDE ${"=".repeat(300)} END`, wrap: false },
+                    {
+                        type: "link",
+                        text: "> CENTERED LINK",
+                        align: "center",
+                        action: { screen: "home" },
+                    },
+                ],
+            },
+        },
+    };
+
+    /** Where each line of an element's drawn text starts and ends on the page. */
+    const lineBoxes = (text: Locator) =>
+        text.locator('[aria-hidden="true"]').evaluate((drawn) => {
+            const node = drawn.firstChild?.firstChild ?? drawn.firstChild;
+            const content = drawn.textContent ?? "";
+            const boxes: { left: number; right: number }[] = [];
+            let offset = 0;
+            for (const line of content.split("\n")) {
+                const start = offset + line.length - line.trimStart().length;
+                const end = offset + line.trimEnd().length;
+                const range = document.createRange();
+                // the visible span holds the whole text once revealed
+                const textNode = drawn.querySelector("span")?.firstChild ?? node;
+                if (textNode) {
+                    range.setStart(textNode, start);
+                    range.setEnd(textNode, end);
+                    const box = range.getBoundingClientRect();
+                    boxes.push({ left: box.left, right: box.right });
+                }
+                offset += line.length + 1;
+            }
+            return boxes;
+        });
+
+    const screenBox = async (player: import("./fixtures.ts").Player) => {
+        const box = await player.screen.boundingBox();
+        if (!box) throw new Error("no screen");
+        return box;
+    };
+
+    test("centers text on the screen, in whole columns", async ({ player }) => {
+        await player.open(program);
+        const [title] = await lineBoxes(player.screen.locator(".text").nth(0));
+        const screen = await screenBox(player);
+        const charWidth = ((title?.right ?? 0) - (title?.left ?? 0)) / "CENTERED TITLE".length;
+        const middle = ((title?.left ?? 0) + (title?.right ?? 0)) / 2;
+        // within a column of the middle (a line can't sit between two columns)
+        expect(Math.abs(middle - (screen.x + screen.width / 2))).toBeLessThanOrEqual(charWidth);
+    });
+
+    test("moves a block as one, keeping its shape", async ({ player }) => {
+        await player.open(program);
+        const lines = await lineBoxes(player.screen.locator(".text").nth(1));
+        expect(lines).toHaveLength(3);
+        const lefts = new Set(lines.map((line) => Math.round(line.left)));
+        expect(lefts.size).toBe(1);
+    });
+
+    test("keeps preformatted lines whole, cut off at the edge", async ({ page, player }) => {
+        await player.open(program);
+        const wide = player.screen.locator(".text").nth(2).locator('[aria-hidden="true"]');
+        const drawn = await wide.evaluate((element) => element.textContent ?? "");
+        expect(drawn).toContain("END");
+        expect(drawn).not.toContain("\n");
+        const overflows = await page.evaluate(
+            () => document.documentElement.scrollWidth > window.innerWidth,
+        );
+        expect(overflows).toBe(false);
+    });
+
+    test("centers a link's text, with its bar still full width", async ({ player }) => {
+        await player.open(program);
+        const link = player.link("> CENTERED LINK");
+        const [text] = await lineBoxes(link);
+        const box = await link.boundingBox();
+        const screen = await screenBox(player);
+        expect(box?.width).toBeCloseTo(screen.width, 0);
+        expect((text?.left ?? 0) - screen.x).toBeGreaterThan(screen.width / 4);
+    });
+
+    test("centers again when the window is resized", async ({ page, player }) => {
+        await player.open(program);
+        const title = player.screen.locator(".text").nth(0);
+        const before = (await lineBoxes(title))[0]?.left ?? 0;
+        await page.setViewportSize({ width: 500, height: 700 });
+        await expect.poll(async () => (await lineBoxes(title))[0]?.left ?? 0).toBeLessThan(before);
+        const [after] = await lineBoxes(title);
+        const screen = await screenBox(player);
+        const middle = ((after?.left ?? 0) + (after?.right ?? 0)) / 2;
+        expect(Math.abs(middle - (screen.x + screen.width / 2))).toBeLessThan(20);
+    });
+});

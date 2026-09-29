@@ -500,6 +500,24 @@
                 "An empty string makes a blank line, like the one above.",
                 { "type": "text", "text": "Text objects can add CSS classes, like \"alert\".", "className": "alert" },
                 "",
+                { "type": "text", "text": "\"align\": \"center\" puts text in the middle.", "align": "center" },
+                { "type": "text", "text": "Or \"right\", at the edge.", "align": "right" },
+                "",
+                "Text can be a list of lines, and \"wrap\": false keeps them exactly as written, for ASCII art. Centered, the block moves as one and keeps its shape:",
+                "",
+                {
+                    "type": "text",
+                    "wrap": false,
+                    "align": "center",
+                    "text": [
+                        "╔════════════════════╗",
+                        "║  STATION  YPSILON  ║",
+                        "║   ──────────────   ║",
+                        "║    SECTOR 14 /B    ║",
+                        "╚════════════════════╝"
+                    ]
+                },
+                "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },

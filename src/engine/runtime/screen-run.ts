@@ -10,11 +10,11 @@ import {
     splitFrame,
 } from "../reveal/index.ts";
 import type { Element } from "../schema/elements.ts";
-import { moduleFor } from "../schema/elements.ts";
+import { layoutOptions, moduleFor } from "../schema/elements.ts";
 import type { Defaults, Screen } from "../schema/program.ts";
 import type { Cue } from "../schema/sound.ts";
 import type { Condition } from "../schema/variables.ts";
-import { applyBreaks, type Break, lineBreaks } from "../text/breaks.ts";
+import { applyLayout, type Layout, layoutText } from "../text/layout.ts";
 
 /**
  * An element's lifecycle. Elements reveal in order, and the next starts when the current
@@ -65,7 +65,7 @@ interface ElementRun {
     element: Element;
     state: ElementState;
     text: string;
-    breaks: Break[];
+    layout: Layout;
     frame: Frame;
     progress: number;
     listeners: Set<FrameListener>;
@@ -136,7 +136,7 @@ export class ScreenRun {
                 element,
                 state: loading ? "unloaded" : "ready",
                 text,
-                breaks: lineBreaks(text, this.columns),
+                layout: this.layout(element, text),
                 frame: [],
                 progress: 0,
                 listeners: new Set(),
@@ -300,7 +300,7 @@ export class ScreenRun {
         if (text === run.text) return;
 
         run.text = text;
-        run.breaks = lineBreaks(text, this.columns);
+        run.layout = this.layout(run.element, text);
         if (run.state === "done") {
             run.frame = [{ kind: "visible", text }];
             this.emitFrame(run);
@@ -311,7 +311,7 @@ export class ScreenRun {
         if (columns === this.columns) return;
         this.columns = columns;
         for (const run of this.runs) {
-            run.breaks = lineBreaks(run.text, columns);
+            run.layout = this.layout(run.element, run.text);
             this.emitFrame(run);
         }
         // custom reveals may lay themselves out to the width, so redraw finished ones
@@ -326,7 +326,7 @@ export class ScreenRun {
     subscribeFrame(index: number, listener: FrameListener): () => void {
         const run = this.runAt(index);
         run.listeners.add(listener);
-        listener(applyBreaks(run.frame, run.breaks), run.text);
+        listener(applyLayout(run.frame, run.layout), run.text);
         return () => run.listeners.delete(listener);
     }
 
@@ -342,6 +342,12 @@ export class ScreenRun {
         const run = this.runs[index];
         if (!run) throw new RangeError(`No element at index ${index}`);
         return run;
+    }
+
+    /** Where an element's text goes in the columns: its line breaks and alignment. */
+    private layout(element: Element, text: string): Layout {
+        const fallback = this.screen.align ?? this.options.defaults.align;
+        return layoutText(text, this.columns, layoutOptions(element, fallback));
     }
 
     private textOf(element: Element): string {
@@ -499,7 +505,7 @@ export class ScreenRun {
                 const text = part.map((segment) => segment.text).join("");
                 if (text !== run.text) {
                     run.text = text;
-                    run.breaks = lineBreaks(text, this.columns);
+                    run.layout = this.layout(run.element, text);
                 }
             }
             if (!sameFrame(part, run.frame)) {
@@ -515,7 +521,7 @@ export class ScreenRun {
 
     private emitFrame(run: ElementRun): void {
         if (run.listeners.size === 0) return;
-        const frame = applyBreaks(run.frame, run.breaks);
+        const frame = applyLayout(run.frame, run.layout);
         for (const listener of run.listeners) listener(frame, run.text);
     }
 

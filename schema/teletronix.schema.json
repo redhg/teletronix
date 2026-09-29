@@ -184,6 +184,15 @@
                         }
                     ]
                 },
+                "align": {
+                    "description": "Where text, links and toggles sit across every screen, unless a screen or element says otherwise (default: \"left\")",
+                    "type": "string",
+                    "enum": [
+                        "left",
+                        "center",
+                        "right"
+                    ]
+                },
                 "defaults": {
                     "type": "object",
                     "properties": {
@@ -1221,6 +1230,15 @@
                         "description": "Keep new content in view as it appears (default: the config's)",
                         "type": "boolean"
                     },
+                    "align": {
+                        "description": "Where text, links and toggles sit across the screen, unless they say otherwise (default: the config's)",
+                        "type": "string",
+                        "enum": [
+                            "left",
+                            "center",
+                            "right"
+                        ]
+                    },
                     "next": {
                         "description": "Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens.",
                         "anyOf": [
@@ -1587,8 +1605,33 @@
                                                     "const": "text"
                                                 },
                                                 "text": {
+                                                    "description": "The text to display: a string, which may contain line breaks, or a list of lines (easier to read and edit for ASCII art)",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "minItems": 1,
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                "wrap": {
+                                                    "default": true,
+                                                    "description": "Wrap long lines to fit the screen. Set false for preformatted text such as ASCII art: spaces and line breaks are kept exactly, and anything past the right edge is cut off (default: true)",
+                                                    "type": "boolean"
+                                                },
+                                                "align": {
+                                                    "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",
                                                     "type": "string",
-                                                    "description": "The text to display. May contain line breaks."
+                                                    "enum": [
+                                                        "left",
+                                                        "center",
+                                                        "right"
+                                                    ]
                                                 },
                                                 "className": {
                                                     "description": "Space-separated CSS classes, e.g. \"alert\"",
@@ -1954,6 +1997,15 @@
                                                         }
                                                     ]
                                                 },
+                                                "align": {
+                                                    "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "left",
+                                                        "center",
+                                                        "right"
+                                                    ]
+                                                },
                                                 "className": {
                                                     "description": "Space-separated CSS classes, e.g. \"alert\"",
                                                     "type": "string"
@@ -2071,6 +2123,15 @@
                                                     "description": "A variable that holds the toggle's state: true or false for two states (the second is true), otherwise the state's index, from 0. It starts from the variable's value, instead of initial.",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                },
+                                                "align": {
+                                                    "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "left",
+                                                        "center",
+                                                        "right"
+                                                    ]
                                                 },
                                                 "className": {
                                                     "description": "Space-separated CSS classes, e.g. \"alert\"",

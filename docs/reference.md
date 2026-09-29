@@ -44,6 +44,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `start` | id | the first one | The first screen |
 | `reveal` | [Reveal](#reveal) | `"teletype"` | How text appears on every screen, unless a screen or element says otherwise |
 | `transition` | [Transition](#transition) | `"none"` | How screens leave, unless the next screen says otherwise |
+| `align` | `"left"` \| `"center"` \| `"right"` | `"left"` | Where text, links and toggles sit across every screen, unless a screen or element says otherwise |
 | `defaults` | [Defaults](#defaults) |  | Default options for each kind of reveal |
 | `variables` | [Variables](#variables) |  | The program's variables and their starting values: true or false, a number, or text. Actions change them with `set`, toggles, sliders and prompts can be bound to them, `if` tests them, and text shows them as "{name}". They reset when the page reloads. |
 | `theme` | [Theme](#theme) | `"default"` | The color scheme: "default" (pale blue on black), "amber", "green" or "white", or your own colors |
@@ -96,6 +97,7 @@ A screen of content. Its elements are revealed one after another.
 | `transition` | [Transition](#transition) |  | How the previous screen leaves when this one is shown |
 | `effects` | [Effects](#effects) |  | Effects for this screen, layered over the config's |
 | `autoscroll` | boolean | the config's | Keep new content in view as it appears |
+| `align` | `"left"` \| `"center"` \| `"right"` | the config's | Where text, links and toggles sit across the screen, unless they say otherwise |
 | `next` | [Next rule](#next-rule) \| [Next rule](#next-rule)[] |  | Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens. |
 | `sound` | id |  | A sound from the program's sounds, played as the screen appears |
 | `content` | (string \| [Text](#text) \| [Link](#link) \| [Toggle](#toggle) \| [Prompt](#prompt) \| [Bitmap](#bitmap) \| [Progress](#progress) \| [Slider](#slider))[] | **required** | The elements, revealed in order. Can be empty. |
@@ -214,7 +216,9 @@ A block of text. A bare string is shorthand for this.
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `text` | string | **required** | The text to display. May contain line breaks. |
+| `text` | string \| string[] | **required** | The text to display: a string, which may contain line breaks, or a list of lines (easier to read and edit for ASCII art) |
+| `wrap` | boolean | `true` | Wrap long lines to fit the screen. Set false for preformatted text such as ASCII art: spaces and line breaks are kept exactly, and anything past the right edge is cut off |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
@@ -231,6 +235,7 @@ Clickable text that navigates to a screen or opens a dialog
 | `text` | string | **required** | The link's text |
 | `action` | [Action](#action) | **required** | What happens when the link is clicked |
 | `secondaryAction` | [Action](#action) | the same as action | What happens on a secondary click: shift-click, right-click, Shift+Enter, or a long press |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
@@ -247,6 +252,7 @@ Text that cycles through states when clicked. It remembers its state when you co
 | `states` | string[] | **required** | The texts to cycle through, one per click |
 | `initial` | whole number, ≥ 0 | `0` | Index of the state shown first |
 | `variable` | id |  | A variable that holds the toggle's state: true or false for two states (the second is true), otherwise the state's index, from 0. It starts from the variable's value, instead of initial. |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |

@@ -53,7 +53,7 @@ A screen's `content` is a list of elements, revealed one after another:
 
 | Type | |
 |---|---|
-| `"text"` (or a bare string) | Text. Line breaks are kept; long lines wrap. |
+| `"text"` (or a bare string) | Text: a string, or a list of lines. Line breaks are kept; long lines wrap unless `"wrap": false`. |
 | `"link"` | Clickable text with an `action`, and optionally a `secondaryAction` for a shift-click, right-click, Shift+Enter or long press. |
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
 | `"prompt"` | A command line. Each of its `commands` has an `action`; `onEnter` takes anything else. |
@@ -64,6 +64,33 @@ A screen's `content` is a list of elements, revealed one after another:
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also change variables
 (see [Variables and conditions](#variables-and-conditions)). Every element takes an optional
 `className` (e.g. `"alert"`), `reveal`, and `if`.
+
+### Alignment and preformatted text
+`"align": "center"` or `"right"` places text, links and toggles across the screen. A screen or
+the config can set `align` for all of them. Like a text-mode display, alignment works in whole
+character columns, and centered or right-aligned text moves **as one block**: its widest line
+decides where every line starts, so the lines keep their shape. A one-line title lands in the
+middle; a link's text is centered in its full-width bar.
+
+For ASCII art, write the text as a list of lines, and set `"wrap": false` so it's kept exactly
+as written. Lines wider than the screen are cut off at the right edge instead of wrapping.
+
+```json
+{
+    "type": "text",
+    "wrap": false,
+    "align": "center",
+    "text": [
+        "╔═══════════╗",
+        "║  YPSILON  ║",
+        "╚═══════════╝"
+    ]
+}
+```
+
+Tip: the PC fonts draw `|` as a broken bar (`¦`), as the original hardware did. For lines and
+boxes, use the box-drawing characters (`│ ─ ┌ ┐ └ ┘ ║ ═ ╔ ╗ ╚ ╝` and friends), which they draw
+edge to edge.
 
 ### Progress bars
 ```json

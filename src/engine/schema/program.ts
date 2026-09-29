@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { fillRecipe, type Recipe, RecipeSchema } from "../sound/recipe.ts";
+import type { Align } from "../text/layout.ts";
 import {
     DEFAULT_FONT,
     type FontId,
@@ -11,6 +12,7 @@ import {
 } from "./appearance.ts";
 import {
     type Action,
+    AlignSchema,
     GlitchOptionsSchema,
     IdSchema,
     type RevealOption,
@@ -60,6 +62,11 @@ export const ScreenSchema = z
         autoscroll: z.boolean().optional().meta({
             description: "Keep new content in view as it appears (default: the config's)",
         }),
+        align: AlignSchema.optional().meta({
+            description:
+                "Where text, links and toggles sit across the screen, unless they say " +
+                "otherwise (default: the config's)",
+        }),
         next: NextSchema.optional(),
         sound: SoundNameSchema.optional().meta({
             description: "A sound from the program's sounds, played as the screen appears",
@@ -98,6 +105,11 @@ export const ConfigSchema = z
         transition: TransitionSchema.optional().meta({
             description:
                 'How screens leave, unless the next screen says otherwise (default: "none")',
+        }),
+        align: AlignSchema.optional().meta({
+            description:
+                "Where text, links and toggles sit across every screen, unless a screen or " +
+                'element says otherwise (default: "left")',
         }),
         defaults: DefaultsSchema.optional(),
         variables: VariablesSchema.optional(),
@@ -164,6 +176,7 @@ export type TeletronixFile = z.input<typeof FileSchema>;
 
 export interface Defaults {
     reveal: RevealOption;
+    align: Align;
     transition: TransitionOption;
     teletype: { speed: number };
     glitch: { duration: number };
@@ -175,6 +188,7 @@ export interface Screen {
     transition?: TransitionOption;
     effects?: EffectsSetting;
     autoscroll?: boolean;
+    align?: Align;
     next?: NextRule[];
     sound?: string;
     content: Element[];
@@ -207,6 +221,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         start,
         reveal,
         transition,
+        align,
         defaults,
         effects,
         autoscroll,
@@ -221,11 +236,22 @@ function normalize(file: z.output<typeof FileSchema>): Program {
     const screens = new Map<string, Screen>();
     for (const [id, screen] of Object.entries(file.screens)) {
         const content = screen.content.map((item, index): Element => {
-            const element = typeof item === "string" ? { type: "text" as const, text: item } : item;
+            const element =
+                typeof item === "string" ? { type: "text" as const, text: item, wrap: true } : item;
             return { ...element, id: `${id}#${index}` };
         });
-        const { reveal, transition, effects, autoscroll, next, sound } = screen;
-        screens.set(id, { id, reveal, transition, effects, autoscroll, next, sound, content });
+        const { reveal, transition, effects, autoscroll, align, next, sound } = screen;
+        screens.set(id, {
+            id,
+            reveal,
+            transition,
+            effects,
+            autoscroll,
+            align,
+            next,
+            sound,
+            content,
+        });
     }
 
     const dialogs = new Map<string, Dialog>();
@@ -239,6 +265,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
         start: start ?? screens.keys().next().value ?? "",
         defaults: {
             reveal: reveal ?? { type: "teletype" },
+            align: align ?? "left",
             transition: transition ?? { type: "none" },
             teletype: { speed: defaults?.teletype?.speed ?? DEFAULT_TELETYPE_SPEED },
             glitch: { duration: defaults?.glitch?.duration ?? DEFAULT_GLITCH_DURATION },

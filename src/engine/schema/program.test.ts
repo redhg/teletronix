@@ -27,12 +27,13 @@ describe("parseProgram", () => {
         expect(program.start).toBe("home");
         expect(program.defaults).toEqual({
             reveal: { type: "teletype" },
+            align: "left",
             transition: { type: "none" },
             teletype: { speed: 10 },
             glitch: { duration: 1000 },
         });
         expect(program.screens.get("home")?.content).toEqual([
-            { id: "home#0", type: "text", text: "Hello" },
+            { id: "home#0", type: "text", text: "Hello", wrap: true },
             {
                 id: "home#1",
                 type: "link",
@@ -63,6 +64,7 @@ describe("parseProgram", () => {
         if (!result.ok) throw new Error(JSON.stringify(result.errors));
         expect(result.program.defaults).toEqual({
             reveal: { type: "instant" },
+            align: "left",
             transition: { type: "glitch" },
             teletype: { speed: 3 },
             glitch: { duration: 500 },

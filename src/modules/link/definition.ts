@@ -1,6 +1,11 @@
 import { z } from "zod";
 import type { ElementIdentity, ModuleDefinition } from "../../engine/module.ts";
-import { type Action, ActionSchema, ElementBaseShape } from "../../engine/schema/common.ts";
+import {
+    type Action,
+    ActionSchema,
+    ElementAlignSchema,
+    ElementBaseShape,
+} from "../../engine/schema/common.ts";
 
 export const LinkSchema = z
     .strictObject({
@@ -12,6 +17,7 @@ export const LinkSchema = z
                 "What happens on a secondary click: shift-click, right-click, Shift+Enter, or a " +
                 "long press (default: the same as action)",
         }),
+        align: ElementAlignSchema,
         ...ElementBaseShape,
     })
     .meta({ description: "Clickable text that navigates to a screen or opens a dialog" });

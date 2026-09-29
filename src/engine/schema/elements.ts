@@ -11,6 +11,7 @@ import { type SliderElement, SliderSchema, sliderModule } from "../../modules/sl
 import { type TextElement, TextSchema, textModule } from "../../modules/text/definition.ts";
 import { type ToggleElement, ToggleSchema, toggleModule } from "../../modules/toggle/definition.ts";
 import type { ModuleDefinition } from "../module.ts";
+import type { Align, LayoutOptions } from "../text/layout.ts";
 
 // The registry of element modules. Adding a module means adding it here.
 export const ElementSchema = z.discriminatedUnion("type", [
@@ -51,4 +52,16 @@ export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, un
 /** The variable an element is bound to (see ModuleDefinition.binding), if any. */
 export function boundVariable(element: Element): string | undefined {
     return "variable" in element ? element.variable : undefined;
+}
+
+/** Elements whose text can be aligned, and so follow a screen's or the config's `align`. */
+const ALIGNABLE = new Set<ElementType>(["text", "link", "toggle"]);
+
+/** How an element's text is laid out (see layoutText), given the default alignment. */
+export function layoutOptions(element: Element, fallback: Align): LayoutOptions {
+    if (!ALIGNABLE.has(element.type)) return {};
+    return {
+        wrap: "wrap" in element ? element.wrap : true,
+        align: ("align" in element ? element.align : undefined) ?? fallback,
+    };
 }

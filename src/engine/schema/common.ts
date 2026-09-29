@@ -135,6 +135,23 @@ export type TransitionOption =
     | { type: "fade"; duration?: number }
     | { type: "static"; duration?: number };
 
+// ─── Alignment ───────────────────────────────────────────────────────────────
+
+export const AlignSchema = z.enum(["left", "center", "right"]).meta({
+    description:
+        'Where the text sits across the screen: "left", "center" or "right". Centered and ' +
+        "right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): " +
+        "the widest line decides where every line starts.",
+});
+
+/** An element's `align`. */
+export const ElementAlignSchema = AlignSchema.optional().meta({
+    description:
+        'Where the text sits across the screen: "left", "center" or "right". Centered and ' +
+        "right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII " +
+        'art): the widest line decides where every line starts (default: the screen\'s, or "left")',
+});
+
 // ─── Actions ─────────────────────────────────────────────────────────────────
 // What an interactive element does. Shared by links, prompts and dialogs.
 

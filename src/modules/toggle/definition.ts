@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ElementIdentity, ModuleDefinition } from "../../engine/module.ts";
-import { ElementBaseShape } from "../../engine/schema/common.ts";
+import { ElementAlignSchema, ElementBaseShape } from "../../engine/schema/common.ts";
 import { VariableNameSchema } from "../../engine/schema/variables.ts";
 
 export const ToggleSchema = z
@@ -21,6 +21,7 @@ export const ToggleSchema = z
                 "second is true), otherwise the state's index, from 0. It starts from the " +
                 "variable's value, instead of initial.",
         }),
+        align: ElementAlignSchema,
         ...ElementBaseShape,
     })
     .refine((toggle) => (toggle.initial ?? 0) < toggle.states.length, {
