@@ -546,10 +546,7 @@
             ]
         },
         "bars": {
-            "header": [
-                { "left": "YPSILON-14 // DEEP SPACE RELAY", "right": "SECTOR 14/B" },
-                { "className": "plain", "left": "" }
-            ],
+            "header": [{ "left": "YPSILON-14 // DEEP SPACE RELAY", "right": "SECTOR 14/B" }],
             "footer": [
                 {
                     "left": "USER: {name}",

@@ -175,8 +175,8 @@ pause too. A pause inside an open section holds the whole screen.
 They don't scroll or reveal, and stay put between screens. Each line is text, or `left`,
 `center` and `right` spread across the screen's columns; each of those is text or a link
 (`{ "text", "action" }`), which works at any time. Variables in them update as they change.
-A line with `"className": "plain"` uses the screen's own colors, e.g. as a gap under the
-header. A screen can set its own `header`/`footer`, or `false` to hide one.
+A line with `"className": "plain"` uses the screen's own colors instead, e.g. a subtitle
+under an inverse title line. A screen can set its own `header`/`footer`, or `false` to hide one.
 
 ### Moving on without a link
 A screen's `next` moves on without a link. Each rule has an `action` and a trigger:
