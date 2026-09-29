@@ -2,6 +2,7 @@ import type { ElementOf, ElementType } from "../engine/index.ts";
 import { BitmapView } from "../modules/bitmap/View.tsx";
 import { ButtonsView } from "../modules/buttons/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
+import { NumberView } from "../modules/number/View.tsx";
 import { PauseView } from "../modules/pause/View.tsx";
 import { ProgressView } from "../modules/progress/View.tsx";
 import { PromptView } from "../modules/prompt/View.tsx";
@@ -23,4 +24,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     section: SectionView,
     pause: PauseView,
     buttons: ButtonsView,
+    number: NumberView,
 };

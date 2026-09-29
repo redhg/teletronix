@@ -6,6 +6,7 @@ import {
     buttonsModule,
 } from "../../modules/buttons/definition.ts";
 import { type LinkElement, LinkSchema, linkModule } from "../../modules/link/definition.ts";
+import { type NumberElement, NumberSchema, numberModule } from "../../modules/number/definition.ts";
 import { type PauseElement, PauseSchema, pauseModule } from "../../modules/pause/definition.ts";
 import {
     type ProgressElement,
@@ -39,6 +40,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     SectionSchema,
     PauseSchema,
     ButtonsSchema,
+    NumberSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -60,7 +62,8 @@ export type Element =
     | SliderElement
     | SectionElement
     | PauseElement
-    | ButtonsElement;
+    | ButtonsElement
+    | NumberElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -75,6 +78,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     section: sectionModule,
     pause: pauseModule,
     buttons: buttonsModule,
+    number: numberModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {

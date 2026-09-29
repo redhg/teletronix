@@ -9,7 +9,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Section](#section), [Section markers](#section-markers), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Toggle](#toggle), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Section](#section), [Section markers](#section-markers), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -291,6 +291,7 @@ One of:
 - [Section](#section)
 - [Pause](#pause)
 - [Buttons](#buttons)
+- [Number](#number)
 
 <a id="text"></a>
 
@@ -371,6 +372,41 @@ A command the prompt understands
 | `command` | string \| string[] | **required** | What to type (case-insensitive). Use an array for aliases. |
 | `if` | [Condition](#condition) |  | Only understood while this holds |
 | `action` | [Action](#action) | **required** | What happens when the command is entered |
+
+<a id="number"></a>
+
+### Number (`"type": "number"`)
+
+A prompt that only takes whole numbers: a keypad, a door code, a fuel setting. On <enter>, the first rule the number meets runs, or else otherwise.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `prompt` | string | `"> "` | Text shown before the input |
+| `digits` | whole number, 1–15 |  | The most digits it takes, e.g. 4 for a PIN |
+| `min` | whole number, ≥ -9007199254740991 |  | The lowest number it accepts |
+| `max` | whole number, ≥ -9007199254740991 |  | The highest number it accepts |
+| `mask` | boolean | `false` | Show * for each digit, for codes and PINs |
+| `on` | [Number rule](#number-rule)[] |  | Actions for numbers in ranges. The first rule the number meets runs. |
+| `otherwise` | [Action](#action) |  | What happens when the number meets none of the rules |
+| `variable` | id |  | A number variable that gets the number entered, before any action |
+| `unknown` | string | `"Invalid entry."` | Shown when the number is outside min and max, or meets no rule and there's no "otherwise" |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="number-rule"></a>
+
+### Number rule
+
+An action for numbers in a range. Set more than one condition and the number must meet them all.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `equals` | whole number, ≥ -9007199254740991 |  | Exactly this number |
+| `atLeast` | number |  | This number or more |
+| `atMost` | number |  | This number or less |
+| `action` | [Action](#action) | **required** | What happens |
 
 <a id="bitmap"></a>
 

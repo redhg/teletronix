@@ -6,7 +6,7 @@
         "description": "Demonstrates every Teletronix feature.",
         "start": "home",
         "waitForReveal": true,
-        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true }
+        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50 }
     },
     "screens": {
         "home": {
@@ -28,6 +28,7 @@
                 { "type": "link", "text": "> BARS", "action": { "screen": "bars" } },
                 { "type": "link", "text": "> PAUSES", "action": { "screen": "pauses" } },
                 { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
+                { "type": "link", "text": "> NUMBERS", "action": { "screen": "numbers" } },
                 { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
                 { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
                 { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
@@ -610,6 +611,38 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
+        "numbers": {
+            "content": [
+                "NUMBERS",
+                "=======",
+                "",
+                "A number input is a prompt that only takes whole numbers. It can limit the digits, hide them for a code, check a range, and keep the number in a variable.",
+                "",
+                "The vault door takes a four-digit code (try 1138):",
+                {
+                    "type": "number",
+                    "prompt": "CODE: ",
+                    "digits": 4,
+                    "mask": true,
+                    "on": [{ "equals": 1138, "action": { "dialog": "vault-open" } }],
+                    "otherwise": { "dialog": "vault-denied" }
+                },
+                "",
+                "Set the fuel mix, from 0 to 100 (it's {fuel} now):",
+                {
+                    "type": "number",
+                    "prompt": "FUEL MIX: ",
+                    "min": 0,
+                    "max": 100,
+                    "variable": "fuel",
+                    "unknown": "OUT OF RANGE: 0 TO 100.",
+                    "on": [{ "atLeast": 90, "action": { "dialog": "fuel-rich" } }],
+                    "otherwise": { "dialog": "fuel-set" }
+                },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
         "toggles": {
             "content": [
                 "TOGGLES",
@@ -858,6 +891,24 @@
         "probe-diagnostics": {
             "type": "alert",
             "content": ["FUEL      98%", "GUIDANCE  OK", "COMMS     OK"]
+        },
+        "vault-open": {
+            "type": "alert",
+            "content": "ACCESS GRANTED. The vault door swings open."
+        },
+        "vault-denied": {
+            "type": "alert",
+            "className": "alert",
+            "content": "ACCESS DENIED."
+        },
+        "fuel-rich": {
+            "type": "alert",
+            "className": "alert",
+            "content": "WARNING: fuel mix {fuel}% is dangerously rich."
+        },
+        "fuel-set": {
+            "type": "alert",
+            "content": "Fuel mix set to {fuel}%."
         },
         "vance-log": {
             "type": "alert",

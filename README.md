@@ -57,6 +57,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"link"` | Clickable text with an `action`, and optionally a `secondaryAction` for a shift-click, right-click, Shift+Enter or long press. |
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
 | `"prompt"` | A command line. Each of its `commands` has an `action`; `onEnter` takes anything else. |
+| `"number"` | A prompt for whole numbers only: codes, keypads, settings. See below. |
 | `"bitmap"` | An image (`src`, `alt`) that resolves from blocky to sharp. The screen waits for it to load. |
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
@@ -151,6 +152,24 @@ starts collapsed unless it sets `"open": true`, in which case its contents revea
 rest of the screen. It remembers whether it's open when you come back. `markers` changes what
 the header shows before the title: `{ "closed": "▶", "open": "▼" }`. `indent` moves the contents
 that many columns in, to show they belong to the header; they wrap to the narrower width.
+
+### Numbers
+```json
+{
+    "type": "number",
+    "prompt": "CODE: ",
+    "digits": 4,
+    "mask": true,
+    "on": [{ "equals": 1138, "action": { "screen": "vault" } }],
+    "otherwise": { "dialog": "denied" }
+}
+```
+A prompt that only takes whole numbers: letters and symbols are ignored, and phones show their
+number keypad. `digits` limits how many can be typed, and `mask` shows `*` for each. On <enter>,
+the first `on` rule the number meets runs (`equals`, `atLeast`, `atMost`, or a combination),
+or else `otherwise`. A number outside `min` and `max`, or one that meets no rule when there's
+no `otherwise`, shows the `unknown` message. `variable` keeps the number in a number variable,
+set before any action runs, so the next screen can show it as `{fuel}` or test it.
 
 ### Buttons
 ```json

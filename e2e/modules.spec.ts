@@ -551,3 +551,75 @@ test.describe("buttons", () => {
         await expect(player.dialog).toContainText("ABORTED");
     });
 });
+
+test.describe("number", () => {
+    const keypad: Program = {
+        config: { name: "Keypad", start: "home", variables: { fuel: 0 } },
+        screens: {
+            home: {
+                content: [
+                    {
+                        type: "number",
+                        prompt: "CODE: ",
+                        digits: 4,
+                        mask: true,
+                        on: [{ equals: 1138, action: { screen: "open" } }],
+                        otherwise: { dialog: "wrong" },
+                    },
+                    {
+                        type: "number",
+                        prompt: "FUEL: ",
+                        min: 0,
+                        max: 100,
+                        variable: "fuel",
+                        otherwise: { screen: "fuelled" },
+                        unknown: "0 TO 100 ONLY",
+                    },
+                ],
+            },
+            open: { content: ["DOOR OPEN"] },
+            fuelled: { content: ["FUEL SET TO {fuel}"] },
+        },
+        dialogs: { wrong: { type: "alert", content: "WRONG CODE" } },
+    };
+    const field = (player: import("./fixtures.ts").Player, n: number) =>
+        player.screen.locator(".number").nth(n);
+
+    test("takes only digits, up to its length, masked", async ({ page, player }) => {
+        await player.open(keypad);
+        const code = field(player, 0);
+        await expect(code.locator("input")).toBeFocused();
+        await page.keyboard.type("1a1-3.89");
+        await expect(code.locator("input")).toHaveValue("1138");
+        await expect(code.locator(".prompt-echo")).toContainText("****");
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("DOOR OPEN");
+    });
+
+    test("runs otherwise for any other number", async ({ page, player }) => {
+        await player.open(keypad);
+        await page.keyboard.type("0000");
+        await page.keyboard.press("Enter");
+        await expect(player.dialog).toContainText("WRONG CODE");
+    });
+
+    test("turns away numbers out of range, and stores one in its variable", async ({
+        page,
+        player,
+    }) => {
+        await player.open(keypad);
+        const fuel = field(player, 1).locator("input");
+        await fuel.focus();
+        await page.keyboard.type("250");
+        await page.keyboard.press("Enter");
+        await expect(field(player, 1).locator(".prompt-message")).toHaveText("0 TO 100 ONLY");
+        await page.keyboard.type("75");
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("FUEL SET TO 75");
+    });
+
+    test("asks phones for the number keypad", async ({ player }) => {
+        await player.open(keypad);
+        await expect(field(player, 0).locator("input")).toHaveAttribute("inputmode", "numeric");
+    });
+});
