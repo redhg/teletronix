@@ -67,8 +67,14 @@ test.describe("autoscroll", () => {
     }) => {
         await player.open(program);
         await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
-        await page.mouse.wheel(0, -5000);
-        await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+        // WebKit drops a wheel scroll that lands in the same moment as an autoscroll, so keep
+        // scrolling, as a reader would (a real scroll is many wheel events, not one)
+        await expect
+            .poll(async () => {
+                await page.mouse.wheel(0, -5000);
+                return page.evaluate(() => window.scrollY);
+            })
+            .toBe(0);
         await page.waitForTimeout(500);
         expect(await page.evaluate(() => window.scrollY)).toBe(0);
 

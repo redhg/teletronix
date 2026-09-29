@@ -13,6 +13,8 @@ export class Autoscroller {
     private following = true;
     /** Where our own last scroll went, to tell our scroll events from the reader's. */
     private expectedY: number | null = null;
+    /** Where the page was scrolled at the last scroll event, to tell up from down. */
+    private lastY = 0;
     private readonly observer = new ResizeObserver(() => this.follow());
 
     /** Starts listening. Returns a function that stops; attach again to resume. */
@@ -87,15 +89,21 @@ export class Autoscroller {
     };
 
     private readonly handleScroll = (): void => {
-        if (this.expectedY !== null && Math.abs(window.scrollY - this.expectedY) < 2) {
+        const y = window.scrollY;
+        const movedDown = y > this.lastY;
+        this.lastY = y;
+        if (this.expectedY !== null && Math.abs(y - this.expectedY) < 2) {
             this.expectedY = null;
             return;
         }
         this.expectedY = null;
-        // the reader scrolled: follow only if the newest content is (nearly) in view
+        // the reader scrolled: follow only if the newest content is (nearly) in view. Once
+        // they've scrolled away, only scrolling back down to it counts: a smooth scroll up
+        // (e.g. Safari's) passes near it on its way, and mustn't pull them back.
         const target = this.target();
         const bottom = target?.getBoundingClientRect().bottom ?? 0;
-        this.following = bottom <= visibleBottom() + 2 * this.margin();
+        const near = bottom <= visibleBottom() + 2 * this.margin();
+        this.following = this.following ? near : near && movedDown;
     };
 }
 
