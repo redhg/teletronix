@@ -815,8 +815,7 @@
                 "=========",
                 "",
                 "Text can come from a file, with \"src\": paste ASCII art into a .txt file, no escaping needed, and it's shown exactly. Like all text, it types out:",
-                "",
-                { "type": "text", "src": "data/art/satellite.txt", "wrap": false, "align": "center", "reveal": { "type": "teletype", "speed": 3 } },
+                { "type": "text", "src": "data/art/puma.txt", "wrap": false, "align": "center", "reveal": { "type": "teletype", "speed": 3 } },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
