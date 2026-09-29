@@ -1,3 +1,4 @@
+export { LOAD_FAILED } from "./module.ts";
 export { type Random, seededRandom } from "./random.ts";
 export type { Frame, Reveal, Segment, SegmentKind } from "./reveal/index.ts";
 export {

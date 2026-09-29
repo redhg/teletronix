@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { type AsciiElement, AsciiSchema, asciiModule } from "../../modules/ascii/definition.ts";
 import { type BitmapElement, BitmapSchema, bitmapModule } from "../../modules/bitmap/definition.ts";
 import {
     type ButtonsElement,
@@ -63,6 +64,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     TableSchema,
     ChoiceSchema,
     MenuSchema,
+    AsciiSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -91,7 +93,8 @@ export type Element =
     | MeterElement
     | TableElement
     | ChoiceElement
-    | MenuElement;
+    | MenuElement
+    | AsciiElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -113,6 +116,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     table: tableModule,
     choice: choiceModule,
     menu: menuModule,
+    ascii: asciiModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
@@ -128,6 +132,7 @@ export function boundVariable(element: Element): string | undefined {
 
 /** Elements whose text can be aligned, and so follow a screen's or the config's `align`. */
 const ALIGNABLE = new Set<ElementType>([
+    "ascii",
     "choice",
     "text",
     "link",
@@ -143,7 +148,12 @@ export function layoutOptions(element: Element, fallback: Align): LayoutOptions 
     if (!ALIGNABLE.has(element.type)) return {};
     return {
         // a table is laid out in columns of its own, so it's never wrapped
-        wrap: element.type === "table" ? false : "wrap" in element ? element.wrap : true,
+        wrap:
+            element.type === "table" || element.type === "ascii"
+                ? false
+                : "wrap" in element
+                  ? element.wrap
+                  : true,
         align: ("align" in element ? element.align : undefined) ?? fallback,
     };
 }

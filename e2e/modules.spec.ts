@@ -901,3 +901,50 @@ test.describe("image reveal effects", () => {
         expect((await coverage(page)).bottom).toBe(false);
     });
 });
+
+test.describe("text files and ASCII images", () => {
+    test.use({ expectedErrors: [/404|Failed to load/i] });
+
+    const program: Program = {
+        config: { name: "Art", start: "home", reveal: "instant" },
+        screens: {
+            home: {
+                content: [
+                    { type: "text", src: "data/art/satellite.txt", wrap: false },
+                    { type: "text", src: "data/art/nope.txt" },
+                    { type: "ascii", src: "e2e-images/sunset-grid.png", alt: "A SUNSET", cols: 40 },
+                    "END",
+                ],
+            },
+        },
+    };
+
+    test("a text file is shown exactly as written", async ({ player, request }) => {
+        await player.open(program);
+        await expect(player.screen).toContainText("END");
+        const file = await (await request.get("data/art/satellite.txt")).text();
+        const drawn = await player.screen
+            .locator(".text [aria-hidden='true']")
+            .first()
+            .evaluate((element) => element.textContent ?? "");
+        expect(drawn).toBe(file.replace(/\n+$/, ""));
+        await expect(player.screen.locator(".text").nth(1)).toContainText(
+            "[FILE UNAVAILABLE: data/art/nope.txt]",
+        );
+    });
+
+    test("an image becomes text, as wide as asked, described for screen readers", async ({
+        player,
+    }) => {
+        await player.open(program);
+        const ascii = player.screen.getByRole("img", { name: "A SUNSET" });
+        await expect(ascii).toBeVisible();
+        const drawn = await ascii
+            .locator("[aria-hidden='true']")
+            .evaluate((element) => element.textContent ?? "");
+        const lines = drawn.split("\n");
+        expect(lines.length).toBeGreaterThan(3);
+        expect(Math.max(...lines.map((line) => line.length))).toBeLessThanOrEqual(40);
+        expect(drawn.replace(/\s/g, "").length).toBeGreaterThan(20);
+    });
+});

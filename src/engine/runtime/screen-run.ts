@@ -1,5 +1,6 @@
 import { type ColumnsElement, columnLayout } from "../../modules/columns/definition.ts";
 import { type SectionElement, sectionOpen } from "../../modules/section/definition.ts";
+import { LOAD_FAILED } from "../module.ts";
 import type { Random } from "../random.ts";
 import {
     createGlitchReveal,
@@ -76,6 +77,8 @@ interface ElementRun {
     progress: number;
     listeners: Set<FrameListener>;
     progressListeners: Set<ProgressListener>;
+    /** What the element loaded, if it needed to (see ModuleDefinition.text). */
+    loaded?: unknown;
 }
 
 /**
@@ -86,6 +89,8 @@ interface ElementRun {
 interface Unit {
     indices: number[];
     reveal: Reveal;
+    /** What its reveal was made from, to make it again when an element's text arrives. */
+    spec?: RevealSpec;
     /** A module's own reveal, whose frames also set the element's text. */
     custom?: boolean;
     /** Which kind of reveal it is, for sound cues. */
@@ -143,9 +148,9 @@ export class ScreenRun {
             const text = this.textOf(element);
             const loading = options.load?.(element);
             loading?.then(
-                () => this.loaded(index),
-                // a failed load still lets the screen go on; the view shows the failure
-                () => this.loaded(index),
+                (value) => this.loaded(index, value),
+                // a failed load still lets the screen go on; the element shows the failure
+                () => this.loaded(index, LOAD_FAILED),
             );
             return {
                 element,
@@ -420,7 +425,7 @@ export class ScreenRun {
             return;
         }
 
-        const text = this.textOf(run.element);
+        const text = this.textOf(run.element, run.loaded);
         if (text === run.text) return;
 
         run.text = text;
@@ -551,11 +556,12 @@ export class ScreenRun {
         return layoutText(text, this.columns, layoutOptions(element, fallback));
     }
 
-    private textOf(element: Element): string {
+    private textOf(element: Element, loaded?: unknown): string {
         const text = moduleFor(element).text(
             element,
             this.options.recall?.(element.id),
             this.options.format,
+            loaded,
         );
         return this.options.format?.(text) ?? text;
     }
@@ -608,14 +614,26 @@ export class ScreenRun {
                 reveal ??
                 createReveal(indices.map((i) => this.runs[i]?.text).join("\n"), spec, random),
             custom: reveal !== undefined,
-            ...(reveal ? {} : { kind: spec.type }),
+            ...(reveal ? {} : { kind: spec.type, spec }),
         }));
     }
 
-    private loaded(index: number): void {
+    private loaded(index: number, value: unknown): void {
         const run = this.runs[index];
         if (run?.state !== "unloaded") return;
         run.state = "ready";
+        // what it loaded may be its text (e.g. a file's): lay it out, and reveal that
+        run.loaded = value;
+        const text = this.textOf(run.element, value);
+        if (text !== run.text) {
+            run.text = text;
+            run.layout = this.layout(run.element, text);
+            const unit = this.units.find((u) => u.indices.includes(index));
+            if (unit?.spec) {
+                const texts = unit.indices.map((i) => this.runs[i]?.text).join("\n");
+                unit.reveal = createReveal(texts, unit.spec, this.options.random);
+            }
+        }
         this.snapshotStates();
 
         if (this.waiting !== -1 && !this.eraser) {

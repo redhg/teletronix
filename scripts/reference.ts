@@ -66,6 +66,7 @@ import {
     VoicesSchema,
     voiceSchema,
 } from "../src/engine/sound/voices.ts";
+import { AsciiSchema } from "../src/modules/ascii/definition.ts";
 import {
     BitmapSchema,
     BlendObjectSchema,
@@ -184,6 +185,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Blend with a color", BlendObjectSchema],
             ["Image reveal", ImageRevealSchema],
             ["Image reveal options", ImageRevealObjectSchema],
+            ["ASCII image", AsciiSchema, '"type": "ascii"'],
             ["Progress", ProgressSchema, '"type": "progress"'],
             ["Progress outcome", OutcomeSchema],
             ["Delayed action", DelayedActionSchema],

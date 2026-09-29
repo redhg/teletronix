@@ -54,7 +54,8 @@ A screen's `content` is a list of elements, revealed one after another:
 
 | Type | |
 |---|---|
-| `"text"` (or a bare string) | Text: a string, or a list of lines. Line breaks are kept; long lines wrap unless `"wrap": false`. |
+| `"text"` (or a bare string) | Text: a string, a list of lines, or a text file (`src`). Line breaks are kept; long lines wrap unless `"wrap": false`. |
+| `"ascii"` | An image turned into text, character by character. See [ASCII art](#ascii-art). |
 | `"link"` | Clickable text with an `action`, and optionally a `secondaryAction` for a shift-click, right-click, Shift+Enter or long press. |
 | `"menu"` | A list of `items` navigated with the arrow keys, like a BIOS menu. See below. |
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
@@ -75,6 +76,31 @@ A screen's `content` is a list of elements, revealed one after another:
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also change variables
 (see [Variables and conditions](#variables-and-conditions)). Every element takes an optional
 `className` (e.g. `"alert"`), `reveal`, and `if`.
+
+### ASCII art
+For art drawn by hand, put it in a text file and give a text element its `src`: no escaping,
+and it's shown exactly as written (with `"wrap": false`, and `align` to place it). Like any
+text, it reveals with the screen's reveal: typed out, glitched in.
+
+```json
+{ "type": "text", "src": "data/art/satellite.txt", "wrap": false, "align": "center" }
+```
+
+An `"ascii"` element turns an image into text instead, `cols` characters wide (default 60),
+its height following the image's shape:
+
+```json
+{ "type": "ascii", "src": "data/images/logo.png", "alt": "The station's logo", "cols": 40 }
+```
+
+Each character cell of the picture gets the character whose shape best matches it (after
+[Alex Harri's technique](https://alexharri.com/blog/ascii-rendering)), measured from the font
+in use, so edges come out as `/`, `_`, `|` and the like. `"mode": "ramp"` picks characters by
+brightness alone (` .:-=+*#%@`), which can suit soft pictures better. `contrast` (0 to 5,
+default 1) sharpens edges, and `invert` draws dark parts instead of bright ones. Bold,
+high-contrast pictures (logos, silhouettes, faces) work best; fine detail gets lost at a few
+dozen characters across. Screen readers hear the `alt` text, not the characters. Like the
+`depth` reveal, it needs to read the image's pixels, so images from other sites may not work.
 
 ### Image reveals
 An image's `reveal` picks how it appears, and `duration` how long it takes:

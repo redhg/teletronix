@@ -24,7 +24,16 @@ export interface ModuleDefinition<E, M = never> {
      * filled in afterwards; a module that lays text out by its length (e.g. a table) can use
      * `format` to fill them in first.
      */
-    text(element: E, memory: M | undefined, format?: (text: string) => string): string;
+    text(
+        element: E,
+        memory: M | undefined,
+        format?: (text: string) => string,
+        /**
+         * What the element loaded before it could be revealed (see TerminalOptions.load):
+         * e.g. a file's text. Undefined while it's loading; LOAD_FAILED if it couldn't.
+         */
+        loaded?: unknown,
+    ): string;
     /** Every action the element can dispatch, so targets can be validated when parsing. */
     actions?(element: E): Action[];
     /**
@@ -102,3 +111,6 @@ export interface MultiBinding<E, M> {
     /** Each part's value, in order, from the element's memory. */
     write(element: E, memory: M): VariableValue[];
 }
+
+/** What an element "loaded" when its load failed (see ModuleDefinition.text). */
+export const LOAD_FAILED = Symbol("load failed");

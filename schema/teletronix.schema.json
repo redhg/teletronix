@@ -5031,6 +5031,11 @@
                                         }
                                     ]
                                 },
+                                "src": {
+                                    "description": "A text file to display instead, e.g. ASCII art, relative to the page (\"data/art/logo.txt\"): its text is shown exactly, with no escaping needed. The screen waits for it to load.",
+                                    "type": "string",
+                                    "minLength": 1
+                                },
                                 "wrap": {
                                     "default": true,
                                     "description": "Wrap long lines to fit the screen. Set false for preformatted text such as ASCII art: spaces and line breaks are kept exactly, and anything past the right edge is cut off (default: true)",
@@ -5129,8 +5134,7 @@
                                 }
                             },
                             "required": [
-                                "type",
-                                "text"
+                                "type"
                             ],
                             "additionalProperties": false,
                             "description": "A block of text. A bare string is shorthand for this."
@@ -10296,6 +10300,151 @@
                             ],
                             "additionalProperties": false,
                             "description": "A list of choices, like a BIOS or DOS menu: the highlighted item is marked, <up> and <down> move the highlight, and <enter> (or a click) chooses it. It remembers which item was highlighted."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "ascii"
+                                },
+                                "src": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Image URL, or a path relative to the page"
+                                },
+                                "alt": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "A description of the image, for screen readers"
+                                },
+                                "cols": {
+                                    "default": 60,
+                                    "description": "Its width in characters; its height follows, keeping the image's shape (default: 60)",
+                                    "type": "integer",
+                                    "minimum": 4,
+                                    "maximum": 9007199254740991
+                                },
+                                "mode": {
+                                    "default": "shape",
+                                    "description": "How characters are picked: \"shape\" matches each character's shape to the picture, so edges come out as / \\ | _ and the like; \"ramp\" by brightness alone, from \" \" to \"@\" (default: \"shape\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "shape",
+                                        "ramp"
+                                    ]
+                                },
+                                "contrast": {
+                                    "default": 1,
+                                    "description": "How much \"shape\" sharpens edges, from 0 (not at all) up to 5 (default: 1)",
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 5
+                                },
+                                "invert": {
+                                    "default": false,
+                                    "description": "Draw dark parts of the picture with characters, instead of bright ones: for dark subjects on light backgrounds (default: false)",
+                                    "type": "boolean"
+                                },
+                                "align": {
+                                    "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "left",
+                                        "center",
+                                        "right"
+                                    ]
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "src",
+                                "alt"
+                            ],
+                            "additionalProperties": false,
+                            "description": "An image turned into text: each character cell picks the character that best matches the picture there. It's real text, so it reveals like text (typed out, glitched in)."
                         }
                     ]
                 }
