@@ -1,4 +1,3 @@
-import { type Button, buttonForKey } from "../../modules/buttons/definition.ts";
 import { columnLayout } from "../../modules/columns/definition.ts";
 import { sectionOpen } from "../../modules/section/definition.ts";
 import type { Random } from "../random.ts";
@@ -12,8 +11,10 @@ import {
     resolveReveal,
     splitFrame,
 } from "../reveal/index.ts";
+import type { Action } from "../schema/common.ts";
 import type { Element } from "../schema/elements.ts";
 import { layoutOptions, moduleFor } from "../schema/elements.ts";
+import { keyMatches } from "../schema/next.ts";
 import type { Defaults, Screen } from "../schema/program.ts";
 import type { Cue } from "../schema/sound.ts";
 import type { Condition } from "../schema/variables.ts";
@@ -199,18 +200,19 @@ export class ScreenRun {
         return this.erasedFlag;
     }
 
-    /** The usable button this key is the hotkey of, here or in an open section. */
-    hotkey(key: string): Button | undefined {
+    /** The action of a usable element's hotkey (e.g. a button's), here or in its contents. */
+    hotkey(key: string): Action | undefined {
         if (this.interactive) {
             for (const run of this.runs) {
-                if (run.element.type !== "buttons" || run.state !== "done") continue;
-                const button = buttonForKey(run.element, key);
-                if (button) return button;
+                if (run.state !== "done") continue;
+                const hotkeys = moduleFor(run.element).hotkeys?.(run.element) ?? [];
+                const found = hotkeys.find((hotkey) => keyMatches([hotkey.key], key));
+                if (found) return found.action;
             }
         }
         for (const child of this.children.values()) {
-            const button = child.hotkey(key);
-            if (button) return button;
+            const action = child.hotkey(key);
+            if (action) return action;
         }
         return undefined;
     }

@@ -1,0 +1,15 @@
+/* The highlighted item is drawn in inverse, like a hovered link, focused or not */
+.menu-item.selected {
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: var(--inverse-glow);
+    box-shadow: var(--glow);
+}
+
+.menu-item.selected.alert {
+    background: var(--alert);
+}
+
+.menu:focus {
+    outline: none;
+}

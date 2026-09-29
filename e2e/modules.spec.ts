@@ -692,3 +692,60 @@ test.describe("choice", () => {
         await expect(player.screen).toContainText("NOW NORMAL");
     });
 });
+
+test.describe("menu", () => {
+    const menu: Program = {
+        config: { name: "Menu", start: "home" },
+        screens: {
+            home: {
+                content: [
+                    "MAIN MENU",
+                    {
+                        type: "menu",
+                        items: [
+                            { text: "DIAGNOSTICS", action: { screen: "picked" } },
+                            { text: "NAVIGATION", action: { screen: "picked" } },
+                            { text: "SHUT DOWN", key: "s", action: { dialog: "sure" } },
+                        ],
+                    },
+                ],
+            },
+            picked: {
+                content: ["PICKED", { type: "link", text: "> BACK", action: { screen: "home" } }],
+            },
+        },
+        dialogs: { sure: { type: "alert", content: "SHUTTING DOWN" } },
+    };
+    const item = (player: import("./fixtures.ts").Player, name: string) =>
+        player.screen.getByRole("menuitem", { name: new RegExp(name) });
+
+    test("highlights an item, moved with the arrow keys and chosen with Enter", async ({
+        page,
+        player,
+    }) => {
+        await player.open(menu);
+        await expect(item(player, "DIAGNOSTICS")).toBeFocused();
+        await expect(item(player, "DIAGNOSTICS")).toHaveClass(/selected/);
+        await expect(item(player, "DIAGNOSTICS")).toContainText("> DIAGNOSTICS");
+        await page.keyboard.press("ArrowDown");
+        await expect(item(player, "NAVIGATION")).toHaveClass(/selected/);
+        await expect(item(player, "NAVIGATION")).toContainText("> NAVIGATION");
+        await expect(item(player, "DIAGNOSTICS")).not.toHaveClass(/selected/);
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("PICKED");
+        // back again (by keyboard: a mouse left over the menu would move the highlight),
+        // and the highlight is where it was
+        await player.link("> BACK").focus();
+        await page.keyboard.press("Enter");
+        await expect(item(player, "NAVIGATION")).toHaveClass(/selected/);
+    });
+
+    test("follows the mouse, and chooses with a click or a hotkey", async ({ page, player }) => {
+        await player.open(menu);
+        await item(player, "SHUT DOWN").hover();
+        await expect(item(player, "SHUT DOWN")).toHaveClass(/selected/);
+        await page.keyboard.press("Escape");
+        await page.keyboard.press("s");
+        await expect(player.dialog).toContainText("SHUTTING DOWN");
+    });
+});

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { ElementIdentity, ModuleDefinition } from "../../engine/module.ts";
 import { ActionSchema, ElementAlignSchema, ElementBaseShape } from "../../engine/schema/common.ts";
-import { keyMatches, normalizeKey } from "../../engine/schema/next.ts";
+import { normalizeKey } from "../../engine/schema/next.ts";
 
 export const ButtonSchema = z
     .strictObject({
@@ -62,12 +62,11 @@ export const buttonsModule: ModuleDefinition<ButtonsElement> = {
         element.buttons.flatMap((button) =>
             button.secondaryAction ? [button.action, button.secondaryAction] : [button.action],
         ),
+    hotkeys: (element) =>
+        element.buttons.flatMap((button) =>
+            button.key ? [{ key: button.key, action: button.action }] : [],
+        ),
 };
-
-/** The button a key press would press, if any. */
-export function buttonForKey(element: ButtonsElement, key: string): Button | undefined {
-    return element.buttons.find((button) => button.key && keyMatches([button.key], key));
-}
 
 /** Where a button's hotkey letter is in its label, to underline it, or -1. */
 export function hotkeyIndex(button: Button): number {

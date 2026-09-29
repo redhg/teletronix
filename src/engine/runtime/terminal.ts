@@ -377,10 +377,10 @@ export class Terminal {
             return true;
         }
         // a button's hotkey
-        const button = !this.dialog && this.run?.hotkey(key);
-        if (button) {
+        const hotkey = !this.dialog && this.run?.hotkey(key);
+        if (hotkey) {
             this.cue({ type: "select" });
-            this.dispatch(button.action);
+            this.dispatch(hotkey);
             return true;
         }
         const rule = ruleForKey(this.rules(), key);

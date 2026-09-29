@@ -55,6 +55,7 @@ A screen's `content` is a list of elements, revealed one after another:
 |---|---|
 | `"text"` (or a bare string) | Text: a string, or a list of lines. Line breaks are kept; long lines wrap unless `"wrap": false`. |
 | `"link"` | Clickable text with an `action`, and optionally a `secondaryAction` for a shift-click, right-click, Shift+Enter or long press. |
+| `"menu"` | A list of `items` navigated with the arrow keys, like a BIOS menu. See below. |
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
 | `"choice"` | One of several `options`, shown side by side like radio buttons. See below. |
 | `"prompt"` | A command line. Each of its `commands` has an `action`; `onEnter` takes anything else. |
@@ -185,6 +186,22 @@ the first `on` rule the number meets runs (`equals`, `atLeast`, `atMost`, or a c
 or else `otherwise`. A number outside `min` and `max`, or one that meets no rule when there's
 no `otherwise`, shows the `unknown` message. `variable` keeps the number in a number variable,
 set before any action runs, so the next screen can show it as `{fuel}` or test it.
+
+### Menus
+```json
+{
+    "type": "menu",
+    "items": [
+        { "text": "1. RUN DIAGNOSTICS", "key": "1", "action": { "dialog": "diagnostics" } },
+        { "text": "2. SHUT DOWN", "key": "2", "action": { "screen": "shutdown" } }
+    ]
+}
+```
+A list of items, one per line. The highlighted item is drawn in inverse, with `marker`
+(default `>`) before it. <up>/<down> (and <home>/<end>) move the highlight, as does the mouse,
+and <enter> or a click chooses it; an item's `key` chooses it from anywhere on the screen. The
+menu takes the keyboard once it can be used, and remembers the highlighted item when you come
+back. Items can have a `secondaryAction` and a `className`, like links.
 
 ### Buttons
 ```json

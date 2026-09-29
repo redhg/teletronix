@@ -4,6 +4,7 @@ import { ButtonsView } from "../modules/buttons/View.tsx";
 import { ChoiceView } from "../modules/choice/View.tsx";
 import { ColumnsView } from "../modules/columns/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
+import { MenuView } from "../modules/menu/View.tsx";
 import { MeterView } from "../modules/meter/View.tsx";
 import { NumberView } from "../modules/number/View.tsx";
 import { PauseView } from "../modules/pause/View.tsx";
@@ -35,4 +36,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     meter: MeterView,
     table: TableView,
     choice: ChoiceView,
+    menu: MenuView,
 };

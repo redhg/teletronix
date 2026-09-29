@@ -70,6 +70,7 @@ import { BitmapSchema, BlendObjectSchema, BlendSchema } from "../src/modules/bit
 import { ButtonSchema, ButtonsSchema } from "../src/modules/buttons/definition.ts";
 import { ChoiceMarkersSchema, ChoiceSchema } from "../src/modules/choice/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
+import { MenuItemSchema, MenuSchema } from "../src/modules/menu/definition.ts";
 import { MeterRangeSchema, MeterSchema } from "../src/modules/meter/definition.ts";
 import { NumberRuleSchema, NumberSchema } from "../src/modules/number/definition.ts";
 import { PauseSchema } from "../src/modules/pause/definition.ts";
@@ -162,6 +163,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Content", ContentSchema],
             ["Text", TextSchema, '"type": "text", or a bare string'],
             ["Link", LinkSchema, '"type": "link"'],
+            ["Menu", MenuSchema, '"type": "menu"'],
+            ["Menu item", MenuItemSchema],
             ["Toggle", ToggleSchema, '"type": "toggle"'],
             ["Choice", ChoiceSchema, '"type": "choice"'],
             ["Choice markers", ChoiceMarkersSchema],

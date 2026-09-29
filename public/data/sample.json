@@ -33,6 +33,7 @@
                         { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
                         { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
                         { "type": "link", "text": "> LINKS", "action": { "screen": "links" } },
+                        { "type": "link", "text": "> MENUS", "action": { "screen": "menus" } },
                         { "type": "link", "text": "> METERS", "action": { "screen": "meters" } },
                         { "type": "link", "text": "> NUMBERS", "action": { "screen": "numbers" } },
                         { "type": "link", "text": "> PAUSES", "action": { "screen": "pauses" } },
@@ -755,6 +756,27 @@
                 },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "menus": {
+            "content": [
+                "MENUS",
+                "=====",
+                "",
+                "A menu is a list of choices, like a BIOS or DOS menu. Move the highlight with <up> and <down> (or the mouse), and choose with <enter> (or a click). Each item can also have a hotkey: here, its number.",
+                "",
+                "  STATION CONTROL",
+                "  ---------------",
+                {
+                    "type": "menu",
+                    "items": [
+                        { "text": "1. RUN DIAGNOSTICS", "key": "1", "action": { "dialog": "probe-diagnostics" } },
+                        { "text": "2. CREW MANIFEST", "key": "2", "action": { "screen": "tables" } },
+                        { "text": "3. REACTOR CONTROL", "key": "3", "action": { "screen": "sliders" } },
+                        { "text": "4. EMERGENCY SHUTDOWN", "key": "4", "className": "alert", "action": { "screen": "keys" } },
+                        { "text": "5. BACK", "key": "5", "action": { "screen": "home" } }
+                    ]
+                }
             ]
         },
         "toggles": {

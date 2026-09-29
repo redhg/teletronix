@@ -32,6 +32,8 @@ export interface ModuleDefinition<E, M = never> {
      * gives the element as its memory.
      */
     source?(element: E): string;
+    /** Keys that work from anywhere on the screen once the element can be used, and their actions. */
+    hotkeys?(element: E): { key: string; action: Action }[];
     /** Conditions the element tests besides its `if` (e.g. its commands'), for checking. */
     conditions?(element: E): Condition[];
     /**
