@@ -51,3 +51,30 @@
         opacity: 0;
     }
 }
+
+/* Once the dot has gone, the monitor is off: pure black over everything, the glass's glow,
+   scanlines and vignette too. It takes no clicks, so a tap can still switch it back on. */
+body:has(.screen:not(.outgoing):is(.powering-off, .powered-off))::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    background: #000;
+    pointer-events: none;
+    opacity: 0;
+    animation: power-off-black var(--power-duration) linear var(--power-delay) forwards;
+}
+
+body:has(.screen:not(.outgoing).powered-off)::after {
+    animation: none;
+    opacity: 1;
+}
+
+@keyframes power-off-black {
+    70% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

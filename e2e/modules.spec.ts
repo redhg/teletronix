@@ -1069,6 +1069,15 @@ test.describe("shutdown, error and crash presets", () => {
         await expect(player.screen).toContainText("IT IS NOW SAFE TO TURN OFF YOUR COMPUTER.");
         await expect(player.screen).toHaveClass(/powering-off/);
         await expect(player.screen).toHaveClass(/powered-off/);
+        // the monitor is off: pure black over everything, effects and all
+        await expect
+            .poll(() =>
+                page.evaluate(() => {
+                    const cover = getComputedStyle(document.body, "::after");
+                    return [cover.backgroundColor, cover.opacity, cover.zIndex];
+                }),
+            )
+            .toEqual(["rgb(0, 0, 0)", "1", "3"]);
         await expect(player.screen.locator(".pause")).toContainText("PRESS ANY KEY TO SWITCH ON");
         await page.keyboard.press("x");
         await expect(player.screen).toContainText("HOME");
