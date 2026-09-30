@@ -106,6 +106,7 @@ import {
 import { CommandSchema, PromptSchema } from "../src/modules/prompt/definition.ts";
 import { SectionMarkersSchema } from "../src/modules/section/definition.ts";
 import { SliderRuleSchema, SliderSchema } from "../src/modules/slider/definition.ts";
+import { SpinnerInterruptSchema, SpinnerSchema } from "../src/modules/spinner/definition.ts";
 import { TableColumnSchema, TableSchema } from "../src/modules/table/definition.ts";
 import { TextSchema } from "../src/modules/text/definition.ts";
 import { TimerElementSchema } from "../src/modules/timer/definition.ts";
@@ -218,6 +219,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Progress outcome", OutcomeSchema],
             ["Delayed action", DelayedActionSchema],
             ["Progress interrupt", InterruptSchema],
+            ["Spinner", SpinnerSchema, '"type": "spinner"'],
+            ["Spinner interrupt", SpinnerInterruptSchema],
             ["Counter", CounterSchema, '"type": "counter"'],
             ["Checklist", ChecklistSchema, '"type": "checklist"'],
             ["Checklist item", ChecklistItemSchema],

@@ -10,7 +10,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -421,6 +421,7 @@ One of:
 - [Power off](#power-off)
 - [Crash element](#crash-element)
 - [Visual](#visual)
+- [Spinner](#spinner)
 
 <a id="text"></a>
 
@@ -761,6 +762,40 @@ Makes a progress bar stop short: at a set point (a transfer that fails) and/or w
 | `key` | string \| string[] |  | A key that aborts the bar while it runs: "any", a key name, or an array |
 | `text` | string | `"INTERRUPTED"` | Shown in place of the percentage |
 | `action` | [Action](#action) |  | What happens when interrupted, instead of onComplete |
+| `after` | number, ≥ 0 |  | Milliseconds to wait before the action |
+
+<a id="spinner"></a>
+
+### Spinner (`"type": "spinner"`)
+
+A line that spins while something seems to happen: for a set time, or until a key press. It holds the rest of the screen, then shows its done text (or goes).
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `label` | string | `""` | Text before the spinner |
+| `style` | `"line"` \| `"dots"` \| `"blocks"` \| `"bar"` \| string[] | `"line"` | How it looks: "line" (\| / - \), "dots" (. .. ...), "blocks" (▖ ▘ ▝ ▗), "bar" (a bouncing [=   ]), or a list of your own frames, e.g. ["◐", "◓", "◑", "◒"] |
+| `speed` | whole number, > 0 | one to suit its style | Milliseconds each frame shows |
+| `duration` | number, > 0 |  | Milliseconds it spins, holding the rest of the screen. Without one, it spins until the player presses a key or taps. |
+| `countdown` | boolean | `false` | Show the seconds left after the spinner, for one with a duration |
+| `done` | string |  | Shown in place of the spinner once it has finished, e.g. "OK". Without it, the line goes once it's finished. |
+| `onComplete` | [Progress outcome](#progress-outcome) |  | What happens when it finishes: an action, or { after, action } to pause first. Without one, the screen carries on. |
+| `interrupt` | [Spinner interrupt](#spinner-interrupt) |  | A key that aborts it, showing its text and running its action |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="spinner-interrupt"></a>
+
+### Spinner interrupt
+
+A key that aborts a spinner while it spins
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | string \| string[] | **required** | The key that aborts it: "any", a key name, or an array |
+| `text` | string | `"ABORTED"` | Shown in place of the spinner |
+| `action` | [Action](#action) |  | What happens when aborted, instead of onComplete |
 | `after` | number, ≥ 0 |  | Milliseconds to wait before the action |
 
 <a id="counter"></a>

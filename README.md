@@ -69,6 +69,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"power-off"` | Switches the screen off like an old CRT: the picture collapses to a line, then a dot. See [Presets](#presets). |
 | `"crash"` | Fills the window with garbage that never stops changing. See [Presets](#presets). |
 | `"visual"` | Line art that moves: an oscilloscope, a chart, a radar or a turning wireframe. See below. |
+| `"spinner"` | A spinner that turns for a while, or until a key, holding the screen. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 | `"meter"` | A gauge: a bar showing a variable or timer, live. See below. |
 | `"table"` | Rows and columns of text, with optional box-drawn borders. See below. |
@@ -208,6 +209,30 @@ It's `cols` characters wide (default: the screen's width) and `rows` lines tall 
 Waveforms and charts have a faint grid, unless `"grid": false`. Visuals only move while they're in
 view, and with reduced motion they're still pictures. Put a few side by side with
 [`"columns"`](#columns).
+
+### Spinners
+```json
+{
+    "type": "spinner",
+    "label": "DIALLING MAINFRAME ",
+    "style": "dots",
+    "duration": 3000,
+    "countdown": true,
+    "done": "CONNECTED",
+    "onComplete": { "screen": "mainframe" },
+    "interrupt": { "key": "Escape", "text": "ABORTED", "action": { "screen": "menu" } }
+}
+```
+A spinner types its `label`, then turns for `duration` milliseconds, holding the rest of the
+screen, like a pause that ends by itself. Then its `done` text takes the spinner's place; without
+any, the line goes. Without a `duration`, it spins until the player presses a key.
+- `style`: `"line"` (`| / - \`, the default), `"dots"`, `"blocks"`, `"bar"` (a bouncing `[=   ]`),
+  or a list of your own frames. `speed` is the milliseconds each frame shows.
+- `countdown: true` shows the seconds left after the spinner.
+- `onComplete` runs an action when it finishes (or `{ "after", "action" }` to pause first).
+- `interrupt` aborts it at a `key`: its `text` takes the spinner's place, and its `action` (with an
+  optional `after`) runs instead of `onComplete`.
+- Skipping finishes it at once. With reduced motion, it holds still but still takes its time.
 
 ### Choices
 ```json

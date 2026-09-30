@@ -47,6 +47,7 @@
                         { "type": "link", "text": "> SECTIONS", "action": { "screen": "sections" } },
                         { "type": "link", "text": "> SLIDERS", "action": { "screen": "sliders" } },
                         { "type": "link", "text": "> SOUNDS", "action": { "screen": "sounds" } },
+                        { "type": "link", "text": "> SPINNERS", "action": { "screen": "spinners" } },
                         { "type": "link", "text": "> TABLES", "action": { "screen": "tables" } },
                         { "type": "link", "text": "> TEXT", "action": { "screen": "text" } },
                         { "type": "link", "text": "> TIMERS", "action": { "screen": "timers" } },
@@ -985,6 +986,45 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
+        "spinners": {
+            "content": [
+                "SPINNERS",
+                "========",
+                "",
+                "A spinner turns while something seems to happen, holding the rest of the screen, then shows its \"done\" text:",
+                "",
+                { "type": "spinner", "label": "CHECKING MEMORY... ", "duration": 2000, "done": "OK" },
+                { "type": "spinner", "label": "DIALLING MAINFRAME ", "style": "dots", "duration": 3000, "done": "CONNECTED" },
+                { "type": "spinner", "label": "DECRYPTING ", "style": "bar", "duration": 2500, "done": "[DONE]" },
+                { "type": "spinner", "label": "SCANNING ", "style": "blocks", "duration": 2000, "done": "3 SIGNALS FOUND" },
+                "",
+                "It can count down the seconds, and have frames of your own:",
+                "",
+                { "type": "spinner", "label": "REACTOR COOLING ", "style": ["-", "=", "≡", "="], "duration": 5000, "countdown": true, "done": "STABLE" },
+                "",
+                "One without \"done\" text goes when it's finished. Blink and you'll miss this one:",
+                "",
+                { "type": "spinner", "label": "ONE MOMENT ", "duration": 1500 },
+                "Press <esc> to abort this download:",
+                "",
+                {
+                    "type": "spinner",
+                    "label": "DOWNLOADING CREW MANIFEST ",
+                    "style": "bar",
+                    "duration": 8000,
+                    "countdown": true,
+                    "done": "COMPLETE",
+                    "interrupt": { "key": "Escape", "text": "ABORTED", "action": { "dialog": "download-aborted" } }
+                },
+                "",
+                "And without a duration, it spins until you press a key:",
+                "",
+                { "type": "spinner", "label": "AWAITING INPUT ", "style": "dots", "done": "RECEIVED" },
+                "",
+                { "type": "link", "text": "> AGAIN", "action": { "screen": "spinners" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
         "toggles": {
             "content": [
                 "TOGGLES & CHOICES",
@@ -1196,6 +1236,7 @@
         }
     },
     "dialogs": {
+        "download-aborted": { "type": "alert", "content": ["DOWNLOAD ABORTED.", "", "THE CREW MANIFEST IS INCOMPLETE."] },
         "hello": {
             "type": "alert",
             "content": ["This is an alert.", "", "Press <enter>, <esc>, or click anywhere to close it."]

@@ -45,6 +45,11 @@ import {
     sectionModule,
 } from "../../modules/section/definition.ts";
 import { type SliderElement, SliderSchema, sliderModule } from "../../modules/slider/definition.ts";
+import {
+    type SpinnerElement,
+    SpinnerSchema,
+    spinnerModule,
+} from "../../modules/spinner/definition.ts";
 import { type TableElement, TableSchema, tableModule } from "../../modules/table/definition.ts";
 import { type TextElement, TextSchema, textModule } from "../../modules/text/definition.ts";
 import {
@@ -87,6 +92,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     PowerOffSchema,
     CrashSchema,
     VisualSchema,
+    SpinnerSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -121,7 +127,8 @@ export type Element =
     | CounterElement
     | PowerOffElement
     | CrashElement
-    | VisualElement;
+    | VisualElement
+    | SpinnerElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -149,6 +156,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     "power-off": powerOffModule,
     crash: crashModule,
     visual: visualModule,
+    spinner: spinnerModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {

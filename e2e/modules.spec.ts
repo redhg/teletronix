@@ -1226,3 +1226,54 @@ test.describe("visual", () => {
         expect(await pixels(player)).toEqual(first);
     });
 });
+
+test.describe("spinner", () => {
+    test.use({ reducedMotion: "no-preference" });
+
+    const spinning = {
+        config: { name: "Spinners", start: "home", reveal: "instant" },
+        screens: {
+            home: {
+                content: [
+                    { type: "spinner", label: "LOAD ", duration: 1500, done: "OK" },
+                    {
+                        type: "spinner",
+                        label: "GET ",
+                        duration: 20_000,
+                        interrupt: { key: "Escape", text: "ABORTED" },
+                    },
+                    { type: "spinner", label: "WAIT ", done: "GO" },
+                    "END",
+                ],
+            },
+        },
+    } as Program;
+
+    // what each spinner shows (not what screen readers get)
+    const shown = (player: Player, n: number) =>
+        player.screen.locator(".spinner").nth(n).locator("[aria-hidden='true']");
+
+    test("turns, finishes, aborts at its key, and waits for a key", async ({ page, player }) => {
+        await player.open(spinning);
+        const first = await shown(player, 0).textContent();
+        await expect.poll(() => shown(player, 0).textContent()).not.toBe(first);
+        await expect(shown(player, 0)).toHaveText("LOAD OK");
+
+        await expect(shown(player, 1)).toHaveText(/^GET .$/);
+        await page.keyboard.press("Escape");
+        await expect(shown(player, 1)).toHaveText("GET ABORTED");
+
+        await expect(shown(player, 2)).toHaveText(/^WAIT .$/);
+        await page.waitForTimeout(300);
+        await expect(player.screen).not.toContainText("END");
+        await page.keyboard.press("x");
+        await expect(shown(player, 2)).toHaveText("WAIT GO");
+        await expect(player.screen).toContainText("END");
+    });
+
+    test("is announced by its label, not every turn", async ({ player }) => {
+        await player.open(spinning);
+        await expect(player.screen.getByRole("status").first()).toContainText("LOAD");
+        await expect(player.screen.locator(".spinner .sr-only").first()).toHaveText("LOAD");
+    });
+});

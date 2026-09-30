@@ -23,6 +23,9 @@ export interface Reveal {
     frame(elapsed: number): Frame;
     /** The fully revealed frame, or the last one if the reveal was interrupted. */
     final(): Frame;
-    /** Stops the reveal where it is, at `elapsed`, if it can be interrupted. */
-    interrupt?(elapsed: number): void;
+    /**
+     * Stops the reveal where it is, at `elapsed`, if it can be interrupted; `key` is the key
+     * press (a KeyboardEvent.key) that did it.
+     */
+    interrupt?(elapsed: number, key: string): void;
 }

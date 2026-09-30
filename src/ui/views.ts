@@ -17,6 +17,7 @@ import { ProgressView } from "../modules/progress/View.tsx";
 import { PromptView } from "../modules/prompt/View.tsx";
 import { SectionView } from "../modules/section/View.tsx";
 import { SliderView } from "../modules/slider/View.tsx";
+import { SpinnerView } from "../modules/spinner/View.tsx";
 import { TableView } from "../modules/table/View.tsx";
 import { TextView } from "../modules/text/View.tsx";
 import { TimerView } from "../modules/timer/View.tsx";
@@ -49,4 +50,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     "power-off": PowerOffView,
     crash: CrashView,
     visual: VisualView,
+    spinner: SpinnerView,
 };

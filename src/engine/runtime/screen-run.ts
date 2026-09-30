@@ -312,7 +312,7 @@ export class ScreenRun {
         if (!unit?.reveal.interrupt || !element) return false;
         if (!moduleFor(element).interruptKey?.(element, key)) return false;
 
-        unit.reveal.interrupt(Math.max(0, now - this.activeSince));
+        unit.reveal.interrupt(Math.max(0, now - this.activeSince), key);
         this.finishActive(unit, now);
         this.advance(now);
         return true;

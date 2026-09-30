@@ -11654,6 +11654,691 @@
                             ],
                             "additionalProperties": false,
                             "description": "Line art that moves, drawn in the screen's colors: an oscilloscope, a chart, a radar or a turning wireframe shape. Pure decoration: it goes on until the screen does."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "spinner"
+                                },
+                                "label": {
+                                    "default": "",
+                                    "description": "Text before the spinner",
+                                    "type": "string"
+                                },
+                                "style": {
+                                    "default": "line",
+                                    "description": "How it looks: \"line\" (| / - \\), \"dots\" (. .. ...), \"blocks\" (▖ ▘ ▝ ▗), \"bar\" (a bouncing [=   ]), or a list of your own frames, e.g. [\"◐\", \"◓\", \"◑\", \"◒\"] (default: \"line\")",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "line",
+                                                "dots",
+                                                "blocks",
+                                                "bar"
+                                            ]
+                                        },
+                                        {
+                                            "minItems": 2,
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            }
+                                        }
+                                    ]
+                                },
+                                "speed": {
+                                    "description": "Milliseconds each frame shows (default: one to suit its style)",
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "maximum": 9007199254740991
+                                },
+                                "duration": {
+                                    "description": "Milliseconds it spins, holding the rest of the screen. Without one, it spins until the player presses a key or taps.",
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                },
+                                "countdown": {
+                                    "default": false,
+                                    "description": "Show the seconds left after the spinner, for one with a duration (default: false)",
+                                    "type": "boolean"
+                                },
+                                "done": {
+                                    "description": "Shown in place of the spinner once it has finished, e.g. \"OK\". Without it, the line goes once it's finished.",
+                                    "type": "string"
+                                },
+                                "onComplete": {
+                                    "description": "What happens when it finishes: an action, or { after, action } to pause first. Without one, the screen carries on.",
+                                    "anyOf": [
+                                        {
+                                            "description": "What happens: go to a screen, open a dialog, change variables, play a sound. Or a list of these with \"if\" conditions, where the first whose condition holds happens.",
+                                            "anyOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "if": {
+                                                            "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                            "$ref": "#/$defs/Condition"
+                                                        },
+                                                        "screen": {
+                                                            "description": "A screen to go to",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "dialog": {
+                                                            "description": "A dialog to open",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "set": {
+                                                            "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                            "type": "object",
+                                                            "propertyNames": {
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                "description": "A variable declared in config.variables"
+                                                            },
+                                                            "additionalProperties": {
+                                                                "anyOf": [
+                                                                    {
+                                                                        "description": "true or false, a number, or text",
+                                                                        "type": [
+                                                                            "boolean",
+                                                                            "number",
+                                                                            "string"
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "add": {
+                                                                                "type": "number",
+                                                                                "description": "How much to add (negative to subtract)"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "add"
+                                                                        ],
+                                                                        "additionalProperties": false,
+                                                                        "description": "Adds to a number variable"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "startTimer": {
+                                                            "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                        },
+                                                        "stopTimer": {
+                                                            "description": "A timer to stop where it is",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                        },
+                                                        "resetTimer": {
+                                                            "description": "A timer to stop and put back to its start",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                        },
+                                                        "sound": {
+                                                            "description": "A sound from the program's sounds, played as the action happens",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        }
+                                                    },
+                                                    "additionalProperties": false,
+                                                    "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                },
+                                                {
+                                                    "minItems": 1,
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "if": {
+                                                                "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                "$ref": "#/$defs/Condition"
+                                                            },
+                                                            "screen": {
+                                                                "description": "A screen to go to",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "dialog": {
+                                                                "description": "A dialog to open",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "set": {
+                                                                "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                "type": "object",
+                                                                "propertyNames": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                    "description": "A variable declared in config.variables"
+                                                                },
+                                                                "additionalProperties": {
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "description": "true or false, a number, or text",
+                                                                            "type": [
+                                                                                "boolean",
+                                                                                "number",
+                                                                                "string"
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "add": {
+                                                                                    "type": "number",
+                                                                                    "description": "How much to add (negative to subtract)"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "add"
+                                                                            ],
+                                                                            "additionalProperties": false,
+                                                                            "description": "Adds to a number variable"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "startTimer": {
+                                                                "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                            },
+                                                            "stopTimer": {
+                                                                "description": "A timer to stop where it is",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                            },
+                                                            "resetTimer": {
+                                                                "description": "A timer to stop and put back to its start",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                            },
+                                                            "sound": {
+                                                                "description": "A sound from the program's sounds, played as the action happens",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            }
+                                                        },
+                                                        "additionalProperties": false,
+                                                        "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "after": {
+                                                    "description": "Milliseconds to wait first",
+                                                    "type": "number",
+                                                    "minimum": 0
+                                                },
+                                                "action": {
+                                                    "description": "What happens",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "if": {
+                                                                    "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                    "$ref": "#/$defs/Condition"
+                                                                },
+                                                                "screen": {
+                                                                    "description": "A screen to go to",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "dialog": {
+                                                                    "description": "A dialog to open",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "set": {
+                                                                    "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                    "type": "object",
+                                                                    "propertyNames": {
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                        "description": "A variable declared in config.variables"
+                                                                    },
+                                                                    "additionalProperties": {
+                                                                        "anyOf": [
+                                                                            {
+                                                                                "description": "true or false, a number, or text",
+                                                                                "type": [
+                                                                                    "boolean",
+                                                                                    "number",
+                                                                                    "string"
+                                                                                ]
+                                                                            },
+                                                                            {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "add": {
+                                                                                        "type": "number",
+                                                                                        "description": "How much to add (negative to subtract)"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "add"
+                                                                                ],
+                                                                                "additionalProperties": false,
+                                                                                "description": "Adds to a number variable"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "startTimer": {
+                                                                    "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                },
+                                                                "stopTimer": {
+                                                                    "description": "A timer to stop where it is",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                },
+                                                                "resetTimer": {
+                                                                    "description": "A timer to stop and put back to its start",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                },
+                                                                "sound": {
+                                                                    "description": "A sound from the program's sounds, played as the action happens",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                }
+                                                            },
+                                                            "additionalProperties": false,
+                                                            "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                        },
+                                                        {
+                                                            "minItems": 1,
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "if": {
+                                                                        "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                        "$ref": "#/$defs/Condition"
+                                                                    },
+                                                                    "screen": {
+                                                                        "description": "A screen to go to",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "dialog": {
+                                                                        "description": "A dialog to open",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "set": {
+                                                                        "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                        "type": "object",
+                                                                        "propertyNames": {
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                            "description": "A variable declared in config.variables"
+                                                                        },
+                                                                        "additionalProperties": {
+                                                                            "anyOf": [
+                                                                                {
+                                                                                    "description": "true or false, a number, or text",
+                                                                                    "type": [
+                                                                                        "boolean",
+                                                                                        "number",
+                                                                                        "string"
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "type": "object",
+                                                                                    "properties": {
+                                                                                        "add": {
+                                                                                            "type": "number",
+                                                                                            "description": "How much to add (negative to subtract)"
+                                                                                        }
+                                                                                    },
+                                                                                    "required": [
+                                                                                        "add"
+                                                                                    ],
+                                                                                    "additionalProperties": false,
+                                                                                    "description": "Adds to a number variable"
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    },
+                                                                    "startTimer": {
+                                                                        "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                    },
+                                                                    "stopTimer": {
+                                                                        "description": "A timer to stop where it is",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                    },
+                                                                    "resetTimer": {
+                                                                        "description": "A timer to stop and put back to its start",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                    },
+                                                                    "sound": {
+                                                                        "description": "A sound from the program's sounds, played as the action happens",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false,
+                                                                "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "action"
+                                            ],
+                                            "additionalProperties": false,
+                                            "description": "An action that runs after a pause"
+                                        }
+                                    ]
+                                },
+                                "interrupt": {
+                                    "description": "A key that aborts it, showing its text and running its action",
+                                    "type": "object",
+                                    "properties": {
+                                        "key": {
+                                            "description": "The key that aborts it: \"any\", a key name, or an array",
+                                            "anyOf": [
+                                                {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                {
+                                                    "minItems": 1,
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "text": {
+                                            "default": "ABORTED",
+                                            "description": "Shown in place of the spinner (default: \"ABORTED\")",
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "action": {
+                                            "description": "What happens when aborted, instead of onComplete",
+                                            "anyOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "if": {
+                                                            "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                            "$ref": "#/$defs/Condition"
+                                                        },
+                                                        "screen": {
+                                                            "description": "A screen to go to",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "dialog": {
+                                                            "description": "A dialog to open",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "set": {
+                                                            "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                            "type": "object",
+                                                            "propertyNames": {
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                "description": "A variable declared in config.variables"
+                                                            },
+                                                            "additionalProperties": {
+                                                                "anyOf": [
+                                                                    {
+                                                                        "description": "true or false, a number, or text",
+                                                                        "type": [
+                                                                            "boolean",
+                                                                            "number",
+                                                                            "string"
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "add": {
+                                                                                "type": "number",
+                                                                                "description": "How much to add (negative to subtract)"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "add"
+                                                                        ],
+                                                                        "additionalProperties": false,
+                                                                        "description": "Adds to a number variable"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "startTimer": {
+                                                            "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                        },
+                                                        "stopTimer": {
+                                                            "description": "A timer to stop where it is",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                        },
+                                                        "resetTimer": {
+                                                            "description": "A timer to stop and put back to its start",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                        },
+                                                        "sound": {
+                                                            "description": "A sound from the program's sounds, played as the action happens",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        }
+                                                    },
+                                                    "additionalProperties": false,
+                                                    "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                },
+                                                {
+                                                    "minItems": 1,
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "if": {
+                                                                "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                "$ref": "#/$defs/Condition"
+                                                            },
+                                                            "screen": {
+                                                                "description": "A screen to go to",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "dialog": {
+                                                                "description": "A dialog to open",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "set": {
+                                                                "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                "type": "object",
+                                                                "propertyNames": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                    "description": "A variable declared in config.variables"
+                                                                },
+                                                                "additionalProperties": {
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "description": "true or false, a number, or text",
+                                                                            "type": [
+                                                                                "boolean",
+                                                                                "number",
+                                                                                "string"
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "add": {
+                                                                                    "type": "number",
+                                                                                    "description": "How much to add (negative to subtract)"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "add"
+                                                                            ],
+                                                                            "additionalProperties": false,
+                                                                            "description": "Adds to a number variable"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "startTimer": {
+                                                                "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                            },
+                                                            "stopTimer": {
+                                                                "description": "A timer to stop where it is",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                            },
+                                                            "resetTimer": {
+                                                                "description": "A timer to stop and put back to its start",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                            },
+                                                            "sound": {
+                                                                "description": "A sound from the program's sounds, played as the action happens",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            }
+                                                        },
+                                                        "additionalProperties": false,
+                                                        "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "after": {
+                                            "description": "Milliseconds to wait before the action",
+                                            "type": "number",
+                                            "minimum": 0
+                                        }
+                                    },
+                                    "required": [
+                                        "key"
+                                    ],
+                                    "additionalProperties": false
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ],
+                            "additionalProperties": false,
+                            "description": "A line that spins while something seems to happen: for a set time, or until a key press. It holds the rest of the screen, then shows its done text (or goes)."
                         }
                     ]
                 }
