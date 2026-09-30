@@ -12,7 +12,16 @@
     visibility: hidden;
 }
 
+/* a byte's own colors: the text's, or the alert color's where it's highlighted (the cursor
+   blinks back to these) */
+.hexdump [data-byte] {
+    --byte-color: var(--fg);
+    --byte-glow: var(--glow);
+}
+
 .hexdump .mark {
+    --byte-color: var(--alert);
+    --byte-glow: var(--alert-glow);
     color: var(--alert);
     text-shadow: var(--fringe, 0 0 transparent), var(--alert-glow);
 }
@@ -24,17 +33,17 @@
     text-shadow: var(--inverse-glow);
 }
 
-/* while it has the keyboard, the cursor blinks: between inverse and normal, so the byte
-   under it never disappears */
+/* while it has the keyboard, the cursor blinks: between inverse and the byte's own colors, so
+   the byte under it never disappears */
 .hexdump:focus .cursor {
     animation: hexdump-blink 1s steps(1) infinite;
 }
 
 @keyframes hexdump-blink {
     50% {
-        color: inherit;
+        color: var(--byte-color);
         background: transparent;
-        text-shadow: inherit;
+        text-shadow: var(--fringe, 0 0 transparent), var(--byte-glow);
     }
 }
 

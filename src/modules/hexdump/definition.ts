@@ -94,9 +94,9 @@ export const HexdumpSchema = z
             .meta({
                 description:
                     'With "rows", move the cursor down through the bytes by itself, a row at a ' +
-                    "time: true, or the rows per second (true is 4). It stops for good when the " +
-                    "player takes over with a key or a click, and doesn't move with reduced motion " +
-                    "(default: false)",
+                    "time: true, or the rows per second (true is 4). It stops when the player " +
+                    "takes over with a key or a click; Shift+Up or Shift+Down turns it off and on " +
+                    "again. It doesn't move with reduced motion (default: false)",
             }),
         loop: z.boolean().default(true).meta({
             description: "Start again from the top when autoscroll reaches the end (default: true)",

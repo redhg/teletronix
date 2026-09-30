@@ -103,8 +103,10 @@ export function HexdumpView({
     const [progress, setProgress] = useState(0);
     const [cursor, setCursor] = useState(0);
     const [top, setTop] = useState(0);
-    // autoscroll stops for good once the player takes over
+    // autoscroll stops when the player takes over, until they turn it back on (Shift+Up/Down)
     const [steering, setSteering] = useState(false);
+    // once autoscroll has stopped at the highlight, it goes on past it when turned back on
+    const [arrived, setArrived] = useState(false);
 
     useEffect(() => {
         if (element.src === undefined) return;
@@ -177,8 +179,18 @@ export function HexdumpView({
             row < current ? row : row >= current + page ? row - page + 1 : current,
         );
     };
+    const firstMark = element.stopAt && !arrived ? Math.min(...marks) : undefined;
+    const stopAt = firstMark !== undefined && Number.isFinite(firstMark) ? firstMark : undefined;
+    const rate = element.autoscroll === true ? DEFAULT_AUTOSCROLL : element.autoscroll || 0;
     const handleKey = (event: KeyboardEvent) => {
         if (!windowed || !interactive || event.altKey || event.metaKey || event.ctrlKey) return;
+        // Shift+Up or Shift+Down turns autoscroll off and on again
+        const toggle = event.shiftKey && (event.key === "ArrowUp" || event.key === "ArrowDown");
+        if (toggle && rate > 0) {
+            event.preventDefault();
+            setSteering((was) => !was);
+            return;
+        }
         const next = moveCursor(event.key, cursor, bytes.length, perRow, page);
         if (next === null) return;
         event.preventDefault();
@@ -187,9 +199,6 @@ export function HexdumpView({
     };
 
     // autoscroll: a row at a time, until the player takes over (or it gets where it's going)
-    const firstMark = element.stopAt ? Math.min(...marks) : undefined;
-    const stopAt = firstMark !== undefined && Number.isFinite(firstMark) ? firstMark : undefined;
-    const rate = element.autoscroll === true ? DEFAULT_AUTOSCROLL : element.autoscroll || 0;
     const scrolling = windowed && interactive && rate > 0 && !steering && bytes.length > 0;
     const position = useRef({ cursor, top });
     position.current = { cursor, top };
@@ -208,7 +217,10 @@ export function HexdumpView({
             );
             setCursor(step.cursor);
             setTop(step.top);
-            if (step.stop) setSteering(true);
+            if (step.stop) {
+                setSteering(true);
+                if (stopAt !== undefined && step.cursor === stopAt) setArrived(true);
+            }
         }, 1000 / rate);
         return () => clearInterval(timer);
     }, [scrolling, rate, bytes.length, perRow, page, element.loop, stopAt]);

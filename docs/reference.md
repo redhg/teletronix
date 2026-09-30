@@ -238,7 +238,7 @@ A hex editor, for looking only: a file's bytes filling the screen, a cursor to m
 | `offset` | whole number, ≥ 0 | `0` | The address shown for the first byte |
 | `highlight` | [Hex dump highlight](#hex-dump-highlight)[] |  | Bytes to draw in the alert color: some text, or { "from", "to" } |
 | `lowercase` | boolean | `false` | Lowercase hex digits |
-| `autoscroll` | boolean \| number, > 0 | `false` | Move the cursor down through the bytes by itself: true, or the rows per second (true is 4), until the player takes over |
+| `autoscroll` | boolean \| number, > 0 | `false` | Move the cursor down through the bytes by itself: true, or the rows per second (true is 4), until the player takes over; Shift+Up or Shift+Down turns it off and on again |
 | `loop` | boolean | `true` | Start again from the top when autoscroll reaches the end |
 | `stopAt` | `"highlight"` |  | Stop autoscroll when the first highlighted bytes come into view: "highlight" |
 
@@ -809,7 +809,7 @@ Bytes as a hex dump: an address, the bytes in hex, and the same bytes as text. F
 | `highlight` | [Hex dump highlight](#hex-dump-highlight)[] |  | Bytes to draw in the alert color: some text (every place it appears), or { "from", "to" } |
 | `rows` | whole number, ≥ 1 \| `"fill"` | every row, one after another | Show this many rows at a time, or "fill" for as many as fit the window, and let the player move through the bytes with the arrow keys, Page Up/Down, Home and End, or by clicking |
 | `status` | string |  | With "rows", a status line under it. {offset} is the cursor's address, {byte} the byte there, and {size} the number of bytes. |
-| `autoscroll` | boolean \| number, > 0 | `false` | With "rows", move the cursor down through the bytes by itself, a row at a time: true, or the rows per second (true is 4). It stops for good when the player takes over with a key or a click, and doesn't move with reduced motion |
+| `autoscroll` | boolean \| number, > 0 | `false` | With "rows", move the cursor down through the bytes by itself, a row at a time: true, or the rows per second (true is 4). It stops when the player takes over with a key or a click; Shift+Up or Shift+Down turns it off and on again. It doesn't move with reduced motion |
 | `loop` | boolean | `true` | Start again from the top when autoscroll reaches the end |
 | `stopAt` | `"highlight"` |  | Stop autoscroll when the first highlighted bytes come into view, with the cursor on them: "highlight" |
 | `statusBar` | boolean | `false` | Show the status line as a status bar, pinned to the bottom of the window across its whole width, rather than under the bytes |

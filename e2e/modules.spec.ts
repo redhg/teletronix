@@ -1410,14 +1410,43 @@ test.describe("hexdump", () => {
             const held = await offset(player, 0);
             await page.waitForTimeout(300);
             expect(await offset(player, 0)).toBe(held);
+
+            // Shift+Down turns it back on, and Shift+Up off again
+            await page.keyboard.press("Shift+ArrowDown");
+            await expect.poll(() => offset(player, 0)).toBeGreaterThan(held);
+            await page.keyboard.press("Shift+ArrowUp");
+            const again = await offset(player, 0);
+            await page.waitForTimeout(300);
+            expect(await offset(player, 0)).toBe(again);
         });
 
-        test("stops at the highlight", async ({ player }) => {
+        test("stops at the highlight", async ({ page, player }) => {
             await player.open({ ...dumps, config: { ...dumps.config, start: "scrolling" } });
             await expect.poll(() => offset(player, 1), { timeout: 10_000 }).toBe(3000);
-            await expect(
-                player.screen.locator(".hexdump").nth(1).locator(".mark.cursor").first(),
-            ).toHaveText("46");
+            const cursor = player.screen.locator(".hexdump").nth(1).locator(".mark.cursor").first();
+            await expect(cursor).toHaveText("46");
+
+            // blinking, it's the alert color on and off: inverse, then as highlighted
+            await player.screen.locator(".hexdump").nth(1).focus();
+            const colors = await cursor.evaluate((span) => {
+                const blink = span.getAnimations()[0];
+                if (!blink) return null;
+                blink.pause();
+                const at = (time: number) => {
+                    blink.currentTime = time;
+                    const style = getComputedStyle(span);
+                    return [style.color, style.backgroundColor];
+                };
+                return [at(0), at(600)];
+            });
+            expect(colors).toEqual([
+                ["rgb(0, 12, 12)", "rgb(255, 60, 0)"],
+                ["rgb(255, 60, 0)", "rgba(0, 0, 0, 0)"],
+            ]);
+
+            // turned back on, it goes on past the highlight
+            await page.keyboard.press("Shift+ArrowDown");
+            await expect.poll(() => offset(player, 1)).toBeGreaterThan(3000);
         });
     });
 });

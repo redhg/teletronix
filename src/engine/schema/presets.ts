@@ -341,7 +341,8 @@ export const HexeditorPresetSchema = z
             .meta({
                 description:
                     "Move the cursor down through the bytes by itself: true, or the rows per " +
-                    "second (true is 4), until the player takes over (default: false)",
+                    "second (true is 4), until the player takes over; Shift+Up or Shift+Down turns it " +
+                    "off and on again (default: false)",
             }),
         loop: z.boolean().optional().meta({
             description: "Start again from the top when autoscroll reaches the end (default: true)",
