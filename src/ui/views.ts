@@ -9,6 +9,7 @@ import { CounterView } from "../modules/counter/View.tsx";
 import { CrashView } from "../modules/crash/View.tsx";
 import { HexdumpView } from "../modules/hexdump/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
+import { LoginView } from "../modules/login/View.tsx";
 import { MenuView } from "../modules/menu/View.tsx";
 import { MeterView } from "../modules/meter/View.tsx";
 import { NumberView } from "../modules/number/View.tsx";
@@ -53,4 +54,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     visual: VisualView,
     spinner: SpinnerView,
     hexdump: HexdumpView,
+    login: LoginView,
 };

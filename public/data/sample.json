@@ -879,6 +879,8 @@
                 "  A fatal error in a blinking box. Press a key to restart.",
                 { "type": "link", "text": "> CRASH", "action": { "screen": "crash" } },
                 "  Garbage that never stops. Press a key to restart.",
+                { "type": "link", "text": "> LOGIN", "action": { "screen": "login" } },
+                "  Log in as RIPLEY, password JONESY. Three wrong tries lock it, until you reload.",
                 { "type": "link", "text": "> HEX EDITOR", "action": { "screen": "hexeditor" } },
                 "  A recovered file that scrolls until something turns up. Take over with the arrow keys; <esc> leaves.",
                 "",
@@ -1063,6 +1065,38 @@
                 "stopAt": "highlight",
                 "next": "presets"
             }
+        },
+        "login": {
+            "preset": {
+                "type": "login",
+                "title": "WEYLAND-YUTANI CORP. // AUTHORIZED PERSONNEL ONLY",
+                "accounts": [
+                    { "user": "ripley", "password": "JONESY" },
+                    { "user": "ash", "password": "937" }
+                ],
+                "attempts": 3,
+                "variable": "name",
+                "next": "login-welcome",
+                "lockout": "login-locked"
+            }
+        },
+        "login-welcome": {
+            "content": [
+                "WELCOME, {name}.",
+                "",
+                "That was the login preset. A login can also ask for a password only, keep the username in a variable (as this one did), and lock after too many wrong tries.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+            ]
+        },
+        "login-locked": {
+            "content": [
+                { "type": "text", "text": "SECURITY LOCKOUT", "className": "alert" },
+                "",
+                "Too many wrong tries: the login stays locked until you reload the page.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+            ]
         },
         "toggles": {
             "content": [

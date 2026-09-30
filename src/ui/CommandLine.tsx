@@ -1,4 +1,12 @@
-import { type FormEvent, type HTMLAttributes, useEffect, useId, useRef, useState } from "react";
+import {
+    type FormEvent,
+    type HTMLAttributes,
+    type ReactNode,
+    useEffect,
+    useId,
+    useRef,
+    useState,
+} from "react";
 import type { ScreenRun } from "../engine/index.ts";
 import { classNames } from "./element-view.ts";
 import { RevealText } from "./RevealText.tsx";
@@ -16,6 +24,8 @@ interface Props {
     filter?: (typed: string) => string;
     /** Draw each character typed as * (for codes). */
     mask?: boolean;
+    /** Its label, in place of the element's revealed text (e.g. a login's second prompt). */
+    label?: ReactNode;
     inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
     /**
      * What's typed after the up or down arrow key: `steps` is 1 or -1 (10 or -10 with Shift).
@@ -40,6 +50,7 @@ export function CommandLine({
     className,
     filter = (typed) => typed,
     mask = false,
+    label,
     inputMode,
     step,
     onSubmit,
@@ -78,9 +89,7 @@ export function CommandLine({
             onSubmit={handleSubmit}
         >
             <div className="prompt-line">
-                <label htmlFor={inputId}>
-                    <RevealText run={run} index={index} />
-                </label>
+                <label htmlFor={inputId}>{label ?? <RevealText run={run} index={index} />}</label>
                 {interactive && (
                     <span className="prompt-field">
                         <input

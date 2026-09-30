@@ -237,3 +237,38 @@ describe("the hex editor preset", () => {
         expect(screen?.next).toBeUndefined();
     });
 });
+
+describe("the login preset", () => {
+    it("is a warning, then a login going to its next screen", () => {
+        const { content } = expanded({
+            type: "login",
+            accounts: [{ user: "ripley", password: "jonesy" }],
+            next: "elsewhere",
+            attempts: 3,
+            lockout: "home",
+        });
+        expect(content).toMatchObject([
+            { type: "text", text: "AUTHORIZED PERSONNEL ONLY", className: "alert" },
+            { type: "text", text: "" },
+            {
+                type: "login",
+                attempts: 3,
+                granted: "ACCESS GRANTED.",
+                action: [{ screen: "elsewhere" }],
+                onLocked: [{ screen: "home" }],
+            },
+        ]);
+    });
+
+    it("goes to the start screen by default, and can leave out its lines", () => {
+        const { content } = expanded({
+            type: "login",
+            accounts: [{ user: "a", password: "b" }],
+            title: false,
+            granted: false,
+        });
+        expect(content).toHaveLength(1);
+        expect(content[0]).toMatchObject({ type: "login", action: [{ screen: "home" }] });
+        expect(content[0]).not.toHaveProperty("granted");
+    });
+});

@@ -7,10 +7,10 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
-- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor)
+- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -142,6 +142,7 @@ One of:
 - [Error](#error)
 - [Crash](#crash)
 - [Hex editor](#hex-editor)
+- [Login](#login)
 
 <a id="boot"></a>
 
@@ -241,6 +242,27 @@ A hex editor, for looking only: a file's bytes filling the screen, a cursor to m
 | `autoscroll` | boolean \| number, > 0 | `false` | Move the cursor down through the bytes by itself: true, or the rows per second (true is 4), until the player takes over; Shift+Up or Shift+Down stops it, and then scrolls up or down |
 | `loop` | boolean | `true` | Start again from the top when autoscroll reaches the end |
 | `stopAt` | `"highlight"` |  | Stop autoscroll when the first highlighted bytes come into view: "highlight" |
+
+<a id="login"></a>
+
+### Login (`"type": "login"`)
+
+A login screen: a line of warning, then a username and password checked against its accounts, with an optional limit on wrong tries
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `title` | string \| `false` | `"AUTHORIZED PERSONNEL ONLY"` | A line above the login, in the alert color, or false for none |
+| `accounts` | [Login account](#login-account)[] | **required** | The usernames and passwords that log in |
+| `next` | id | the program's start screen | The screen to go to on logging in, for accounts without an action of their own |
+| `granted` | string \| `false` | `"ACCESS GRANTED."` | Shown on logging in, before going on, or false for none |
+| `lockout` | id |  | A screen to go to when too many wrong tries lock it (with attempts) |
+| `username` | string \| `false` | `"USERNAME: "` | The username prompt, or false to ask for a password only |
+| `password` | string | `"PASSWORD: "` | The password prompt |
+| `attempts` | whole number, ≥ 1 | no limit | How many wrong tries it takes to lock the terminal |
+| `denied` | string |  | Shown after a wrong try |
+| `remaining` | string |  | With attempts, shown after denied: {n} is how many tries are left |
+| `locked` | string |  | Shown once it's locked |
+| `variable` | id |  | A text variable that gets the username, on logging in |
 
 ## Bars
 
@@ -448,6 +470,7 @@ One of:
 - [Visual](#visual)
 - [Spinner](#spinner)
 - [Hex dump](#hex-dump)
+- [Login element](#login-element)
 
 <a id="text"></a>
 
@@ -592,6 +615,43 @@ A command the prompt understands
 | `command` | string \| string[] | **required** | What to type (case-insensitive). Use an array for aliases. |
 | `if` | [Condition](#condition) |  | Only understood while this holds |
 | `action` | [Action](#action) | **required** | What happens when the command is entered |
+
+<a id="login-element"></a>
+
+### Login element (`"type": "login"`)
+
+A login: a username and a password (shown as *), checked against its accounts. Wrong tries are denied, and with attempts, too many lock the terminal.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `username` | string \| `false` | `"USERNAME: "` | The username prompt, or false to ask for a password only |
+| `password` | string | `"PASSWORD: "` | The password prompt |
+| `accounts` | [Login account](#login-account)[] | **required** | The usernames and passwords that log in |
+| `action` | [Action](#action) |  | What happens on logging in, for accounts without an action of their own |
+| `granted` | string |  | Shown on logging in, for a moment before the action, e.g. "ACCESS GRANTED." |
+| `after` | number, ≥ 0 | `1000` | With granted, milliseconds it shows before the action |
+| `variable` | id |  | A text variable that gets the username, on logging in |
+| `attempts` | whole number, ≥ 1 | no limit | How many wrong tries it takes to lock the terminal, for good |
+| `denied` | string | `"ACCESS DENIED."` | Shown after a wrong try |
+| `remaining` | string | `"{n} ATTEMPTS REMAINING."` | With attempts, shown after denied: {n} is how many tries are left, or empty for nothing |
+| `locked` | string | `"TOO MANY ATTEMPTS. TERMINAL LOCKED."` | Shown once it's locked |
+| `onLocked` | [Action](#action) |  | What happens when it locks (it stays locked, whatever happens) |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="login-account"></a>
+
+### Login account
+
+A username and password that log in
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `user` | string |  | The username (any case), unless the login asks for a password only |
+| `password` | string | **required** | The password, exactly |
+| `action` | [Action](#action) | the login's action | What happens when this account logs in |
 
 <a id="number"></a>
 

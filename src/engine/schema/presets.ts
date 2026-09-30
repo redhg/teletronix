@@ -5,10 +5,12 @@ import {
 } from "../../modules/checklist/definition.ts";
 import { DEFAULT_CRASH_MESSAGE } from "../../modules/crash/definition.ts";
 import { HighlightSchema } from "../../modules/hexdump/definition.ts";
+import { AccountSchema } from "../../modules/login/definition.ts";
 import type { BarLine } from "./bars.ts";
 import { ActionSchema, IdSchema } from "./common.ts";
 import { ContentSchema } from "./elements.ts";
 import type { NextRule } from "./next.ts";
+import { VariableNameSchema } from "./variables.ts";
 
 // Presets are ready-made screens: a few settings, expanded into ordinary content (and a
 // `next` rule) when the program is parsed. Anything a preset does can be written by hand.
@@ -358,6 +360,57 @@ export const HexeditorPresetSchema = z
             "through them with the arrow keys, and a status line. <esc> leaves.",
     });
 
+export const LOGIN_PRESET_DEFAULTS = {
+    title: "AUTHORIZED PERSONNEL ONLY",
+    granted: "ACCESS GRANTED.",
+};
+
+export const LoginPresetSchema = z
+    .strictObject({
+        type: z.literal("login"),
+        title: Line("A line above the login, in the alert color", LOGIN_PRESET_DEFAULTS.title),
+        accounts: z.array(AccountSchema).min(1).meta({
+            description: "The usernames and passwords that log in",
+        }),
+        next: IdSchema.optional().meta({
+            description:
+                "The screen to go to on logging in, for accounts without an action of their " +
+                "own (default: the program's start screen)",
+        }),
+        granted: Line("Shown on logging in, before going on", LOGIN_PRESET_DEFAULTS.granted),
+        lockout: IdSchema.optional().meta({
+            description: "A screen to go to when too many wrong tries lock it (with attempts)",
+        }),
+        // the rest is the login's
+        username: z
+            .union([z.string(), z.literal(false)])
+            .optional()
+            .meta({
+                description:
+                    'The username prompt, or false to ask for a password only (default: "USERNAME: ")',
+            }),
+        password: z
+            .string()
+            .optional()
+            .meta({ description: 'The password prompt (default: "PASSWORD: ")' }),
+        attempts: z.int().min(1).optional().meta({
+            description: "How many wrong tries it takes to lock the terminal (default: no limit)",
+        }),
+        denied: z.string().optional().meta({ description: "Shown after a wrong try" }),
+        remaining: z.string().optional().meta({
+            description: "With attempts, shown after denied: {n} is how many tries are left",
+        }),
+        locked: z.string().optional().meta({ description: "Shown once it's locked" }),
+        variable: VariableNameSchema.optional().meta({
+            description: "A text variable that gets the username, on logging in",
+        }),
+    })
+    .meta({
+        description:
+            "A login screen: a line of warning, then a username and password checked against " +
+            "its accounts, with an optional limit on wrong tries",
+    });
+
 export const PresetSchema = z
     .discriminatedUnion("type", [
         BootPresetSchema,
@@ -365,6 +418,7 @@ export const PresetSchema = z
         ErrorPresetSchema,
         CrashPresetSchema,
         HexeditorPresetSchema,
+        LoginPresetSchema,
     ])
     .meta({ description: "A ready-made screen, with a few settings of its own" });
 
@@ -510,6 +564,24 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                 before: [crash],
                 after: restart,
                 next: preset.next === undefined ? undefined : goTo(preset.next),
+            };
+        }
+        case "login": {
+            const { type: _, title, next, granted, lockout, ...login } = preset;
+            return {
+                before: [
+                    ...(title === false
+                        ? []
+                        : [{ type: "text", text: title, className: "alert" }, ""]),
+                    {
+                        type: "login",
+                        ...login,
+                        action: { screen: next ?? start },
+                        ...(granted === false ? {} : { granted }),
+                        ...(lockout === undefined ? {} : { onLocked: { screen: lockout } }),
+                    },
+                ],
+                after: [],
             };
         }
         case "hexeditor": {

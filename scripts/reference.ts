@@ -45,6 +45,7 @@ import {
     CrashPresetSchema,
     ErrorPresetSchema,
     HexeditorPresetSchema,
+    LoginPresetSchema,
     MemorySchema,
     PresetSchema,
     ShutdownPresetSchema,
@@ -99,6 +100,7 @@ import {
     HighlightSchema,
 } from "../src/modules/hexdump/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
+import { AccountSchema, LoginSchema } from "../src/modules/login/definition.ts";
 import { MenuItemSchema, MenuSchema } from "../src/modules/menu/definition.ts";
 import { MeterRangeSchema, MeterSchema } from "../src/modules/meter/definition.ts";
 import { NumberRuleSchema, NumberSchema } from "../src/modules/number/definition.ts";
@@ -173,6 +175,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Error", ErrorPresetSchema, '"type": "error"'],
             ["Crash", CrashPresetSchema, '"type": "crash"'],
             ["Hex editor", HexeditorPresetSchema, '"type": "hexeditor"'],
+            ["Login", LoginPresetSchema, '"type": "login"'],
         ],
     ],
     [
@@ -214,6 +217,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Choice markers", ChoiceMarkersSchema],
             ["Prompt", PromptSchema, '"type": "prompt"'],
             ["Prompt command", CommandSchema],
+            ["Login element", LoginSchema, '"type": "login"'],
+            ["Login account", AccountSchema],
             ["Number", NumberSchema, '"type": "number"'],
             ["Number rule", NumberRuleSchema],
             ["Timer element", TimerElementSchema, '"type": "timer"'],

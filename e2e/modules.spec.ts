@@ -1458,3 +1458,65 @@ test.describe("hexdump", () => {
         });
     });
 });
+
+test.describe("login", () => {
+    const secure = {
+        config: { name: "Login", start: "home", reveal: "instant", variables: { who: "" } },
+        screens: {
+            home: {
+                preset: {
+                    type: "login",
+                    accounts: [{ user: "ripley", password: "JONESY" }],
+                    attempts: 2,
+                    variable: "who",
+                    next: "inside",
+                    lockout: "locked",
+                },
+            },
+            inside: { content: ["WELCOME, {who}"] },
+            locked: {
+                content: [
+                    "LOCKED OUT",
+                    { type: "link", text: "> BACK", action: { screen: "home" } },
+                ],
+            },
+        },
+    } as Program;
+
+    const enter = async (page: Page, text: string) => {
+        await page.keyboard.type(text);
+        await page.keyboard.press("Enter");
+    };
+
+    test("takes a username, then a masked password, and logs in", async ({ page, player }) => {
+        await player.open(secure);
+        await expect(player.screen).toContainText("AUTHORIZED PERSONNEL ONLY");
+        await expect(player.screen.locator(".login input")).toBeFocused();
+        await enter(page, "Ripley");
+        await expect(player.screen.locator(".login")).toContainText("USERNAME: Ripley");
+        await expect(player.screen.locator(".login input")).toBeFocused();
+        await page.keyboard.type("JONESY");
+        await expect(player.screen.locator(".prompt-echo")).toHaveText("****** ");
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("ACCESS GRANTED.");
+        await expect(player.screen).toContainText("WELCOME, Ripley");
+    });
+
+    test("denies wrong tries, then locks, and stays locked", async ({ page, player }) => {
+        await player.open(secure);
+        await enter(page, "ripley");
+        await enter(page, "jonesy");
+        await expect(player.screen.locator(".login")).toContainText(
+            "ACCESS DENIED. 1 ATTEMPTS REMAINING.",
+        );
+        // back to the username
+        await expect(player.screen.locator(".login")).toContainText("USERNAME:");
+        await enter(page, "ripley");
+        await enter(page, "nope");
+        await expect(player.screen).toContainText("LOCKED OUT");
+        await player.screen.getByRole("button", { name: "> BACK" }).click();
+        await expect(player.screen.locator(".login")).toHaveText(
+            "TOO MANY ATTEMPTS. TERMINAL LOCKED.",
+        );
+    });
+});

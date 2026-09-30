@@ -61,6 +61,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
 | `"choice"` | One of several `options`, shown side by side like radio buttons. See below. |
 | `"prompt"` | A command line. Each of its `commands` has an `action`; `onEnter` takes anything else. |
+| `"login"` | A username and a masked password, checked against its accounts, with an optional limit on wrong tries. See below. |
 | `"number"` | A prompt for whole numbers only: codes, keypads, settings. See below. |
 | `"bitmap"` | An image (`src`, `alt`). The screen waits for it to load. `cols` sets its width in characters (its height follows), e.g. to match a line of text. See [Image reveals](#image-reveals). |
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
@@ -343,6 +344,28 @@ The up and down arrow keys change the number by `step` (default 1), or ten times
 staying within `min`, `max` and `digits`. From an empty field, up starts at the lowest number and
 down at the highest.
 
+### Logins
+```json
+{
+    "type": "login",
+    "accounts": [{ "user": "ripley", "password": "JONESY" }, { "user": "ash", "password": "937", "action": { "screen": "science" } }],
+    "action": { "screen": "inside" },
+    "attempts": 3,
+    "onLocked": { "screen": "lockout" },
+    "granted": "ACCESS GRANTED.",
+    "variable": "name"
+}
+```
+Asks for a username, then a password (shown as `*`), and checks them against its `accounts`:
+usernames in any case, passwords exactly. The right ones run the account's `action`, or the
+login's; `granted` shows first, for `after` milliseconds (default 1000). `variable` keeps the
+username in a text variable. `"username": false` asks for a password only.
+
+A wrong try shows `denied` and starts again. With `attempts`, it also says how many tries are
+left (`remaining`, where `{n}` is the number), and the last wrong one locks the terminal: it
+shows `locked` and runs `onLocked`, and stays locked when the player comes back. The prompts and
+messages can all be changed.
+
 ### Menus
 ```json
 {
@@ -419,6 +442,7 @@ also be written out by hand. See [the reference](docs/reference.md#presets) for 
 | `"boot"` | A `title` and `copyright` line, a `memory` test (a counter), a checklist of `checks`, and a `ready` line, then on to `next` after `after` milliseconds. With `"pause": true` (or the text to show) it waits for a key press first: browsers only play sound once the player has pressed a key or clicked, so the screen after it can start with sound. |
 | `"shutdown"` | A `title`, a checklist of `checks`, and a `message`, then the screen switches off like an old CRT (unless `"powerOff": false`) `after` a moment. A key press (or a tap) switches back on, going to `next` (default: the start screen); `"restart": false` stays off for good. |
 | `"error"` | A `title`, `message` and `code` in a blinking box, in the alert color, like an Amiga's Guru Meditation. A key press (or a tap) goes to `next` (default: the start screen); `"restart": false` stays for good. |
+| `"login"` | A login screen: a warning `title` in the alert color, then a [login](#logins) with its `accounts` that goes to `next` (default: the start screen), showing `granted` first. With `attempts`, too many wrong tries go to the `lockout` screen. It takes the login's other settings too. |
 | `"hexeditor"` | A read-only hex editor: a [hex dump](#hex-dumps) filling the screen, with a cursor to move through it, a status bar (in place of the program's), and a header bar with the editor's `title` and the `file` name. Give it bytes as a hex dump (`text`, `size`, `src`, `highlight`…), and `autoscroll` (with `stopAt`) to have it scroll through them by itself. <esc>, or the `exit` link in the header bar, goes to `next` (default: the start screen). |
 | `"crash"` | The whole window fills with garbage that never stops changing: the screen before breaks apart, and a `message` surfaces through the noise now and then. With `next`, a key press (or a tap) restarts there. With reduced motion, it's a still picture. |
 
