@@ -790,6 +790,26 @@ test.describe("multiple choice", () => {
         await expect(choice).toContainText("[ ] AIR");
         await expect(player.screen).toContainText("LIGHTS true, AIR false");
     });
+
+    test("highlights in the alert color, with that class", async ({ player }) => {
+        await player.open({
+            config: {
+                name: "Alert",
+                start: "home",
+                theme: { fg: "#33ff66", bg: "#001100", alert: "#ffff00" },
+            },
+            screens: {
+                home: {
+                    content: [
+                        { type: "choice", multiple: true, options: ["SEALED"], className: "alert" },
+                    ],
+                },
+            },
+        });
+        const option = player.screen.locator(".choice-option");
+        await option.hover();
+        await expect(option).toHaveCSS("background-color", "rgb(255, 255, 0)");
+    });
 });
 
 test.describe("bitmap width in columns", () => {

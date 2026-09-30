@@ -19,3 +19,9 @@ fieldset.choice {
     text-shadow: var(--inverse-glow);
     box-shadow: var(--glow);
 }
+
+.choice.alert .choice-option:hover,
+.choice.alert .choice-option:has(input:focus-visible) {
+    background: var(--alert);
+    box-shadow: var(--alert-glow);
+}
