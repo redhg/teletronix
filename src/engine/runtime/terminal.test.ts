@@ -3,6 +3,7 @@ import type { Frame } from "../reveal/types.ts";
 import { parseProgram, type TeletronixFile } from "../schema/program.ts";
 import { ManualTicker } from "../time/ticker.ts";
 import { Terminal } from "./terminal.ts";
+import { createTestTerminal } from "./test-helpers.ts";
 
 // Teletype at 10ms/char: "abc" takes 30ms, "de" takes 20ms.
 const FILE: TeletronixFile = {
@@ -149,5 +150,18 @@ describe("Terminal", () => {
         terminal.getSnapshot().screen?.run.subscribeFrame(0, (f) => frames.push(text(f)));
         terminal.setColumns(4);
         expect(frames).toEqual(["instant", "inst\nant"]);
+    });
+});
+
+describe("the screen before", () => {
+    it("is kept as text, for a crash to scramble", () => {
+        const { terminal } = createTestTerminal({
+            config: { name: "Test", reveal: "instant" },
+            screens: { one: { content: ["FIRST", "LINES"] }, two: { content: ["SECOND"] } },
+        });
+        terminal.start();
+        expect(terminal.previousText).toBe("");
+        terminal.navigate("two");
+        expect(terminal.previousText).toBe("FIRST\nLINES");
     });
 });

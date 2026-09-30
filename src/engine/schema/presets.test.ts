@@ -111,3 +111,100 @@ describe("the boot preset", () => {
         if (!result.ok) expect(result.errors[0]?.message).toBe('Unknown screen "nowhere"');
     });
 });
+
+const screenFile = (preset: object, extra: object = {}): TeletronixFile => ({
+    config: { name: "Test", reveal: "instant", start: "home" },
+    screens: {
+        home: { content: ["HOME"] },
+        preset: { preset, ...extra } as never,
+        elsewhere: { content: ["ELSEWHERE"] },
+    },
+});
+
+const expanded = (preset: object) => {
+    const result = parseProgram(screenFile(preset));
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    const screen = result.program.screens.get("preset");
+    return { content: screen?.content ?? [], next: screen?.next };
+};
+
+describe("the shutdown preset", () => {
+    it("stops things, says so, switches off, and waits to go to the start screen", () => {
+        const { content, next } = expanded({ type: "shutdown" });
+        expect(content.map((element) => element.type)).toEqual([
+            "text",
+            "text",
+            "checklist",
+            "text",
+            "text",
+            "power-off",
+            "pause",
+        ]);
+        expect(content[4]).toMatchObject({ text: "IT IS NOW SAFE TO TURN OFF YOUR COMPUTER." });
+        expect(content[5]).toMatchObject({ delay: 1500 });
+        expect(next).toEqual([{ after: 0, action: [{ screen: "home" }] }]);
+    });
+
+    it("can stay on, or off for good, and go elsewhere", () => {
+        const on = expanded({ type: "shutdown", powerOff: false, next: "elsewhere" });
+        expect(on.content.slice(-2)).toMatchObject([{ text: "" }, { type: "pause" }]);
+        expect(on.next?.[0]?.action).toEqual([{ screen: "elsewhere" }]);
+
+        const forever = expanded({ type: "shutdown", restart: false, checks: false });
+        expect(forever.content.at(-1)?.type).toBe("power-off");
+        expect(forever.next).toBeUndefined();
+    });
+
+    it("switches off, then back on with a key", () => {
+        const { terminal, ticker } = createTestTerminal(
+            screenFile({ type: "shutdown", after: 100 }),
+        );
+        terminal.navigate("preset");
+        ticker.advance(20_000, 10);
+        expect(terminal.getSnapshot().screen?.run.screen.id).toBe("preset");
+        terminal.pressKey("x");
+        ticker.advance(10, 10);
+        expect(terminal.getSnapshot().screen?.run.screen.id).toBe("home");
+    });
+});
+
+describe("the error preset", () => {
+    it("puts its lines in a box, each centered, then waits to restart", () => {
+        const { content, next } = expanded({
+            type: "error",
+            title: "OOPS",
+            message: ["A LONGER LINE"],
+            code: false,
+        });
+        expect(content[0]).toMatchObject({
+            type: "text",
+            text: "    OOPS\n\nA LONGER LINE",
+            align: "center",
+            className: "alert error-box",
+        });
+        expect(content.at(-1)).toMatchObject({
+            type: "pause",
+            text: "PRESS ANY KEY TO RESTART",
+            className: "alert",
+        });
+        expect(next?.[0]?.action).toEqual([{ screen: "home" }]);
+    });
+
+    it("can stay for good", () => {
+        const { content, next } = expanded({ type: "error", restart: false });
+        expect(content.map((element) => element.type)).toEqual(["text"]);
+        expect(next).toBeUndefined();
+    });
+});
+
+describe("the crash preset", () => {
+    it("goes on for good, unless it has a next screen", () => {
+        const forever = expanded({ type: "crash", message: "BOOM" });
+        expect(forever.content).toMatchObject([{ type: "crash", message: ["BOOM"] }]);
+        expect(forever.next).toBeUndefined();
+
+        const restarts = expanded({ type: "crash", next: "home" });
+        expect(restarts.content.map((element) => element.type)).toEqual(["crash", "pause"]);
+        expect(restarts.next?.[0]?.action).toEqual([{ screen: "home" }]);
+    });
+});

@@ -27,7 +27,6 @@
                         { "type": "link", "text": "> ASCII ART", "action": { "screen": "ascii" } },
                         { "type": "link", "text": "> AUTOSCROLL", "action": { "screen": "autoscroll" } },
                         { "type": "link", "text": "> BARS", "action": { "screen": "bars" } },
-                        { "type": "link", "text": "> BOOT", "action": { "screen": "boot" } },
                         { "type": "link", "text": "> BUTTONS", "action": { "screen": "buttons" } },
                         { "type": "link", "text": "> CHECKLISTS", "action": { "screen": "checklists" } },
                         { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
@@ -40,6 +39,7 @@
                         { "type": "link", "text": "> METERS", "action": { "screen": "meters" } },
                         { "type": "link", "text": "> NUMBERS", "action": { "screen": "numbers" } },
                         { "type": "link", "text": "> PAUSES", "action": { "screen": "pauses" } },
+                        { "type": "link", "text": "> PRESETS", "action": { "screen": "presets" } },
                         { "type": "link", "text": "> PROGRESS", "action": { "screen": "progress" } },
                         { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
                         { "type": "link", "text": "> REVEALS", "action": { "screen": "reveals" } },
@@ -823,7 +823,7 @@
             ]
         },
         "boot": {
-            "preset": { "type": "boot", "pause": true, "next": "boot-about" }
+            "preset": { "type": "boot", "pause": true, "next": "presets" }
         },
         "boot-custom": {
             "preset": {
@@ -839,22 +839,43 @@
                 ],
                 "status": "[ONLINE]",
                 "ready": "INTERFACE READY.",
-                "next": "boot-about"
+                "next": "presets"
             }
         },
-        "boot-about": {
+        "shutdown": {
+            "preset": { "type": "shutdown", "next": "presets" }
+        },
+        "error": {
+            "preset": {
+                "type": "error",
+                "message": ["REACTOR COOLANT PRESSURE CRITICAL.", "CORE TEMPERATURE EXCEEDS LIMITS."],
+                "code": "ERROR 0x0000C0DE AT SECTOR 7G",
+                "next": "presets"
+            }
+        },
+        "crash": {
+            "preset": { "type": "crash", "message": ["*** STOP: 0x0000007B", "INACCESSIBLE_BOOT_DEVICE"], "next": "presets" }
+        },
+        "presets": {
             "content": [
-                "BOOT",
-                "====",
+                "PRESETS",
+                "=======",
                 "",
-                "That was a preset: a ready-made screen, set up with \"preset\": { \"type\": \"boot\" }. It becomes an ordinary screen of text, a counter and a checklist, then moves on by itself to its \"next\" screen.",
+                "A preset is a ready-made screen, set up with \"preset\": { \"type\": ... } and a few settings instead of content. Every line of text has a default and can be changed, or left out with false.",
                 "",
-                "With \"pause\": true, it waits for a key press before moving on. Browsers only play sound once you've pressed a key or clicked, so the screen after it can start with sound.",
+                "Each one is ordinary content underneath (text, checklists, counters, pauses), so anything a preset does can be written out by hand too.",
                 "",
-                "Every line can be changed, or left out with false: the title, the copyright line, the memory test, the checks and their statuses, and the last line.",
+                { "type": "link", "text": "> BOOT", "action": { "screen": "boot" } },
+                "  Starts up, then waits for a key: browsers only play sound once you've pressed one.",
+                { "type": "link", "text": "> BOOT, CUSTOMIZED", "action": { "screen": "boot-custom" } },
+                "  Every line changed, and a check that fails.",
+                { "type": "link", "text": "> SHUTDOWN", "action": { "screen": "shutdown" } },
+                "  Shuts down, then switches the screen off. Press a key to switch it back on.",
+                { "type": "link", "text": "> ERROR", "action": { "screen": "error" } },
+                "  A fatal error in a blinking box. Press a key to restart.",
+                { "type": "link", "text": "> CRASH", "action": { "screen": "crash" } },
+                "  Garbage that never stops. Press a key to restart.",
                 "",
-                { "type": "link", "text": "> AGAIN", "action": { "screen": "boot" } },
-                { "type": "link", "text": "> CUSTOMIZED", "action": { "screen": "boot-custom" } },
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },

@@ -1,0 +1,22 @@
+/* over the whole window, bars and all, under the effects */
+.crash {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    padding: 1lh;
+    background: var(--bg);
+}
+
+.crash pre {
+    margin: 0;
+    overflow: hidden;
+    font: inherit;
+    white-space: pre;
+}
+
+.crash-probe {
+    position: absolute;
+    visibility: hidden;
+    white-space: pre;
+}

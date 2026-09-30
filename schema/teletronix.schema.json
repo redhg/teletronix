@@ -4450,6 +4450,260 @@
                                 ],
                                 "additionalProperties": false,
                                 "description": "A computer starting up: a title, a memory test, a checklist of things starting, then on to the next screen"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "const": "shutdown"
+                                    },
+                                    "title": {
+                                        "default": "SHUTTING DOWN...",
+                                        "description": "The first line, or false for none (default: \"SHUTTING DOWN...\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "checks": {
+                                        "default": [
+                                            "SAVING SESSION",
+                                            "STOPPING SERVICES",
+                                            "UNMOUNTING FILE SYSTEMS"
+                                        ],
+                                        "description": "The checklist of things it stops: strings, or checklist items with their own \"status\" or \"delay\", or false for none",
+                                        "anyOf": [
+                                            {
+                                                "minItems": 1,
+                                                "type": "array",
+                                                "items": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "minLength": 1,
+                                                            "description": "A line, which gets the checklist's status"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "text": {
+                                                                    "type": "string",
+                                                                    "minLength": 1,
+                                                                    "description": "The line"
+                                                                },
+                                                                "status": {
+                                                                    "description": "Its own status, e.g. \"[FAIL]\" (default: the checklist's)",
+                                                                    "type": "string"
+                                                                },
+                                                                "delay": {
+                                                                    "description": "Milliseconds before its status appears, exactly (default: the checklist's, varied a little)",
+                                                                    "type": "number",
+                                                                    "minimum": 0
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "text"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "A line with its own status or delay"
+                                                        }
+                                                    ],
+                                                    "description": "A line of a checklist"
+                                                }
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "status": {
+                                        "default": "[ OK ]",
+                                        "description": "Each check's status (default: \"[ OK ]\")",
+                                        "type": "string"
+                                    },
+                                    "message": {
+                                        "default": "IT IS NOW SAFE TO TURN OFF YOUR COMPUTER.",
+                                        "description": "The last line, or false for none (default: \"IT IS NOW SAFE TO TURN OFF YOUR COMPUTER.\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "powerOff": {
+                                        "default": true,
+                                        "description": "Switch the screen off at the end, like an old CRT: the picture collapses to a line, then a dot (default: true)",
+                                        "type": "boolean"
+                                    },
+                                    "after": {
+                                        "default": 1500,
+                                        "description": "Milliseconds before it switches off (default: 1500)",
+                                        "type": "number",
+                                        "minimum": 0
+                                    },
+                                    "restart": {
+                                        "default": "PRESS ANY KEY TO SWITCH ON",
+                                        "description": "Wait for a key press (or a tap) to switch back on, going to `next`; the text is shown if it doesn't switch off, and read out by screen readers if it does. Or false to stay off for good (default: \"PRESS ANY KEY TO SWITCH ON\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "next": {
+                                        "description": "The screen to go to after the key press (default: the program's start screen)",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ],
+                                "additionalProperties": false,
+                                "description": "A computer shutting down: a checklist of things stopping, a last message, then the screen switches off until a key press"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "const": "error"
+                                    },
+                                    "title": {
+                                        "default": "SOFTWARE FAILURE",
+                                        "description": "The first line in the box, or false for none (default: \"SOFTWARE FAILURE\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "message": {
+                                        "default": "THE SYSTEM HAS STOPPED TO PREVENT DAMAGE.",
+                                        "description": "What went wrong: a line, a list of lines, or false for none (default: \"THE SYSTEM HAS STOPPED TO PREVENT DAMAGE.\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "minItems": 1,
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "code": {
+                                        "default": "GURU MEDITATION #00000004.0000AAC0",
+                                        "description": "An error code, last in the box, or false for none (default: \"GURU MEDITATION #00000004.0000AAC0\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "restart": {
+                                        "default": "PRESS ANY KEY TO RESTART",
+                                        "description": "Wait for a key press (or a tap), showing this, then go to `next`; or false to stay for good (default: \"PRESS ANY KEY TO RESTART\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "next": {
+                                        "description": "The screen to go to after the key press (default: the program's start screen)",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ],
+                                "additionalProperties": false,
+                                "description": "A fatal error, in the alert color: a message and a code in a blinking box, like an Amiga's Guru Meditation, then a key press to restart"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "const": "crash"
+                                    },
+                                    "message": {
+                                        "description": "A message that surfaces through the noise now and then: a line or a list of lines (default: \"FATAL EXCEPTION 0E AT 0028:C0011E36\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "minItems": 1,
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "fragments": {
+                                        "description": "Bits of text scattered through the noise (default: the lines of the screen before, as if it had broken apart)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        }
+                                    },
+                                    "next": {
+                                        "description": "A screen that a key press (or a tap) restarts to (default: none: the crash goes on for good)",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                    },
+                                    "restart": {
+                                        "default": "PRESS ANY KEY TO RESTART",
+                                        "description": "With `next`, what screen readers hear as it waits for the key (the noise hides it on screen) (default: \"PRESS ANY KEY TO RESTART\")",
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ],
+                                "additionalProperties": false,
+                                "description": "A computer that has crashed: the whole window fills with garbage that never stops changing, with a message surfacing through it. Optionally, a key press restarts."
                             }
                         ]
                     },
@@ -10950,6 +11204,234 @@
                             ],
                             "additionalProperties": false,
                             "description": "A number that counts up (or down) quickly to a target, like a computer's memory test: \"MEMORY TEST: 640K OK\""
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "power-off"
+                                },
+                                "delay": {
+                                    "default": 0,
+                                    "description": "Milliseconds to wait before it switches off (default: 0)",
+                                    "type": "number",
+                                    "minimum": 0
+                                },
+                                "duration": {
+                                    "default": 900,
+                                    "description": "Milliseconds the picture takes to collapse (default: 900)",
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Switches the screen off like an old CRT: the picture collapses to a bright line, then a dot, then goes dark. It stays dark until the next screen; anything after it (e.g. a pause, waiting for a key to switch back on) is there, but can't be seen."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "crash"
+                                },
+                                "message": {
+                                    "description": "A message that surfaces through the noise now and then: a line, or a list of lines (default: \"FATAL EXCEPTION 0E AT 0028:C0011E36\")",
+                                    "default": "FATAL EXCEPTION 0E AT 0028:C0011E36",
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "minItems": 1,
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    ]
+                                },
+                                "fragments": {
+                                    "description": "Bits of text scattered through the noise (default: the lines of the screen before, as if it had broken apart)",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ],
+                            "additionalProperties": false,
+                            "description": "The whole window fills with garbage that never stops changing, like a computer that has crashed. It doesn't end: follow it with a pause (and a `next` rule) to let the player restart."
                         }
                     ]
                 }

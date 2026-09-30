@@ -66,6 +66,8 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"counter"` | A number that counts quickly to a target, like a memory test: "MEMORY TEST: 640K OK". See below. |
 | `"checklist"` | Lines that appear one at a time, each followed after a moment by a status like `[ OK ]`. See below. |
+| `"power-off"` | Switches the screen off like an old CRT: the picture collapses to a line, then a dot. See [Presets](#presets). |
+| `"crash"` | Fills the window with garbage that never stops changing. See [Presets](#presets). |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 | `"meter"` | A gauge: a bar showing a variable or timer, live. See below. |
 | `"table"` | Rows and columns of text, with optional box-drawn borders. See below. |
@@ -326,18 +328,24 @@ pause too. A pause inside an open section holds the whole screen.
 ### Presets
 A preset is a ready-made screen, set up with a few settings instead of content:
 ```json
-"boot": {
-    "preset": { "type": "boot", "title": "ACME OS v2", "pause": true, "next": "home" }
-}
+"boot": { "preset": { "type": "boot", "title": "ACME OS v2", "pause": true, "next": "home" } },
+"halt": { "preset": { "type": "error", "message": "CORE BREACH DETECTED.", "next": "boot" } }
 ```
-The `boot` preset shows a `title` and `copyright` line, a `memory` test (a counter), a checklist
-of `checks` with their `status`, and a `ready` line, then goes to its `next` screen after `after`
-milliseconds. Every line has a default and can be changed, or left out with `false`; `memory`
-takes a size, or `{ "size", "label", "unit", "done" }`. With `"pause": true` (or the text to show)
-it waits for a key press first: browsers only play sound once the player has pressed a key or
-clicked, so the screen after it can start with sound. A preset becomes ordinary content (with
-anything in the screen's own `content` after it), so anything it does can also be written out by
-hand. See [the reference](docs/reference.md#boot) for every setting.
+Every line of text has a default and can be changed, or left out with `false`. A preset becomes
+ordinary content (with anything in the screen's own `content` after it), so anything it does can
+also be written out by hand. See [the reference](docs/reference.md#presets) for every setting.
+
+| Preset | |
+|---|---|
+| `"boot"` | A `title` and `copyright` line, a `memory` test (a counter), a checklist of `checks`, and a `ready` line, then on to `next` after `after` milliseconds. With `"pause": true` (or the text to show) it waits for a key press first: browsers only play sound once the player has pressed a key or clicked, so the screen after it can start with sound. |
+| `"shutdown"` | A `title`, a checklist of `checks`, and a `message`, then the screen switches off like an old CRT (unless `"powerOff": false`) `after` a moment. A key press (or a tap) switches back on, going to `next` (default: the start screen); `"restart": false` stays off for good. |
+| `"error"` | A `title`, `message` and `code` in a blinking box, in the alert color, like an Amiga's Guru Meditation. A key press (or a tap) goes to `next` (default: the start screen); `"restart": false` stays for good. |
+| `"crash"` | The whole window fills with garbage that never stops changing: the screen before breaks apart, and a `message` surfaces through the noise now and then. With `next`, a key press (or a tap) restarts there. With reduced motion, it's a still picture. |
+
+They're made of elements you can use on any screen, too: `"checklist"` and `"counter"` (see
+above), `"power-off"` (switches the screen off, after an optional `delay`, over a `duration`), and
+`"crash"`. The error's box is the `error-box` class, which any element can use (e.g.
+`"className": "alert error-box"`).
 
 ### Header and status bars
 ```json

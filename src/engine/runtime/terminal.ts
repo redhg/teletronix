@@ -98,6 +98,7 @@ export class Terminal {
     private readonly cueListeners = new Set<(cue: Cue) => void>();
     private columns: number;
     private run: ScreenRun | null = null;
+    private previous = "";
     private outgoing: ScreenRun | null = null;
     private outgoingTransition: OutgoingSnapshot["transition"] | null = null;
     private interstitial: { type: "static"; until: number } | null = null;
@@ -226,6 +227,7 @@ export class Terminal {
             if (key.startsWith("@")) this.timers.delete(key);
         }
 
+        this.previous = this.run?.text ?? "";
         const transition = resolveTransition(screen.transition, this.program.defaults);
         // a transition that's still playing is cut short by the next one
         this.outgoing = null;
@@ -427,6 +429,11 @@ export class Terminal {
         const rule = ruleForTap(this.rules());
         if (!rule || this.run?.finishedAt === null) return false;
         return this.trigger(rule);
+    }
+
+    /** The text of the screen before this one, as it was when the player left it. */
+    get previousText(): string {
+        return this.previous;
     }
 
     /**

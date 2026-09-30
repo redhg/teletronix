@@ -7,10 +7,10 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
-- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test)
+- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -138,6 +138,9 @@ A ready-made screen, with a few settings of its own
 One of:
 
 - [Boot](#boot)
+- [Shutdown](#shutdown)
+- [Error](#error)
+- [Crash](#crash)
 
 <a id="boot"></a>
 
@@ -169,6 +172,50 @@ The memory test's size and wording
 | `label` | string | `"MEMORY TEST: "` | Text before the number |
 | `unit` | string | `"K"` | Text after the number |
 | `done` | string | `" OK"` | Text added once it's counted |
+
+<a id="shutdown"></a>
+
+### Shutdown (`"type": "shutdown"`)
+
+A computer shutting down: a checklist of things stopping, a last message, then the screen switches off until a key press
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `title` | string \| `false` | `"SHUTTING DOWN..."` | The first line, or false for none |
+| `checks` | [Checklist item](#checklist-item)[] \| `false` | `["SAVING SESSION","STOPPING SERVICES","UNMOUNTING FILE SYSTEMS"]` | The checklist of things it stops: strings, or checklist items with their own "status" or "delay", or false for none |
+| `status` | string | `"[ OK ]"` | Each check's status |
+| `message` | string \| `false` | `"IT IS NOW SAFE TO TURN OFF YOUR COMPUTER."` | The last line, or false for none |
+| `powerOff` | boolean | `true` | Switch the screen off at the end, like an old CRT: the picture collapses to a line, then a dot |
+| `after` | number, ≥ 0 | `1500` | Milliseconds before it switches off |
+| `restart` | string \| `false` | `"PRESS ANY KEY TO SWITCH ON"` | Wait for a key press (or a tap) to switch back on, going to `next`; the text is shown if it doesn't switch off, and read out by screen readers if it does. Or false to stay off for good |
+| `next` | id | the program's start screen | The screen to go to after the key press |
+
+<a id="error"></a>
+
+### Error (`"type": "error"`)
+
+A fatal error, in the alert color: a message and a code in a blinking box, like an Amiga's Guru Meditation, then a key press to restart
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `title` | string \| `false` | `"SOFTWARE FAILURE"` | The first line in the box, or false for none |
+| `message` | string \| string[] \| `false` | `"THE SYSTEM HAS STOPPED TO PREVENT DAMAGE."` | What went wrong: a line, a list of lines, or false for none |
+| `code` | string \| `false` | `"GURU MEDITATION #00000004.0000AAC0"` | An error code, last in the box, or false for none |
+| `restart` | string \| `false` | `"PRESS ANY KEY TO RESTART"` | Wait for a key press (or a tap), showing this, then go to `next`; or false to stay for good |
+| `next` | id | the program's start screen | The screen to go to after the key press |
+
+<a id="crash"></a>
+
+### Crash (`"type": "crash"`)
+
+A computer that has crashed: the whole window fills with garbage that never stops changing, with a message surfacing through it. Optionally, a key press restarts.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `message` | string \| string[] | `"FATAL EXCEPTION 0E AT 0028:C0011E36"` | A message that surfaces through the noise now and then: a line or a list of lines |
+| `fragments` | string[] | the lines of the screen before, as if it had broken apart | Bits of text scattered through the noise |
+| `next` | id | none: the crash goes on for good | A screen that a key press (or a tap) restarts to |
+| `restart` | string | `"PRESS ANY KEY TO RESTART"` | With `next`, what screen readers hear as it waits for the key (the noise hides it on screen) |
 
 ## Bars
 
@@ -371,6 +418,8 @@ One of:
 - [ASCII image](#ascii-image)
 - [Checklist](#checklist)
 - [Counter](#counter)
+- [Power off](#power-off)
+- [Crash element](#crash-element)
 
 <a id="text"></a>
 
@@ -774,6 +823,36 @@ A line with its own status or delay
 | `text` | string | **required** | The line |
 | `status` | string | the checklist's | Its own status, e.g. "[FAIL]" |
 | `delay` | number, ≥ 0 | the checklist's, varied a little | Milliseconds before its status appears, exactly |
+
+<a id="power-off"></a>
+
+### Power off (`"type": "power-off"`)
+
+Switches the screen off like an old CRT: the picture collapses to a bright line, then a dot, then goes dark. It stays dark until the next screen; anything after it (e.g. a pause, waiting for a key to switch back on) is there, but can't be seen.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `delay` | number, ≥ 0 | `0` | Milliseconds to wait before it switches off |
+| `duration` | number, > 0 | `900` | Milliseconds the picture takes to collapse |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="crash-element"></a>
+
+### Crash element (`"type": "crash"`)
+
+The whole window fills with garbage that never stops changing, like a computer that has crashed. It doesn't end: follow it with a pause (and a `next` rule) to let the player restart.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `message` | string \| string[] | `"FATAL EXCEPTION 0E AT 0028:C0011E36"` | A message that surfaces through the noise now and then: a line, or a list of lines |
+| `fragments` | string[] | the lines of the screen before, as if it had broken apart | Bits of text scattered through the noise |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
 <a id="slider"></a>
 

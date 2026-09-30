@@ -22,11 +22,17 @@ import {
     CounterSchema,
     counterModule,
 } from "../../modules/counter/definition.ts";
+import { type CrashElement, CrashSchema, crashModule } from "../../modules/crash/definition.ts";
 import { type LinkElement, LinkSchema, linkModule } from "../../modules/link/definition.ts";
 import { type MenuElement, MenuSchema, menuModule } from "../../modules/menu/definition.ts";
 import { type MeterElement, MeterSchema, meterModule } from "../../modules/meter/definition.ts";
 import { type NumberElement, NumberSchema, numberModule } from "../../modules/number/definition.ts";
 import { type PauseElement, PauseSchema, pauseModule } from "../../modules/pause/definition.ts";
+import {
+    type PowerOffElement,
+    PowerOffSchema,
+    powerOffModule,
+} from "../../modules/poweroff/definition.ts";
 import {
     type ProgressElement,
     ProgressSchema,
@@ -77,6 +83,8 @@ export const ElementSchema = z.discriminatedUnion("type", [
     AsciiSchema,
     ChecklistSchema,
     CounterSchema,
+    PowerOffSchema,
+    CrashSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -108,7 +116,9 @@ export type Element =
     | MenuElement
     | AsciiElement
     | ChecklistElement
-    | CounterElement;
+    | CounterElement
+    | PowerOffElement
+    | CrashElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -133,6 +143,8 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     ascii: asciiModule,
     checklist: checklistModule,
     counter: counterModule,
+    "power-off": powerOffModule,
+    crash: crashModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {

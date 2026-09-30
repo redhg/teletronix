@@ -6,11 +6,13 @@ import { ChecklistView } from "../modules/checklist/View.tsx";
 import { ChoiceView } from "../modules/choice/View.tsx";
 import { ColumnsView } from "../modules/columns/View.tsx";
 import { CounterView } from "../modules/counter/View.tsx";
+import { CrashView } from "../modules/crash/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
 import { MenuView } from "../modules/menu/View.tsx";
 import { MeterView } from "../modules/meter/View.tsx";
 import { NumberView } from "../modules/number/View.tsx";
 import { PauseView } from "../modules/pause/View.tsx";
+import { PowerOffView } from "../modules/poweroff/View.tsx";
 import { ProgressView } from "../modules/progress/View.tsx";
 import { PromptView } from "../modules/prompt/View.tsx";
 import { SectionView } from "../modules/section/View.tsx";
@@ -43,4 +45,6 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     ascii: AsciiView,
     checklist: ChecklistView,
     counter: CounterView,
+    "power-off": PowerOffView,
+    crash: CrashView,
 };

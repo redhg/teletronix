@@ -1,0 +1,53 @@
+/* A CRT switching off: the picture squashes to a bright line, the line shrinks to a dot, and
+   the dot fades. The screen's own background lights up to draw the line. */
+.screen.powering-off {
+    animation: power-off var(--power-duration) cubic-bezier(0.5, 0, 0.8, 0.6) var(--power-delay)
+        forwards;
+}
+
+/* (still there for screen readers, e.g. a pause waiting for a key to switch back on) */
+.screen.powered-off {
+    opacity: 0;
+}
+
+/* the bars go dark with it */
+.terminal:has(.screen:not(.outgoing):is(.powering-off, .powered-off)) ~ .bar {
+    animation: power-off-bars var(--power-duration) linear var(--power-delay) forwards;
+}
+
+.terminal:has(.screen:not(.outgoing).powered-off) ~ .bar {
+    animation: none;
+    opacity: 0;
+}
+
+@keyframes power-off {
+    0% {
+        transform: none;
+        filter: brightness(1);
+    }
+    40% {
+        transform: scale(1, 0.006);
+        filter: brightness(3);
+        background: var(--fg);
+        box-shadow: var(--glow);
+    }
+    70% {
+        transform: scale(0.012, 0.006);
+        filter: brightness(4);
+        background: var(--fg);
+        box-shadow: var(--glow);
+    }
+    100% {
+        transform: scale(0.012, 0.006);
+        filter: brightness(4);
+        background: var(--fg);
+        opacity: 0;
+    }
+}
+
+@keyframes power-off-bars {
+    30%,
+    100% {
+        opacity: 0;
+    }
+}

@@ -3,6 +3,7 @@ import {
     ChecklistItemSchema,
     DEFAULT_CHECKLIST_STATUS,
 } from "../../modules/checklist/definition.ts";
+import { DEFAULT_CRASH_MESSAGE } from "../../modules/crash/definition.ts";
 import { ActionSchema, IdSchema } from "./common.ts";
 import { ContentSchema } from "./elements.ts";
 import type { NextRule } from "./next.ts";
@@ -127,8 +128,154 @@ export const BootPresetSchema = z
             "then on to the next screen",
     });
 
+export const SHUTDOWN_DEFAULTS = {
+    title: "SHUTTING DOWN...",
+    checks: ["SAVING SESSION", "STOPPING SERVICES", "UNMOUNTING FILE SYSTEMS"],
+    message: "IT IS NOW SAFE TO TURN OFF YOUR COMPUTER.",
+    after: 1500,
+    restart: "PRESS ANY KEY TO SWITCH ON",
+};
+
+const NextScreenSchema = IdSchema.optional().meta({
+    description: "The screen to go to after the key press (default: the program's start screen)",
+});
+
+export const ShutdownPresetSchema = z
+    .strictObject({
+        type: z.literal("shutdown"),
+        title: Line("The first line", SHUTDOWN_DEFAULTS.title),
+        checks: z
+            .union([z.array(ChecklistItemSchema).min(1), z.literal(false)])
+            .default(SHUTDOWN_DEFAULTS.checks)
+            .meta({
+                description:
+                    "The checklist of things it stops: strings, or checklist items with their own " +
+                    '"status" or "delay", or false for none',
+            }),
+        status: z
+            .string()
+            .default(DEFAULT_CHECKLIST_STATUS)
+            .meta({
+                description: `Each check's status (default: "${DEFAULT_CHECKLIST_STATUS}")`,
+            }),
+        message: Line("The last line", SHUTDOWN_DEFAULTS.message),
+        powerOff: z
+            .boolean()
+            .default(true)
+            .meta({
+                description:
+                    "Switch the screen off at the end, like an old CRT: the picture collapses to a " +
+                    "line, then a dot (default: true)",
+            }),
+        after: z
+            .number()
+            .min(0)
+            .default(SHUTDOWN_DEFAULTS.after)
+            .meta({
+                description: `Milliseconds before it switches off (default: ${SHUTDOWN_DEFAULTS.after})`,
+            }),
+        restart: z
+            .union([z.string().min(1), z.literal(false)])
+            .default(SHUTDOWN_DEFAULTS.restart)
+            .meta({
+                description:
+                    "Wait for a key press (or a tap) to switch back on, going to `next`; the " +
+                    "text is shown if it doesn't switch off, and read out by screen readers if it " +
+                    `does. Or false to stay off for good (default: "${SHUTDOWN_DEFAULTS.restart}")`,
+            }),
+        next: NextScreenSchema,
+    })
+    .meta({
+        description:
+            "A computer shutting down: a checklist of things stopping, a last message, then the " +
+            "screen switches off until a key press",
+    });
+
+export const ERROR_DEFAULTS = {
+    title: "SOFTWARE FAILURE",
+    message: "THE SYSTEM HAS STOPPED TO PREVENT DAMAGE.",
+    code: "GURU MEDITATION #00000004.0000AAC0",
+    restart: "PRESS ANY KEY TO RESTART",
+};
+
+export const ErrorPresetSchema = z
+    .strictObject({
+        type: z.literal("error"),
+        title: Line("The first line in the box", ERROR_DEFAULTS.title),
+        message: z
+            .union([z.string(), z.array(z.string()).min(1), z.literal(false)])
+            .default(ERROR_DEFAULTS.message)
+            .meta({
+                description:
+                    "What went wrong: a line, a list of lines, or false for none (default: " +
+                    `"${ERROR_DEFAULTS.message}")`,
+            }),
+        code: Line("An error code, last in the box", ERROR_DEFAULTS.code),
+        restart: z
+            .union([z.string().min(1), z.literal(false)])
+            .default(ERROR_DEFAULTS.restart)
+            .meta({
+                description:
+                    "Wait for a key press (or a tap), showing this, then go to `next`; or false to " +
+                    `stay for good (default: "${ERROR_DEFAULTS.restart}")`,
+            }),
+        next: NextScreenSchema,
+    })
+    .meta({
+        description:
+            "A fatal error, in the alert color: a message and a code in a blinking box, like an " +
+            "Amiga's Guru Meditation, then a key press to restart",
+    });
+
+export const CRASH_DEFAULTS = { restart: "PRESS ANY KEY TO RESTART" };
+
+export const CrashPresetSchema = z
+    .strictObject({
+        type: z.literal("crash"),
+        message: z
+            .union([z.string(), z.array(z.string()).min(1)])
+            .optional()
+            .meta({
+                description:
+                    "A message that surfaces through the noise now and then: a line or a list of " +
+                    `lines (default: "${DEFAULT_CRASH_MESSAGE}")`,
+            }),
+        fragments: z
+            .array(z.string().min(1))
+            .optional()
+            .meta({
+                description:
+                    "Bits of text scattered through the noise (default: the lines of the screen " +
+                    "before, as if it had broken apart)",
+            }),
+        next: IdSchema.optional().meta({
+            description:
+                "A screen that a key press (or a tap) restarts to (default: none: the crash " +
+                "goes on for good)",
+        }),
+        restart: z
+            .string()
+            .min(1)
+            .default(CRASH_DEFAULTS.restart)
+            .meta({
+                description:
+                    "With `next`, what screen readers hear as it waits for the key (the noise " +
+                    `hides it on screen) (default: "${CRASH_DEFAULTS.restart}")`,
+            }),
+    })
+    .meta({
+        description:
+            "A computer that has crashed: the whole window fills with garbage that never stops " +
+            "changing, with a message surfacing through it. Optionally, a key press restarts.",
+    });
+
 export const PresetSchema = z
-    .discriminatedUnion("type", [BootPresetSchema])
+    .discriminatedUnion("type", [
+        BootPresetSchema,
+        ShutdownPresetSchema,
+        ErrorPresetSchema,
+        CrashPresetSchema,
+    ])
     .meta({ description: "A ready-made screen, with a few settings of its own" });
 
 export type Preset = z.output<typeof PresetSchema>;
@@ -141,38 +288,137 @@ export interface Expanded {
     next?: NextRule;
 }
 
-/** A preset as ordinary content, and the rule that moves on from it. */
-export function expandPreset(preset: Preset): Expanded {
-    const before: unknown[] = [];
-    const header = [preset.title, preset.copyright].filter((line) => line !== false);
-    before.push(...header);
-    if (preset.memory) {
-        if (before.length > 0) before.push("");
-        const { size, label, unit, done } = preset.memory;
-        before.push({ type: "counter", label, to: size, step: 1, unit, done });
-    }
-    if (preset.checks) {
-        if (before.length > 0) before.push("");
-        before.push({ type: "checklist", items: preset.checks, status: preset.status });
-    }
-    if (preset.ready !== false) {
-        if (before.length > 0) before.push("");
-        before.push(preset.ready);
-    }
+/** Lines with a blank line between each group, leaving out empty groups. */
+function spaced(...groups: unknown[][]): unknown[] {
+    return groups
+        .filter((group) => group.length > 0)
+        .flatMap((group, i) => (i === 0 ? group : ["", ...group]));
+}
 
-    const after: unknown[] = [];
-    if (preset.pause !== false) {
-        after.push("", {
-            type: "pause",
-            text: preset.pause === true ? BOOT_DEFAULTS.pause : preset.pause,
-        });
+const goTo = (screen: string, after = 0): NextRule => ({
+    after,
+    action: ActionSchema.parse({ screen }),
+});
+
+/**
+ * A preset as ordinary content, and the rule that moves on from it. `start` is the program's
+ * start screen, where some presets go by default.
+ */
+export function expandPreset(preset: Preset, start: string): Expanded {
+    const line = (text: string | false) => (text === false ? [] : [text]);
+    const checklist = (checks: unknown[] | false, status: string) =>
+        checks ? [{ type: "checklist", items: checks, status }] : [];
+
+    switch (preset.type) {
+        case "boot": {
+            const header = [...line(preset.title), ...line(preset.copyright)];
+            const memory = preset.memory
+                ? [
+                      {
+                          type: "counter",
+                          label: preset.memory.label,
+                          to: preset.memory.size,
+                          unit: preset.memory.unit,
+                          done: preset.memory.done,
+                      },
+                  ]
+                : [];
+            const pause =
+                preset.pause === false
+                    ? []
+                    : [
+                          "",
+                          {
+                              type: "pause",
+                              text: preset.pause === true ? BOOT_DEFAULTS.pause : preset.pause,
+                          },
+                      ];
+            const wait = preset.after ?? (preset.pause !== false ? 0 : BOOT_DEFAULTS.after);
+            return {
+                before: spaced(
+                    header,
+                    memory,
+                    checklist(preset.checks, preset.status),
+                    line(preset.ready),
+                ),
+                after: pause,
+                next: preset.next === undefined ? undefined : goTo(preset.next, wait),
+            };
+        }
+        case "shutdown": {
+            const off = preset.powerOff ? [{ type: "power-off", delay: preset.after }] : [];
+            // after switching off it's dark, but the pause is still there for screen readers
+            const restart =
+                preset.restart === false ? [] : [{ type: "pause", text: preset.restart }];
+            return {
+                before: spaced(
+                    line(preset.title),
+                    checklist(preset.checks, preset.status),
+                    line(preset.message),
+                ),
+                after: [
+                    ...off,
+                    ...(off.length === 0 && restart.length > 0 ? [""] : []),
+                    ...restart,
+                ],
+                next: preset.restart === false ? undefined : goTo(preset.next ?? start),
+            };
+        }
+        case "error": {
+            const message =
+                preset.message === false
+                    ? []
+                    : Array.isArray(preset.message)
+                      ? preset.message
+                      : [preset.message];
+            const lines = spaced(line(preset.title), message, line(preset.code)) as string[];
+            // each line centered within the block, which is centered on the screen
+            const widest = Math.max(0, ...lines.map((text) => text.length));
+            const box = lines.map((text) =>
+                text === "" ? text : " ".repeat(Math.floor((widest - text.length) / 2)) + text,
+            );
+            return {
+                before:
+                    box.length > 0
+                        ? [
+                              {
+                                  type: "text",
+                                  text: box,
+                                  align: "center",
+                                  className: "alert error-box",
+                              },
+                          ]
+                        : [],
+                after:
+                    preset.restart === false
+                        ? []
+                        : [
+                              "",
+                              {
+                                  type: "pause",
+                                  text: preset.restart,
+                                  align: "center",
+                                  className: "alert",
+                              },
+                          ],
+                next: preset.restart === false ? undefined : goTo(preset.next ?? start),
+            };
+        }
+        case "crash": {
+            const crash = {
+                type: "crash",
+                ...(preset.message === undefined ? {} : { message: preset.message }),
+                ...(preset.fragments === undefined ? {} : { fragments: preset.fragments }),
+            };
+            const restart =
+                preset.next === undefined ? [] : [{ type: "pause", text: preset.restart }];
+            return {
+                before: [crash],
+                after: restart,
+                next: preset.next === undefined ? undefined : goTo(preset.next),
+            };
+        }
     }
-    const wait = preset.after ?? (preset.pause !== false ? 0 : BOOT_DEFAULTS.after);
-    const next =
-        preset.next === undefined
-            ? undefined
-            : { after: wait, action: ActionSchema.parse({ screen: preset.next }) };
-    return { before, after, next };
 }
 
 /** Content written for a preset, parsed like any screen's: bare strings stay strings. */

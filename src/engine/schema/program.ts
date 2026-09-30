@@ -313,8 +313,10 @@ function normalize(file: z.output<typeof FileSchema>): Program {
     } = file.config;
 
     const screens = new Map<string, Screen>();
+    // (an empty `screens` is reported by the reference check below)
+    const firstScreen = start ?? Object.keys(file.screens)[0] ?? "";
     for (const [id, screen] of Object.entries(file.screens)) {
-        const preset = screen.preset && expandPreset(screen.preset);
+        const preset = screen.preset && expandPreset(screen.preset, firstScreen);
         const items = preset
             ? [
                   ...parseContent(preset.before),
@@ -350,8 +352,7 @@ function normalize(file: z.output<typeof FileSchema>): Program {
 
     return {
         config,
-        // an empty `screens` is reported by the reference check below
-        start: start ?? screens.keys().next().value ?? "",
+        start: firstScreen,
         defaults: {
             reveal: reveal ?? { type: "teletype" },
             align: align ?? "left",

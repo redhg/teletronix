@@ -172,6 +172,11 @@ export class ScreenRun {
         return this.content;
     }
 
+    /** Everything on the screen as plain text, as it stands (e.g. for a crash to scramble). */
+    get text(): string {
+        return this.runs.map((run) => run.text).join("\n");
+    }
+
     /** Element states, as a new array whenever any of them changes. */
     get states(): readonly ElementState[] {
         return this.stateList;

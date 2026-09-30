@@ -2,7 +2,7 @@ import { type ReactNode, useCallback, useEffect, useState } from "react";
 import type { ResolvedSound, Terminal } from "../../engine/index.ts";
 import { useTerminalSnapshot } from "../terminal-context.ts";
 import { SoundContext } from "./context.ts";
-import { type InterfaceCue, Synth } from "./synth.ts";
+import { type SoundCue, Synth } from "./synth.ts";
 import "./sound.css";
 
 const MUTED_KEY = "teletronix:muted";
@@ -51,7 +51,7 @@ export function SoundLayer({ terminal, sound, children }: Props) {
     useEffect(() => synth.setLibrary(terminal.program.sounds), [synth, terminal]);
     useEffect(() => terminal.subscribeCues((cue) => synth.play(cue)), [terminal, synth]);
 
-    const play = useCallback((cue: InterfaceCue) => synth.play(cue), [synth]);
+    const play = useCallback((cue: SoundCue) => synth.play(cue), [synth]);
 
     const toggle = useCallback(() => {
         synth.unlock();

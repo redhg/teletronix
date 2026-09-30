@@ -40,7 +40,14 @@ import {
 import { EffectsSchema } from "../src/engine/schema/effects.ts";
 import { ColumnsSchema, ContentSchema, SectionSchema } from "../src/engine/schema/elements.ts";
 import { RuleSchema } from "../src/engine/schema/next.ts";
-import { BootPresetSchema, MemorySchema, PresetSchema } from "../src/engine/schema/presets.ts";
+import {
+    BootPresetSchema,
+    CrashPresetSchema,
+    ErrorPresetSchema,
+    MemorySchema,
+    PresetSchema,
+    ShutdownPresetSchema,
+} from "../src/engine/schema/presets.ts";
 import {
     ConfigSchema,
     DefaultsSchema,
@@ -83,11 +90,13 @@ import {
 } from "../src/modules/checklist/definition.ts";
 import { ChoiceMarkersSchema, ChoiceSchema } from "../src/modules/choice/definition.ts";
 import { CounterSchema } from "../src/modules/counter/definition.ts";
+import { CrashSchema } from "../src/modules/crash/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
 import { MenuItemSchema, MenuSchema } from "../src/modules/menu/definition.ts";
 import { MeterRangeSchema, MeterSchema } from "../src/modules/meter/definition.ts";
 import { NumberRuleSchema, NumberSchema } from "../src/modules/number/definition.ts";
 import { PauseSchema } from "../src/modules/pause/definition.ts";
+import { PowerOffSchema } from "../src/modules/poweroff/definition.ts";
 import {
     DelayedActionSchema,
     InterruptSchema,
@@ -151,6 +160,9 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Preset", PresetSchema],
             ["Boot", BootPresetSchema, '"type": "boot"'],
             ["Boot memory test", MemorySchema],
+            ["Shutdown", ShutdownPresetSchema, '"type": "shutdown"'],
+            ["Error", ErrorPresetSchema, '"type": "error"'],
+            ["Crash", CrashPresetSchema, '"type": "crash"'],
         ],
     ],
     [
@@ -209,6 +221,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Checklist", ChecklistSchema, '"type": "checklist"'],
             ["Checklist item", ChecklistItemSchema],
             ["Checklist item options", ChecklistItemObjectSchema],
+            ["Power off", PowerOffSchema, '"type": "power-off"'],
+            ["Crash element", CrashSchema, '"type": "crash"'],
             ["Slider", SliderSchema, '"type": "slider"'],
             ["Slider rule", SliderRuleSchema],
             ["Meter", MeterSchema, '"type": "meter"'],

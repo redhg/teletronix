@@ -1035,3 +1035,92 @@ test.describe("boot preset", () => {
         await expect(player.screen).not.toContainText("ACME OS");
     });
 });
+
+test.describe("shutdown, error and crash presets", () => {
+    test.use({ reducedMotion: "no-preference" });
+
+    const presets = {
+        config: { name: "Presets", start: "home", reveal: "instant" },
+        screens: {
+            home: {
+                content: [
+                    "HOME",
+                    { type: "link", text: "> SHUTDOWN", action: { screen: "shutdown" } },
+                    { type: "link", text: "> ERROR", action: { screen: "error" } },
+                    { type: "link", text: "> CRASH", action: { screen: "crash" } },
+                ],
+            },
+            shutdown: { preset: { type: "shutdown", checks: false, after: 100 } },
+            error: { preset: { type: "error", title: "FAILURE", code: "CODE 42" } },
+            crash: { preset: { type: "crash", message: "KABOOM", next: "home" } },
+        },
+    } as Program;
+
+    const go = async (player: Player, link: string) => {
+        await player.open(presets);
+        await player.screen.getByRole("button", { name: link }).click();
+    };
+
+    test("shutdown switches the screen off, and a key switches it back on", async ({
+        page,
+        player,
+    }) => {
+        await go(player, "> SHUTDOWN");
+        await expect(player.screen).toContainText("IT IS NOW SAFE TO TURN OFF YOUR COMPUTER.");
+        await expect(player.screen).toHaveClass(/powering-off/);
+        await expect(player.screen).toHaveClass(/powered-off/);
+        await expect(player.screen.locator(".pause")).toContainText("PRESS ANY KEY TO SWITCH ON");
+        await page.keyboard.press("x");
+        await expect(player.screen).toContainText("HOME");
+    });
+
+    test("an error shows a blinking box in the alert color", async ({ page, player }) => {
+        await go(player, "> ERROR");
+        const box = player.screen.locator(".error-box");
+        await expect(box).toContainText("FAILURE");
+        await expect(box).toContainText("CODE 42");
+        await expect(box).toHaveClass(/alert/);
+        expect(await box.evaluate((el) => getComputedStyle(el).animationName)).toBe(
+            "error-box-blink",
+        );
+        await expect(
+            player.screen.locator(".pause [aria-hidden='true'] > :first-child"),
+        ).toHaveText("PRESS ANY KEY TO RESTART");
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("HOME");
+    });
+
+    test("a crash keeps changing, with its message, until a key", async ({ page, player }) => {
+        await go(player, "> CRASH");
+        const garbage = player.screen.locator(".crash pre");
+        await expect(garbage).not.toBeEmpty();
+        const first = await garbage.textContent();
+        await expect.poll(() => garbage.textContent()).not.toBe(first);
+        // (it surfaces now and then, for about a second, so look often)
+        await expect
+            .poll(() => garbage.textContent(), { intervals: [100], timeout: 8000 })
+            .toContain("KABOOM");
+        await expect(player.screen.getByRole("alert")).toHaveText("KABOOM");
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("HOME");
+        await expect(page.locator(".crash")).toHaveCount(0);
+    });
+});
+
+test.describe("crash, with reduced motion", () => {
+    test("is a still picture", async ({ player }) => {
+        await player.open({
+            config: { name: "Crash", start: "home" },
+            screens: {
+                home: { content: [{ type: "link", text: "> CRASH", action: { screen: "crash" } }] },
+                crash: { preset: { type: "crash", message: "STILL" } },
+            },
+        } as Program);
+        await player.screen.getByRole("button", { name: "> CRASH" }).click();
+        const garbage = player.screen.locator(".crash pre");
+        await expect(garbage).toContainText("STILL");
+        const first = await garbage.textContent();
+        await player.page.waitForTimeout(500);
+        expect(await garbage.textContent()).toBe(first);
+    });
+});
