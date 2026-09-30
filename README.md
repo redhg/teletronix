@@ -231,9 +231,9 @@ Bytes three ways: an address, the bytes in hex, and the same bytes as text. Only
   and `{size}` the number of bytes; `statusBar: true` pins that line to the bottom of the window,
 across its whole width, like a status bar. `autoscroll` moves the cursor down through the bytes
 by itself (`true`, or the rows per second; `true` is 4), starting again at the top unless
-`"loop": false`. It stops once the player takes over with a key or a click, and Shift+Up or
-Shift+Down turns it off and on again (turned back on after stopping at a highlight, it goes on
-past it). With
+`"loop": false`. It stops once the player takes over with a key or a click. Shift+Up or
+Shift+Down stops it too; stopped, Shift+Up scrolls up and Shift+Down scrolls down (turned back on
+after stopping at a highlight, it goes on past it). With
 `"stopAt": "highlight"` it stops with the cursor on the first highlighted bytes, once they're in
 the top half of the window. With reduced motion, it stays put. `exit` gives it a key (default `Escape`) and an `action` to
   leave by.

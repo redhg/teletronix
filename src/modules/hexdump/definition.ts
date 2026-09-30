@@ -95,8 +95,8 @@ export const HexdumpSchema = z
                 description:
                     'With "rows", move the cursor down through the bytes by itself, a row at a ' +
                     "time: true, or the rows per second (true is 4). It stops when the player " +
-                    "takes over with a key or a click; Shift+Up or Shift+Down turns it off and on " +
-                    "again. It doesn't move with reduced motion (default: false)",
+                    "takes over with a key or a click, or presses Shift+Up or Shift+Down; stopped, " +
+                    "those scroll up and down. It doesn't move with reduced motion (default: false)",
             }),
         loop: z.boolean().default(true).meta({
             description: "Start again from the top when autoscroll reaches the end (default: true)",
@@ -272,10 +272,11 @@ export function moveCursor(
 export const DEFAULT_AUTOSCROLL = 4;
 
 /**
- * One step of autoscroll: the cursor a row further down (back to the top at the end, if it
- * loops), the first row then showing, and whether to stop there. With `stopAt`, it stops
- * with the cursor on that byte, once it's in the top half of the view. `top` is the first
- * row showing, and `page` how many rows show.
+ * One step of autoscroll: the cursor a row further down (or up, with `direction` -1), round to
+ * the other end if it loops, then the first row showing, and whether to stop there. With
+ * `stopAt`, it stops with the cursor on that byte once it's in the half of the view it's
+ * heading into, so what comes after it shows too (or once it's in view at all, at the end).
+ * `top` is the first row showing, and `page` how many rows show.
  */
 export function autoscrollStep(
     cursor: number,
@@ -285,23 +286,30 @@ export function autoscrollStep(
     page: number,
     loop: boolean,
     stopAt?: number,
+    direction: 1 | -1 = 1,
 ): { cursor: number; top: number; stop: boolean } {
-    const next = cursor + perRow;
-    const within = next < size ? next : loop ? cursor % perRow : cursor;
+    const next = cursor + direction * perRow;
+    const lastRow = Math.floor((size - 1) / perRow);
+    const column = cursor % perRow;
+    // past the end: round to the other end (in the same column, if that row has one)
+    const wrapped = direction > 0 ? column : Math.min(size - 1, lastRow * perRow + column);
+    const past = next < 0 || next >= size;
+    const within = !past ? next : loop ? wrapped : cursor;
     const row = Math.floor(within / perRow);
     // the view follows the cursor, as it does for the arrow keys
     const first = row < top ? row : row >= top + page ? row - page + 1 : top;
     if (stopAt !== undefined) {
-        // stop once it's in the top half of the view, so what follows it shows too (or once
-        // it's in view at all, at the end of the bytes)
         const target = Math.floor(stopAt / perRow);
-        const last = Math.floor((size - 1) / perRow);
-        const reach = first + page - 1 >= last ? page - 1 : Math.floor((page - 1) / 2);
-        if (target >= first && target <= first + reach) {
-            return { cursor: stopAt, top: first, stop: true };
-        }
+        const half = Math.floor((page - 1) / 2);
+        const atEnd = direction > 0 ? first + page - 1 >= lastRow : first === 0;
+        const reach = atEnd ? page - 1 : half;
+        const inView =
+            direction > 0
+                ? target >= first && target <= first + reach
+                : target <= first + page - 1 && target >= first + page - 1 - reach;
+        if (inView) return { cursor: stopAt, top: first, stop: true };
     }
-    return { cursor: within, top: first, stop: next >= size && !loop };
+    return { cursor: within, top: first, stop: past && !loop };
 }
 
 export const hexdumpModule: ModuleDefinition<HexdumpElement> = {

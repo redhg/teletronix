@@ -1411,13 +1411,21 @@ test.describe("hexdump", () => {
             await page.waitForTimeout(300);
             expect(await offset(player, 0)).toBe(held);
 
-            // Shift+Down turns it back on, and Shift+Up off again
+            // stopped, Shift+Down scrolls down; scrolling, Shift+Up (or Down) stops it
             await page.keyboard.press("Shift+ArrowDown");
             await expect.poll(() => offset(player, 0)).toBeGreaterThan(held);
             await page.keyboard.press("Shift+ArrowUp");
             const again = await offset(player, 0);
             await page.waitForTimeout(300);
             expect(await offset(player, 0)).toBe(again);
+
+            // stopped, Shift+Up scrolls up
+            await page.keyboard.press("Shift+ArrowUp");
+            await expect.poll(() => offset(player, 0)).toBeLessThan(again);
+            await page.keyboard.press("Shift+ArrowDown");
+            const stopped = await offset(player, 0);
+            await page.waitForTimeout(300);
+            expect(await offset(player, 0)).toBe(stopped);
         });
 
         test("stops at the highlight", async ({ page, player }) => {

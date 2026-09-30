@@ -105,6 +105,7 @@ export function HexdumpView({
     const [top, setTop] = useState(0);
     // autoscroll stops when the player takes over, until they turn it back on (Shift+Up/Down)
     const [steering, setSteering] = useState(false);
+    const [direction, setDirection] = useState<1 | -1>(1);
     // once autoscroll has stopped at the highlight, it goes on past it when turned back on
     const [arrived, setArrived] = useState(false);
 
@@ -184,11 +185,16 @@ export function HexdumpView({
     const rate = element.autoscroll === true ? DEFAULT_AUTOSCROLL : element.autoscroll || 0;
     const handleKey = (event: KeyboardEvent) => {
         if (!windowed || !interactive || event.altKey || event.metaKey || event.ctrlKey) return;
-        // Shift+Up or Shift+Down turns autoscroll off and on again
+        // Shift+Up or Shift+Down stops autoscroll; stopped, they start it up or down
         const toggle = event.shiftKey && (event.key === "ArrowUp" || event.key === "ArrowDown");
         if (toggle && rate > 0) {
             event.preventDefault();
-            setSteering((was) => !was);
+            if (!steering) {
+                setSteering(true);
+            } else {
+                setDirection(event.key === "ArrowUp" ? -1 : 1);
+                setSteering(false);
+            }
             return;
         }
         const next = moveCursor(event.key, cursor, bytes.length, perRow, page);
@@ -214,6 +220,7 @@ export function HexdumpView({
                 page,
                 element.loop,
                 stopAt,
+                direction,
             );
             setCursor(step.cursor);
             setTop(step.top);
@@ -223,7 +230,7 @@ export function HexdumpView({
             }
         }, 1000 / rate);
         return () => clearInterval(timer);
-    }, [scrolling, rate, bytes.length, perRow, page, element.loop, stopAt]);
+    }, [scrolling, rate, bytes.length, perRow, page, element.loop, stopAt, direction]);
     const handlePointer = (event: PointerEvent) => {
         if (!windowed || !interactive) return;
         // a click in the window moves the cursor; it isn't a click on the screen (which skips)

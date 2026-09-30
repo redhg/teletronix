@@ -127,6 +127,26 @@ describe("autoscroll", () => {
         expect(far(112, 9)).toEqual({ cursor: 100, top: 10, stop: true });
     });
 
+    it("moves up too, round to the bottom", () => {
+        const up = (cursor: number, top: number, loop = true) =>
+            autoscrollStep(cursor, 40, 8, top, 2, loop, undefined, -1);
+        expect(up(19, 1)).toEqual({ cursor: 11, top: 1, stop: false });
+        expect(up(11, 1)).toEqual({ cursor: 3, top: 0, stop: false });
+        expect(up(3, 0)).toEqual({ cursor: 35, top: 3, stop: false });
+        expect(up(3, 0, false)).toEqual({ cursor: 3, top: 0, stop: true });
+        // a short last row: round to its last byte
+        expect(autoscrollStep(7, 36, 8, 0, 2, true, undefined, -1).cursor).toBe(35);
+    });
+
+    it("going up, stops once a byte is in the bottom half of the view", () => {
+        // 160 bytes (20 rows), 6 showing: byte 100 is in row 12
+        const far = (cursor: number, top: number) =>
+            autoscrollStep(cursor, 160, 8, top, 6, true, 100, -1);
+        // row 12 comes into view at the top (rows 12 to 17), but it keeps going
+        expect(far(100, 13)).toEqual({ cursor: 92, top: 11, stop: false });
+        expect(far(84, 10)).toEqual({ cursor: 100, top: 9, stop: true });
+    });
+
     it("stops at a byte near the end as soon as it's in view", () => {
         // byte 30 is in row 3; with the last row (4) in view, that's as far as it can go
         expect(step(19, 1, true, 30)).toEqual({ cursor: 27, top: 2, stop: false });
