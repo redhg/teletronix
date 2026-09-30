@@ -16,7 +16,9 @@ import { loadBytes } from "../../ui/load-bytes.ts";
 import { useTerminalSnapshot } from "../../ui/terminal-context.ts";
 import {
     asText,
+    autoscrollStep,
     bytesPerRow,
+    DEFAULT_AUTOSCROLL,
     type HexdumpElement,
     hex,
     hexBytes,
@@ -101,6 +103,8 @@ export function HexdumpView({
     const [progress, setProgress] = useState(0);
     const [cursor, setCursor] = useState(0);
     const [top, setTop] = useState(0);
+    // autoscroll stops for good once the player takes over
+    const [steering, setSteering] = useState(false);
 
     useEffect(() => {
         if (element.src === undefined) return;
@@ -178,12 +182,41 @@ export function HexdumpView({
         const next = moveCursor(event.key, cursor, bytes.length, perRow, page);
         if (next === null) return;
         event.preventDefault();
+        setSteering(true);
         moveTo(next);
     };
+
+    // autoscroll: a row at a time, until the player takes over (or it gets where it's going)
+    const firstMark = element.stopAt ? Math.min(...marks) : undefined;
+    const stopAt = firstMark !== undefined && Number.isFinite(firstMark) ? firstMark : undefined;
+    const rate = element.autoscroll === true ? DEFAULT_AUTOSCROLL : element.autoscroll || 0;
+    const scrolling = windowed && interactive && rate > 0 && !steering && bytes.length > 0;
+    const position = useRef({ cursor, top });
+    position.current = { cursor, top };
+    useEffect(() => {
+        if (!scrolling || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const timer = window.setInterval(() => {
+            const { cursor: from, top: first } = position.current;
+            const step = autoscrollStep(
+                from,
+                bytes.length,
+                perRow,
+                first,
+                page,
+                element.loop,
+                stopAt,
+            );
+            setCursor(step.cursor);
+            setTop(step.top);
+            if (step.stop) setSteering(true);
+        }, 1000 / rate);
+        return () => clearInterval(timer);
+    }, [scrolling, rate, bytes.length, perRow, page, element.loop, stopAt]);
     const handlePointer = (event: PointerEvent) => {
         if (!windowed || !interactive) return;
         // a click in the window moves the cursor; it isn't a click on the screen (which skips)
         event.stopPropagation();
+        setSteering(true);
         const at = (event.target as HTMLElement).closest<HTMLElement>("[data-byte]")?.dataset.byte;
         if (at !== undefined) moveTo(Number(at));
     };

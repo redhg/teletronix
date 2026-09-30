@@ -4815,6 +4815,27 @@
                                     "lowercase": {
                                         "description": "Lowercase hex digits (default: false)",
                                         "type": "boolean"
+                                    },
+                                    "autoscroll": {
+                                        "description": "Move the cursor down through the bytes by itself: true, or the rows per second (true is 4), until the player takes over (default: false)",
+                                        "anyOf": [
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number",
+                                                "exclusiveMinimum": 0
+                                            }
+                                        ]
+                                    },
+                                    "loop": {
+                                        "description": "Start again from the top when autoscroll reaches the end (default: true)",
+                                        "type": "boolean"
+                                    },
+                                    "stopAt": {
+                                        "description": "Stop autoscroll when the first highlighted bytes come into view: \"highlight\"",
+                                        "type": "string",
+                                        "const": "highlight"
                                     }
                                 },
                                 "required": [
@@ -12585,6 +12606,29 @@
                                 "status": {
                                     "description": "With \"rows\", a status line under it. {offset} is the cursor's address, {byte} the byte there, and {size} the number of bytes.",
                                     "type": "string"
+                                },
+                                "autoscroll": {
+                                    "default": false,
+                                    "description": "With \"rows\", move the cursor down through the bytes by itself, a row at a time: true, or the rows per second (true is 4). It stops for good when the player takes over with a key or a click, and doesn't move with reduced motion (default: false)",
+                                    "anyOf": [
+                                        {
+                                            "type": "boolean"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "exclusiveMinimum": 0
+                                        }
+                                    ]
+                                },
+                                "loop": {
+                                    "default": true,
+                                    "description": "Start again from the top when autoscroll reaches the end (default: true)",
+                                    "type": "boolean"
+                                },
+                                "stopAt": {
+                                    "description": "Stop autoscroll when the first highlighted bytes come into view, with the cursor on them: \"highlight\"",
+                                    "type": "string",
+                                    "const": "highlight"
                                 },
                                 "statusBar": {
                                     "default": false,

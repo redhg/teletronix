@@ -1293,6 +1293,33 @@ test.describe("hexdump", () => {
             editor: {
                 preset: { type: "hexeditor", file: "TEST.BIN", size: 512, next: "home" },
             },
+            scrolling: {
+                content: [
+                    {
+                        type: "hexdump",
+                        size: 4096,
+                        text: "FOUND IT",
+                        at: 3000,
+                        highlight: ["FOUND IT"],
+                        rows: 4,
+                        perRow: 16,
+                        status: "{offset}",
+                        autoscroll: 40,
+                    },
+                    {
+                        type: "hexdump",
+                        size: 4096,
+                        text: "FOUND IT",
+                        at: 3000,
+                        highlight: ["FOUND IT"],
+                        rows: 4,
+                        perRow: 16,
+                        status: "{offset}",
+                        autoscroll: 60,
+                        stopAt: "highlight",
+                    },
+                ],
+            },
             file: {
                 content: [
                     { type: "hexdump", src: "e2e-images/sunset-grid.png", perRow: 8 },
@@ -1360,5 +1387,37 @@ test.describe("hexdump", () => {
         await player.screen.getByRole("button", { name: "> EDITOR" }).click();
         await page.locator(".bar-header").getByRole("button", { name: "ESC: EXIT" }).click();
         await expect(player.screen).toContainText("> EDITOR");
+    });
+
+    test.describe("autoscroll", () => {
+        test.use({ reducedMotion: "no-preference" });
+
+        const offset = async (player: Player, n: number) =>
+            Number.parseInt(
+                (await player.screen.locator(".hexdump-status").nth(n).textContent()) ?? "0",
+                16,
+            );
+
+        test("moves by itself until the player takes over", async ({ page, player }) => {
+            await player.open({ ...dumps, config: { ...dumps.config, start: "scrolling" } });
+            await expect.poll(() => offset(player, 0)).toBeGreaterThan(64);
+            // a click on a byte takes over, and it stays put
+            // (at a fixed point: the bytes under it keep changing)
+            await player.screen
+                .locator(".hexdump")
+                .first()
+                .click({ position: { x: 20, y: 10 } });
+            const held = await offset(player, 0);
+            await page.waitForTimeout(300);
+            expect(await offset(player, 0)).toBe(held);
+        });
+
+        test("stops at the highlight", async ({ player }) => {
+            await player.open({ ...dumps, config: { ...dumps.config, start: "scrolling" } });
+            await expect.poll(() => offset(player, 1), { timeout: 10_000 }).toBe(3000);
+            await expect(
+                player.screen.locator(".hexdump").nth(1).locator(".mark.cursor").first(),
+            ).toHaveText("46");
+        });
     });
 });

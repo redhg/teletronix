@@ -880,7 +880,7 @@
                 { "type": "link", "text": "> CRASH", "action": { "screen": "crash" } },
                 "  Garbage that never stops. Press a key to restart.",
                 { "type": "link", "text": "> HEX EDITOR", "action": { "screen": "hexeditor" } },
-                "  A recovered file to look through with the arrow keys. Press <esc> to leave.",
+                "  A recovered file that scrolls until something turns up. Take over with the arrow keys; <esc> leaves.",
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
@@ -1059,6 +1059,8 @@
                 "text": "CREW: DALLAS, KANE, LAMBERT, PARKER, RIPLEY, ASH (SCIENCE OFFICER: SPECIAL ORDER 937)",
                 "highlight": ["SPECIAL ORDER 937"],
                 "offset": 3735879680,
+                "autoscroll": 8,
+                "stopAt": "highlight",
                 "next": "presets"
             }
         },

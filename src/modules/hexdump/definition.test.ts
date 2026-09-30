@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+    autoscrollStep,
     bytesPerRow,
     type HexdumpElement,
     hexBytes,
@@ -17,6 +18,8 @@ const dump = (overrides: Partial<HexdumpElement> = {}): HexdumpElement => ({
     ascii: true,
     lowercase: false,
     statusBar: false,
+    autoscroll: false,
+    loop: true,
     speed: 12,
     ...overrides,
 });
@@ -96,5 +99,37 @@ describe("the hex dump's cursor", () => {
         const bytes = Uint8Array.from([0xab, 0xcd]);
         const status = dump({ offset: 0xff, status: "{offset} {byte} {size}", lowercase: true });
         expect(statusLine(status, bytes, 1)).toBe("00000100 cd 2");
+    });
+});
+
+describe("autoscroll", () => {
+    // 40 bytes, 8 to a row (5 rows), 2 rows showing
+    const step = (cursor: number, top: number, loop = true, stopAt?: number) =>
+        autoscrollStep(cursor, 40, 8, top, 2, loop, stopAt);
+
+    it("moves the cursor down a row, the view following", () => {
+        expect(step(3, 0)).toEqual({ cursor: 11, top: 0, stop: false });
+        expect(step(11, 0)).toEqual({ cursor: 19, top: 1, stop: false });
+    });
+
+    it("starts again at the top, or stops at the end", () => {
+        expect(step(35, 3)).toEqual({ cursor: 3, top: 0, stop: false });
+        expect(step(35, 3, false)).toEqual({ cursor: 35, top: 3, stop: true });
+    });
+
+    it("stops with the cursor on a byte once it's in the top half of the view", () => {
+        // 160 bytes (20 rows), 6 showing: byte 100 is in row 12
+        const far = (cursor: number, top: number) =>
+            autoscrollStep(cursor, 160, 8, top, 6, true, 100);
+        // row 12 comes into view at the bottom (rows 7 to 12), but it keeps going
+        expect(far(88, 5)).toEqual({ cursor: 96, top: 7, stop: false });
+        // until the view is rows 10 to 15, with row 12 in its top half
+        expect(far(112, 9)).toEqual({ cursor: 100, top: 10, stop: true });
+    });
+
+    it("stops at a byte near the end as soon as it's in view", () => {
+        // byte 30 is in row 3; with the last row (4) in view, that's as far as it can go
+        expect(step(19, 1, true, 30)).toEqual({ cursor: 27, top: 2, stop: false });
+        expect(step(27, 2, true, 30)).toEqual({ cursor: 30, top: 3, stop: true });
     });
 });

@@ -335,6 +335,21 @@ export const HexeditorPresetSchema = z
         lowercase: z.boolean().optional().meta({
             description: "Lowercase hex digits (default: false)",
         }),
+        autoscroll: z
+            .union([z.boolean(), z.number().positive()])
+            .optional()
+            .meta({
+                description:
+                    "Move the cursor down through the bytes by itself: true, or the rows per " +
+                    "second (true is 4), until the player takes over (default: false)",
+            }),
+        loop: z.boolean().optional().meta({
+            description: "Start again from the top when autoscroll reaches the end (default: true)",
+        }),
+        stopAt: z.literal("highlight").optional().meta({
+            description:
+                'Stop autoscroll when the first highlighted bytes come into view: "highlight"',
+        }),
     })
     .meta({
         description:
