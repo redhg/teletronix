@@ -29,6 +29,7 @@
                         { "type": "link", "text": "> BARS", "action": { "screen": "bars" } },
                         { "type": "link", "text": "> BUTTONS", "action": { "screen": "buttons" } },
                         { "type": "link", "text": "> CHECKLISTS", "action": { "screen": "checklists" } },
+                        { "type": "link", "text": "> COUNTERS", "action": { "screen": "counters" } },
                         { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
                         { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } },
                         { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } },
@@ -881,8 +882,8 @@
         },
         "checklists": {
             "content": [
-                "CHECKLISTS & COUNTERS",
-                "=====================",
+                "CHECKLISTS",
+                "==========",
                 "",
                 "A checklist's lines appear one at a time, each followed after a moment by its status:",
                 "",
@@ -899,13 +900,28 @@
                     "width": 40
                 },
                 "",
-                "A counter counts to its number:",
+                { "type": "link", "text": "> AGAIN", "action": { "screen": "checklists" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "counters": {
+            "content": [
+                "COUNTERS",
+                "========",
+                "",
+                "A counter counts quickly to its number, then adds its \"done\" text, like a memory test:",
                 "",
                 { "type": "counter", "label": "MEMORY TEST: ", "to": 640, "unit": "K", "done": " OK" },
+                "",
+                "It can count down from a number, and take its time. This one is in the alert color:",
+                "",
                 { "type": "counter", "label": "FUEL: ", "from": 100, "to": 15, "unit": "%", "done": " (LOW)", "duration": 2500, "className": "alert" },
+                "",
+                "And it can count in steps, here of 256:",
+                "",
                 { "type": "counter", "label": "SECTORS: ", "to": 4096, "step": 256, "done": " FORMATTED" },
                 "",
-                { "type": "link", "text": "> AGAIN", "action": { "screen": "checklists" } },
+                { "type": "link", "text": "> AGAIN", "action": { "screen": "counters" } },
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
