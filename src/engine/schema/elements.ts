@@ -53,6 +53,7 @@ import {
     timerModule,
 } from "../../modules/timer/definition.ts";
 import { type ToggleElement, ToggleSchema, toggleModule } from "../../modules/toggle/definition.ts";
+import { type VisualElement, VisualSchema, visualModule } from "../../modules/visual/definition.ts";
 import type { ModuleDefinition } from "../module.ts";
 import type { Align, LayoutOptions } from "../text/layout.ts";
 
@@ -85,6 +86,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     CounterSchema,
     PowerOffSchema,
     CrashSchema,
+    VisualSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -118,7 +120,8 @@ export type Element =
     | ChecklistElement
     | CounterElement
     | PowerOffElement
-    | CrashElement;
+    | CrashElement
+    | VisualElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -145,6 +148,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     counter: counterModule,
     "power-off": powerOffModule,
     crash: crashModule,
+    visual: visualModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {

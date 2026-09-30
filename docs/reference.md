@@ -10,7 +10,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -420,6 +420,7 @@ One of:
 - [Counter](#counter)
 - [Power off](#power-off)
 - [Crash element](#crash-element)
+- [Visual](#visual)
 
 <a id="text"></a>
 
@@ -849,6 +850,32 @@ The whole window fills with garbage that never stops changing, like a computer t
 |---|---|---|---|
 | `message` | string \| string[] | `"FATAL EXCEPTION 0E AT 0028:C0011E36"` | A message that surfaces through the noise now and then: a line, or a list of lines |
 | `fragments` | string[] | the lines of the screen before, as if it had broken apart | Bits of text scattered through the noise |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="visual"></a>
+
+### Visual (`"type": "visual"`)
+
+Line art that moves, drawn in the screen's colors: an oscilloscope, a chart, a radar or a turning wireframe shape. Pure decoration: it goes on until the screen does.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `kind` | `"waveform"` \| `"chart"` \| `"radar"` \| `"wireframe"` | **required** | What it shows: "waveform" (an oscilloscope trace), "chart" (scrolling telemetry), "radar" (a sweep with blips) or "wireframe" (a turning 3D shape) |
+| `cols` | whole number, ≥ 1 | the screen's width | Its width in character columns; on a narrower screen, it shrinks to fit |
+| `rows` | whole number, ≥ 1 | `8` | Its height in lines |
+| `alt` | string | one for its kind | A description, for screen readers |
+| `speed` | number, > 0 | `1` | How fast it moves: 2 is twice as fast |
+| `grid` | boolean | `true` | Draw a faint grid behind a waveform or chart |
+| `wave` | `"sine"` \| `"square"` \| `"saw"` \| `"triangle"` \| `"noise"` \| (`"sine"` \| `"square"` \| `"saw"` \| `"triangle"` \| `"noise"`)[] | `"sine"` | A waveform's shape: "sine", "square", "saw", "triangle" or "noise", or a list of them added together |
+| `frequency` | number, > 0 | `2` | A waveform's cycles across its width |
+| `amplitude` | number, 0–1 | `0.7` | A waveform's height, from 0 (flat) to 1 (edge to edge) |
+| `style` | `"line"` \| `"bars"` | `"line"` | A chart's look: "line" or "bars" |
+| `volatility` | number, 0–1 | `0.3` | How wildly a chart's values jump, from 0 to 1 |
+| `blips` | whole number, ≥ 0 | `5` | How many blips a radar shows |
+| `shape` | `"cube"` \| `"pyramid"` \| `"octahedron"` \| `"icosahedron"` \| `"torus"` \| `"terrain"` | `"cube"` | A wireframe's shape: "cube", "pyramid", "octahedron", "icosahedron", "torus", or "terrain" (a landscape flying past) |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |

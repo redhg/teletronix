@@ -68,6 +68,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"checklist"` | Lines that appear one at a time, each followed after a moment by a status like `[ OK ]`. See below. |
 | `"power-off"` | Switches the screen off like an old CRT: the picture collapses to a line, then a dot. See [Presets](#presets). |
 | `"crash"` | Fills the window with garbage that never stops changing. See [Presets](#presets). |
+| `"visual"` | Line art that moves: an oscilloscope, a chart, a radar or a turning wireframe. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 | `"meter"` | A gauge: a bar showing a variable or timer, live. See below. |
 | `"table"` | Rows and columns of text, with optional box-drawn borders. See below. |
@@ -187,6 +188,26 @@ edge to edge.
   `status` and an exact `delay`.
 - A counter counts `from` (default 0) `to` its number over a `duration` (default 1500ms), in
   whole `step`s (default 1), with `unit` after the number and `done` added once it's finished.
+
+### Visuals
+```json
+{ "type": "visual", "kind": "wireframe", "shape": "icosahedron", "cols": 20, "rows": 8 }
+```
+Line art that moves, drawn in the screen's colors (or the alert color, with `"className": "alert"`).
+It's pure decoration: it goes on until the screen does, and screen readers get its `alt` instead.
+It's `cols` characters wide (default: the screen's width) and `rows` lines tall (default 8), and
+`speed` makes it faster or slower. Each `kind` has settings of its own:
+
+| `kind` | |
+|---|---|
+| `"waveform"` | An oscilloscope trace. `wave`: `"sine"`, `"square"`, `"saw"`, `"triangle"` or `"noise"`, or a list of them added together; `frequency` (cycles across it) and `amplitude` (0 to 1). |
+| `"chart"` | Telemetry scrolling past. `style`: `"line"` or `"bars"`; `volatility` (0 to 1): how wildly the values jump. |
+| `"radar"` | A sweep, with `blips` that flare as it passes. |
+| `"wireframe"` | A turning `shape`: `"cube"`, `"pyramid"`, `"octahedron"`, `"icosahedron"` or `"torus"`, or `"terrain"`, a landscape flying past. |
+
+Waveforms and charts have a faint grid, unless `"grid": false`. Visuals only move while they're in
+view, and with reduced motion they're still pictures. Put a few side by side with
+[`"columns"`](#columns).
 
 ### Choices
 ```json

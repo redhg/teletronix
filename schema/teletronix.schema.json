@@ -11432,6 +11432,221 @@
                             ],
                             "additionalProperties": false,
                             "description": "The whole window fills with garbage that never stops changing, like a computer that has crashed. It doesn't end: follow it with a pause (and a `next` rule) to let the player restart."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "visual"
+                                },
+                                "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                        "waveform",
+                                        "chart",
+                                        "radar",
+                                        "wireframe"
+                                    ],
+                                    "description": "What it shows: \"waveform\" (an oscilloscope trace), \"chart\" (scrolling telemetry), \"radar\" (a sweep with blips) or \"wireframe\" (a turning 3D shape)"
+                                },
+                                "cols": {
+                                    "description": "Its width in character columns; on a narrower screen, it shrinks to fit (default: the screen's width)",
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                },
+                                "rows": {
+                                    "default": 8,
+                                    "description": "Its height in lines (default: 8)",
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                },
+                                "alt": {
+                                    "description": "A description, for screen readers (default: one for its kind)",
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "speed": {
+                                    "default": 1,
+                                    "description": "How fast it moves: 2 is twice as fast (default: 1)",
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                },
+                                "grid": {
+                                    "default": true,
+                                    "description": "Draw a faint grid behind a waveform or chart (default: true)",
+                                    "type": "boolean"
+                                },
+                                "wave": {
+                                    "description": "A waveform's shape: \"sine\", \"square\", \"saw\", \"triangle\" or \"noise\", or a list of them added together (default: \"sine\")",
+                                    "default": "sine",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "sine",
+                                                "square",
+                                                "saw",
+                                                "triangle",
+                                                "noise"
+                                            ]
+                                        },
+                                        {
+                                            "minItems": 1,
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "sine",
+                                                    "square",
+                                                    "saw",
+                                                    "triangle",
+                                                    "noise"
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
+                                "frequency": {
+                                    "default": 2,
+                                    "description": "A waveform's cycles across its width (default: 2)",
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                },
+                                "amplitude": {
+                                    "default": 0.7,
+                                    "description": "A waveform's height, from 0 (flat) to 1 (edge to edge) (default: 0.7)",
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                },
+                                "style": {
+                                    "default": "line",
+                                    "description": "A chart's look: \"line\" or \"bars\" (default: \"line\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "line",
+                                        "bars"
+                                    ]
+                                },
+                                "volatility": {
+                                    "default": 0.3,
+                                    "description": "How wildly a chart's values jump, from 0 to 1 (default: 0.3)",
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                },
+                                "blips": {
+                                    "default": 5,
+                                    "description": "How many blips a radar shows (default: 5)",
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991
+                                },
+                                "shape": {
+                                    "default": "cube",
+                                    "description": "A wireframe's shape: \"cube\", \"pyramid\", \"octahedron\", \"icosahedron\", \"torus\", or \"terrain\" (a landscape flying past) (default: \"cube\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "cube",
+                                        "pyramid",
+                                        "octahedron",
+                                        "icosahedron",
+                                        "torus",
+                                        "terrain"
+                                    ]
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "kind"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Line art that moves, drawn in the screen's colors: an oscilloscope, a chart, a radar or a turning wireframe shape. Pure decoration: it goes on until the screen does."
                         }
                     ]
                 }

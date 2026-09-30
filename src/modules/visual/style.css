@@ -1,0 +1,32 @@
+.visual canvas {
+    display: block;
+    /* its color is the one it draws in */
+    color: inherit;
+}
+
+/* warming up, like an old display: a few flickers, then steady */
+.visual canvas.warming {
+    animation-name: visual-warm-up;
+    animation-timing-function: steps(1);
+}
+
+@keyframes visual-warm-up {
+    0% {
+        opacity: 0;
+    }
+    15% {
+        opacity: 0.6;
+    }
+    25% {
+        opacity: 0.1;
+    }
+    45% {
+        opacity: 0.8;
+    }
+    55% {
+        opacity: 0.3;
+    }
+    70% {
+        opacity: 1;
+    }
+}

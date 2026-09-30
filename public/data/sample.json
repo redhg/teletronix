@@ -51,7 +51,8 @@
                         { "type": "link", "text": "> TEXT", "action": { "screen": "text" } },
                         { "type": "link", "text": "> TIMERS", "action": { "screen": "timers" } },
                         { "type": "link", "text": "> TOGGLES & CHOICES", "action": { "screen": "toggles" } },
-                        { "type": "link", "text": "> VARIABLES", "action": { "screen": "variables" } }
+                        { "type": "link", "text": "> VARIABLES", "action": { "screen": "variables" } },
+                        { "type": "link", "text": "> VISUALS", "action": { "screen": "visuals" } }
                     ]
                 }
             ]
@@ -922,6 +923,61 @@
                 { "type": "counter", "label": "SECTORS: ", "to": 4096, "step": 256, "done": " FORMATTED" },
                 "",
                 { "type": "link", "text": "> AGAIN", "action": { "screen": "counters" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "visuals": {
+            "content": [
+                "VISUALS",
+                "=======",
+                "",
+                "Line art that moves, sized in characters and lines, and drawn in the screen's colors. Pure decoration: it goes on until you leave.",
+                "",
+                "\"waveform\": an oscilloscope trace. A sine wave, then a sine, square and noise added together:",
+                "",
+                {
+                    "type": "columns",
+                    "count": 2,
+                    "minWidth": 20,
+                    "content": [
+                        { "type": "visual", "kind": "waveform", "rows": 6 },
+                        { "type": "visual", "kind": "waveform", "rows": 6, "wave": ["sine", "square", "noise"], "frequency": 1.5 }
+                    ]
+                },
+                "",
+                "\"chart\": telemetry scrolling past, as a line or as bars (these in the alert color):",
+                "",
+                {
+                    "type": "columns",
+                    "count": 2,
+                    "minWidth": 20,
+                    "content": [
+                        { "type": "visual", "kind": "chart", "rows": 6 },
+                        { "type": "visual", "kind": "chart", "rows": 6, "style": "bars", "volatility": 0.7, "className": "alert" }
+                    ]
+                },
+                "",
+                "\"radar\": a sweep, with blips that flare as it passes:",
+                "",
+                { "type": "visual", "kind": "radar", "rows": 12, "blips": 7 },
+                "",
+                "\"wireframe\": a turning shape. A cube, an icosahedron and a torus:",
+                "",
+                {
+                    "type": "columns",
+                    "count": 3,
+                    "minWidth": 16,
+                    "content": [
+                        { "type": "visual", "kind": "wireframe", "rows": 8 },
+                        { "type": "visual", "kind": "wireframe", "rows": 8, "shape": "icosahedron", "speed": 0.7 },
+                        { "type": "visual", "kind": "wireframe", "rows": 8, "shape": "torus", "speed": 1.3 }
+                    ]
+                },
+                "",
+                "And \"terrain\", flying low:",
+                "",
+                { "type": "visual", "kind": "wireframe", "shape": "terrain", "rows": 10 },
+                "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },

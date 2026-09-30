@@ -1133,3 +1133,79 @@ test.describe("crash, with reduced motion", () => {
         expect(await garbage.textContent()).toBe(first);
     });
 });
+
+test.describe("visual", () => {
+    const visuals = (kind: string, extra: object = {}): Program =>
+        ({
+            config: { name: "Visuals", start: "home", reveal: "instant" },
+            screens: {
+                home: {
+                    content: ["1234567890", { type: "visual", kind, cols: 10, rows: 4, ...extra }],
+                },
+            },
+        }) as Program;
+
+    // the canvas's pixels, to see that something is drawn, and whether it changes
+    const pixels = (player: Player) =>
+        player.screen.locator(".visual canvas").evaluate((canvas: HTMLCanvasElement) => {
+            const context = canvas.getContext("2d");
+            const data = context?.getImageData(0, 0, canvas.width, canvas.height).data ?? [];
+            let lit = 0;
+            let sum = 0;
+            for (let i = 3; i < data.length; i += 4) {
+                if ((data[i] ?? 0) > 0) lit++;
+                sum = (sum * 31 + (data[i] ?? 0)) % 1_000_003;
+            }
+            return { lit, sum };
+        });
+
+    test("is sized in characters and lines, and described", async ({ player }) => {
+        await player.open(visuals("radar"));
+        const canvas = player.screen.getByRole("img", { name: "A radar sweep" });
+        await expect(canvas).toBeVisible();
+        const { width, height, line } = await canvas.evaluate((c) => {
+            // the ten characters' width, and the height of their line (the block they're in)
+            const text = document.querySelector(".screen .text [aria-hidden='true']");
+            const block = document.querySelector(".screen .text");
+            return {
+                width: c.getBoundingClientRect().width,
+                height: c.getBoundingClientRect().height,
+                line: {
+                    width: text?.getBoundingClientRect().width ?? 0,
+                    height: block?.getBoundingClientRect().height ?? 0,
+                },
+            };
+        });
+        expect(width).toBeCloseTo(line.width, 0);
+        expect(height).toBeCloseTo(line.height * 4, 0);
+    });
+
+    test.describe("moving", () => {
+        test.use({ reducedMotion: "no-preference" });
+
+        for (const [kind, extra] of [
+            ["waveform", {}],
+            ["chart", { style: "bars" }],
+            ["radar", {}],
+            ["wireframe", { shape: "icosahedron" }],
+            ["wireframe", { shape: "terrain" }],
+        ] as const) {
+            test(`draws a ${kind} ${"shape" in extra ? extra.shape : ""}, and keeps drawing`, async ({
+                player,
+            }) => {
+                await player.open(visuals(kind, extra));
+                await expect.poll(async () => (await pixels(player)).lit).toBeGreaterThan(20);
+                const first = (await pixels(player)).sum;
+                await expect.poll(async () => (await pixels(player)).sum).not.toBe(first);
+            });
+        }
+    });
+
+    test("is a still picture with reduced motion", async ({ player, page }) => {
+        await player.open(visuals("wireframe"));
+        await expect.poll(async () => (await pixels(player)).lit).toBeGreaterThan(20);
+        const first = await pixels(player);
+        await page.waitForTimeout(400);
+        expect(await pixels(player)).toEqual(first);
+    });
+});
