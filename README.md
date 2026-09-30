@@ -285,6 +285,10 @@ or else `otherwise`. A number outside `min` and `max`, or one that meets no rule
 no `otherwise`, shows the `unknown` message. `variable` keeps the number in a number variable,
 set before any action runs, so the next screen can show it as `{fuel}` or test it.
 
+The up and down arrow keys change the number by `step` (default 1), or ten times that with Shift,
+staying within `min`, `max` and `digits`. From an empty field, up starts at the lowest number and
+down at the highest.
+
 ### Menus
 ```json
 {

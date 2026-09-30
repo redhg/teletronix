@@ -8708,6 +8708,13 @@
                                     "minimum": -9007199254740991,
                                     "maximum": 9007199254740991
                                 },
+                                "step": {
+                                    "default": 1,
+                                    "description": "How much the up and down arrow keys change the number (Shift: ten times as much) (default: 1)",
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "maximum": 9007199254740991
+                                },
                                 "mask": {
                                     "default": false,
                                     "description": "Show * for each digit, for codes and PINs (default: false)",

@@ -623,6 +623,23 @@ test.describe("number", () => {
         await expect(player.screen).toContainText("FUEL SET TO 75");
     });
 
+    test("steps with the arrow keys, within its range", async ({ page, player }) => {
+        await player.open(keypad);
+        const fuel = field(player, 1).locator("input");
+        await fuel.focus();
+        await page.keyboard.press("ArrowUp");
+        await expect(fuel).toHaveValue("0");
+        await page.keyboard.press("Shift+ArrowUp");
+        await page.keyboard.press("ArrowUp");
+        await expect(fuel).toHaveValue("11");
+        await page.keyboard.press("ArrowDown");
+        await expect(fuel).toHaveValue("10");
+        for (let i = 0; i < 12; i++) await page.keyboard.press("Shift+ArrowUp");
+        await expect(fuel).toHaveValue("100");
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("FUEL SET TO 100");
+    });
+
     test("asks phones for the number keypad", async ({ player }) => {
         await player.open(keypad);
         await expect(field(player, 0).locator("input")).toHaveAttribute("inputmode", "numeric");

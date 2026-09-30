@@ -18,6 +18,11 @@ interface Props {
     mask?: boolean;
     inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
     /**
+     * What's typed after the up or down arrow key: `steps` is 1 or -1 (10 or -10 with Shift).
+     * Without it, the arrow keys do nothing.
+     */
+    step?: (typed: string, steps: number) => string;
+    /**
      * Runs what was entered (never blank). Returns what to show underneath, when it wasn't
      * understood, or null when it was.
      */
@@ -36,6 +41,7 @@ export function CommandLine({
     filter = (typed) => typed,
     mask = false,
     inputMode,
+    step,
     onSubmit,
 }: Props) {
     const sound = useSound();
@@ -83,6 +89,21 @@ export function CommandLine({
                             value={value}
                             disabled={disabled}
                             inputMode={inputMode}
+                            onKeyDown={(event) => {
+                                const direction =
+                                    event.key === "ArrowUp"
+                                        ? 1
+                                        : event.key === "ArrowDown"
+                                          ? -1
+                                          : 0;
+                                if (!step || direction === 0) return;
+                                event.preventDefault();
+                                const next = step(value, direction * (event.shiftKey ? 10 : 1));
+                                if (next === value) return;
+                                setValue(next);
+                                sound({ type: "tick" });
+                                setMessage(null);
+                            }}
                             onChange={(event) => {
                                 const next = filter(event.target.value);
                                 if (next === value) return;

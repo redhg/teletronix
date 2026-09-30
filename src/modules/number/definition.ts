@@ -38,6 +38,15 @@ export const NumberSchema = z
             .meta({ description: "The most digits it takes, e.g. 4 for a PIN" }),
         min: z.int().optional().meta({ description: "The lowest number it accepts" }),
         max: z.int().optional().meta({ description: "The highest number it accepts" }),
+        step: z
+            .int()
+            .positive()
+            .default(1)
+            .meta({
+                description:
+                    "How much the up and down arrow keys change the number (Shift: ten times " +
+                    "as much) (default: 1)",
+            }),
         mask: z
             .boolean()
             .default(false)
@@ -96,6 +105,23 @@ export function numberAction(element: NumberElement, value: number): Action | nu
 /** What's typed, as the digits the element takes. */
 export const onlyDigits = (element: NumberElement, typed: string) =>
     typed.replace(/\D/g, "").slice(0, element.digits ?? 15);
+
+/**
+ * What's typed after an arrow key: the number `steps` steps up (or down, if negative), kept
+ * within min, max and the digits it takes. From nothing, up starts at the lowest number and
+ * down at the highest.
+ */
+export function stepNumber(element: NumberElement, typed: string, steps: number): string {
+    const lowest = Math.max(0, element.min ?? 0);
+    const largest = 10 ** (element.digits ?? 15) - 1;
+    const highest = Math.min(largest, element.max ?? largest);
+    if (typed === "") {
+        const start = steps > 0 ? lowest : element.max !== undefined ? highest : lowest;
+        return String(start);
+    }
+    const next = Number(typed) + steps * element.step;
+    return String(Math.min(highest, Math.max(lowest, next)));
+}
 
 export const numberModule: ModuleDefinition<NumberElement, number> = {
     text: (element) => element.prompt,

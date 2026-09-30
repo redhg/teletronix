@@ -578,6 +578,7 @@ A prompt that only takes whole numbers: a keypad, a door code, a fuel setting. O
 | `digits` | whole number, 1–15 |  | The most digits it takes, e.g. 4 for a PIN |
 | `min` | whole number, ≥ -9007199254740991 |  | The lowest number it accepts |
 | `max` | whole number, ≥ -9007199254740991 |  | The highest number it accepts |
+| `step` | whole number, > 0 | `1` | How much the up and down arrow keys change the number (Shift: ten times as much) |
 | `mask` | boolean | `false` | Show * for each digit, for codes and PINs |
 | `on` | [Number rule](#number-rule)[] |  | Actions for numbers in ranges. The first rule the number meets runs. |
 | `otherwise` | [Action](#action) |  | What happens when the number meets none of the rules |

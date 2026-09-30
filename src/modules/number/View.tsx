@@ -1,7 +1,7 @@
 import { CommandLine } from "../../ui/CommandLine.tsx";
 import { classNames, type ElementViewProps } from "../../ui/element-view.ts";
 import { useTerminal } from "../../ui/terminal-context.ts";
-import { inRange, type NumberElement, numberAction, onlyDigits } from "./definition.ts";
+import { inRange, type NumberElement, numberAction, onlyDigits, stepNumber } from "./definition.ts";
 
 export function NumberView({ element, interactive, run, index }: ElementViewProps<NumberElement>) {
     const terminal = useTerminal();
@@ -14,6 +14,7 @@ export function NumberView({ element, interactive, run, index }: ElementViewProp
             filter={(typed) => onlyDigits(element, typed)}
             mask={element.mask}
             inputMode="numeric"
+            step={(typed, steps) => stepNumber(element, typed, steps)}
             onSubmit={(entered) => {
                 const value = Number(entered);
                 if (!inRange(element, value)) return element.unknown;
