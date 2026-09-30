@@ -40,6 +40,7 @@ import {
 import { EffectsSchema } from "../src/engine/schema/effects.ts";
 import { ColumnsSchema, ContentSchema, SectionSchema } from "../src/engine/schema/elements.ts";
 import { RuleSchema } from "../src/engine/schema/next.ts";
+import { BootPresetSchema, MemorySchema, PresetSchema } from "../src/engine/schema/presets.ts";
 import {
     ConfigSchema,
     DefaultsSchema,
@@ -75,7 +76,13 @@ import {
     ImageRevealSchema,
 } from "../src/modules/bitmap/definition.ts";
 import { ButtonSchema, ButtonsSchema } from "../src/modules/buttons/definition.ts";
+import {
+    ChecklistItemObjectSchema,
+    ChecklistItemSchema,
+    ChecklistSchema,
+} from "../src/modules/checklist/definition.ts";
 import { ChoiceMarkersSchema, ChoiceSchema } from "../src/modules/choice/definition.ts";
+import { CounterSchema } from "../src/modules/counter/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
 import { MenuItemSchema, MenuSchema } from "../src/modules/menu/definition.ts";
 import { MeterRangeSchema, MeterSchema } from "../src/modules/meter/definition.ts";
@@ -139,6 +146,14 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
         ],
     ],
     [
+        "Presets",
+        [
+            ["Preset", PresetSchema],
+            ["Boot", BootPresetSchema, '"type": "boot"'],
+            ["Boot memory test", MemorySchema],
+        ],
+    ],
+    [
         "Bars",
         [
             ["Bar", BarSchema],
@@ -190,6 +205,10 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Progress outcome", OutcomeSchema],
             ["Delayed action", DelayedActionSchema],
             ["Progress interrupt", InterruptSchema],
+            ["Counter", CounterSchema, '"type": "counter"'],
+            ["Checklist", ChecklistSchema, '"type": "checklist"'],
+            ["Checklist item", ChecklistItemSchema],
+            ["Checklist item options", ChecklistItemObjectSchema],
             ["Slider", SliderSchema, '"type": "slider"'],
             ["Slider rule", SliderRuleSchema],
             ["Meter", MeterSchema, '"type": "meter"'],

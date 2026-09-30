@@ -4270,17 +4270,197 @@
                         "type": "string",
                         "pattern": "^[A-Za-z0-9_-]+$"
                     },
+                    "preset": {
+                        "description": "A ready-made screen, e.g. { \"type\": \"boot\" }, shown before any content of its own",
+                        "oneOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "const": "boot"
+                                    },
+                                    "title": {
+                                        "default": "TELETRONIX SYSTEM BIOS v1.0",
+                                        "description": "The first line, or false for none (default: \"TELETRONIX SYSTEM BIOS v1.0\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "copyright": {
+                                        "default": "(C) 1984 TELETRONIX CORPORATION",
+                                        "description": "The line under it, or false for none (default: \"(C) 1984 TELETRONIX CORPORATION\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "memory": {
+                                        "description": "A memory test that counts up: the size to count to, { \"size\", \"label\", \"unit\", \"done\" } to change its wording too, or false for none (default: 640)",
+                                        "anyOf": [
+                                            {
+                                                "type": "integer",
+                                                "exclusiveMinimum": 0,
+                                                "maximum": 9007199254740991
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "size": {
+                                                        "default": 640,
+                                                        "description": "How much memory it counts up to (default: 640)",
+                                                        "type": "integer",
+                                                        "exclusiveMinimum": 0,
+                                                        "maximum": 9007199254740991
+                                                    },
+                                                    "label": {
+                                                        "default": "MEMORY TEST: ",
+                                                        "description": "Text before the number (default: \"MEMORY TEST: \")",
+                                                        "type": "string"
+                                                    },
+                                                    "unit": {
+                                                        "default": "K",
+                                                        "description": "Text after the number (default: \"K\")",
+                                                        "type": "string"
+                                                    },
+                                                    "done": {
+                                                        "default": " OK",
+                                                        "description": "Text added once it's counted (default: \" OK\")",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "additionalProperties": false,
+                                                "description": "The memory test's size and wording"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "checks": {
+                                        "default": [
+                                            "DETECTING DRIVES",
+                                            "LOADING KERNEL",
+                                            "MOUNTING FILE SYSTEMS",
+                                            "STARTING NETWORK",
+                                            "STARTING TERMINAL SERVICES"
+                                        ],
+                                        "description": "The checklist of things it starts: strings, or checklist items with their own \"status\" or \"delay\", or false for none",
+                                        "anyOf": [
+                                            {
+                                                "minItems": 1,
+                                                "type": "array",
+                                                "items": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "minLength": 1,
+                                                            "description": "A line, which gets the checklist's status"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "text": {
+                                                                    "type": "string",
+                                                                    "minLength": 1,
+                                                                    "description": "The line"
+                                                                },
+                                                                "status": {
+                                                                    "description": "Its own status, e.g. \"[FAIL]\" (default: the checklist's)",
+                                                                    "type": "string"
+                                                                },
+                                                                "delay": {
+                                                                    "description": "Milliseconds before its status appears, exactly (default: the checklist's, varied a little)",
+                                                                    "type": "number",
+                                                                    "minimum": 0
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "text"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "A line with its own status or delay"
+                                                        }
+                                                    ],
+                                                    "description": "A line of a checklist"
+                                                }
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "status": {
+                                        "default": "[ OK ]",
+                                        "description": "Each check's status (default: \"[ OK ]\")",
+                                        "type": "string"
+                                    },
+                                    "ready": {
+                                        "default": "BOOT COMPLETE.",
+                                        "description": "The line once it has finished, or false for none (default: \"BOOT COMPLETE.\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "pause": {
+                                        "default": false,
+                                        "description": "Wait for a key press (or a tap) at the end, with a line of text: true for \"PRESS ANY KEY TO CONTINUE\", or the text to show (default: false). Browsers only play sound once the player has pressed a key or clicked, so this lets the next screen start with sound.",
+                                        "anyOf": [
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "string",
+                                                "minLength": 1
+                                            }
+                                        ]
+                                    },
+                                    "next": {
+                                        "description": "The screen to go to once it has finished (default: stay)",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                    },
+                                    "after": {
+                                        "description": "Milliseconds to wait before going to `next` (default: 1000, or 0 after a pause)",
+                                        "type": "number",
+                                        "minimum": 0
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ],
+                                "additionalProperties": false,
+                                "description": "A computer starting up: a title, a memory test, a checklist of things starting, then on to the next screen"
+                            }
+                        ]
+                    },
                     "content": {
+                        "description": "The elements, revealed in order. Can be empty; can be left out with a preset.",
                         "type": "array",
                         "items": {
                             "$ref": "#/$defs/Content"
-                        },
-                        "description": "The elements, revealed in order. Can be empty."
+                        }
                     }
                 },
-                "required": [
-                    "content"
-                ],
                 "additionalProperties": false,
                 "description": "A screen of content. Its elements are revealed one after another."
             },
@@ -10454,6 +10634,322 @@
                             ],
                             "additionalProperties": false,
                             "description": "Experimental, a work in progress: its results aren't good enough yet, and how it works may change. An image turned into text: each character cell picks the character that best matches the picture there. It's real text, so it reveals like text (typed out, glitched in)."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "checklist"
+                                },
+                                "items": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                        "anyOf": [
+                                            {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "description": "A line, which gets the checklist's status"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "text": {
+                                                        "type": "string",
+                                                        "minLength": 1,
+                                                        "description": "The line"
+                                                    },
+                                                    "status": {
+                                                        "description": "Its own status, e.g. \"[FAIL]\" (default: the checklist's)",
+                                                        "type": "string"
+                                                    },
+                                                    "delay": {
+                                                        "description": "Milliseconds before its status appears, exactly (default: the checklist's, varied a little)",
+                                                        "type": "number",
+                                                        "minimum": 0
+                                                    }
+                                                },
+                                                "required": [
+                                                    "text"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "A line with its own status or delay"
+                                            }
+                                        ],
+                                        "description": "A line of a checklist"
+                                    },
+                                    "description": "The lines, in order: strings, or { \"text\", \"status\", \"delay\" }"
+                                },
+                                "status": {
+                                    "default": "[ OK ]",
+                                    "description": "What appears at the end of each line once it's done (default: \"[ OK ]\")",
+                                    "type": "string"
+                                },
+                                "delay": {
+                                    "default": 300,
+                                    "description": "Milliseconds between a line appearing and its status, varied a little from line to line so it looks like real work (default: 300)",
+                                    "type": "number",
+                                    "minimum": 0
+                                },
+                                "leader": {
+                                    "default": ".",
+                                    "description": "The character that fills the gap between a line and its status (default: \".\"; \" \" for none)",
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 1
+                                },
+                                "width": {
+                                    "description": "Where the statuses end, in characters from the left (default: the right edge)",
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                },
+                                "align": {
+                                    "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "left",
+                                        "center",
+                                        "right"
+                                    ]
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "items"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Lines that appear one at a time, each followed after a moment by a status such as \"[ OK ]\", like a computer starting up"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "counter"
+                                },
+                                "label": {
+                                    "default": "",
+                                    "description": "Text before the number",
+                                    "type": "string"
+                                },
+                                "from": {
+                                    "default": 0,
+                                    "description": "Where it starts counting (default: 0)",
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                },
+                                "to": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991,
+                                    "description": "Where it stops counting"
+                                },
+                                "step": {
+                                    "default": 1,
+                                    "description": "Count in steps of this much, e.g. 64 (default: 1)",
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "maximum": 9007199254740991
+                                },
+                                "duration": {
+                                    "default": 1500,
+                                    "description": "Milliseconds to count from `from` to `to` (default: 1500)",
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                },
+                                "unit": {
+                                    "default": "",
+                                    "description": "Text right after the number, e.g. \"K\"",
+                                    "type": "string"
+                                },
+                                "done": {
+                                    "default": "",
+                                    "description": "Text added once it has finished counting, e.g. \" OK\"",
+                                    "type": "string"
+                                },
+                                "align": {
+                                    "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "left",
+                                        "center",
+                                        "right"
+                                    ]
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "to"
+                            ],
+                            "additionalProperties": false,
+                            "description": "A number that counts up (or down) quickly to a target, like a computer's memory test: \"MEMORY TEST: 640K OK\""
                         }
                     ]
                 }

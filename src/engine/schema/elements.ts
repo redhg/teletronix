@@ -6,12 +6,22 @@ import {
     ButtonsSchema,
     buttonsModule,
 } from "../../modules/buttons/definition.ts";
+import {
+    type ChecklistElement,
+    ChecklistSchema,
+    checklistModule,
+} from "../../modules/checklist/definition.ts";
 import { type ChoiceElement, ChoiceSchema, choiceModule } from "../../modules/choice/definition.ts";
 import {
     type ColumnsElement,
     columnsModule,
     createColumnsSchema,
 } from "../../modules/columns/definition.ts";
+import {
+    type CounterElement,
+    CounterSchema,
+    counterModule,
+} from "../../modules/counter/definition.ts";
 import { type LinkElement, LinkSchema, linkModule } from "../../modules/link/definition.ts";
 import { type MenuElement, MenuSchema, menuModule } from "../../modules/menu/definition.ts";
 import { type MeterElement, MeterSchema, meterModule } from "../../modules/meter/definition.ts";
@@ -65,6 +75,8 @@ export const ElementSchema = z.discriminatedUnion("type", [
     ChoiceSchema,
     MenuSchema,
     AsciiSchema,
+    ChecklistSchema,
+    CounterSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -94,7 +106,9 @@ export type Element =
     | TableElement
     | ChoiceElement
     | MenuElement
-    | AsciiElement;
+    | AsciiElement
+    | ChecklistElement
+    | CounterElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -117,6 +131,8 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     choice: choiceModule,
     menu: menuModule,
     ascii: asciiModule,
+    checklist: checklistModule,
+    counter: counterModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
@@ -133,7 +149,9 @@ export function boundVariable(element: Element): string | undefined {
 /** Elements whose text can be aligned, and so follow a screen's or the config's `align`. */
 const ALIGNABLE = new Set<ElementType>([
     "ascii",
+    "checklist",
     "choice",
+    "counter",
     "text",
     "link",
     "toggle",

@@ -968,3 +968,70 @@ test.describe("text files and ASCII images", () => {
         expect(drawn.replace(/\s/g, "").length).toBeGreaterThan(20);
     });
 });
+
+test.describe("checklist and counter", () => {
+    test.use({ reducedMotion: "no-preference" });
+
+    const working: Program = {
+        config: { name: "Working", start: "home", reveal: "instant" },
+        screens: {
+            home: {
+                content: [
+                    {
+                        type: "checklist",
+                        items: ["PUMPS", { text: "VALVES", status: "[FAIL]", delay: 600 }],
+                        delay: 100,
+                        width: 30,
+                    },
+                    { type: "counter", label: "MEMORY: ", to: 640, unit: "K", done: " OK" },
+                    "END",
+                ],
+            },
+        },
+    };
+
+    test("shows each line's status after a moment, then counts", async ({ player }) => {
+        await player.open(working);
+        // (what's shown so far: the rest is there too, hidden, keeping its space)
+        const checklist = player.screen.locator(".checklist [aria-hidden='true'] > :first-child");
+        await expect(checklist).toContainText("PUMPS");
+        await expect(checklist).toContainText("VALVES");
+        await expect(checklist).not.toContainText("[FAIL]");
+        await expect(checklist).toContainText(`VALVES ${".".repeat(16)} [FAIL]`);
+        await expect(checklist).toContainText(`PUMPS ${".".repeat(17)} [ OK ]`);
+
+        const counter = player.screen.locator(".counter [aria-hidden='true']");
+        await expect(counter).toHaveText(/MEMORY: \d+K/);
+        await expect(counter).toHaveText("MEMORY: 640K OK");
+        await expect(player.screen).toContainText("END");
+    });
+});
+
+test.describe("boot preset", () => {
+    test.use({ reducedMotion: "no-preference" });
+
+    const booting: Program = {
+        config: { name: "Boot", start: "boot" },
+        screens: {
+            boot: {
+                preset: { type: "boot", title: "ACME OS", pause: true, next: "home" },
+            },
+            home: { content: ["HOME"] },
+        },
+    } as Program;
+
+    test("starts up, then waits for a key before its next screen", async ({ page, player }) => {
+        await player.open(booting);
+        await expect(player.screen).toContainText("ACME OS");
+        await expect(player.screen).toContainText("MEMORY TEST: 640K OK");
+        await expect(player.screen).toContainText("STARTING TERMINAL SERVICES");
+        // shown in full (a key press while it types would only skip to it)
+        await expect(
+            player.screen.locator(".pause [aria-hidden='true'] > :first-child"),
+        ).toHaveText("PRESS ANY KEY TO CONTINUE", { timeout: 15_000 });
+        await expect(player.screen).toContainText("BOOT COMPLETE.");
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("HOME");
+        await expect(player.screen).not.toContainText("ACME OS");
+    });
+});

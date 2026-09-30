@@ -64,6 +64,8 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"number"` | A prompt for whole numbers only: codes, keypads, settings. See below. |
 | `"bitmap"` | An image (`src`, `alt`). The screen waits for it to load. `cols` sets its width in characters (its height follows), e.g. to match a line of text. See [Image reveals](#image-reveals). |
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
+| `"counter"` | A number that counts quickly to a target, like a memory test: "MEMORY TEST: 640K OK". See below. |
+| `"checklist"` | Lines that appear one at a time, each followed after a moment by a status like `[ OK ]`. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 | `"meter"` | A gauge: a bar showing a variable or timer, live. See below. |
 | `"table"` | Rows and columns of text, with optional box-drawn borders. See below. |
@@ -171,6 +173,18 @@ edge to edge.
   when the player presses a `key`. Its `text` replaces the percentage, and its `action` (with
   an optional `after`) runs instead of `onComplete`.
 - Skipping jumps the bar to its end, or to its scripted interruption.
+
+### Checklists and counters
+```json
+{ "type": "checklist", "items": ["LOADING KERNEL", { "text": "CRYO BAY 3", "status": "[FAIL]" }] },
+{ "type": "counter", "label": "MEMORY TEST: ", "to": 640, "unit": "K", "done": " OK" }
+```
+- A checklist types each of its `items`, waits a moment (`delay`, default 300ms, varied a little
+  from line to line), then fills the gap with its `leader` (default `.`) up to its `status`
+  (default `[ OK ]`) at the right edge, or at `width` characters. An item can have its own
+  `status` and an exact `delay`.
+- A counter counts `from` (default 0) `to` its number over a `duration` (default 1500ms), in
+  whole `step`s (default 1), with `unit` after the number and `done` added once it's finished.
 
 ### Choices
 ```json
@@ -308,6 +322,22 @@ A pause stops the screen's reveal and shows its `text` (default
 `-- PRESS ANY KEY TO CONTINUE --`) until the player presses a key or taps. Then the line goes and
 the reveal carries on, so a long screen can be read a page at a time. Skipping stops at each
 pause too. A pause inside an open section holds the whole screen.
+
+### Presets
+A preset is a ready-made screen, set up with a few settings instead of content:
+```json
+"boot": {
+    "preset": { "type": "boot", "title": "ACME OS v2", "pause": true, "next": "home" }
+}
+```
+The `boot` preset shows a `title` and `copyright` line, a `memory` test (a counter), a checklist
+of `checks` with their `status`, and a `ready` line, then goes to its `next` screen after `after`
+milliseconds. Every line has a default and can be changed, or left out with `false`; `memory`
+takes a size, or `{ "size", "label", "unit", "done" }`. With `"pause": true` (or the text to show)
+it waits for a key press first: browsers only play sound once the player has pressed a key or
+clicked, so the screen after it can start with sound. A preset becomes ordinary content (with
+anything in the screen's own `content` after it), so anything it does can also be written out by
+hand. See [the reference](docs/reference.md#boot) for every setting.
 
 ### Header and status bars
 ```json

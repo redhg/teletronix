@@ -35,6 +35,7 @@ import {
     moduleFor,
 } from "./elements.ts";
 import { DEFAULT_SKIP_KEYS, type NextRule, NextSchema, SkipKeysSchema } from "./next.ts";
+import { expandPreset, PresetSchema, parseContent } from "./presets.ts";
 import { type ResolvedSound, resolveSound, SoundSchema, type SoundSetting } from "./sound.ts";
 import { type Timer, TimersSchema } from "./timers.ts";
 import {
@@ -98,9 +99,18 @@ export const ScreenSchema = z
         sound: SoundNameSchema.optional().meta({
             description: "A sound from the program's sounds, played as the screen appears",
         }),
-        content: z
-            .array(ContentSchema)
-            .meta({ description: "The elements, revealed in order. Can be empty." }),
+        preset: PresetSchema.optional().meta({
+            description:
+                'A ready-made screen, e.g. { "type": "boot" }, shown before any content of its own',
+        }),
+        content: z.array(ContentSchema).optional().meta({
+            description:
+                "The elements, revealed in order. Can be empty; can be left out with a preset.",
+        }),
+    })
+    .refine((screen) => screen.content !== undefined || screen.preset !== undefined, {
+        message: 'Give it "content", or a "preset"',
+        path: ["content"],
     })
     .meta({
         description: "A screen of content. Its elements are revealed one after another.",
@@ -304,9 +314,19 @@ function normalize(file: z.output<typeof FileSchema>): Program {
 
     const screens = new Map<string, Screen>();
     for (const [id, screen] of Object.entries(file.screens)) {
-        const content = normalizeContent(screen.content, `${id}#`);
+        const preset = screen.preset && expandPreset(screen.preset);
+        const items = preset
+            ? [
+                  ...parseContent(preset.before),
+                  ...(screen.content ?? []),
+                  ...parseContent(preset.after),
+              ]
+            : (screen.content ?? []);
+        const content = normalizeContent(items, `${id}#`);
         const { reveal, transition, effects, autoscroll, align, waitForReveal } = screen;
-        const { header, footer, next, sound } = screen;
+        const { header, footer, sound } = screen;
+        const rules = [...(screen.next ?? []), ...(preset?.next ? [preset.next] : [])];
+        const next = rules.length > 0 ? rules : undefined;
         screens.set(id, {
             id,
             reveal,

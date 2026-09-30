@@ -7,9 +7,10 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
+- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -110,7 +111,8 @@ A screen of content. Its elements are revealed one after another.
 | `footer` | [Bar](#bar) \| `false` |  | A status bar for this screen instead of the config's, or false for none |
 | `next` | [Next rule](#next-rule) \| [Next rule](#next-rule)[] |  | Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens. |
 | `sound` | id |  | A sound from the program's sounds, played as the screen appears |
-| `content` | [Content](#content)[] | **required** | The elements, revealed in order. Can be empty. |
+| `preset` | [Preset](#preset) |  | A ready-made screen, e.g. { "type": "boot" }, shown before any content of its own |
+| `content` | [Content](#content)[] |  | The elements, revealed in order. Can be empty; can be left out with a preset. |
 
 <a id="next-rule"></a>
 
@@ -124,6 +126,49 @@ A way to move on from a screen without a link: after a delay, at a key press, or
 | `key` | string \| string[] |  | A key that moves on: "any", a key name like "Enter", "Space", "Escape", "ArrowRight" or "y", or an array of them. Taps and clicks count too, unless keys in different rules lead to different places. |
 | `if` | [Condition](#condition) |  | Only while this holds, e.g. a key that works once a door is unlocked |
 | `action` | [Action](#action) | **required** | What happens |
+
+## Presets
+
+<a id="preset"></a>
+
+### Preset
+
+A ready-made screen, with a few settings of its own
+
+One of:
+
+- [Boot](#boot)
+
+<a id="boot"></a>
+
+### Boot (`"type": "boot"`)
+
+A computer starting up: a title, a memory test, a checklist of things starting, then on to the next screen
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `title` | string \| `false` | `"TELETRONIX SYSTEM BIOS v1.0"` | The first line, or false for none |
+| `copyright` | string \| `false` | `"(C) 1984 TELETRONIX CORPORATION"` | The line under it, or false for none |
+| `memory` | whole number, > 0 \| [Boot memory test](#boot-memory-test) \| `false` | `640` | A memory test that counts up: the size to count to, { "size", "label", "unit", "done" } to change its wording too, or false for none |
+| `checks` | [Checklist item](#checklist-item)[] \| `false` | `["DETECTING DRIVES","LOADING KERNEL","MOUNTING FILE SYSTEMS","STARTING NETWORK","STARTING TERMINAL SERVICES"]` | The checklist of things it starts: strings, or checklist items with their own "status" or "delay", or false for none |
+| `status` | string | `"[ OK ]"` | Each check's status |
+| `ready` | string \| `false` | `"BOOT COMPLETE."` | The line once it has finished, or false for none |
+| `pause` | boolean \| string | `false` | Wait for a key press (or a tap) at the end, with a line of text: true for "PRESS ANY KEY TO CONTINUE", or the text to show (default: false). Browsers only play sound once the player has pressed a key or clicked, so this lets the next screen start with sound. |
+| `next` | id | stay | The screen to go to once it has finished |
+| `after` | number, ≥ 0 | 1000, or 0 after a pause | Milliseconds to wait before going to `next` |
+
+<a id="boot-memory-test"></a>
+
+### Boot memory test
+
+The memory test's size and wording
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `size` | whole number, > 0 | `640` | How much memory it counts up to |
+| `label` | string | `"MEMORY TEST: "` | Text before the number |
+| `unit` | string | `"K"` | Text after the number |
+| `done` | string | `" OK"` | Text added once it's counted |
 
 ## Bars
 
@@ -324,6 +369,8 @@ One of:
 - [Choice](#choice)
 - [Menu](#menu)
 - [ASCII image](#ascii-image)
+- [Checklist](#checklist)
+- [Counter](#counter)
 
 <a id="text"></a>
 
@@ -664,6 +711,69 @@ Makes a progress bar stop short: at a set point (a transfer that fails) and/or w
 | `text` | string | `"INTERRUPTED"` | Shown in place of the percentage |
 | `action` | [Action](#action) |  | What happens when interrupted, instead of onComplete |
 | `after` | number, ≥ 0 |  | Milliseconds to wait before the action |
+
+<a id="counter"></a>
+
+### Counter (`"type": "counter"`)
+
+A number that counts up (or down) quickly to a target, like a computer's memory test: "MEMORY TEST: 640K OK"
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `label` | string | `""` | Text before the number |
+| `from` | whole number, ≥ -9007199254740991 | `0` | Where it starts counting |
+| `to` | whole number, ≥ -9007199254740991 | **required** | Where it stops counting |
+| `step` | whole number, > 0 | `1` | Count in steps of this much, e.g. 64 |
+| `duration` | number, > 0 | `1500` | Milliseconds to count from `from` to `to` |
+| `unit` | string | `""` | Text right after the number, e.g. "K" |
+| `done` | string | `""` | Text added once it has finished counting, e.g. " OK" |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="checklist"></a>
+
+### Checklist (`"type": "checklist"`)
+
+Lines that appear one at a time, each followed after a moment by a status such as "[ OK ]", like a computer starting up
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `items` | [Checklist item](#checklist-item)[] | **required** | The lines, in order: strings, or { "text", "status", "delay" } |
+| `status` | string | `"[ OK ]"` | What appears at the end of each line once it's done |
+| `delay` | number, ≥ 0 | `300` | Milliseconds between a line appearing and its status, varied a little from line to line so it looks like real work |
+| `leader` | character | `"."` | The character that fills the gap between a line and its status |
+| `width` | whole number, ≥ 1 | the right edge | Where the statuses end, in characters from the left |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="checklist-item"></a>
+
+### Checklist item
+
+A line of a checklist
+
+One of:
+
+- string: A line, which gets the checklist's status
+- [Checklist item options](#checklist-item-options)
+
+<a id="checklist-item-options"></a>
+
+### Checklist item options
+
+A line with its own status or delay
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `text` | string | **required** | The line |
+| `status` | string | the checklist's | Its own status, e.g. "[FAIL]" |
+| `delay` | number, ≥ 0 | the checklist's, varied a little | Milliseconds before its status appears, exactly |
 
 <a id="slider"></a>
 

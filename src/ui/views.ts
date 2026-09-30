@@ -2,8 +2,10 @@ import type { ElementOf, ElementType } from "../engine/index.ts";
 import { AsciiView } from "../modules/ascii/View.tsx";
 import { BitmapView } from "../modules/bitmap/View.tsx";
 import { ButtonsView } from "../modules/buttons/View.tsx";
+import { ChecklistView } from "../modules/checklist/View.tsx";
 import { ChoiceView } from "../modules/choice/View.tsx";
 import { ColumnsView } from "../modules/columns/View.tsx";
+import { CounterView } from "../modules/counter/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
 import { MenuView } from "../modules/menu/View.tsx";
 import { MeterView } from "../modules/meter/View.tsx";
@@ -39,4 +41,6 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     choice: ChoiceView,
     menu: MenuView,
     ascii: AsciiView,
+    checklist: ChecklistView,
+    counter: CounterView,
 };

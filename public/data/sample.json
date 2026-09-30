@@ -27,7 +27,9 @@
                         { "type": "link", "text": "> ASCII ART", "action": { "screen": "ascii" } },
                         { "type": "link", "text": "> AUTOSCROLL", "action": { "screen": "autoscroll" } },
                         { "type": "link", "text": "> BARS", "action": { "screen": "bars" } },
+                        { "type": "link", "text": "> BOOT", "action": { "screen": "boot" } },
                         { "type": "link", "text": "> BUTTONS", "action": { "screen": "buttons" } },
+                        { "type": "link", "text": "> CHECKLISTS", "action": { "screen": "checklists" } },
                         { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
                         { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } },
                         { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } },
@@ -817,6 +819,72 @@
                 "Text can come from a file, with \"src\": paste ASCII art into a .txt file, no escaping needed, and it's shown exactly. Like all text, it types out:",
                 { "type": "text", "src": "data/art/puma.txt", "wrap": false, "align": "center", "reveal": { "type": "teletype", "speed": 3 } },
                 "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "boot": {
+            "preset": { "type": "boot", "pause": true, "next": "boot-about" }
+        },
+        "boot-custom": {
+            "preset": {
+                "type": "boot",
+                "title": "NOSTROMO MU-TH-UR 6000",
+                "copyright": "WEYLAND-YUTANI CORP. INTERFACE 2037",
+                "memory": { "size": 65536, "label": "CORE MEMORY: ", "unit": " WORDS", "done": " VERIFIED" },
+                "checks": [
+                    "LIFE SUPPORT",
+                    "NAVIGATION",
+                    { "text": "HYPERSLEEP CHAMBER 3", "status": "[FAIL]", "delay": 1200 },
+                    "COMMS ARRAY"
+                ],
+                "status": "[ONLINE]",
+                "ready": "INTERFACE READY.",
+                "next": "boot-about"
+            }
+        },
+        "boot-about": {
+            "content": [
+                "BOOT",
+                "====",
+                "",
+                "That was a preset: a ready-made screen, set up with \"preset\": { \"type\": \"boot\" }. It becomes an ordinary screen of text, a counter and a checklist, then moves on by itself to its \"next\" screen.",
+                "",
+                "With \"pause\": true, it waits for a key press before moving on. Browsers only play sound once you've pressed a key or clicked, so the screen after it can start with sound.",
+                "",
+                "Every line can be changed, or left out with false: the title, the copyright line, the memory test, the checks and their statuses, and the last line.",
+                "",
+                { "type": "link", "text": "> AGAIN", "action": { "screen": "boot" } },
+                { "type": "link", "text": "> CUSTOMIZED", "action": { "screen": "boot-custom" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "checklists": {
+            "content": [
+                "CHECKLISTS & COUNTERS",
+                "=====================",
+                "",
+                "A checklist's lines appear one at a time, each followed after a moment by its status:",
+                "",
+                { "type": "checklist", "items": ["CHECKING FUEL LINES", "PRIMING PUMPS", "IGNITION SEQUENCE"] },
+                "",
+                "Lines can have their own status, and the gap can be blank. This one waits longer, and ends 40 characters in:",
+                "",
+                {
+                    "type": "checklist",
+                    "items": ["SCANNING SECTOR 7", { "text": "SCANNING SECTOR 8", "status": "NO SIGNAL" }, "SCANNING SECTOR 9"],
+                    "status": "CLEAR",
+                    "leader": " ",
+                    "delay": 800,
+                    "width": 40
+                },
+                "",
+                "A counter counts to its number:",
+                "",
+                { "type": "counter", "label": "MEMORY TEST: ", "to": 640, "unit": "K", "done": " OK" },
+                { "type": "counter", "label": "FUEL: ", "from": 100, "to": 15, "unit": "%", "done": " (LOW)", "duration": 2500, "className": "alert" },
+                { "type": "counter", "label": "SECTORS: ", "to": 4096, "step": 256, "done": " FORMATTED" },
+                "",
+                { "type": "link", "text": "> AGAIN", "action": { "screen": "checklists" } },
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },

@@ -614,7 +614,9 @@ export class ScreenRun {
                 reveal ??
                 createReveal(indices.map((i) => this.runs[i]?.text).join("\n"), spec, random),
             custom: reveal !== undefined,
-            ...(reveal ? {} : { kind: spec.type, spec }),
+            // (a custom reveal may type too, e.g. a checklist's lines, so it keeps its kind)
+            kind: spec.type,
+            ...(reveal ? {} : { spec }),
         }));
     }
 
@@ -665,7 +667,7 @@ export class ScreenRun {
             const sound = this.runs[index]?.element.sound;
             if (sound) this.options.onCue?.({ type: "sound", name: sound });
         }
-        if (unit.kind === "glitch") {
+        if (unit.kind === "glitch" && !unit.custom) {
             this.options.onCue?.({ type: "glitch", duration: unit.reveal.duration });
         }
     }
