@@ -88,6 +88,14 @@ export const HexdumpSchema = z
                     'With "rows", a status line under it. {offset} is the cursor\'s address, ' +
                     "{byte} the byte there, and {size} the number of bytes.",
             }),
+        statusBar: z
+            .boolean()
+            .default(false)
+            .meta({
+                description:
+                    "Show the status line as a status bar, pinned to the bottom of the window " +
+                    "across its whole width, rather than under the bytes (default: false)",
+            }),
         exit: HexdumpExitSchema.optional().meta({
             description:
                 "A key that leaves it (e.g. for a hex editor screen), once it has appeared",

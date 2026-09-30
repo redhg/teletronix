@@ -16,6 +16,7 @@ const dump = (overrides: Partial<HexdumpElement> = {}): HexdumpElement => ({
     offset: 0,
     ascii: true,
     lowercase: false,
+    statusBar: false,
     speed: 12,
     ...overrides,
 });

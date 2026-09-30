@@ -220,6 +220,7 @@ describe("the hex editor preset", () => {
             {
                 type: "hexdump",
                 rows: "fill",
+                statusBar: true,
                 size: 256,
                 text: "SECRET",
                 exit: { key: ["escape"], action: [{ screen: "home" }] },
@@ -231,6 +232,7 @@ describe("the hex editor preset", () => {
                 right: { text: "ESC: EXIT", action: [{ screen: "home" }] },
             },
         ]);
+        expect(screen?.footer).toBe(false);
         // (no next rule: a tap on the screen shouldn't leave)
         expect(screen?.next).toBeUndefined();
     });

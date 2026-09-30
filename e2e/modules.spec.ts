@@ -1331,8 +1331,13 @@ test.describe("hexdump", () => {
         await player.screen.getByRole("button", { name: "> EDITOR" }).click();
         await expect(page.locator(".bar-header")).toContainText("HEXEDIT 2.1  TEST.BIN");
         const editor = player.screen.locator(".hexdump");
-        const status = editor.locator(".hexdump-status");
+        const status = page.locator(".hexdump-status-bar");
         await expect(status).toContainText("OFFSET 00000000");
+        // a status bar: at the bottom of the window, the whole way across
+        const box = await status.boundingBox();
+        const viewport = page.viewportSize();
+        expect(box?.width).toBe(viewport?.width);
+        expect((box?.y ?? 0) + (box?.height ?? 0)).toBeCloseTo(viewport?.height ?? 0, 0);
         await expect(editor).toBeFocused();
         await page.keyboard.press("ArrowRight");
         await page.keyboard.press("ArrowDown");

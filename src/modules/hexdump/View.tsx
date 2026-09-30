@@ -9,6 +9,7 @@ import {
     useRef,
     useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { AutoscrollContext } from "../../ui/autoscroll.ts";
 import { classNames, type ElementViewProps } from "../../ui/element-view.ts";
 import { loadBytes } from "../../ui/load-bytes.ts";
@@ -23,6 +24,7 @@ import {
     moveCursor,
     statusLine,
 } from "./definition.ts";
+import "../../ui/bar.css";
 import "./style.css";
 
 interface RowProps {
@@ -132,8 +134,9 @@ export function HexdumpView({
                 const footer = Number.parseFloat(
                     getComputedStyle(document.documentElement).getPropertyValue("--footer-lines"),
                 );
-                // below it: its status line, the page's bottom margin, and any status bar
-                const below = (1 + 1 + (footer || 0)) * line;
+                // below it: its status line (unless that's a status bar, which sits in the
+                // page's bottom margin), the page's bottom margin, and any other status bar
+                const below = ((element.statusBar ? 0 : 1) + 1 + (footer || 0)) * line;
                 const room = window.innerHeight - target.getBoundingClientRect().top - below;
                 setFill(Math.max(4, Math.floor(room / line)));
             }
@@ -146,7 +149,7 @@ export function HexdumpView({
             sizes.disconnect();
             window.removeEventListener("resize", measure);
         };
-    }, [element.rows]);
+    }, [element.rows, element.statusBar]);
 
     // rows appear as the reveal goes
     useLayoutEffect(() => run.subscribeProgress(index, setProgress), [run, index]);
@@ -224,9 +227,20 @@ export function HexdumpView({
                 {"0".repeat(100)}
             </span>
             <div aria-hidden="true">{rows}</div>
-            {windowed && element.status && state === "done" && (
-                <div className="hexdump-status">{statusLine(element, bytes, cursor)}</div>
-            )}
+            {windowed &&
+                element.status &&
+                state === "done" &&
+                (element.statusBar ? (
+                    // pinned to the bottom of the window, like the program's own status bars
+                    createPortal(
+                        <div className="bar bar-footer hexdump-status-bar">
+                            <div className="bar-line">{statusLine(element, bytes, cursor)}</div>
+                        </div>,
+                        document.body,
+                    )
+                ) : (
+                    <div className="hexdump-status">{statusLine(element, bytes, cursor)}</div>
+                ))}
         </section>
     );
 }

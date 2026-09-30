@@ -12586,6 +12586,11 @@
                                     "description": "With \"rows\", a status line under it. {offset} is the cursor's address, {byte} the byte there, and {size} the number of bytes.",
                                     "type": "string"
                                 },
+                                "statusBar": {
+                                    "default": false,
+                                    "description": "Show the status line as a status bar, pinned to the bottom of the window across its whole width, rather than under the bytes (default: false)",
+                                    "type": "boolean"
+                                },
                                 "exit": {
                                     "description": "A key that leaves it (e.g. for a hex editor screen), once it has appeared",
                                     "type": "object",

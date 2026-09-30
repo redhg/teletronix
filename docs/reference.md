@@ -806,6 +806,7 @@ Bytes as a hex dump: an address, the bytes in hex, and the same bytes as text. F
 | `highlight` | [Hex dump highlight](#hex-dump-highlight)[] |  | Bytes to draw in the alert color: some text (every place it appears), or { "from", "to" } |
 | `rows` | whole number, ≥ 1 \| `"fill"` | every row, one after another | Show this many rows at a time, or "fill" for as many as fit the window, and let the player move through the bytes with the arrow keys, Page Up/Down, Home and End, or by clicking |
 | `status` | string |  | With "rows", a status line under it. {offset} is the cursor's address, {byte} the byte there, and {size} the number of bytes. |
+| `statusBar` | boolean | `false` | Show the status line as a status bar, pinned to the bottom of the window across its whole width, rather than under the bytes |
 | `exit` | [Hex dump exit](#hex-dump-exit) |  | A key that leaves it (e.g. for a hex editor screen), once it has appeared |
 | `speed` | number, ≥ 0 | `12` | Milliseconds for each row to appear |
 | `alt` | string | `"Hex dump, <size> bytes"` | A description, for screen readers |

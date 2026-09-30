@@ -362,6 +362,8 @@ export interface Expanded {
     next?: NextRule;
     /** A header bar for the screen, unless it has its own. */
     header?: BarLine[];
+    /** A status bar for the screen (or false for none), unless it has its own. */
+    footer?: BarLine[] | false;
 }
 
 /** Lines with a blank line between each group, leaving out empty groups. */
@@ -502,11 +504,14 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                     {
                         type: "hexdump",
                         rows: "fill",
+                        statusBar: true,
                         ...dump,
                         exit: { key: "Escape", action: { screen: next ?? start } },
                     },
                 ],
                 after: [],
+                // (the dump draws its own status bar, in place of the program's)
+                footer: false,
                 header: [
                     {
                         left: { text: `${title}  ${file}`.trim() },

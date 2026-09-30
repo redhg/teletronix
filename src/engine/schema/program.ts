@@ -326,8 +326,9 @@ function normalize(file: z.output<typeof FileSchema>): Program {
             : (screen.content ?? []);
         const content = normalizeContent(items, `${id}#`);
         const { reveal, transition, effects, autoscroll, align, waitForReveal } = screen;
-        const { footer, sound } = screen;
+        const { sound } = screen;
         const header = screen.header ?? preset?.header;
+        const footer = screen.footer ?? preset?.footer;
         const rules = [...(screen.next ?? []), ...(preset?.next ? [preset.next] : [])];
         const next = rules.length > 0 ? rules : undefined;
         screens.set(id, {

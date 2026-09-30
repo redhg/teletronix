@@ -228,7 +228,8 @@ Bytes three ways: an address, the bytes in hex, and the same bytes as text. Only
   (a number, or `"fill"` for as many as fit the window), it's a window instead, with a cursor the
   player moves with the arrow keys, Page Up/Down, Home and End, or by clicking a byte. `status`
   adds a status line under it, where `{offset}` is the cursor's address, `{byte}` the byte there,
-  and `{size}` the number of bytes. `exit` gives it a key (default `Escape`) and an `action` to
+  and `{size}` the number of bytes; `statusBar: true` pins that line to the bottom of the window,
+across its whole width, like a status bar. `exit` gives it a key (default `Escape`) and an `action` to
   leave by.
 
 The `hexeditor` [preset](#presets) is a whole screen of one, with a header bar.
@@ -412,7 +413,7 @@ also be written out by hand. See [the reference](docs/reference.md#presets) for 
 | `"boot"` | A `title` and `copyright` line, a `memory` test (a counter), a checklist of `checks`, and a `ready` line, then on to `next` after `after` milliseconds. With `"pause": true` (or the text to show) it waits for a key press first: browsers only play sound once the player has pressed a key or clicked, so the screen after it can start with sound. |
 | `"shutdown"` | A `title`, a checklist of `checks`, and a `message`, then the screen switches off like an old CRT (unless `"powerOff": false`) `after` a moment. A key press (or a tap) switches back on, going to `next` (default: the start screen); `"restart": false` stays off for good. |
 | `"error"` | A `title`, `message` and `code` in a blinking box, in the alert color, like an Amiga's Guru Meditation. A key press (or a tap) goes to `next` (default: the start screen); `"restart": false` stays for good. |
-| `"hexeditor"` | A read-only hex editor: a [hex dump](#hex-dumps) filling the screen, with a cursor to move through it, a status line, and a header bar with the editor's `title` and the `file` name. Give it bytes as a hex dump (`text`, `size`, `src`, `highlight`…). <esc>, or the `exit` link in the header bar, goes to `next` (default: the start screen). |
+| `"hexeditor"` | A read-only hex editor: a [hex dump](#hex-dumps) filling the screen, with a cursor to move through it, a status bar (in place of the program's), and a header bar with the editor's `title` and the `file` name. Give it bytes as a hex dump (`text`, `size`, `src`, `highlight`…). <esc>, or the `exit` link in the header bar, goes to `next` (default: the start screen). |
 | `"crash"` | The whole window fills with garbage that never stops changing: the screen before breaks apart, and a `message` surfaces through the noise now and then. With `next`, a key press (or a tap) restarts there. With reduced motion, it's a still picture. |
 
 They're made of elements you can use on any screen, too: `"checklist"` and `"counter"` (see
