@@ -56,6 +56,22 @@ test.describe("the player", () => {
             .toBe(true);
     });
 
+    test("loads C64 Pro Mono unmodified, under its own filename", async ({ page, player }) => {
+        // (its license requires both, so the build mustn't rename it)
+        const fetched = page.waitForResponse((response) =>
+            response.url().endsWith("/fonts/C64_Pro_Mono-STYLE.woff"),
+        );
+        await player.open(withConfig({ font: "c64-pro-mono" }));
+        expect((await fetched).ok()).toBe(true);
+        const style = await styles(page);
+        expect(style.fontFamily).toContain("c64-pro-mono");
+        // whole multiples of its 8-pixel characters
+        expect(style.fontSize % 8).toBe(0);
+        await expect
+            .poll(() => page.evaluate(() => document.fonts.check('8px "Teletronix c64-pro-mono"')))
+            .toBe(true);
+    });
+
     test("can use a font installed on the computer, smoothed, at any size", async ({
         page,
         player,

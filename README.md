@@ -578,8 +578,8 @@ off, in `config` for the whole program or on a screen.
 `config.theme` sets the colors: `"default"` (pale blue on black), `"amber"`, `"green"`, `"white"`, or your
 own, e.g. `{ "fg": "#33ff66", "bg": "#001100" }`. `config.font` picks a typeface: `"ast-premiumexec"`
 (the default), `"ibm-vga"`, `"ibm-ega"`, `"ibm-cga"`, `"ibm-cga-thin"`, `"ibm-mda"`,
-`"toshiba-satellite"` or `"departure-mono"`. Text is sized to whole multiples of the font's pixel
-height, so it stays crisp. Or a font installed on the player's computer: `"courier-new"`,
+`"toshiba-satellite"`, `"departure-mono"` or `"c64-pro-mono"` (the Commodore 64's). Text is sized
+to whole multiples of the font's pixel height, so it stays crisp. Or a font installed on the player's computer: `"courier-new"`,
 `"consolas"` (Windows) or `"menlo"` (macOS). These aren't bundled, so where one isn't
 installed, the browser's own monospace font stands in; they can be any size.
 
@@ -661,8 +661,20 @@ layers over the config's.
 Moving effects hold still when the system asks for reduced motion.
 
 Fonts: AST PremiumExec from [The Ultimate Oldschool PC Font Pack](https://int10h.org/oldschool-pc-fonts/)
-by VileR (CC BY-SA 4.0), and Departure Mono by Helena Zhang (SIL OFL 1.1). Their license texts
+by VileR (CC BY-SA 4.0), Departure Mono by Helena Zhang (SIL OFL 1.1), and C64 Pro Mono from
+[C64 TrueType](https://style64.org/c64-truetype) v1.2.1 by Style (see below). Their license texts
 are in `public/licenses/`, so every build includes them (served at `licenses/`).
+
+C64 Pro Mono comes with conditions of its own ([its license](https://style64.org/c64-truetype/license)):
+- **Only while it's free.** It may be included in software only if that software is freely provided
+  to end users. A paid version of Teletronix, or a paid program made with it, must leave the font
+  out (or have a license from Style, who offer one on request at
+  <https://style64.org/contact-style>).
+- **Unmodified, and under its own name.** `public/fonts/C64_Pro_Mono-STYLE.woff` is exactly the
+  file from Style's package: don't convert, subset or rename it. It lives in `public/`, rather than
+  being imported like the other fonts, so the build doesn't add a hash to its name.
+- **Not for download.** Don't offer the font file itself for download; link to
+  <https://style64.org/c64-truetype> instead, where anyone can get it.
 
 The sample's photo of the Gulf of Mexico at night, from orbit, is by
 [NASA on Unsplash](https://unsplash.com/photos/photo-of-outer-space-Q1p7bh3SHj8), under the

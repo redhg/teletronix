@@ -9,7 +9,8 @@ import toshibaSatellite from "../assets/fonts/WebPlus_ToshibaSat_8x16.woff";
 import { FONTS, type FontId, isSystemFont, type Palette } from "../engine/index.ts";
 
 // Fonts from The Ultimate Oldschool PC Font Pack by VileR (https://int10h.org/oldschool-pc-fonts/,
-// CC BY-SA 4.0) and Departure Mono by Helena Zhang (SIL OFL 1.1). Licenses: public/licenses/.
+// CC BY-SA 4.0), Departure Mono by Helena Zhang (SIL OFL 1.1) and C64 Pro Mono by Style
+// (https://style64.org/c64-truetype). Licenses: public/licenses/.
 const FONT_FILES: Partial<Record<FontId, string>> = {
     "ast-premiumexec": astPremiumExec,
     "ibm-vga": ibmVga,
@@ -19,6 +20,10 @@ const FONT_FILES: Partial<Record<FontId, string>> = {
     "ibm-mda": ibmMda,
     "toshiba-satellite": toshibaSatellite,
     "departure-mono": departureMono,
+    // Its license allows it only unmodified and under its own filename, and only while
+    // Teletronix is free. So it's served from public/, where the build leaves the name alone,
+    // rather than imported (which would add a hash to the name).
+    "c64-pro-mono": `${import.meta.env.BASE_URL}fonts/C64_Pro_Mono-STYLE.woff`,
 };
 
 const loading = new Map<FontId, Promise<void>>();
