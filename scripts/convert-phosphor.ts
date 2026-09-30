@@ -35,7 +35,7 @@ interface PhosphorFile {
 
 // ─── Conversion ──────────────────────────────────────────────────────────────
 
-type Content = TeletronixFile["screens"][string]["content"][number];
+type Content = NonNullable<TeletronixFile["screens"][string]["content"]>[number];
 type Action = { screen: string } | { dialog: string };
 
 const warnings: string[] = [];

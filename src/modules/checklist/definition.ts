@@ -159,7 +159,7 @@ export function createChecklistReveal(
             const tail = line.slice(text.length);
             // while it waits, the cursor sits just after the line's text
             const waiting = into >= step.reveal.duration && tail.length > 0;
-            return [
+            const segments: Segment[] = [
                 { kind: "visible", text: done },
                 ...typed,
                 ...(waiting
@@ -168,7 +168,8 @@ export function createChecklistReveal(
                           { kind: "hidden", text: tail.slice(1) + rest } as const,
                       ]
                     : [{ kind: "hidden", text: tail + rest } as const]),
-            ].filter((segment) => segment.text !== "");
+            ];
+            return segments.filter((segment) => segment.text !== "");
         },
         final: (): Frame => [{ kind: "visible", text: lines().join("\n") }],
     };
