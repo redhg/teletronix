@@ -591,6 +591,7 @@ export class ScreenRun {
                 random,
                 memory: () => this.options.recall?.(element.id),
                 instant,
+                loaded: () => this.runs[index]?.loaded,
             };
             const custom = moduleFor(element).reveal?.(element, spec, context);
             if (custom) {

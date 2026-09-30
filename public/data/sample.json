@@ -33,6 +33,7 @@
                         { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
                         { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } },
                         { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } },
+                        { "type": "link", "text": "> HEX DUMPS", "action": { "screen": "hexdumps" } },
                         { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
                         { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
                         { "type": "link", "text": "> LINKS", "action": { "screen": "links" } },
@@ -878,6 +879,8 @@
                 "  A fatal error in a blinking box. Press a key to restart.",
                 { "type": "link", "text": "> CRASH", "action": { "screen": "crash" } },
                 "  Garbage that never stops. Press a key to restart.",
+                { "type": "link", "text": "> HEX EDITOR", "action": { "screen": "hexeditor" } },
+                "  A recovered file to look through with the arrow keys. Press <esc> to leave.",
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
@@ -1024,6 +1027,40 @@
                 { "type": "link", "text": "> AGAIN", "action": { "screen": "spinners" } },
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
+        },
+        "hexdumps": {
+            "content": [
+                "HEX DUMPS",
+                "=========",
+                "",
+                "A hex dump shows bytes three ways: an address, the bytes in hex, and the same bytes as text. This one is some text of your own:",
+                "",
+                { "type": "hexdump", "text": "Teletronix sample program. Hello, world!" },
+                "",
+                "With \"size\", it's random bytes (the same every time), with your text hidden among them. \"highlight\" draws bytes in the alert color:",
+                "",
+                { "type": "hexdump", "size": 160, "text": "EXIT CODE 7741", "highlight": ["7741"], "offset": 49152 },
+                "",
+                "With \"src\", it's any file. Here are the first bytes of the sample's photo, a JPEG:",
+                "",
+                { "type": "hexdump", "src": "data/images/gulf-of-mexico-at-night.jpg", "rows": 6, "speed": 40 },
+                "",
+                "And with \"rows\", it's a window you can move through: try the arrow keys, Page Up/Down, Home and End. The HEX EDITOR preset (under PRESETS) fills the screen with one.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "hexeditor": {
+            "preset": {
+                "type": "hexeditor",
+                "file": "CREW_MANIFEST.DAT",
+                "size": 2048,
+                "at": 1200,
+                "text": "CREW: DALLAS, KANE, LAMBERT, PARKER, RIPLEY, ASH (SCIENCE OFFICER: SPECIAL ORDER 937)",
+                "highlight": ["SPECIAL ORDER 937"],
+                "offset": 3735879680,
+                "next": "presets"
+            }
         },
         "toggles": {
             "content": [

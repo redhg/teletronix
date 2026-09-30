@@ -81,6 +81,11 @@ export interface RevealContext {
     memory: () => unknown;
     /** Whether everything shows at once (e.g. for reduced motion), whatever it asks for. */
     instant?: boolean;
+    /**
+     * What the element loaded (see ModuleDefinition.text), once it has: undefined until then,
+     * which is before the reveal starts.
+     */
+    loaded?: () => unknown;
 }
 
 export interface Outcome {

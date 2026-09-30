@@ -1,0 +1,60 @@
+.hexdump {
+    position: relative;
+    white-space: pre;
+}
+
+.hexdump:focus {
+    outline: none;
+}
+
+.hexdump-probe {
+    position: absolute;
+    visibility: hidden;
+}
+
+.hexdump .mark {
+    color: var(--alert);
+    text-shadow: var(--fringe, 0 0 transparent), var(--alert-glow);
+}
+
+/* where the cursor is, in both columns: inverse video, blinking in the hex column */
+.hexdump .cursor {
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: var(--inverse-glow);
+}
+
+/* while it has the keyboard, the cursor blinks: between inverse and normal, so the byte
+   under it never disappears */
+.hexdump:focus .cursor {
+    animation: hexdump-blink 1s steps(1) infinite;
+}
+
+@keyframes hexdump-blink {
+    50% {
+        color: inherit;
+        background: transparent;
+        text-shadow: inherit;
+    }
+}
+
+.hexdump .mark.cursor {
+    background: var(--alert);
+}
+
+.hexdump-window .hexdump-row {
+    cursor: pointer;
+}
+
+.hexdump-status {
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: var(--inverse-glow);
+    padding-inline: 1ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hexdump:focus .cursor {
+        animation: none;
+    }
+}

@@ -44,6 +44,7 @@ import {
     BootPresetSchema,
     CrashPresetSchema,
     ErrorPresetSchema,
+    HexeditorPresetSchema,
     MemorySchema,
     PresetSchema,
     ShutdownPresetSchema,
@@ -91,6 +92,12 @@ import {
 import { ChoiceMarkersSchema, ChoiceSchema } from "../src/modules/choice/definition.ts";
 import { CounterSchema } from "../src/modules/counter/definition.ts";
 import { CrashSchema } from "../src/modules/crash/definition.ts";
+import {
+    ByteRangeSchema,
+    HexdumpExitSchema,
+    HexdumpSchema,
+    HighlightSchema,
+} from "../src/modules/hexdump/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
 import { MenuItemSchema, MenuSchema } from "../src/modules/menu/definition.ts";
 import { MeterRangeSchema, MeterSchema } from "../src/modules/meter/definition.ts";
@@ -165,6 +172,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Shutdown", ShutdownPresetSchema, '"type": "shutdown"'],
             ["Error", ErrorPresetSchema, '"type": "error"'],
             ["Crash", CrashPresetSchema, '"type": "crash"'],
+            ["Hex editor", HexeditorPresetSchema, '"type": "hexeditor"'],
         ],
     ],
     [
@@ -219,6 +227,10 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Progress outcome", OutcomeSchema],
             ["Delayed action", DelayedActionSchema],
             ["Progress interrupt", InterruptSchema],
+            ["Hex dump", HexdumpSchema, '"type": "hexdump"'],
+            ["Hex dump highlight", HighlightSchema],
+            ["Byte range", ByteRangeSchema],
+            ["Hex dump exit", HexdumpExitSchema],
             ["Spinner", SpinnerSchema, '"type": "spinner"'],
             ["Spinner interrupt", SpinnerInterruptSchema],
             ["Counter", CounterSchema, '"type": "counter"'],

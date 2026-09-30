@@ -7,6 +7,7 @@ import { ChoiceView } from "../modules/choice/View.tsx";
 import { ColumnsView } from "../modules/columns/View.tsx";
 import { CounterView } from "../modules/counter/View.tsx";
 import { CrashView } from "../modules/crash/View.tsx";
+import { HexdumpView } from "../modules/hexdump/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
 import { MenuView } from "../modules/menu/View.tsx";
 import { MeterView } from "../modules/meter/View.tsx";
@@ -51,4 +52,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     crash: CrashView,
     visual: VisualView,
     spinner: SpinnerView,
+    hexdump: HexdumpView,
 };

@@ -4,6 +4,8 @@ import {
     DEFAULT_CHECKLIST_STATUS,
 } from "../../modules/checklist/definition.ts";
 import { DEFAULT_CRASH_MESSAGE } from "../../modules/crash/definition.ts";
+import { HighlightSchema } from "../../modules/hexdump/definition.ts";
+import type { BarLine } from "./bars.ts";
 import { ActionSchema, IdSchema } from "./common.ts";
 import { ContentSchema } from "./elements.ts";
 import type { NextRule } from "./next.ts";
@@ -269,12 +271,84 @@ export const CrashPresetSchema = z
             "changing, with a message surfacing through it. Optionally, a key press restarts.",
     });
 
+export const HEXEDITOR_DEFAULTS = {
+    title: "HEXEDIT 2.1",
+    file: "UNTITLED.BIN",
+    status: "OFFSET {offset}   BYTE {byte}   {size} BYTES   READ ONLY",
+    exit: "ESC: EXIT",
+};
+
+export const HexeditorPresetSchema = z
+    .strictObject({
+        type: z.literal("hexeditor"),
+        title: z
+            .string()
+            .default(HEXEDITOR_DEFAULTS.title)
+            .meta({
+                description: `The editor's name, at the left of its header bar (default: "${HEXEDITOR_DEFAULTS.title}")`,
+            }),
+        file: z
+            .string()
+            .default(HEXEDITOR_DEFAULTS.file)
+            .meta({
+                description: `The file's name, after it (default: "${HEXEDITOR_DEFAULTS.file}")`,
+            }),
+        status: z
+            .string()
+            .default(HEXEDITOR_DEFAULTS.status)
+            .meta({
+                description:
+                    "The status line under the bytes: {offset} is the cursor's address, {byte} the " +
+                    `byte there, and {size} the number of bytes (default: "${HEXEDITOR_DEFAULTS.status}")`,
+            }),
+        exit: z
+            .string()
+            .default(HEXEDITOR_DEFAULTS.exit)
+            .meta({
+                description:
+                    "A link at the right of the header bar that leaves, as <esc> does " +
+                    `(default: "${HEXEDITOR_DEFAULTS.exit}")`,
+            }),
+        next: IdSchema.optional().meta({
+            description: "The screen to go to on leaving (default: the program's start screen)",
+        }),
+        // the rest is the hex dump's
+        text: z
+            .union([z.string(), z.array(z.string()).min(1)])
+            .optional()
+            .meta({
+                description: 'Text to show as bytes. With "size", it\'s hidden among random bytes.',
+            }),
+        src: z.string().min(1).optional().meta({ description: "A file to show instead" }),
+        size: z.int().min(1).max(65_536).optional().meta({
+            description: 'This many random bytes, with the "text" (if any) hidden among them',
+        }),
+        at: z.int().min(0).optional().meta({
+            description: 'Where the "text" goes among the random bytes',
+        }),
+        offset: z.int().min(0).optional().meta({
+            description: "The address shown for the first byte (default: 0)",
+        }),
+        highlight: z.array(HighlightSchema).optional().meta({
+            description: 'Bytes to draw in the alert color: some text, or { "from", "to" }',
+        }),
+        lowercase: z.boolean().optional().meta({
+            description: "Lowercase hex digits (default: false)",
+        }),
+    })
+    .meta({
+        description:
+            "A hex editor, for looking only: a file's bytes filling the screen, a cursor to move " +
+            "through them with the arrow keys, and a status line. <esc> leaves.",
+    });
+
 export const PresetSchema = z
     .discriminatedUnion("type", [
         BootPresetSchema,
         ShutdownPresetSchema,
         ErrorPresetSchema,
         CrashPresetSchema,
+        HexeditorPresetSchema,
     ])
     .meta({ description: "A ready-made screen, with a few settings of its own" });
 
@@ -286,6 +360,8 @@ export interface Expanded {
     /** Content to go after the screen's own. */
     after: unknown[];
     next?: NextRule;
+    /** A header bar for the screen, unless it has its own. */
+    header?: BarLine[];
 }
 
 /** Lines with a blank line between each group, leaving out empty groups. */
@@ -416,6 +492,27 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                 before: [crash],
                 after: restart,
                 next: preset.next === undefined ? undefined : goTo(preset.next),
+            };
+        }
+        case "hexeditor": {
+            const { type: _, title, file, exit, next, ...dump } = preset;
+            const leave = ActionSchema.parse({ screen: next ?? start });
+            return {
+                before: [
+                    {
+                        type: "hexdump",
+                        rows: "fill",
+                        ...dump,
+                        exit: { key: "Escape", action: { screen: next ?? start } },
+                    },
+                ],
+                after: [],
+                header: [
+                    {
+                        left: { text: `${title}  ${file}`.trim() },
+                        ...(exit ? { right: { text: exit, action: leave } } : {}),
+                    },
+                ],
             };
         }
     }

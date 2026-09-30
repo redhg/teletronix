@@ -7,10 +7,10 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
-- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash)
+- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -141,6 +141,7 @@ One of:
 - [Shutdown](#shutdown)
 - [Error](#error)
 - [Crash](#crash)
+- [Hex editor](#hex-editor)
 
 <a id="boot"></a>
 
@@ -216,6 +217,27 @@ A computer that has crashed: the whole window fills with garbage that never stop
 | `fragments` | string[] | the lines of the screen before, as if it had broken apart | Bits of text scattered through the noise |
 | `next` | id | none: the crash goes on for good | A screen that a key press (or a tap) restarts to |
 | `restart` | string | `"PRESS ANY KEY TO RESTART"` | With `next`, what screen readers hear as it waits for the key (the noise hides it on screen) |
+
+<a id="hex-editor"></a>
+
+### Hex editor (`"type": "hexeditor"`)
+
+A hex editor, for looking only: a file's bytes filling the screen, a cursor to move through them with the arrow keys, and a status line. <esc> leaves.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `title` | string | `"HEXEDIT 2.1"` | The editor's name, at the left of its header bar |
+| `file` | string | `"UNTITLED.BIN"` | The file's name, after it |
+| `status` | string | `"OFFSET {offset}   BYTE {byte}   {size} BYTES   READ ONLY"` | The status line under the bytes: {offset} is the cursor's address, {byte} the byte there, and {size} the number of bytes |
+| `exit` | string | `"ESC: EXIT"` | A link at the right of the header bar that leaves, as <esc> does |
+| `next` | id | the program's start screen | The screen to go to on leaving |
+| `text` | string \| string[] |  | Text to show as bytes. With "size", it's hidden among random bytes. |
+| `src` | string |  | A file to show instead |
+| `size` | whole number, 1–65536 |  | This many random bytes, with the "text" (if any) hidden among them |
+| `at` | whole number, ≥ 0 |  | Where the "text" goes among the random bytes |
+| `offset` | whole number, ≥ 0 | `0` | The address shown for the first byte |
+| `highlight` | [Hex dump highlight](#hex-dump-highlight)[] |  | Bytes to draw in the alert color: some text, or { "from", "to" } |
+| `lowercase` | boolean | `false` | Lowercase hex digits |
 
 ## Bars
 
@@ -422,6 +444,7 @@ One of:
 - [Crash element](#crash-element)
 - [Visual](#visual)
 - [Spinner](#spinner)
+- [Hex dump](#hex-dump)
 
 <a id="text"></a>
 
@@ -763,6 +786,66 @@ Makes a progress bar stop short: at a set point (a transfer that fails) and/or w
 | `text` | string | `"INTERRUPTED"` | Shown in place of the percentage |
 | `action` | [Action](#action) |  | What happens when interrupted, instead of onComplete |
 | `after` | number, ≥ 0 |  | Milliseconds to wait before the action |
+
+<a id="hex-dump"></a>
+
+### Hex dump (`"type": "hexdump"`)
+
+Bytes as a hex dump: an address, the bytes in hex, and the same bytes as text. From your text, random bytes (with text hidden among them) or a file. Only for looking at.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `text` | string \| string[] |  | Text to show as bytes (a string, or a list of lines), readable in the text column. With "size", it's hidden among random bytes. |
+| `src` | string |  | A file to show instead, of any kind, relative to the page. The screen waits for it to load. |
+| `size` | whole number, 1–65536 |  | This many random bytes, the same each time, with the "text" (if any) hidden among them |
+| `at` | whole number, ≥ 0 | two-thirds of the way in | Where the "text" goes among the random bytes, counting from 0 |
+| `offset` | whole number, ≥ 0 | `0` | The address shown for the first byte |
+| `perRow` | `4` \| `8` \| `16` | as many as fit | Bytes per row: 4, 8 or 16 |
+| `ascii` | boolean | `true` | Show the bytes as text too, in a column on the right |
+| `lowercase` | boolean | `false` | Lowercase hex digits |
+| `highlight` | [Hex dump highlight](#hex-dump-highlight)[] |  | Bytes to draw in the alert color: some text (every place it appears), or { "from", "to" } |
+| `rows` | whole number, ≥ 1 \| `"fill"` | every row, one after another | Show this many rows at a time, or "fill" for as many as fit the window, and let the player move through the bytes with the arrow keys, Page Up/Down, Home and End, or by clicking |
+| `status` | string |  | With "rows", a status line under it. {offset} is the cursor's address, {byte} the byte there, and {size} the number of bytes. |
+| `exit` | [Hex dump exit](#hex-dump-exit) |  | A key that leaves it (e.g. for a hex editor screen), once it has appeared |
+| `speed` | number, ≥ 0 | `12` | Milliseconds for each row to appear |
+| `alt` | string | `"Hex dump, <size> bytes"` | A description, for screen readers |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="hex-dump-highlight"></a>
+
+### Hex dump highlight
+
+Bytes to draw in the alert color: some text, or a range
+
+One of:
+
+- string: Text: every place it appears in the bytes
+- [Byte range](#byte-range)
+
+<a id="byte-range"></a>
+
+### Byte range
+
+A range of bytes
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `from` | whole number, ≥ 0 | **required** | The first byte, counting from 0 |
+| `to` | whole number, ≥ 0 | **required** | The last byte |
+
+<a id="hex-dump-exit"></a>
+
+### Hex dump exit
+
+A key that leaves a hex dump, once it has appeared
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `key` | string \| string[] | `"Escape"` | The key: "any", a key name, or an array |
+| `action` | [Action](#action) | **required** | What happens |
 
 <a id="spinner"></a>
 

@@ -23,6 +23,11 @@ import {
     counterModule,
 } from "../../modules/counter/definition.ts";
 import { type CrashElement, CrashSchema, crashModule } from "../../modules/crash/definition.ts";
+import {
+    type HexdumpElement,
+    HexdumpSchema,
+    hexdumpModule,
+} from "../../modules/hexdump/definition.ts";
 import { type LinkElement, LinkSchema, linkModule } from "../../modules/link/definition.ts";
 import { type MenuElement, MenuSchema, menuModule } from "../../modules/menu/definition.ts";
 import { type MeterElement, MeterSchema, meterModule } from "../../modules/meter/definition.ts";
@@ -93,6 +98,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     CrashSchema,
     VisualSchema,
     SpinnerSchema,
+    HexdumpSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -128,7 +134,8 @@ export type Element =
     | PowerOffElement
     | CrashElement
     | VisualElement
-    | SpinnerElement;
+    | SpinnerElement
+    | HexdumpElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -157,6 +164,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     crash: crashModule,
     visual: visualModule,
     spinner: spinnerModule,
+    hexdump: hexdumpModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {

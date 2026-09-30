@@ -208,3 +208,30 @@ describe("the crash preset", () => {
         expect(restarts.next?.[0]?.action).toEqual([{ screen: "home" }]);
     });
 });
+
+describe("the hex editor preset", () => {
+    it("is a hex dump filling the screen, with a header bar and an exit", () => {
+        const result = parseProgram(
+            screenFile({ type: "hexeditor", file: "CREW.DAT", size: 256, text: "SECRET" }),
+        );
+        if (!result.ok) throw new Error(JSON.stringify(result.errors));
+        const screen = result.program.screens.get("preset");
+        expect(screen?.content).toMatchObject([
+            {
+                type: "hexdump",
+                rows: "fill",
+                size: 256,
+                text: "SECRET",
+                exit: { key: ["escape"], action: [{ screen: "home" }] },
+            },
+        ]);
+        expect(screen?.header).toEqual([
+            {
+                left: { text: "HEXEDIT 2.1  CREW.DAT" },
+                right: { text: "ESC: EXIT", action: [{ screen: "home" }] },
+            },
+        ]);
+        // (no next rule: a tap on the screen shouldn't leave)
+        expect(screen?.next).toBeUndefined();
+    });
+});

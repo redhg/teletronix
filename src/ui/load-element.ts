@@ -1,6 +1,7 @@
 import type { Element } from "../engine/index.ts";
 import { imageToAscii } from "../modules/ascii/convert.ts";
 import { cleanText } from "../modules/text/definition.ts";
+import { loadBytes } from "./load-bytes.ts";
 import { loadImage } from "./load-image.ts";
 
 /** Starts loading whatever an element needs before it can be revealed (see TerminalOptions.load). */
@@ -10,6 +11,8 @@ export function loadElement(element: Element): Promise<unknown> | undefined {
             return loadImage(element.src);
         case "ascii":
             return loadImage(element.src).then((image) => imageToAscii(image, element));
+        case "hexdump":
+            return element.src === undefined ? undefined : loadBytes(element.src);
         case "text":
             return element.src === undefined ? undefined : loadText(element.src);
         default:

@@ -1277,3 +1277,83 @@ test.describe("spinner", () => {
         await expect(player.screen.locator(".spinner .sr-only").first()).toHaveText("LOAD");
     });
 });
+
+test.describe("hexdump", () => {
+    const dumps = {
+        config: { name: "Hex", start: "home", reveal: "instant" },
+        screens: {
+            home: {
+                content: [
+                    { type: "hexdump", text: "HELLO", perRow: 8 },
+                    { type: "hexdump", size: 64, text: "CODE 42", highlight: ["42"], perRow: 16 },
+                    { type: "link", text: "> EDITOR", action: { screen: "editor" } },
+                    { type: "link", text: "> FILE", action: { screen: "file" } },
+                ],
+            },
+            editor: {
+                preset: { type: "hexeditor", file: "TEST.BIN", size: 512, next: "home" },
+            },
+            file: {
+                content: [
+                    { type: "hexdump", src: "e2e-images/sunset-grid.png", perRow: 8 },
+                    { type: "hexdump", src: "data/missing.bin" },
+                ],
+            },
+        },
+    } as Program;
+
+    test("shows bytes as hex and text, with highlights", async ({ player }) => {
+        await player.open(dumps);
+        const first = player.screen.locator(".hexdump").first();
+        await expect(first.locator(".hexdump-row")).toHaveText([
+            "00000000  48 45 4C 4C  4F              |HELLO|   ",
+        ]);
+        await expect(first).toHaveAccessibleName("Hex dump, 5 bytes");
+        const marked = player.screen.locator(".hexdump").nth(1).locator(".mark");
+        // "42" in hex and as text
+        await expect(marked).toHaveText(["34", "32", "4", "2"]);
+        await expect(marked.first()).toHaveCSS("color", "rgb(255, 60, 0)");
+    });
+
+    test("shows a file's bytes, or says it can't", async ({ player, page }) => {
+        await serveTestImages(page);
+        await player.open(dumps);
+        await player.screen.getByRole("button", { name: "> FILE" }).click();
+        // a PNG starts 89 50 4E 47 ("‰PNG")
+        await expect(player.screen.locator(".hexdump-row").first()).toContainText(
+            "00000000  89 50 4E 47  0D 0A 1A 0A  |.PNG....|",
+        );
+        await expect(player.screen).toContainText("[FILE UNAVAILABLE: data/missing.bin]");
+    });
+
+    test("is an editor to move through, and leave", async ({ page, player }) => {
+        await player.open(dumps);
+        await player.screen.getByRole("button", { name: "> EDITOR" }).click();
+        await expect(page.locator(".bar-header")).toContainText("HEXEDIT 2.1  TEST.BIN");
+        const editor = player.screen.locator(".hexdump");
+        const status = editor.locator(".hexdump-status");
+        await expect(status).toContainText("OFFSET 00000000");
+        await expect(editor).toBeFocused();
+        await page.keyboard.press("ArrowRight");
+        await page.keyboard.press("ArrowDown");
+        const perRow = await editor.locator(".hexdump-row").first().locator("[data-byte]").count();
+        const expected = (1 + perRow / 2).toString(16).toUpperCase().padStart(8, "0");
+        await expect(status).toContainText(`OFFSET ${expected}`);
+        await page.keyboard.press("End");
+        await expect(status).toContainText("OFFSET 000001FF");
+        // the last row is in view
+        await expect(editor.locator(".hexdump-row").last()).toContainText("000001F");
+
+        // a click moves the cursor, and doesn't leave
+        await editor.locator(".hexdump-row").first().locator("[data-byte]").nth(2).click();
+        await expect(status).toContainText(/OFFSET 000001[0-9A-F]{2}/);
+        await expect(page.locator(".bar-header")).toBeVisible();
+
+        await page.keyboard.press("Escape");
+        await expect(player.screen).toContainText("> EDITOR");
+
+        await player.screen.getByRole("button", { name: "> EDITOR" }).click();
+        await page.locator(".bar-header").getByRole("button", { name: "ESC: EXIT" }).click();
+        await expect(player.screen).toContainText("> EDITOR");
+    });
+});
