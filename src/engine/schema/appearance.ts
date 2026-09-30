@@ -23,7 +23,6 @@ export const FONTS = {
     "ibm-mda": { name: "IBM MDA", pixelHeight: 14 },
     "toshiba-satellite": { name: "Toshiba Satellite", pixelHeight: 16 },
     "departure-mono": { name: "Departure Mono", pixelHeight: 11 },
-    "c64-pro-mono": { name: "C64 Pro Mono", pixelHeight: 8 },
     "courier-new": { name: "Courier New (installed)", pixelHeight: 1, system: '"Courier New"' },
     consolas: { name: "Consolas (installed, Windows)", pixelHeight: 1, system: "Consolas" },
     menlo: { name: "Menlo (installed, macOS)", pixelHeight: 1, system: "Menlo" },
