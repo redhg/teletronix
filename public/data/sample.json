@@ -945,6 +945,7 @@
                     ]
                 },
                 "",
+                { "type": "pause" },
                 "\"chart\": telemetry scrolling past, as a line or as bars (these in the alert color):",
                 "",
                 {
@@ -957,10 +958,12 @@
                     ]
                 },
                 "",
+                { "type": "pause" },
                 "\"radar\": a sweep, with blips that flare as it passes:",
                 "",
                 { "type": "visual", "kind": "radar", "rows": 12, "blips": 7 },
                 "",
+                { "type": "pause" },
                 "\"wireframe\": a turning shape. A cube, an icosahedron and a torus:",
                 "",
                 {
@@ -974,6 +977,7 @@
                     ]
                 },
                 "",
+                { "type": "pause" },
                 "And \"terrain\", flying low:",
                 "",
                 { "type": "visual", "kind": "wireframe", "shape": "terrain", "rows": 10 },
