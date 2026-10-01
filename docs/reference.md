@@ -7,7 +7,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
-- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission)
+- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
 - **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
@@ -146,6 +146,7 @@ One of:
 - [Decrypt](#decrypt)
 - [Countdown](#countdown)
 - [Transmission](#transmission)
+- [Modem](#modem)
 
 <a id="boot"></a>
 
@@ -327,6 +328,25 @@ A message coming in: a signal locking on, the message typing in slowly through s
 | `pause` | boolean \| string | `false` | Wait for a key press (or a tap) at the end, with a line of text: true for "PRESS ANY KEY TO CONTINUE", or the text to show |
 | `next` | id | stay | The screen to go to once it has finished |
 | `after` | number, ≥ 0 | 2000, or 0 after a pause | Milliseconds to wait before going to `next` |
+
+<a id="modem"></a>
+
+### Modem (`"type": "modem"`)
+
+Dialling in: the modem's commands, a dialling spinner, a crackling handshake, and CONNECT, then the screen's own content (a BBS's welcome, say), or on to next
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `init` | string \| `false` | `"ATZ"` | The modem's reset command, answered with ok, or false for none |
+| `ok` | string | `"OK"` | The modem's answer |
+| `dial` | string | `"ATDT 555-0199"` | The dial command, with the number |
+| `dialing` | string \| `false` | `"DIALING "` | A spinner's label while it dials, or false for none |
+| `carrier` | string \| `false` | `"CARRIER DETECTED"` | The handshake: a line that glitches in, crackling, or false for none |
+| `handshake` | number, > 0 | `2500` | Milliseconds the handshake takes |
+| `connect` | string \| `false` | `"CONNECT 2400"` | The line once it's connected, or false for none |
+| `pause` | boolean \| string | `false` | Wait for a key press (or a tap) at the end, with a line of text: true for "PRESS ANY KEY TO CONTINUE", or the text to show |
+| `next` | id | stay | The screen to go to once it has connected |
+| `after` | number, ≥ 0 | 1000, or 0 after a pause | Milliseconds to wait before going to `next` |
 
 ## Bars
 

@@ -601,6 +601,57 @@ export const TransmissionPresetSchema = z
             "static, and a sign-off, then on to the next screen",
     });
 
+export const MODEM_DEFAULTS = {
+    init: "ATZ",
+    ok: "OK",
+    dial: "ATDT 555-0199",
+    dialing: "DIALING ",
+    carrier: "CARRIER DETECTED",
+    connect: "CONNECT 2400",
+    handshake: 2500,
+};
+
+export const ModemPresetSchema = z
+    .strictObject({
+        type: z.literal("modem"),
+        init: Line("The modem's reset command, answered with ok", MODEM_DEFAULTS.init),
+        ok: z
+            .string()
+            .default(MODEM_DEFAULTS.ok)
+            .meta({
+                description: `The modem's answer (default: "${MODEM_DEFAULTS.ok}")`,
+            }),
+        dial: z
+            .string()
+            .default(MODEM_DEFAULTS.dial)
+            .meta({
+                description: `The dial command, with the number (default: "${MODEM_DEFAULTS.dial}")`,
+            }),
+        dialing: Line("A spinner's label while it dials", MODEM_DEFAULTS.dialing),
+        carrier: Line("The handshake: a line that glitches in, crackling", MODEM_DEFAULTS.carrier),
+        handshake: z
+            .number()
+            .positive()
+            .default(MODEM_DEFAULTS.handshake)
+            .meta({
+                description: `Milliseconds the handshake takes (default: ${MODEM_DEFAULTS.handshake})`,
+            }),
+        connect: Line("The line once it's connected", MODEM_DEFAULTS.connect),
+        pause: PauseSettingSchema,
+        next: IdSchema.optional().meta({
+            description: "The screen to go to once it has connected (default: stay)",
+        }),
+        after: z.number().min(0).optional().meta({
+            description:
+                "Milliseconds to wait before going to `next` (default: 1000, or 0 after a pause)",
+        }),
+    })
+    .meta({
+        description:
+            "Dialling in: the modem's commands, a dialling spinner, a crackling handshake, and " +
+            "CONNECT, then the screen's own content (a BBS's welcome, say), or on to next",
+    });
+
 export const PresetSchema = z
     .discriminatedUnion("type", [
         BootPresetSchema,
@@ -612,6 +663,7 @@ export const PresetSchema = z
         DecryptPresetSchema,
         CountdownPresetSchema,
         TransmissionPresetSchema,
+        ModemPresetSchema,
     ])
     .meta({ description: "A ready-made screen, with a few settings of its own" });
 
@@ -883,6 +935,50 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                 ...(preset.noise
                     ? { effects: EffectsSchema.parse({ static: { opacity: 0.12 }, flicker: true }) }
                     : {}),
+            };
+        }
+        case "modem": {
+            const pause =
+                preset.pause === false
+                    ? []
+                    : [
+                          "",
+                          {
+                              type: "pause",
+                              text:
+                                  preset.pause === true
+                                      ? TRANSMISSION_DEFAULTS.pause
+                                      : preset.pause,
+                          },
+                      ];
+            const wait = preset.after ?? (preset.pause !== false ? 0 : 1000);
+            return {
+                before: [
+                    ...(preset.init === false ? [] : [preset.init, preset.ok]),
+                    preset.dial,
+                    ...(preset.dialing === false
+                        ? []
+                        : [
+                              {
+                                  type: "spinner",
+                                  label: preset.dialing,
+                                  style: "dots",
+                                  duration: 2500,
+                              },
+                          ]),
+                    ...(preset.carrier === false
+                        ? []
+                        : [
+                              {
+                                  type: "text",
+                                  text: preset.carrier,
+                                  reveal: { type: "glitch", duration: preset.handshake },
+                              },
+                          ]),
+                    ...(preset.connect === false ? [] : [preset.connect]),
+                ],
+                after: pause,
+                next: preset.next === undefined ? undefined : goTo(preset.next, wait),
             };
         }
         case "hexeditor": {

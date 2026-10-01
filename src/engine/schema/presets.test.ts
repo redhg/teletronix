@@ -390,3 +390,30 @@ describe("the transmission preset", () => {
         expect(own.program.screens.get("preset")?.effects).toEqual({ vignette: true });
     });
 });
+
+describe("the modem preset", () => {
+    it("resets, dials, shakes hands with a crackle, and connects", () => {
+        const { content, next } = expanded({ type: "modem", next: "home" });
+        expect(content).toMatchObject([
+            { type: "text", text: "ATZ" },
+            { type: "text", text: "OK" },
+            { type: "text", text: "ATDT 555-0199" },
+            { type: "spinner", label: "DIALING " },
+            { type: "text", text: "CARRIER DETECTED", reveal: { type: "glitch", duration: 2500 } },
+            { type: "text", text: "CONNECT 2400" },
+        ]);
+        expect(next).toEqual([{ after: 1000, action: [{ screen: "home" }] }]);
+    });
+
+    it("can leave out its steps", () => {
+        const { content } = expanded({
+            type: "modem",
+            init: false,
+            dialing: false,
+            carrier: false,
+            connect: false,
+            dial: "ATDT 911",
+        });
+        expect(content).toMatchObject([{ type: "text", text: "ATDT 911" }]);
+    });
+});

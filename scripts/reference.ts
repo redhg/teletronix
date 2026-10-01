@@ -49,6 +49,7 @@ import {
     HexeditorPresetSchema,
     LoginPresetSchema,
     MemorySchema,
+    ModemPresetSchema,
     PresetSchema,
     ShutdownPresetSchema,
     TransmissionPresetSchema,
@@ -183,6 +184,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Decrypt", DecryptPresetSchema, '"type": "decrypt"'],
             ["Countdown", CountdownPresetSchema, '"type": "countdown"'],
             ["Transmission", TransmissionPresetSchema, '"type": "transmission"'],
+            ["Modem", ModemPresetSchema, '"type": "modem"'],
         ],
     ],
     [

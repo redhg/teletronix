@@ -889,6 +889,8 @@
                 "  A self-destruct sequence. Abort it with code 1138, or let it run out...",
                 { "type": "link", "text": "> TRANSMISSION", "action": { "screen": "transmission" } },
                 "  A message coming in through the static.",
+                { "type": "link", "text": "> MODEM", "action": { "screen": "modem" } },
+                "  Dialling in to a bulletin board, crackle and all.",
                 { "type": "link", "text": "> HEX EDITOR", "action": { "screen": "hexeditor" } },
                 "  A recovered file that scrolls until something turns up. Take over with the arrow keys; <esc> leaves.",
                 "",
@@ -1172,6 +1174,18 @@
                 "pause": true,
                 "next": "presets"
             }
+        },
+        "modem": {
+            "preset": { "type": "modem", "dial": "ATDT 1-800-555-0199", "connect": "CONNECT 2400/ARQ" },
+            "content": [
+                "",
+                { "type": "text", "text": ["┌────────────────────────────────┐", "│  THE WEYLAND-YUTANI BBS  v4.1  │", "│  2 NODES  //  SYSOP: MOTHER    │", "└────────────────────────────────┘"], "wrap": false },
+                "",
+                "LAST CALLER: DALLAS",
+                "NEW MESSAGES: 3",
+                "",
+                { "type": "link", "text": "> HANG UP", "action": { "screen": "presets" } }
+            ]
         },
         "toggles": {
             "content": [
