@@ -582,7 +582,8 @@ tables, links…), revealed as it comes into view. Under it, a line of controls:
 `NEXT ►`). The ← and → keys flip it too, unless a field, a slider or another control that uses
 them has the keyboard; with several carousels on a screen, they go to the one last used.
 
-It stops at the ends, or goes round with `"loop": true`. `start` picks the first slide (from 1),
+`align` (`"left"`, `"center"` or `"right"`) places its slides' contents, images included; an
+element's own `align` still wins. It stops at the ends, or goes round with `"loop": true`. `start` picks the first slide (from 1),
 and `autoplay` moves on by itself, this many milliseconds after each slide has revealed, until
 the player flips a slide. It remembers which slide was showing when you come back; with a
 `variable`, that number variable holds it (from 1), so the story can use it, and setting it
@@ -872,7 +873,8 @@ abort key, a button's hotkey, or a screen's `next` rule.
 By default, each link, toggle, slider, section and prompt works as soon as it has been revealed,
 while the rest of the screen may still be typing. Set `"waitForReveal": true` in the config
 (or on a screen) and they all stay locked until the whole screen has revealed, then unlock
-together, as on a real terminal. A tap still finishes the reveal at once. An expanded
+together, as on a real terminal. While the reveal waits at a [pause](#pauses), those revealed so
+far work. A tap still finishes the reveal at once. An expanded
 section's contents wait for their own reveal in the same way.
 
 ### Autoscroll

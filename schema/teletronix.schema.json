@@ -2720,7 +2720,7 @@
                     }
                 },
                 "waitForReveal": {
-                    "description": "Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed, as on a real terminal, rather than each as it appears. A tap still finishes the reveal at once (default: false)",
+                    "description": "Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed, as on a real terminal, rather than each as it appears. At a pause, those revealed so far work while it waits. A tap still finishes the reveal at once (default: false)",
                     "type": "boolean"
                 },
                 "defaults": {
@@ -4195,7 +4195,7 @@
                         ]
                     },
                     "waitForReveal": {
-                        "description": "Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed (default: the config's)",
+                        "description": "Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed, or the reveal waits at a pause (default: the config's)",
                         "type": "boolean"
                     },
                     "header": {
@@ -28233,6 +28233,15 @@
                                             "type": "boolean",
                                             "const": false
                                         }
+                                    ]
+                                },
+                                "align": {
+                                    "description": "Where the slides' contents sit: \"left\", \"center\" or \"right\", images included. An element's own align still wins (default: the screen's)",
+                                    "type": "string",
+                                    "enum": [
+                                        "left",
+                                        "center",
+                                        "right"
                                     ]
                                 },
                                 "variable": {

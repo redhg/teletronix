@@ -51,3 +51,25 @@ test("without it, a control works as soon as it's revealed", async ({ player }) 
     await player.link("> EARLY LINK").click();
     await expect(player.screen).toContainText("AWAY");
 });
+
+test("at a pause, the controls so far work, and a key carries on", async ({ page, player }) => {
+    await player.open({
+        config: { name: "Wait", start: "home", waitForReveal: true, reveal: "instant" },
+        screens: {
+            home: {
+                content: [
+                    { type: "link", text: "> EARLY LINK", action: { screen: "away" } },
+                    { type: "pause" },
+                    "LATER",
+                ],
+            },
+            away: { content: ["AWAY"] },
+        },
+    });
+    await expect(player.link("> EARLY LINK")).toBeVisible();
+    await expect(player.screen).not.toContainText("LATER");
+    await page.keyboard.press("Space");
+    await expect(player.screen).toContainText("LATER");
+    await player.link("> EARLY LINK").click();
+    await expect(player.screen).toContainText("AWAY");
+});

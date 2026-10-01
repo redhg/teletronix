@@ -43,6 +43,26 @@ describe("waitForReveal", () => {
         expect(run(terminal).interactive).toBe(true);
     });
 
+    it("unlocks what's there so far while a pause waits", () => {
+        const { terminal, ticker } = createTestTerminal({
+            config: { name: "Test", waitForReveal: true },
+            screens: {
+                home: {
+                    content: [
+                        { type: "link", text: "go", action: { screen: "home" } },
+                        { type: "pause" },
+                        "after",
+                    ],
+                },
+            },
+        });
+        terminal.start();
+        ticker.advance(1000, 10);
+        expect(run(terminal).paused).toBe(true);
+        expect(run(terminal).interactive).toBe(true);
+        expect(run(terminal).finishedAt).toBeNull();
+    });
+
     it("unlocks at once when the reveal is skipped", () => {
         const { terminal, ticker } = createTestTerminal(file(true));
         terminal.start();

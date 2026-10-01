@@ -213,7 +213,8 @@ export class ScreenRun {
      */
     get interactive(): boolean {
         const wait = this.screen.waitForReveal ?? this.options.defaults.waitForReveal;
-        return !wait || this.finished !== null;
+        // (at a pause, nothing more is appearing: what's there so far can be used)
+        return !wait || this.finished !== null || this.paused;
     }
 
     /** When every element finished revealing (or was skipped), or null if not yet. */
@@ -549,8 +550,9 @@ export class ScreenRun {
         const child: ScreenRun = new ScreenRun(
             {
                 ...this.screen,
-                // the element's reveal is its contents' default
+                // the element's reveal is its contents' default, and a carousel's alignment
                 reveal: holder.reveal ?? this.screen.reveal,
+                align: (holder.type === "carousel" && holder.align) || this.screen.align,
                 next: undefined,
                 sound: undefined,
                 content,

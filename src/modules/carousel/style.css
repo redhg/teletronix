@@ -17,3 +17,12 @@
     cursor: default;
     opacity: 0.35;
 }
+
+/* images and visuals follow the slides' alignment, as text does */
+.carousel-slide[data-align="center"] :is(.bitmap, .visual) canvas {
+    margin-inline: auto;
+}
+
+.carousel-slide[data-align="right"] :is(.bitmap, .visual) canvas {
+    margin-inline-start: auto;
+}

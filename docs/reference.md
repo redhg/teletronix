@@ -49,7 +49,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `align` | `"left"` \| `"center"` \| `"right"` | `"left"` | Where text, links and toggles sit across every screen, unless a screen or element says otherwise |
 | `header` | [Bar](#bar) |  | A header bar pinned to the top of the window, on every screen unless it sets its own. Its lines don't scroll or reveal, and show variables as they change. |
 | `footer` | [Bar](#bar) |  | A status bar pinned to the bottom of the window, on every screen unless it sets its own. Its lines don't scroll or reveal, and show variables as they change. |
-| `waitForReveal` | boolean | `false` | Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed, as on a real terminal, rather than each as it appears. A tap still finishes the reveal at once |
+| `waitForReveal` | boolean | `false` | Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed, as on a real terminal, rather than each as it appears. At a pause, those revealed so far work while it waits. A tap still finishes the reveal at once |
 | `defaults` | [Defaults](#defaults) |  | Default options for each kind of reveal |
 | `variables` | [Variables](#variables) |  | The program's variables and their starting values: true or false, a number, or text. Actions change them with `set`, toggles, sliders and prompts can be bound to them, `if` tests them, and text shows them as "{name}". They reset when the page reloads. |
 | `timers` | [Timers](#timers) |  | The program's timers, by name: clocks that keep running from screen to screen, such as a self-destruct countdown |
@@ -110,7 +110,7 @@ A screen of content. Its elements are revealed one after another.
 | `effects` | [Effects](#effects) |  | Effects for this screen, layered over the config's |
 | `autoscroll` | boolean | the config's | Keep new content in view as it appears |
 | `align` | `"left"` \| `"center"` \| `"right"` | the config's | Where text, links and toggles sit across the screen, unless they say otherwise |
-| `waitForReveal` | boolean | the config's | Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed |
+| `waitForReveal` | boolean | the config's | Make links, toggles, sliders, sections and prompts usable only once the whole screen has revealed, or the reveal waits at a pause |
 | `header` | [Bar](#bar) \| `false` |  | A header bar for this screen instead of the config's, or false for none |
 | `footer` | [Bar](#bar) \| `false` |  | A status bar for this screen instead of the config's, or false for none |
 | `next` | [Next rule](#next-rule) \| [Next rule](#next-rule)[] |  | Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens. |
@@ -1698,6 +1698,7 @@ Slides shown one at a time, like records on a terminal: flipped with its ◄ PRE
 | `prev` | string | `"◄ PREV"` | The link to the slide before |
 | `next` | string | `"NEXT ►"` | The link to the slide after |
 | `counter` | string \| `false` | `"{slide}/{slides}"` | Between the links: which slide this is, "{slide}" of "{slides}" (default: "{slide}/{slides}"), or false for none |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's | Where the slides' contents sit: "left", "center" or "right", images included. An element's own align still wins |
 | `variable` | id |  | A number variable that holds the slide showing, from 1, e.g. to show a link once the last has been seen. Setting it flips the carousel. |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |

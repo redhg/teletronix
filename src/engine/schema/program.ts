@@ -90,7 +90,7 @@ export const ScreenSchema = z
             .meta({
                 description:
                     "Make links, toggles, sliders, sections and prompts usable only once the whole " +
-                    "screen has revealed (default: the config's)",
+                    "screen has revealed, or the reveal waits at a pause (default: the config's)",
             }),
         header: z
             .union([BarSchema, z.literal(false)])
@@ -176,7 +176,8 @@ export const ConfigSchema = z
                 description:
                     "Make links, toggles, sliders, sections and prompts usable only once the " +
                     "whole screen has revealed, as on a real terminal, rather than each as it " +
-                    "appears. A tap still finishes the reveal at once (default: false)",
+                    "appears. At a pause, those revealed so far work while it waits. A tap still " +
+                    "finishes the reveal at once (default: false)",
             }),
         defaults: DefaultsSchema.optional(),
         variables: VariablesSchema.optional(),

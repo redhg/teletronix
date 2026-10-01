@@ -1,4 +1,4 @@
-import { expect, type Program, test } from "./fixtures.ts";
+import { expect, type Program, serveTestImages, test } from "./fixtures.ts";
 
 const slides = [["ALPHA"], ["BRAVO"], ["CHARLIE"]];
 
@@ -101,5 +101,57 @@ test.describe("carousel", () => {
         await page.keyboard.press("ArrowLeft");
         await expect(page.locator(".carousel")).toContainText("SHORT");
         expect((await below.boundingBox())?.y).toBeCloseTo(tall, 0);
+    });
+
+    test("centers its slides' images and text with align", async ({ page, player }) => {
+        await serveTestImages(page);
+        await player.open({
+            config: { name: "Align", start: "home" },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "carousel",
+                            align: "center",
+                            slides: [
+                                [
+                                    {
+                                        type: "bitmap",
+                                        src: "e2e-images/sunset-grid.png",
+                                        alt: "GRID",
+                                        cols: 10,
+                                    },
+                                    "MIDDLE",
+                                ],
+                            ],
+                        },
+                    ],
+                },
+            },
+        });
+        const slide = await page.locator(".carousel-slide").boundingBox();
+        const image = await page.locator(".carousel-slide canvas").boundingBox();
+        if (!slide || !image) throw new Error("no slide or image");
+        const middle = (box: { x: number; width: number }) => box.x + box.width / 2;
+        expect(Math.abs(middle(image) - middle(slide))).toBeLessThan(2);
+        await expect(page.locator(".carousel-slide .text").last()).toHaveText(/\s{10,}MIDDLE$/);
+    });
+
+    test("flips with the arrow keys while a pause waits, and a key carries on", async ({
+        page,
+        player,
+    }) => {
+        await player.open({
+            config: { name: "Pause", start: "home" },
+            screens: {
+                home: { content: [{ type: "carousel", slides }, { type: "pause" }, "MORE"] },
+            },
+        });
+        await expect(page.locator(".pause")).toBeVisible();
+        await page.keyboard.press("ArrowRight");
+        await expect(page.locator(".carousel")).toContainText("BRAVO");
+        await expect(player.screen).not.toContainText("MORE");
+        await page.keyboard.press("Space");
+        await expect(player.screen).toContainText("MORE");
     });
 });

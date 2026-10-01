@@ -234,11 +234,13 @@
                     ]
                 ] },
                 "",
+                { "type": "pause" },
+                "",
                 "It's bound to a variable, so the story knows where you are: last read, dossier {dossier}. It's remembered if you leave and come back.",
                 "",
-                "This one plays by itself, round and round, until you flip it:",
+                "This one plays by itself, round and round, until you flip it, with its slides centered (\"align\": \"center\"):",
                 "",
-                { "type": "carousel", "loop": true, "autoplay": 4000, "counter": "FRAME {slide} OF {slides}", "slides": [
+                { "type": "carousel", "align": "center", "loop": true, "autoplay": 4000, "counter": "FRAME {slide} OF {slides}", "slides": [
                     [
                         { "type": "bitmap", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "The Gulf of Mexico at night, from orbit", "cols": 40, "reveal": { "type": "raster", "duration": 1500 } }
                     ],
@@ -251,6 +253,8 @@
                         "3 FRAMES CAPTURED. 0 ANOMALIES."
                     ]
                 ] },
+                "",
+                { "type": "pause" },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]

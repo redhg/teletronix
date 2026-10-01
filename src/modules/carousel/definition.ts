@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ElementIdentity, ModuleDefinition } from "../../engine/module.ts";
-import { ElementBaseShape } from "../../engine/schema/common.ts";
+import { AlignSchema, ElementBaseShape } from "../../engine/schema/common.ts";
 import type { Element } from "../../engine/schema/elements.ts";
 import { VariableNameSchema } from "../../engine/schema/variables.ts";
 import type { RawContent } from "../section/definition.ts";
@@ -50,6 +50,11 @@ export const createCarouselSchema = (content: () => z.ZodType<RawContent[], RawC
                         'Between the links: which slide this is, "{slide}" of "{slides}" ' +
                         '(default: "{slide}/{slides}"), or false for none',
                 }),
+            align: AlignSchema.optional().meta({
+                description:
+                    'Where the slides\' contents sit: "left", "center" or "right", images ' +
+                    "included. An element's own align still wins (default: the screen's)",
+            }),
             variable: VariableNameSchema.optional().meta({
                 description:
                     "A number variable that holds the slide showing, from 1, e.g. to show a link " +

@@ -129,6 +129,26 @@ describe("carousels", () => {
         ]);
     });
 
+    it("give their slides their alignment", () => {
+        const { terminal } = createTestTerminal({
+            config: { name: "T" },
+            screens: {
+                home: {
+                    align: "right",
+                    content: [
+                        { type: "carousel", align: "center", slides: [["a"]] },
+                        { type: "carousel", slides: [["b"]] },
+                    ],
+                },
+            },
+        });
+        terminal.start();
+        terminal.skip();
+        const run = terminal.getSnapshot().screen?.run as ScreenRun;
+        expect((run.contents("home#0") as ScreenRun).screen.align).toBe("center");
+        expect((run.contents("home#1") as ScreenRun).screen.align).toBe("right");
+    });
+
     it("check their variable", () => {
         const result = parseProgram({
             config: { name: "T", variables: { page: 5, name: "X" } },

@@ -113,6 +113,7 @@ export function CarouselView({ element, interactive, run }: ElementViewProps<Car
             <div
                 ref={slides}
                 className="carousel-slide"
+                data-align={element.align}
                 style={height ? { minHeight: `${height}px` } : undefined}
                 aria-live={playing ? "off" : "polite"}
             >
