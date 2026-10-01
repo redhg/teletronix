@@ -19,6 +19,7 @@ import { PowerOffView } from "../modules/poweroff/View.tsx";
 import { ProgressView } from "../modules/progress/View.tsx";
 import { PromptView } from "../modules/prompt/View.tsx";
 import { SectionView } from "../modules/section/View.tsx";
+import { ShellView } from "../modules/shell/View.tsx";
 import { SliderView } from "../modules/slider/View.tsx";
 import { SpinnerView } from "../modules/spinner/View.tsx";
 import { TableView } from "../modules/table/View.tsx";
@@ -57,4 +58,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     hexdump: HexdumpView,
     login: LoginView,
     decrypt: DecryptView,
+    shell: ShellView,
 };

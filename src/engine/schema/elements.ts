@@ -55,6 +55,7 @@ import {
     type SectionElement,
     sectionModule,
 } from "../../modules/section/definition.ts";
+import { type ShellElement, ShellSchema, shellModule } from "../../modules/shell/definition.ts";
 import { type SliderElement, SliderSchema, sliderModule } from "../../modules/slider/definition.ts";
 import {
     type SpinnerElement,
@@ -107,6 +108,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     HexdumpSchema,
     LoginSchema,
     DecryptSchema,
+    ShellSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -145,7 +147,8 @@ export type Element =
     | SpinnerElement
     | HexdumpElement
     | LoginElement
-    | DecryptElement;
+    | DecryptElement
+    | ShellElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -177,6 +180,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     hexdump: hexdumpModule,
     login: loginModule,
     decrypt: decryptModule,
+    shell: shellModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {

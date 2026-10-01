@@ -1658,3 +1658,89 @@ test.describe("restart", () => {
         await expect(player.screen.locator(".login input")).toBeVisible();
     });
 });
+
+test.describe("shell", () => {
+    const computer = {
+        config: { name: "Shell", start: "home", reveal: "instant", variables: { cleared: false } },
+        screens: {
+            home: {
+                preset: {
+                    type: "shell",
+                    files: {
+                        "readme.txt": "WELCOME",
+                        logs: { "0603.log": ["0612 SIGNAL"] },
+                        mother: { run: { screen: "mother" } },
+                        secret: { folder: { "937.txt": "EXPENDABLE" }, if: { cleared: true } },
+                    },
+                    commands: [
+                        { command: "sudo", output: "GRANTED", action: { set: { cleared: true } } },
+                    ],
+                    next: "bye",
+                },
+            },
+            mother: {
+                content: ["MOTHER", { type: "link", text: "> BACK", action: { screen: "home" } }],
+            },
+            bye: { content: ["BYE"] },
+        },
+    } as Program;
+    const enter = async (page: Page, text: string) => {
+        await page.keyboard.type(text);
+        await page.keyboard.press("Enter");
+    };
+    const shell = (player: Player) => player.screen.locator(".shell");
+
+    test("lists, reads and moves between folders", async ({ page, player }) => {
+        await player.open(computer);
+        await expect(player.screen).toContainText("Type HELP for a list of commands.");
+        await expect(shell(player).locator("input")).toBeFocused();
+        await enter(page, "ls");
+        await expect(shell(player)).toContainText("readme.txt  logs/  mother");
+        await enter(page, "cd logs");
+        await expect(shell(player).locator("label")).toHaveText("user@teletronix:/logs$ ");
+        await enter(page, "cat 0603.log");
+        await expect(shell(player)).toContainText("0612 SIGNAL");
+        await enter(page, "xyzzy");
+        await expect(shell(player).locator(".shell-error")).toHaveText("xyzzy: command not found");
+        await enter(page, "clear");
+        await expect(shell(player)).not.toContainText("0612 SIGNAL");
+    });
+
+    test("recalls commands with the arrow keys, and completes names with Tab", async ({
+        page,
+        player,
+    }) => {
+        await player.open(computer);
+        await enter(page, "ls");
+        await enter(page, "pwd");
+        await page.keyboard.press("ArrowUp");
+        await page.keyboard.press("ArrowUp");
+        await expect(shell(player).locator("input")).toHaveValue("ls");
+        await page.keyboard.press("ArrowDown");
+        await expect(shell(player).locator("input")).toHaveValue("pwd");
+        await page.keyboard.press("ArrowDown");
+        await expect(shell(player).locator("input")).toHaveValue("");
+        await page.keyboard.type("cat rea");
+        await page.keyboard.press("Tab");
+        await expect(shell(player).locator("input")).toHaveValue("cat readme.txt ");
+    });
+
+    test("shows what a condition hides, runs programs, remembers its folder, and exits", async ({
+        page,
+        player,
+    }) => {
+        await player.open(computer);
+        await enter(page, "sudo");
+        await expect(shell(player)).toContainText("GRANTED");
+        await enter(page, "cat secret/937.txt");
+        await expect(shell(player)).toContainText("EXPENDABLE");
+        await enter(page, "cd logs");
+        // a program, by its path from the top
+        await enter(page, "/mother");
+        await expect(player.screen).toContainText("MOTHER");
+        await player.screen.getByRole("button", { name: "> BACK" }).click();
+        await expect(shell(player).locator("label")).toHaveText("user@teletronix:/logs$ ");
+        await enter(page, "exit");
+        await expect(player.screen).toContainText("BYE");
+    });
+});

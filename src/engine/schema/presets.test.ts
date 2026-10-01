@@ -498,3 +498,66 @@ describe("the directory preset", () => {
         ]);
     });
 });
+
+describe("presets' settings, handed on to their elements", () => {
+    it("keep actions that set variables, and conditions, as written", () => {
+        const result = parseProgram({
+            config: { name: "Test", variables: { cleared: false } },
+            screens: {
+                home: { content: ["HOME"] },
+                login: {
+                    preset: {
+                        type: "login",
+                        accounts: [
+                            {
+                                user: "ash",
+                                password: "937",
+                                action: { set: { cleared: true }, screen: "home" },
+                            },
+                        ],
+                    },
+                },
+                shell: {
+                    preset: {
+                        type: "shell",
+                        files: { secret: { file: "X", if: { cleared: true } } },
+                        commands: [
+                            {
+                                command: "grant",
+                                output: "OK",
+                                action: { set: { cleared: true } },
+                                if: { cleared: false },
+                            },
+                        ],
+                    },
+                },
+                dir: {
+                    preset: {
+                        type: "directory",
+                        entries: [
+                            {
+                                name: "A.EXE",
+                                size: 1,
+                                action: { set: { cleared: true }, screen: "home" },
+                            },
+                        ],
+                    },
+                },
+            },
+        });
+        if (!result.ok) throw new Error(JSON.stringify(result.errors));
+        const login = result.program.screens.get("login")?.content.at(-1);
+        expect(login).toMatchObject({
+            accounts: [{ action: [{ set: [{ variable: "cleared", value: true }] }] }],
+        });
+        const shell = result.program.screens.get("shell")?.content.at(-1);
+        expect(shell).toMatchObject({
+            commands: [{ if: { variable: "cleared", equals: false } }],
+            files: { secret: { if: { variable: "cleared", equals: true } } },
+        });
+        expect(result.program.screens.get("dir")?.content.at(-2)).toMatchObject({
+            type: "link",
+            action: [{ set: [{ variable: "cleared", value: true }] }],
+        });
+    });
+});

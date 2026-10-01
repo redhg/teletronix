@@ -1,0 +1,6 @@
+/* the transcript wraps (and long words break) like a real terminal's */
+.shell-line {
+    min-height: 1lh;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}

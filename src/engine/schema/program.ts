@@ -289,7 +289,12 @@ export interface Program {
     variables: ReadonlyMap<string, VariableValue>;
 }
 
-function normalize(file: z.output<typeof FileSchema>): Program {
+/** The program as the engine runs it, from the file as parsed and (for presets) as written. */
+function normalize(
+    file: z.output<typeof FileSchema>,
+    written: unknown,
+    ctx: z.RefinementCtx,
+): Program {
     const {
         start,
         reveal,
@@ -316,12 +321,27 @@ function normalize(file: z.output<typeof FileSchema>): Program {
     // (an empty `screens` is reported by the reference check below)
     const firstScreen = start ?? Object.keys(file.screens)[0] ?? "";
     for (const [id, screen] of Object.entries(file.screens)) {
-        const preset = screen.preset && expandPreset(screen.preset, firstScreen);
+        const writtenPreset = (written as { screens?: Record<string, { preset?: unknown }> })
+            ?.screens?.[id]?.preset;
+        const preset = screen.preset && expandPreset(screen.preset, firstScreen, writtenPreset);
+        // what a preset makes is checked like any content; its problems are the preset's
+        const presetContent = (content: unknown[]) => {
+            const parsed = parseContent(content);
+            if (parsed.success) return parsed.data;
+            for (const issue of parsed.error.issues) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["screens", id, "preset"],
+                    message: issue.message,
+                });
+            }
+            return [];
+        };
         const items = preset
             ? [
-                  ...parseContent(preset.before),
+                  ...presetContent(preset.before),
                   ...(screen.content ?? []),
-                  ...parseContent(preset.after),
+                  ...presetContent(preset.after),
               ]
             : (screen.content ?? []);
         const content = normalizeContent(items, `${id}#`);
@@ -541,7 +561,9 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
     }
 }
 
-export const ProgramSchema = FileSchema.transform(normalize).superRefine(checkReferences);
+/** The schema a program file is parsed with: given the file as written, for its presets. */
+const programSchema = (written: unknown) =>
+    FileSchema.transform((file, ctx) => normalize(file, written, ctx)).superRefine(checkReferences);
 
 // ─── Parsing ─────────────────────────────────────────────────────────────────
 
@@ -554,7 +576,7 @@ export interface ParseError {
 export type ParseResult = { ok: true; program: Program } | { ok: false; errors: ParseError[] };
 
 export function parseProgram(input: unknown): ParseResult {
-    const result = ProgramSchema.safeParse(input);
+    const result = programSchema(input).safeParse(input);
     if (result.success) {
         return { ok: true, program: result.data };
     }

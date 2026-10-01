@@ -6,6 +6,7 @@ import {
 import { DEFAULT_CRASH_MESSAGE } from "../../modules/crash/definition.ts";
 import { HighlightSchema } from "../../modules/hexdump/definition.ts";
 import { AccountSchema } from "../../modules/login/definition.ts";
+import { ShellCommandSchema, ShellFolderSchema } from "../../modules/shell/definition.ts";
 import type { BarLine } from "./bars.ts";
 import { ActionSchema, IdSchema } from "./common.ts";
 import { EffectsSchema, type EffectsSetting } from "./effects.ts";
@@ -773,6 +774,48 @@ export const DirectoryPresetSchema = z
             "action open when clicked",
     });
 
+export const SHELL_PRESET_DEFAULTS = {
+    banner: ["TELETRONIX OS 2.1", "Type HELP for a list of commands."],
+};
+
+export const ShellPresetSchema = z
+    .strictObject({
+        type: z.literal("shell"),
+        banner: z
+            .union([z.string(), z.array(z.string()).min(1), z.literal(false)])
+            .default(SHELL_PRESET_DEFAULTS.banner)
+            .meta({
+                description:
+                    "Lines above the command line, or false for none (default: " +
+                    `"${SHELL_PRESET_DEFAULTS.banner.join(" / ")}")`,
+            }),
+        next: IdSchema.optional().meta({
+            description: 'The screen "exit" goes to (default: the program\'s start screen)',
+        }),
+        // the rest is the shell's
+        style: z.enum(["unix", "dos"]).optional().meta({
+            description:
+                'How it looks and which commands it knows: "unix" or "dos" (default: "unix")',
+        }),
+        files: ShellFolderSchema.optional().meta({
+            description: "The files and folders, from the top folder down",
+        }),
+        commands: z.array(ShellCommandSchema).optional().meta({
+            description: "Commands of your own, besides the built-in ones",
+        }),
+        prompt: z.string().optional().meta({
+            description: "The prompt, where {cwd} is the folder it's in",
+        }),
+        unknown: z.string().optional().meta({
+            description: "What it says for a command it doesn't know; {command} is what was typed",
+        }),
+    })
+    .meta({
+        description:
+            "A command line over a little computer of your own, under a start-up banner: files " +
+            "to list and read, programs to run, commands of your own, and exit",
+    });
+
 export const PresetSchema = z
     .discriminatedUnion("type", [
         BootPresetSchema,
@@ -787,6 +830,7 @@ export const PresetSchema = z
         ModemPresetSchema,
         InboxPresetSchema,
         DirectoryPresetSchema,
+        ShellPresetSchema,
     ])
     .meta({ description: "A ready-made screen, with a few settings of its own" });
 
@@ -822,7 +866,14 @@ const goTo = (screen: string, after = 0): NextRule => ({
  * A preset as ordinary content, and the rule that moves on from it. `start` is the program's
  * start screen, where some presets go by default.
  */
-export function expandPreset(preset: Preset, start: string): Expanded {
+export function expandPreset(preset: Preset, start: string, written?: unknown): Expanded {
+    // Settings a preset hands on to its elements (which can hold actions and conditions) are
+    // taken as written: parsing has already converted them, and they're parsed again as the
+    // elements' own.
+    const asWritten = (key: string, parsed: unknown): unknown =>
+        written !== null && typeof written === "object" && key in written
+            ? (written as Record<string, unknown>)[key]
+            : parsed;
     const line = (text: string | false) => (text === false ? [] : [text]);
     const checklist = (checks: unknown[] | false, status: string) =>
         checks ? [{ type: "checklist", items: checks, status }] : [];
@@ -946,6 +997,7 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                     {
                         type: "login",
                         ...login,
+                        accounts: asWritten("accounts", login.accounts),
                         action: { screen: next ?? start },
                         ...(granted === false ? {} : { granted }),
                         ...(lockout === undefined ? {} : { onLocked: { screen: lockout } }),
@@ -1191,12 +1243,38 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                 before: [
                     ...header,
                     ...unixTotal,
-                    ...entries.map((entry) =>
+                    ...entries.map((entry, i) =>
                         entry.action
-                            ? { type: "link", text: row(entry), action: entry.action }
+                            ? {
+                                  type: "link",
+                                  text: row(entry),
+                                  action:
+                                      (
+                                          asWritten("entries", undefined) as
+                                              | { action?: unknown }[]
+                                              | undefined
+                                      )?.[i]?.action ?? entry.action,
+                              }
                             : { type: "text", text: row(entry), wrap: false },
                     ),
                     ...dosTotal,
+                ],
+                after: [],
+            };
+        }
+        case "shell": {
+            const { type: _, banner, next, ...shell } = preset;
+            const lines = banner === false ? [] : [banner].flat();
+            return {
+                before: [
+                    ...(lines.length > 0 ? [...lines, ""] : []),
+                    {
+                        type: "shell",
+                        ...shell,
+                        files: asWritten("files", shell.files),
+                        commands: asWritten("commands", shell.commands),
+                        exit: { screen: next ?? start },
+                    },
                 ],
                 after: [],
             };
@@ -1229,4 +1307,4 @@ export function expandPreset(preset: Preset, start: string): Expanded {
 }
 
 /** Content written for a preset, parsed like any screen's: bare strings stay strings. */
-export const parseContent = (content: unknown[]) => z.array(ContentSchema).parse(content);
+export const parseContent = (content: unknown[]) => z.array(ContentSchema).safeParse(content);

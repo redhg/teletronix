@@ -7,10 +7,10 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
-- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem), [Inbox](#inbox), [Inbox message](#inbox-message), [Inbox labels](#inbox-labels), [Directory](#directory), [Directory entry](#directory-entry)
+- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem), [Inbox](#inbox), [Inbox message](#inbox-message), [Inbox labels](#inbox-labels), [Directory](#directory), [Directory entry](#directory-entry), [Shell](#shell)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -149,6 +149,7 @@ One of:
 - [Modem](#modem)
 - [Inbox](#inbox)
 - [Directory](#directory)
+- [Shell](#shell)
 
 <a id="boot"></a>
 
@@ -417,6 +418,22 @@ A file or folder in a directory listing
 | `dir` | boolean | `false` | It's a folder |
 | `action` | [Action](#action) |  | What happens when it's clicked: its line becomes a link |
 
+<a id="shell"></a>
+
+### Shell (`"type": "shell"`)
+
+A command line over a little computer of your own, under a start-up banner: files to list and read, programs to run, commands of your own, and exit
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `banner` | string \| string[] \| `false` | `["TELETRONIX OS 2.1","Type HELP for a list of commands."]` | Lines above the command line, or false for none |
+| `next` | id | the program's start screen | The screen "exit" goes to |
+| `style` | `"unix"` \| `"dos"` | `"unix"` | How it looks and which commands it knows: "unix" or "dos" |
+| `files` | [Shell folder](#shell-folder) |  | The files and folders, from the top folder down |
+| `commands` | [Shell command](#shell-command)[] |  | Commands of your own, besides the built-in ones |
+| `prompt` | string |  | The prompt, where {cwd} is the folder it's in |
+| `unknown` | string |  | What it says for a command it doesn't know; {command} is what was typed |
+
 ## Bars
 
 <a id="bar"></a>
@@ -625,6 +642,7 @@ One of:
 - [Hex dump](#hex-dump)
 - [Login element](#login-element)
 - [Decrypt element](#decrypt-element)
+- [Shell element](#shell-element)
 
 <a id="text"></a>
 
@@ -794,6 +812,83 @@ A login: a username and a password (shown as *), checked against its accounts. W
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 | `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="shell-element"></a>
+
+### Shell element (`"type": "shell"`)
+
+A command line over a little computer of your own: files and folders to list, read and move between, programs to run, and commands of your own. It keeps a transcript, like a real terminal.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `style` | `"unix"` \| `"dos"` | `"unix"` | How it looks and which commands it knows: "unix" (ls, cat, cd, pwd, clear) or "dos" (DIR, TYPE, CD, CLS) |
+| `files` | [Shell folder](#shell-folder) |  | The files and folders, from the top folder down |
+| `commands` | [Shell command](#shell-command)[] |  | Commands of your own, besides the built-in ones |
+| `prompt` | string | "user@teletronix:{cwd}$ " for unix, "C:{cwd}>" for dos | The prompt, where {cwd} is the folder it's in |
+| `unknown` | string | "{command}: command not found" for unix, "Bad command or file name" for dos | What it says for a command it doesn't know, where {command} is what was typed |
+| `exit` | [Action](#action) |  | What "exit" does (without one, exit isn't a command) |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="shell-command"></a>
+
+### Shell command
+
+A command of your own
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `command` | string \| string[] | **required** | What to type (case-insensitive). Use an array for aliases. |
+| `output` | string \| string[] |  | What it prints: a string or a list of lines, which can show variables |
+| `action` | [Action](#action) |  | What happens, after any output |
+| `if` | [Condition](#condition) |  | Only there while this holds |
+
+<a id="shell-folder"></a>
+
+### Shell folder
+
+A folder's contents: names, each a text file (a string, or a list of lines), a folder (an object of names), or { "file" }, { "run" } or { "folder" } with settings
+
+A map of variable name → string | string[] | [Shell file](#shell-file) | [Shell program](#shell-program) | [Shell folder settings](#shell-folder-settings) | [Shell folder](#shell-folder).
+
+<a id="shell-file"></a>
+
+### Shell file
+
+A text file, with settings
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `file` | string \| string[] | **required** | The file's text: a string, or a list of lines |
+| `date` | string |  | When it was last changed, as you like |
+| `if` | [Condition](#condition) |  | Only there while this holds |
+
+<a id="shell-program"></a>
+
+### Shell program
+
+A program: typing its name runs its action
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `run` | [Action](#action) | **required** | What happens when it's run (by typing its name) |
+| `size` | whole number, ≥ 0 |  | Its size in bytes, for listings |
+| `date` | string |  | When it was last changed, as you like |
+| `if` | [Condition](#condition) |  | Only there while this holds |
+
+<a id="shell-folder-settings"></a>
+
+### Shell folder settings
+
+A folder, with settings
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `folder` | [Shell folder](#shell-folder) | **required** | What's in the folder: names, and what they are |
+| `date` | string |  | When it was last changed, as you like |
+| `if` | [Condition](#condition) |  | Only there while this holds |
 
 <a id="login-account"></a>
 

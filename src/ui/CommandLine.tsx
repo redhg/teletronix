@@ -32,11 +32,17 @@ interface Props {
      * Without it, the arrow keys do nothing.
      */
     step?: (typed: string, steps: number) => string;
+    /** Earlier entries, oldest first, for the up and down arrow keys to bring back. */
+    history?: readonly string[];
+    /** What's typed, completed, for the Tab key (e.g. a file name). */
+    complete?: (typed: string) => string;
+    /** Take a blank line too (e.g. a shell, which prints a fresh prompt). */
+    submitBlank?: boolean;
     /**
      * Runs what was entered (never blank). Returns what to show underneath, when it wasn't
      * understood, or null when it was.
      */
-    onSubmit: (entered: string) => string | null;
+    onSubmit: (entered: string) => string | null | false;
 }
 
 /**
@@ -53,6 +59,9 @@ export function CommandLine({
     label,
     inputMode,
     step,
+    history,
+    complete,
+    submitBlank = false,
     onSubmit,
 }: Props) {
     const sound = useSound();
@@ -71,15 +80,20 @@ export function CommandLine({
         input.current?.focus({ preventScroll: true });
     }, [interactive, disabled]);
 
+    // where the arrow keys are in the history: its length when not in it
+    const [recalled, setRecalled] = useState<number | null>(null);
+
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
         setValue("");
-        if (!value.trim()) {
+        setRecalled(null);
+        if (!value.trim() && !submitBlank) {
             setMessage(null);
             return;
         }
+        // a problem to show under the line, or false for one shown some other way
         const problem = onSubmit(value);
-        setMessage(problem);
+        setMessage(problem || null);
         sound({ type: problem === null ? "select" : "error" });
     };
 
@@ -99,6 +113,27 @@ export function CommandLine({
                             disabled={disabled}
                             inputMode={inputMode}
                             onKeyDown={(event) => {
+                                if (complete && event.key === "Tab" && value.trim()) {
+                                    event.preventDefault();
+                                    const next = complete(value);
+                                    if (next !== value) setValue(next);
+                                    return;
+                                }
+                                if (
+                                    history &&
+                                    !step &&
+                                    (event.key === "ArrowUp" || event.key === "ArrowDown")
+                                ) {
+                                    event.preventDefault();
+                                    const at = recalled ?? history.length;
+                                    const to = Math.min(
+                                        history.length,
+                                        Math.max(0, at + (event.key === "ArrowUp" ? -1 : 1)),
+                                    );
+                                    setRecalled(to);
+                                    setValue(history[to] ?? "");
+                                    return;
+                                }
                                 const direction =
                                     event.key === "ArrowUp"
                                         ? 1

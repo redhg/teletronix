@@ -61,6 +61,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
 | `"choice"` | One of several `options`, shown side by side like radio buttons. See below. |
 | `"prompt"` | A command line. Each of its `commands` has an `action`; `onEnter` takes anything else. |
+| `"shell"` | A command line over a little computer: files and folders, programs, and commands of your own. See below. |
 | `"login"` | A username and a masked password, checked against its accounts, with an optional limit on wrong tries. See below. |
 | `"number"` | A prompt for whole numbers only: codes, keypads, settings. See below. |
 | `"bitmap"` | An image (`src`, `alt`). The screen waits for it to load. `cols` sets its width in characters (its height follows), e.g. to match a line of text. See [Image reveals](#image-reveals). |
@@ -370,6 +371,38 @@ The up and down arrow keys change the number by `step` (default 1), or ten times
 staying within `min`, `max` and `digits`. From an empty field, up starts at the lowest number and
 down at the highest.
 
+### Shells
+```json
+{
+    "type": "shell",
+    "style": "unix",
+    "files": {
+        "readme.txt": "Welcome aboard.",
+        "logs": { "0603.log": ["0600 WOKE CREW", "0612 SIGNAL RECEIVED FROM LV-426"] },
+        "mother": { "run": { "screen": "mother" } },
+        "classified": { "folder": { "937.txt": "CREW EXPENDABLE." }, "if": { "cleared": true } }
+    },
+    "commands": [{ "command": "status", "output": ["ALL SYSTEMS NOMINAL.", "FUEL {fuel}%"] }],
+    "exit": { "screen": "home" }
+}
+```
+A command line that keeps a transcript, like a real terminal. Its `files` are a little computer:
+a string (or a list of lines) is a text file, an object of names is a folder, and
+`{ "run": action }` is a program, run by typing its name. `{ "file" }`, `{ "folder" }` and
+`{ "run" }` can also have a `date`, an `if` (to be there only while it holds, e.g. once a
+variable is set), and a program a `size`.
+- `"style": "unix"` (the default) knows `help`, `ls`, `cd`, `cat`, `pwd` and `clear`, at a
+  `user@teletronix:/logs$ ` prompt; `"dos"` knows `HELP`, `DIR`, `CD`, `TYPE` and `CLS`, at
+  `C:\LOGS>`, and runs `MOTHER.EXE` as `MOTHER`. Names and paths ignore case.
+- `commands` are your own (first, before the built-in ones): each prints its `output` (which
+  can show variables) and/or runs its `action`, and can have an `if`. `exit` makes `exit` a
+  command, with that action.
+- `prompt` changes the prompt (`{cwd}` is the folder it's in), and `unknown` what it says to a
+  command it doesn't know (`{command}` is what was typed).
+- The up and down arrow keys bring back earlier commands, and Tab completes command and file
+  names. It remembers its folder and those commands when the player comes back; its transcript
+  starts afresh.
+
 ### Logins
 ```json
 {
@@ -475,6 +508,7 @@ also be written out by hand. See [the reference](docs/reference.md#presets) for 
 | `"modem"` | Dialling in: the `init` command answered `ok`, the `dial` command, a `dialing` spinner, a `carrier` line that glitches in with a crackle (over `handshake` milliseconds), and `connect`, then the screen's own `content`, e.g. a bulletin board's welcome. Each step can be changed or left out with `false`. Like boot, it can `pause` and go on to `next`. |
 | `"inbox"` | An inbox: a `title`, column headings (`labels`, or `false`), then the `messages` (`from`, `subject`, `date`, `body`, and `unread`, marked with `*`), each a [section](#sections) that opens to show its body, and loses its unread mark once read. The screen's own `content` (e.g. a link back) goes after it. |
 | `"directory"` | A directory listing of `entries` (`name`, `size`, `date`, `dir` for folders), DOS style (`"style": "dos"`, the default: the `volume` and `path`, `<DIR>`, and a `total` of files and bytes) or Unix style (`"unix"`: `ls -l`, with permissions). Entries with an `action` are links, e.g. to a text file's screen or a hex editor. |
+| `"shell"` | A [shell](#shells) under a start-up `banner` (or `false` for none), where `exit` goes to `next` (default: the start screen). It takes the shell's other settings: `style`, `files`, `commands`, `prompt` and `unknown`. |
 | `"hexeditor"` | A read-only hex editor: a [hex dump](#hex-dumps) filling the screen, with a cursor to move through it, a status bar (in place of the program's), and a header bar with the editor's `title` and the `file` name. Give it bytes as a hex dump (`text`, `size`, `src`, `highlight`…), and `autoscroll` (with `stopAt`) to have it scroll through them by itself. <esc>, or the `exit` link in the header bar, goes to `next` (default: the start screen). |
 | `"crash"` | The whole window fills with garbage that never stops changing: the screen before breaks apart, and a `message` surfaces through the noise now and then. With `next`, a key press (or a tap) restarts there. With reduced motion, it's a still picture. |
 

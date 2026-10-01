@@ -898,6 +898,10 @@
                 "  A DOS-style listing, where files open other presets.",
                 { "type": "link", "text": "> DIRECTORY, UNIX STYLE", "action": { "screen": "directory-unix" } },
                 "  The same, as ls -l.",
+                { "type": "link", "text": "> SHELL", "action": { "screen": "shell" } },
+                "  A command line over the ship's computer. Try help, ls, cd logs, cat, and sudo.",
+                { "type": "link", "text": "> SHELL, DOS STYLE", "action": { "screen": "shell-dos" } },
+                "  The same computer, as DIR, TYPE and CD.",
                 { "type": "link", "text": "> HEX EDITOR", "action": { "screen": "hexeditor" } },
                 "  A recovered file that scrolls until something turns up. Take over with the arrow keys; <esc> leaves.",
                 "",
@@ -1290,6 +1294,59 @@
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
+        },
+        "shell": {
+            "preset": {
+                "type": "shell",
+                "banner": ["MU-TH-UR 6000 // NOSTROMO MAINFRAME", "Type help for a list of commands, and exit to leave."],
+                "files": {
+                    "readme.txt": ["NOSTROMO MAINFRAME. AUTHORIZED CREW ONLY.", "Programs: mail, crew, decrypt. Type a program's name to run it."],
+                    "logs": {
+                        "0601.log": ["0600 CREW REVIVED FROM HYPERSLEEP", "0614 COURSE: EARTH"],
+                        "0603.log": { "file": ["0612 SIGNAL RECEIVED FROM LV-426", "0613 COURSE CHANGED BY MOTHER"], "date": "06-03-22" }
+                    },
+                    "mail": { "run": { "screen": "inbox" }, "size": 3120, "date": "06-03-22" },
+                    "crew": { "run": { "screen": "hexeditor" }, "size": 2048, "date": "06-03-22" },
+                    "decrypt": { "run": { "screen": "decrypt" }, "size": 18944, "date": "05-14-22" },
+                    "classified": {
+                        "folder": { "937.txt": ["SPECIAL ORDER 937", "SCIENCE OFFICER EYES ONLY", "CREW EXPENDABLE."] },
+                        "if": { "keycard": true }
+                    }
+                },
+                "commands": [
+                    { "command": "status", "output": ["ALL SYSTEMS NOMINAL.", "HULL {hull}%   FUEL {fuel}%"] },
+                    { "command": ["sudo", "sudo su"], "output": ["SECURITY CLEARANCE GRANTED. NEW FOLDER: classified"], "action": { "set": { "keycard": true } }, "if": { "keycard": false } },
+                    { "command": "whoami", "output": "{name}" }
+                ],
+                "next": "presets"
+            }
+        },
+        "shell-dos": {
+            "preset": {
+                "type": "shell",
+                "style": "dos",
+                "banner": ["MU-TH-UR DOS 3.30", "Type HELP for a list of commands, and EXIT to leave."],
+                "files": {
+                    "readme.txt": ["NOSTROMO MAINFRAME. AUTHORIZED CREW ONLY.", "Programs: mail, crew, decrypt. Type a program's name to run it."],
+                    "logs": {
+                        "0601.log": ["0600 CREW REVIVED FROM HYPERSLEEP", "0614 COURSE: EARTH"],
+                        "0603.log": { "file": ["0612 SIGNAL RECEIVED FROM LV-426", "0613 COURSE CHANGED BY MOTHER"], "date": "06-03-22" }
+                    },
+                    "mail": { "run": { "screen": "inbox" }, "size": 3120, "date": "06-03-22" },
+                    "crew": { "run": { "screen": "hexeditor" }, "size": 2048, "date": "06-03-22" },
+                    "decrypt": { "run": { "screen": "decrypt" }, "size": 18944, "date": "05-14-22" },
+                    "classified": {
+                        "folder": { "937.txt": ["SPECIAL ORDER 937", "SCIENCE OFFICER EYES ONLY", "CREW EXPENDABLE."] },
+                        "if": { "keycard": true }
+                    }
+                },
+                "commands": [
+                    { "command": "status", "output": ["ALL SYSTEMS NOMINAL.", "HULL {hull}%   FUEL {fuel}%"] },
+                    { "command": ["sudo", "sudo su"], "output": ["SECURITY CLEARANCE GRANTED. NEW FOLDER: classified"], "action": { "set": { "keycard": true } }, "if": { "keycard": false } },
+                    { "command": "whoami", "output": "{name}" }
+                ],
+                "next": "presets"
+            }
         },
         "toggles": {
             "content": [

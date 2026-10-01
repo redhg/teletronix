@@ -56,6 +56,7 @@ import {
     MemorySchema,
     ModemPresetSchema,
     PresetSchema,
+    ShellPresetSchema,
     ShutdownPresetSchema,
     TransmissionPresetSchema,
 } from "../src/engine/schema/presets.ts";
@@ -124,6 +125,14 @@ import {
 } from "../src/modules/progress/definition.ts";
 import { CommandSchema, PromptSchema } from "../src/modules/prompt/definition.ts";
 import { SectionMarkersSchema } from "../src/modules/section/definition.ts";
+import {
+    ShellCommandSchema,
+    ShellFileSchema,
+    ShellFolderEntrySchema,
+    ShellFolderSchema,
+    ShellProgramSchema,
+    ShellSchema,
+} from "../src/modules/shell/definition.ts";
 import { SliderRuleSchema, SliderSchema } from "../src/modules/slider/definition.ts";
 import { SpinnerInterruptSchema, SpinnerSchema } from "../src/modules/spinner/definition.ts";
 import { TableColumnSchema, TableSchema } from "../src/modules/table/definition.ts";
@@ -195,6 +204,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Inbox labels", InboxLabelsSchema],
             ["Directory", DirectoryPresetSchema, '"type": "directory"'],
             ["Directory entry", DirectoryEntrySchema],
+            ["Shell", ShellPresetSchema, '"type": "shell"'],
         ],
     ],
     [
@@ -237,6 +247,12 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Prompt", PromptSchema, '"type": "prompt"'],
             ["Prompt command", CommandSchema],
             ["Login element", LoginSchema, '"type": "login"'],
+            ["Shell element", ShellSchema, '"type": "shell"'],
+            ["Shell command", ShellCommandSchema],
+            ["Shell folder", ShellFolderSchema],
+            ["Shell file", ShellFileSchema],
+            ["Shell program", ShellProgramSchema],
+            ["Shell folder settings", ShellFolderEntrySchema],
             ["Login account", AccountSchema],
             ["Number", NumberSchema, '"type": "number"'],
             ["Number rule", NumberRuleSchema],
