@@ -474,7 +474,10 @@ A command line that keeps a transcript, like a real terminal. Its `files` are a 
 a string (or a list of lines) is a text file, an object of names is a folder, and
 `{ "run": action }` is a program, run by typing its name. `{ "file" }`, `{ "folder" }` and
 `{ "run" }` can also have a `date`, an `if` (to be there only while it holds, e.g. once a
-variable is set), and a program a `size`.
+variable is set), a `password`, and a program a `size`. Reading, running or going into
+something with a password (or through a folder with one) asks for it first, with
+`passwordPrompt` (default `Password: `), the input shown as `*`; a wrong one gets `denied`
+(default `Access denied.`), and once it's given, it stays open.
 - `"style": "unix"` (the default) knows `help`, `ls`, `cd`, `cat`, `pwd` and `clear`, at a
   `user@teletronix:/logs$ ` prompt; `"dos"` knows `HELP`, `DIR`, `CD`, `TYPE` and `CLS`, at
   `C:\LOGS>`, and runs `MOTHER.EXE` as `MOTHER`. Names and paths ignore case.

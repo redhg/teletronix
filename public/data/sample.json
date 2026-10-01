@@ -1307,10 +1307,11 @@
                 "type": "shell",
                 "banner": ["MU-TH-UR 6000 // NOSTROMO MAINFRAME", "Type help for a list of commands, and exit to leave."],
                 "files": {
-                    "readme.txt": ["NOSTROMO MAINFRAME. AUTHORIZED CREW ONLY.", "Programs: mail, crew, decrypt. Type a program's name to run it."],
+                    "readme.txt": ["NOSTROMO MAINFRAME. AUTHORIZED CREW ONLY.", "Programs: mail, crew, decrypt. Type a program's name to run it.", "Personal logs are locked. (Psst: Ash's password is the special order's number.)"],
                     "logs": {
                         "0601.log": ["0600 CREW REVIVED FROM HYPERSLEEP", "0614 COURSE: EARTH"],
-                        "0603.log": { "file": ["0612 SIGNAL RECEIVED FROM LV-426", "0613 COURSE CHANGED BY MOTHER"], "date": "06-03-22" }
+                        "0603.log": { "file": ["0612 SIGNAL RECEIVED FROM LV-426", "0613 COURSE CHANGED BY MOTHER"], "date": "06-03-22" },
+                        "ash.log": { "file": ["PERSONAL LOG, SCIENCE OFFICER ASH.", "SPECIMEN ABOARD. CREW UNAWARE. [alert]PROCEED AS ORDERED.[/]"], "password": "937", "date": "06-03-22" }
                     },
                     "mail": { "run": { "screen": "inbox" }, "size": 3120, "date": "06-03-22" },
                     "crew": { "run": { "screen": "hexeditor" }, "size": 2048, "date": "06-03-22" },
@@ -1334,10 +1335,11 @@
                 "style": "dos",
                 "banner": ["MU-TH-UR DOS 3.30", "Type HELP for a list of commands, and EXIT to leave."],
                 "files": {
-                    "readme.txt": ["NOSTROMO MAINFRAME. AUTHORIZED CREW ONLY.", "Programs: mail, crew, decrypt. Type a program's name to run it."],
+                    "readme.txt": ["NOSTROMO MAINFRAME. AUTHORIZED CREW ONLY.", "Programs: mail, crew, decrypt. Type a program's name to run it.", "Personal logs are locked. (Psst: Ash's password is the special order's number.)"],
                     "logs": {
                         "0601.log": ["0600 CREW REVIVED FROM HYPERSLEEP", "0614 COURSE: EARTH"],
-                        "0603.log": { "file": ["0612 SIGNAL RECEIVED FROM LV-426", "0613 COURSE CHANGED BY MOTHER"], "date": "06-03-22" }
+                        "0603.log": { "file": ["0612 SIGNAL RECEIVED FROM LV-426", "0613 COURSE CHANGED BY MOTHER"], "date": "06-03-22" },
+                        "ash.log": { "file": ["PERSONAL LOG, SCIENCE OFFICER ASH.", "SPECIMEN ABOARD. CREW UNAWARE. [alert]PROCEED AS ORDERED.[/]"], "password": "937", "date": "06-03-22" }
                     },
                     "mail": { "run": { "screen": "inbox" }, "size": 3120, "date": "06-03-22" },
                     "crew": { "run": { "screen": "hexeditor" }, "size": 2048, "date": "06-03-22" },

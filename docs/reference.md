@@ -852,6 +852,8 @@ A command line over a little computer of your own: files and folders to list, re
 | `commands` | [Shell command](#shell-command)[] |  | Commands of your own, besides the built-in ones |
 | `prompt` | string | "user@teletronix:{cwd}$ " for unix, "C:{cwd}>" for dos | The prompt, where {cwd} is the folder it's in |
 | `unknown` | string | "{command}: command not found" for unix, "Bad command or file name" for dos | What it says for a command it doesn't know, where {command} is what was typed |
+| `passwordPrompt` | string | `"Password: "` | What it asks a password with |
+| `denied` | string | `"Access denied."` | What it says to a wrong password |
 | `exit` | [Action](#action) |  | What "exit" does (without one, exit isn't a command) |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
@@ -889,6 +891,7 @@ A text file, with settings
 |---|---|---|---|
 | `file` | string \| string[] | **required** | The file's text: a string, or a list of lines |
 | `date` | string |  | When it was last changed, as you like |
+| `password` | string |  | A password the player must give first (once given, it stays open) |
 | `if` | [Condition](#condition) |  | Only there while this holds |
 
 <a id="shell-program"></a>
@@ -902,6 +905,7 @@ A program: typing its name runs its action
 | `run` | [Action](#action) | **required** | What happens when it's run (by typing its name) |
 | `size` | whole number, ≥ 0 |  | Its size in bytes, for listings |
 | `date` | string |  | When it was last changed, as you like |
+| `password` | string |  | A password the player must give first (once given, it stays open) |
 | `if` | [Condition](#condition) |  | Only there while this holds |
 
 <a id="shell-folder-settings"></a>
@@ -914,6 +918,7 @@ A folder, with settings
 |---|---|---|---|
 | `folder` | [Shell folder](#shell-folder) | **required** | What's in the folder: names, and what they are |
 | `date` | string |  | When it was last changed, as you like |
+| `password` | string |  | A password the player must give first (once given, it stays open) |
 | `if` | [Condition](#condition) |  | Only there while this holds |
 
 <a id="login-account"></a>

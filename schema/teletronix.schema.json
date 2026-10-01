@@ -10554,6 +10554,11 @@
                                 "description": "When it was last changed, as you like",
                                 "type": "string"
                             },
+                            "password": {
+                                "description": "A password the player must give first (once given, it stays open)",
+                                "type": "string",
+                                "minLength": 1
+                            },
                             "if": {
                                 "description": "Only there while this holds",
                                 "$ref": "#/$defs/Condition"
@@ -10919,6 +10924,11 @@
                                 "description": "When it was last changed, as you like",
                                 "type": "string"
                             },
+                            "password": {
+                                "description": "A password the player must give first (once given, it stays open)",
+                                "type": "string",
+                                "minLength": 1
+                            },
                             "if": {
                                 "description": "Only there while this holds",
                                 "$ref": "#/$defs/Condition"
@@ -10940,6 +10950,11 @@
                             "date": {
                                 "description": "When it was last changed, as you like",
                                 "type": "string"
+                            },
+                            "password": {
+                                "description": "A password the player must give first (once given, it stays open)",
+                                "type": "string",
+                                "minLength": 1
                             },
                             "if": {
                                 "description": "Only there while this holds",
@@ -25315,6 +25330,16 @@
                                 },
                                 "unknown": {
                                     "description": "What it says for a command it doesn't know, where {command} is what was typed (default: \"{command}: command not found\" for unix, \"Bad command or file name\" for dos)",
+                                    "type": "string"
+                                },
+                                "passwordPrompt": {
+                                    "default": "Password: ",
+                                    "description": "What it asks a password with (default: \"Password: \")",
+                                    "type": "string"
+                                },
+                                "denied": {
+                                    "default": "Access denied.",
+                                    "description": "What it says to a wrong password (default: \"Access denied.\")",
                                     "type": "string"
                                 },
                                 "exit": {

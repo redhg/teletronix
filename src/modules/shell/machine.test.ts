@@ -146,3 +146,37 @@ describe("tab completion", () => {
         expect(tab("nothing")).toBe("nothing");
     });
 });
+
+describe("passwords", () => {
+    const locked = (props: object = {}) =>
+        shell({
+            files: {
+                "open.txt": "OPEN",
+                "diary.txt": { file: "DEAR DIARY", password: "kane" },
+                vault: { folder: { "gold.txt": "GOLD" }, password: "1138" },
+                launch: { run: { screen: "mother" }, password: "go" },
+            },
+            ...props,
+        });
+    const run = (input: string, unlocked: string[] = [], cwd: string[] = []) =>
+        runCommand(locked(), input, cwd, () => true, unlocked);
+
+    it("asks before reading, entering or running what has one", () => {
+        expect(run("cat open.txt").output).toEqual(["OPEN"]);
+        expect(run("cat diary.txt")).toMatchObject({
+            ask: { key: "/diary.txt", password: "kane" },
+        });
+        expect(run("cd vault")).toMatchObject({ ask: { key: "/vault", password: "1138" } });
+        expect(run("launch")).toMatchObject({ ask: { key: "/launch", password: "go" } });
+    });
+
+    it("asks for a locked folder on the way, too", () => {
+        expect(run("cat vault/gold.txt")).toMatchObject({ ask: { key: "/vault" } });
+    });
+
+    it("lets through what's been unlocked", () => {
+        expect(run("cat diary.txt", ["/diary.txt"]).output).toEqual(["DEAR DIARY"]);
+        expect(run("cat vault/gold.txt", ["/vault"]).output).toEqual(["GOLD"]);
+        expect(run("launch", ["/launch"]).action).toEqual([{ screen: "mother" }]);
+    });
+});

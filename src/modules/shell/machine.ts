@@ -22,9 +22,37 @@ export interface ShellResult {
     action?: Action;
     /** It wasn't understood, or failed. */
     error?: boolean;
+    /**
+     * It needs a password first: for the file, program or folder at `key` (its path). Once
+     * it's given, run the command again with `key` among the unlocked.
+     */
+    ask?: { key: string; password: string };
 }
 
 type Holds = (condition: Condition) => boolean;
+
+/** A path's key, for remembering it's been unlocked: /logs/secret.txt */
+export const pathKey = (path: readonly string[]) => `/${path.join("/")}`;
+
+/**
+ * The first thing along a path (a folder on the way, or what's at its end) with a password
+ * that hasn't been given yet, or null if the way is open.
+ */
+function locked(
+    shell: ShellElement,
+    path: string[],
+    holds: Holds,
+    unlocked: readonly string[],
+): { key: string; password: string } | null {
+    for (let i = 1; i <= path.length; i++) {
+        const node = at(shell, path.slice(0, i), holds);
+        const key = pathKey(path.slice(0, i));
+        if (node?.password !== undefined && !unlocked.includes(key)) {
+            return { key, password: node.password };
+        }
+    }
+    return null;
+}
 
 const BUILT_INS = {
     unix: ["help", "ls", "cd", "cat", "pwd", "clear"],
@@ -126,7 +154,12 @@ function listing(shell: ShellElement, path: string[], holds: Holds): string[] {
 }
 
 /** A program that `name` (as typed) runs, from `cwd`: by path, or DOS-style without .EXE. */
-function program(shell: ShellElement, cwd: string[], name: string, holds: Holds): ShellNode | null {
+function program(
+    shell: ShellElement,
+    cwd: string[],
+    name: string,
+    holds: Holds,
+): { node: ShellNode; path: string[] } | null {
     const typed = shell.style === "unix" ? name.replace(/^\.\//, "") : name;
     const candidates =
         shell.style === "dos" && !/\.[a-z]+$/i.test(typed)
@@ -145,8 +178,9 @@ function program(shell: ShellElement, cwd: string[], name: string, holds: Holds)
         const where = at(shell, folder, holds);
         if (where?.kind !== "folder") continue;
         const real = find(where.folder, file, holds);
-        const node = real === null ? null : at(shell, [...folder, real], holds);
-        if (node?.kind === "program") return node;
+        const path = real === null ? null : [...folder, real];
+        const node = path && at(shell, path, holds);
+        if (node?.kind === "program" && path) return { node, path };
     }
     return null;
 }
@@ -159,8 +193,15 @@ export function runCommand(
     input: string,
     cwd: string[],
     holds: Holds = () => true,
+    /** The paths whose passwords have been given (see pathKey). */
+    unlocked: readonly string[] = [],
 ): ShellResult {
     const typed = normalize(input);
+    // a password needed on the way there
+    const ask = (path: string[]): ShellResult | null => {
+        const lock = locked(shell, path, holds, unlocked);
+        return lock ? { output: [], cwd, ask: lock } : null;
+    };
     const same = { output: [] as string[], cwd };
     if (!typed) return same;
 
@@ -203,7 +244,7 @@ export function runCommand(
             if (!path || at(shell, path, holds)?.kind !== "folder") {
                 return fail(dos ? "File not found" : `ls: ${arg}: No such file or directory`);
             }
-            return { output: listing(shell, path, holds), cwd };
+            return ask(path) ?? { output: listing(shell, path, holds), cwd };
         }
         case "cd":
         case "chdir": {
@@ -215,7 +256,7 @@ export function runCommand(
             if (!path || at(shell, path, holds)?.kind !== "folder") {
                 return fail(dos ? "Invalid directory" : `cd: ${arg}: No such file or directory`);
             }
-            return { output: [], cwd: path };
+            return ask(path) ?? { output: [], cwd: path };
         }
         case "cat":
         case "type": {
@@ -225,6 +266,8 @@ export function runCommand(
             const node = path && at(shell, path, holds);
             if (!node)
                 return fail(dos ? "File not found" : `cat: ${arg}: No such file or directory`);
+            const needs = ask(path);
+            if (needs) return needs;
             if (node.kind === "folder") {
                 return fail(dos ? "Access denied" : `cat: ${arg}: Is a directory`);
             }
@@ -252,7 +295,8 @@ export function runCommand(
 
     // a program, by name
     const run = program(shell, cwd, input.trim().split(/\s+/)[0] ?? "", holds);
-    if (run?.kind === "program") return { output: [], cwd, action: run.run };
+    if (run?.node.kind === "program")
+        return ask(run.path) ?? { output: [], cwd, action: run.node.run };
 
     const unknown = shell.unknown ?? SHELL_DEFAULTS[shell.style].unknown;
     return fail(unknown.replaceAll("{command}", input.trim().split(/\s+/)[0] ?? ""));

@@ -15,6 +15,9 @@ export const ShellFileSchema = z
     .strictObject({
         file: LinesSchema.meta({ description: "The file's text: a string, or a list of lines" }),
         date: z.string().optional().meta({ description: "When it was last changed, as you like" }),
+        password: z.string().min(1).optional().meta({
+            description: "A password the player must give first (once given, it stays open)",
+        }),
         ...ifShape,
     })
     .meta({ description: "A text file, with settings" });
@@ -24,6 +27,9 @@ export const ShellProgramSchema = z
         run: ActionSchema.meta({ description: "What happens when it's run (by typing its name)" }),
         size: z.int().min(0).optional().meta({ description: "Its size in bytes, for listings" }),
         date: z.string().optional().meta({ description: "When it was last changed, as you like" }),
+        password: z.string().min(1).optional().meta({
+            description: "A password the player must give first (once given, it stays open)",
+        }),
         ...ifShape,
     })
     .meta({ description: "A program: typing its name runs its action" });
@@ -35,7 +41,7 @@ export type ShellNodeInput =
     | string[]
     | z.input<typeof ShellFileSchema>
     | z.input<typeof ShellProgramSchema>
-    | { folder: ShellFolderInput; date?: string; if?: unknown }
+    | { folder: ShellFolderInput; date?: string; if?: unknown; password?: string }
     | ShellFolderInput;
 
 export const ShellFolderSchema: z.ZodType<ShellFolder, ShellFolderInput> = z
@@ -53,6 +59,9 @@ export const ShellFolderEntrySchema = z
             .lazy(() => ShellFolderSchema)
             .meta({ description: "What's in the folder: names, and what they are" }),
         date: z.string().optional().meta({ description: "When it was last changed, as you like" }),
+        password: z.string().min(1).optional().meta({
+            description: "A password the player must give first (once given, it stays open)",
+        }),
         ...ifShape,
     })
     .meta({ description: "A folder, with settings" });
@@ -119,6 +128,12 @@ export const ShellSchema = z
                     "What it says for a command it doesn't know, where {command} is what was typed " +
                     '(default: "{command}: command not found" for unix, "Bad command or file name" for dos)',
             }),
+        passwordPrompt: z.string().default("Password: ").meta({
+            description: 'What it asks a password with (default: "Password: ")',
+        }),
+        denied: z.string().default("Access denied.").meta({
+            description: 'What it says to a wrong password (default: "Access denied.")',
+        }),
         exit: ActionSchema.optional().meta({
             description: 'What "exit" does (without one, exit isn\'t a command)',
         }),
@@ -136,9 +151,16 @@ export type ShellElement = z.output<typeof ShellSchema> & ElementIdentity;
 // ─── The file tree, as parsed ──────────────────────────────────────────────
 
 export type ShellNode =
-    | { kind: "file"; text: string[]; date?: string; if?: Condition }
-    | { kind: "program"; run: Action; size?: number; date?: string; if?: Condition }
-    | { kind: "folder"; folder: ShellFolder; date?: string; if?: Condition };
+    | { kind: "file"; text: string[]; date?: string; if?: Condition; password?: string }
+    | {
+          kind: "program";
+          run: Action;
+          size?: number;
+          date?: string;
+          if?: Condition;
+          password?: string;
+      }
+    | { kind: "folder"; folder: ShellFolder; date?: string; if?: Condition; password?: string };
 
 /** A folder's contents, as parsed. (An interface, so it can refer to itself.) */
 export interface ShellFolder {
@@ -149,7 +171,7 @@ type ShellNodeOutput =
     | string[]
     | z.output<typeof ShellFileSchema>
     | z.output<typeof ShellProgramSchema>
-    | { folder: ShellFolder; date?: string; if?: Condition }
+    | { folder: ShellFolder; date?: string; if?: Condition; password?: string }
     | ShellFolder;
 
 const lines = (text: string | string[]) => (Array.isArray(text) ? text : text.split("\n"));
@@ -159,7 +181,13 @@ export function shellNode(node: ShellNodeOutput): ShellNode {
     if (typeof node === "string" || Array.isArray(node)) return { kind: "file", text: lines(node) };
     if ("file" in node && (typeof node.file === "string" || Array.isArray(node.file))) {
         const file = node as z.output<typeof ShellFileSchema>;
-        return { kind: "file", text: lines(file.file), date: file.date, if: file.if };
+        return {
+            kind: "file",
+            text: lines(file.file),
+            date: file.date,
+            if: file.if,
+            password: file.password,
+        };
     }
     if ("run" in node && Array.isArray(node.run)) {
         const program = node as z.output<typeof ShellProgramSchema>;
@@ -169,11 +197,23 @@ export function shellNode(node: ShellNodeOutput): ShellNode {
             size: program.size,
             date: program.date,
             if: program.if,
+            password: program.password,
         };
     }
     if ("folder" in node && typeof node.folder === "object" && !Array.isArray(node.folder)) {
-        const folder = node as { folder: ShellFolder; date?: string; if?: Condition };
-        return { kind: "folder", folder: folder.folder, date: folder.date, if: folder.if };
+        const folder = node as {
+            folder: ShellFolder;
+            date?: string;
+            if?: Condition;
+            password?: string;
+        };
+        return {
+            kind: "folder",
+            folder: folder.folder,
+            date: folder.date,
+            if: folder.if,
+            password: folder.password,
+        };
     }
     return { kind: "folder", folder: node as ShellFolder };
 }

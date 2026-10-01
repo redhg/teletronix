@@ -2059,3 +2059,44 @@ test.describe("visual following a variable", () => {
             .toBeGreaterThan(0.6);
     });
 });
+
+test.describe("shell passwords", () => {
+    test("asks, turns away a wrong one, and opens for the right one", async ({ page, player }) => {
+        await player.open({
+            config: { name: "Locked", start: "home", reveal: "instant" },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "shell",
+                            files: { "diary.txt": { file: "DEAR DIARY", password: "kane" } },
+                            exit: { screen: "away" },
+                        },
+                    ],
+                },
+                away: { content: [{ type: "link", text: "> BACK", action: { screen: "home" } }] },
+            },
+        } as Program);
+        const shell = player.screen.locator(".shell");
+        const enter = async (text: string) => {
+            await page.keyboard.type(text);
+            await page.keyboard.press("Enter");
+        };
+        await enter("cat diary.txt");
+        await expect(shell.locator("label")).toHaveText("Password: ");
+        await page.keyboard.type("nope");
+        await expect(shell.locator(".prompt-echo")).toHaveText("**** ");
+        await page.keyboard.press("Enter");
+        await expect(shell.locator(".shell-error")).toHaveText("Access denied.");
+        await expect(shell.locator("label")).toHaveText("user@teletronix:/$ ");
+        await enter("cat diary.txt");
+        await enter("kane");
+        await expect(shell).toContainText("DEAR DIARY");
+        // it stays open, even after leaving and coming back
+        await enter("exit");
+        await player.screen.getByRole("button", { name: "> BACK" }).click();
+        await enter("cat diary.txt");
+        await expect(player.screen.locator(".shell")).toContainText("DEAR DIARY");
+        await expect(player.screen.locator(".shell label")).toHaveText("user@teletronix:/$ ");
+    });
+});
