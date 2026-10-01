@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { type BarLine, breadcrumb, layoutBarLine } from "../engine/index.ts";
 import { classNames } from "./element-view.ts";
-import { useSound } from "./sound/context.ts";
+import { useSound, useSoundToggle } from "./sound/context.ts";
 import { useTerminal } from "./terminal-context.ts";
 import "./bar.css";
 
@@ -21,6 +21,7 @@ interface Props {
 export function Bar({ lines, position, columns, screenId }: Props) {
     const terminal = useTerminal();
     const sound = useSound();
+    const toggle = useSoundToggle();
     const trail = useMemo(
         () => (screenId === undefined ? [] : breadcrumb(terminal.program, screenId)),
         [terminal, screenId],
@@ -31,8 +32,27 @@ export function Bar({ lines, position, columns, screenId }: Props) {
             {lines.map((line, index) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: a bar's lines never reorder
                 <div key={index} className={classNames("bar-line", line.className)}>
-                    {layoutBarLine(line, columns, terminal.format, trail).map((piece, k) => {
+                    {layoutBarLine(line, columns, terminal.format, {
+                        trail,
+                        soundToggle: toggle?.label,
+                    }).map((piece, k) => {
                         const slot = piece.slot && line[piece.slot];
+                        if (slot?.soundToggle && toggle) {
+                            return (
+                                <button
+                                    // biome-ignore lint/suspicious/noArrayIndexKey: laid out afresh each time
+                                    key={k}
+                                    type="button"
+                                    className={classNames("bar-link", slot.className, piece.style)}
+                                    aria-label="Sound"
+                                    aria-pressed={!toggle.muted}
+                                    title={`Sound ${toggle.muted ? "off" : "on"} (Ctrl+M)`}
+                                    onClick={toggle.toggle}
+                                >
+                                    {piece.text}
+                                </button>
+                            );
+                        }
                         const action = piece.action ?? slot?.action;
                         if (!action) {
                             return (

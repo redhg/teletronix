@@ -8,6 +8,7 @@ import {
 } from "react";
 import { staticEffect } from "../effects/static/definition.ts";
 import { StaticView } from "../effects/static/View.tsx";
+import { barsOf } from "../engine/index.ts";
 import { AutoscrollContext, Autoscroller } from "./autoscroll.ts";
 import { Bar } from "./Bar.tsx";
 import { DialogView } from "./DialogView.tsx";
@@ -54,12 +55,8 @@ export function TerminalView({ layoutKey }: Props) {
         [terminal],
     );
 
-    // the bars: the screen's own, or the program's (a screen's false hides one)
     const current = screen?.run.screen;
-    const header =
-        current?.header === false ? undefined : (current?.header ?? terminal.program.header);
-    const footer =
-        current?.footer === false ? undefined : (current?.footer ?? terminal.program.footer);
+    const { header, footer } = barsOf(terminal.program, current);
     // room for them around the screen, and for the sound toggle under the header
     useLayoutEffect(() => {
         const root = document.documentElement.style;

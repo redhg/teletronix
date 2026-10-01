@@ -44,6 +44,14 @@ export const SoundOptionsSchema = z
             .optional()
             .meta({ description: `Overall volume, from 0 to 1 (default: ${DEFAULT_VOLUME})` }),
         ...kindSettings,
+        button: z
+            .boolean()
+            .optional()
+            .meta({
+                description:
+                    "Whether the sound toggle shows in the corner of the screen (default: true). " +
+                    'Without it, players mute with Ctrl+M, or a { "soundToggle": true } in a bar.',
+            }),
         voices: VoicesSchema.optional(),
     })
     .meta({ description: "Sound options: the volume, and each kind of sound on or off" });
@@ -57,13 +65,16 @@ export const SoundSchema = z.union([z.boolean(), SoundOptionsSchema]).meta({
 export type SoundSetting = z.output<typeof SoundSchema>;
 
 /** Sound with every option filled in, or null when it's off. */
-export type ResolvedSound = { volume: number; voices: Voices } & { [K in SoundKind]: boolean };
+export type ResolvedSound = { volume: number; voices: Voices; button: boolean } & {
+    [K in SoundKind]: boolean;
+};
 
 export function resolveSound(setting: SoundSetting | undefined): ResolvedSound | null {
     if (setting === false) return null;
     const options = typeof setting === "object" ? setting : {};
     const resolved = {
         volume: options.volume ?? DEFAULT_VOLUME,
+        button: options.button ?? true,
         voices: mergeVoices(options.voices as VoiceOverrides | undefined),
     } as ResolvedSound;
     for (const kind of Object.keys(SOUND_KINDS) as SoundKind[]) {
@@ -77,6 +88,7 @@ export function compactSound(sound: ResolvedSound | null): SoundSetting | undefi
     if (sound === null) return false;
     const setting: Record<string, number | boolean | object> = {};
     if (sound.volume !== DEFAULT_VOLUME) setting.volume = sound.volume;
+    if (!sound.button) setting.button = false;
     for (const kind of Object.keys(SOUND_KINDS) as SoundKind[]) {
         if (sound[kind] !== SOUND_KINDS[kind].default) setting[kind] = sound[kind];
     }

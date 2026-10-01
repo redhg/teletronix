@@ -633,7 +633,8 @@ above), `"power-off"` (switches the screen off, after an optional `delay`, over 
 They don't scroll or reveal, and stay put between screens. Each line is text, or `left`,
 `center` and `right` spread across the screen's columns; each of those is text or a link
 (`{ "text", "action" }`), which works at any time. Variables in them update as they change.
-A line with `"className": "plain"` uses the screen's own colors instead, e.g. a subtitle
+`{ "soundToggle": true }` puts the [sound](#sound) toggle in a bar, in place of the one in the
+corner. A line with `"className": "plain"` uses the screen's own colors instead, e.g. a subtitle
 under an inverse title line. A screen can set its own `header`/`footer`, or `false` to hide one.
 
 ### Breadcrumbs
@@ -888,8 +889,10 @@ and dialogs. An optional CRT hum (`"hum": true`) adds a mains hum and a faint hi
 
 Sound is on by default, quietly. `config.sound` turns it off (`false`) or adjusts it:
 `{ "volume": 0.5, "typing": false, "hum": true }`. Browsers only play sound once the player has
-clicked or pressed a key, so it starts then. Players can mute it with the `[SOUND ON]` toggle in the
-corner, and their choice is remembered.
+clicked or pressed a key, so it starts then. Players can mute it with the toggle in the corner,
+`[♪]` (`[♪×]` while muted), or with Ctrl+M, and their choice is remembered. The toggle can go in a
+[bar](#header-and-status-bars) instead, with `{ "soundToggle": true }`: the corner's goes while
+that bar shows. `"button": false` leaves the corner's out altogether; Ctrl+M still works.
 
 The **sound test page**, <http://localhost:5173/?sound>, has two tabs:
 - **Built-in** tunes Teletronix's own sounds: play each one, adjust it with sliders by ear, and

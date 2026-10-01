@@ -34,10 +34,33 @@ export const BarBreadcrumbSchema = z
             "step a link but the last. A long one loses steps from the left.",
     });
 
+export const BarSoundToggleSchema = z
+    .strictObject({
+        soundToggle: z.literal(true).meta({ description: "The sound toggle here" }),
+        className: z
+            .string()
+            .optional()
+            .meta({ description: 'Space-separated CSS classes, e.g. "alert"' }),
+    })
+    .meta({
+        description:
+            "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it " +
+            "mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the " +
+            "screen goes. It shows only when the program has sound.",
+    });
+
 export const BarSlotSchema = z
-    .union([z.string().meta({ description: "Text" }), BarLinkSchema, BarBreadcrumbSchema])
+    .union([
+        z.string().meta({ description: "Text" }),
+        BarLinkSchema,
+        BarBreadcrumbSchema,
+        BarSoundToggleSchema,
+    ])
     .transform((slot): BarSlot => {
         if (typeof slot === "string") return { text: slot };
+        if ("soundToggle" in slot) {
+            return { text: "", soundToggle: true, className: slot.className };
+        }
         if ("breadcrumb" in slot) {
             return {
                 text: "",
@@ -49,8 +72,8 @@ export const BarSlotSchema = z
     })
     .meta({
         description:
-            'Text, which can show variables ("{credits}"), a link: { "text", "action" }, or ' +
-            '{ "breadcrumb": true }',
+            'Text, which can show variables ("{credits}"), a link: { "text", "action" }, ' +
+            '{ "breadcrumb": true } or { "soundToggle": true }',
     });
 
 export const BarLineObjectSchema = z
@@ -92,6 +115,16 @@ export interface BarSlot {
     className?: string;
     /** A breadcrumb in place of text (see BarBreadcrumbSchema) */
     breadcrumb?: { separator: string };
+    /** The sound toggle in place of text (see BarSoundToggleSchema) */
+    soundToggle?: true;
+}
+
+/** What a bar shows besides its own text. */
+export interface BarExtras {
+    /** The breadcrumb, for a breadcrumb slot: from the top down to the current screen. */
+    trail?: readonly BarCrumb[];
+    /** The sound toggle's label, for a sound toggle slot (none without sound). */
+    soundToggle?: string;
 }
 
 /** A step of a breadcrumb in a bar: its name, and where it goes (none for the last). */
@@ -128,9 +161,14 @@ export function layoutBarLine(
     line: BarLine,
     columns: number,
     format: (text: string) => string,
-    /** The breadcrumb, for a breadcrumb slot: from the top down to the current screen. */
-    trail: readonly BarCrumb[] = [],
+    { trail = [], soundToggle = "" }: BarExtras = {},
 ): BarPiece[] {
+    // the text a slot shows, without its markup (a breadcrumb's is laid out by itself)
+    const shown = (slot: BarSlot | undefined) => {
+        if (!slot) return parseMarkup("");
+        if (slot.soundToggle) return { text: soundToggle, styles: [] };
+        return parseMarkup(format(slot.text));
+    };
     const cells: { char: string; slot?: SlotName; style?: string; crumb?: number }[] = Array.from(
         { length: columns },
         () => ({ char: " " }),
@@ -146,11 +184,7 @@ export function layoutBarLine(
             columns -
             (["left", "center", "right"] as const)
                 .filter((other) => other !== slot && line[other] && !line[other].breadcrumb)
-                .reduce(
-                    (sum, other) =>
-                        sum + parseMarkup(format(line[other]?.text ?? "")).text.length + 1,
-                    0,
-                );
+                .reduce((sum, other) => sum + shown(line[other]).text.length + 1, 0);
         // too long: steps go from the left, with "…" where they were
         while (steps.length > 1 && width() > room) {
             const rest = steps.slice(steps[0]?.crumb === -1 ? 2 : 1);
@@ -175,8 +209,7 @@ export function layoutBarLine(
     const place = (slot: SlotName, start: (length: number) => number) => {
         const content = line[slot];
         if (content?.breadcrumb) return placeCrumbs(slot, content.breadcrumb.separator, start);
-        // (laid out by the text it shows, without its markup)
-        const { text, styles } = parseMarkup(content ? format(content.text) : "");
+        const { text, styles } = shown(content);
         const classes = classesAt(styles, text.length);
         const from = Math.max(0, start(text.length));
         for (let i = 0; i < text.length && from + i < columns; i++) {
@@ -228,5 +261,12 @@ export function barActions(bar: readonly BarLine[]): { path: PropertyKey[]; acti
             const action = line[slot]?.action;
             return action ? [{ path: [index, slot, "action"], action }] : [];
         }),
+    );
+}
+
+/** Whether a bar has the sound toggle in it. */
+export function hasSoundToggle(bar: readonly BarLine[] | undefined): boolean {
+    return (bar ?? []).some((line) =>
+        (["left", "center", "right"] as const).some((slot) => line[slot]?.soundToggle),
     );
 }

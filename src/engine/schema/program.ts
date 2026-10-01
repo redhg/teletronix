@@ -612,6 +612,16 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
 const programSchema = (written: unknown) =>
     FileSchema.transform((file, ctx) => normalize(file, written, ctx)).superRefine(checkReferences);
 
+/** The bars a screen shows: its own, or the program's (a screen's false hides one). */
+export function barsOf(
+    program: Pick<Program, "header" | "footer">,
+    screen: Screen | undefined,
+): { header?: readonly BarLine[]; footer?: readonly BarLine[] } {
+    const header = screen?.header === false ? undefined : (screen?.header ?? program.header);
+    const footer = screen?.footer === false ? undefined : (screen?.footer ?? program.footer);
+    return { header, footer };
+}
+
 // ─── Breadcrumbs ─────────────────────────────────────────────────────────────
 
 /** A step of a breadcrumb: a screen's id, and its name. */

@@ -7,6 +7,7 @@ describe("sound setting", () => {
     it("is on and quiet by default, without the hum", () => {
         expect(resolveSound(undefined)).toEqual({
             volume: 0.3,
+            button: true,
             typing: true,
             glitch: true,
             static: true,
@@ -38,6 +39,7 @@ describe("sound setting", () => {
     it("compacts back to what differs from the defaults", () => {
         const sound = resolveSound({ volume: 0.5, hum: true });
         expect(compactSound(sound)).toEqual({ volume: 0.5, hum: true });
+        expect(compactSound(resolveSound({ button: false }))).toEqual({ button: false });
         expect(compactSound(resolveSound(true))).toBeUndefined();
         expect(compactSound(null)).toBe(false);
     });

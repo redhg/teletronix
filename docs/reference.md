@@ -8,7 +8,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem), [Inbox](#inbox), [Inbox message](#inbox-message), [Inbox labels](#inbox-labels), [Directory](#directory), [Directory entry](#directory-entry), [Shell](#shell)
-- **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link), [Bar breadcrumb](#bar-breadcrumb)
+- **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link), [Bar breadcrumb](#bar-breadcrumb), [Bar sound toggle](#bar-sound-toggle)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Random](#random), [Pick](#pick), [Timers](#timers), [Timer](#timer)
 - **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Log](#log), [Map](#map), [Map marker](#map-marker), [Map point](#map-point), [Conversation](#conversation), [Conversation part](#conversation-part), [Conversation reply](#conversation-reply), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Visual level](#visual-level), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Rule](#rule), [Breadcrumb](#breadcrumb), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
@@ -476,13 +476,14 @@ A bar line with text or links at its left, middle and right
 
 ### Bar slot
 
-Text, which can show variables ("{credits}"), a link: { "text", "action" }, or { "breadcrumb": true }
+Text, which can show variables ("{credits}"), a link: { "text", "action" }, { "breadcrumb": true } or { "soundToggle": true }
 
 One of:
 
 - string: Text
 - [Bar link](#bar-link)
 - [Bar breadcrumb](#bar-breadcrumb)
+- [Bar sound toggle](#bar-sound-toggle)
 
 <a id="bar-link"></a>
 
@@ -506,6 +507,17 @@ Where the player is, following screens' parents: HOME › READOUTS › SPINNERS,
 |---|---|---|---|
 | `breadcrumb` | `true` | **required** | A breadcrumb here |
 | `separator` | string | `" › "` | What goes between the steps |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+
+<a id="bar-sound-toggle"></a>
+
+### Bar sound toggle
+
+The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `soundToggle` | `true` | **required** | The sound toggle here |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 
 ## Variables
@@ -1851,6 +1863,7 @@ Sound options: the volume, and each kind of sound on or off
 | `static` | boolean | `true` | Hiss under static, and the static transition |
 | `interface` | boolean | `true` | Beeps for links, toggles, sliders, prompts and dialogs |
 | `hum` | boolean | `false` | A CRT's mains hum and high-pitched whine, all the time |
+| `button` | boolean |  | Whether the sound toggle shows in the corner of the screen (default: true). Without it, players mute with Ctrl+M, or a { "soundToggle": true } in a bar. |
 | `voices` | [Sound voices](#sound-voices) |  | Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the sound test page (?sound, Built-in tab) and paste the result here. |
 
 <a id="sound-recipe"></a>

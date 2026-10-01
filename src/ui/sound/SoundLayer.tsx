@@ -1,7 +1,7 @@
-import { type ReactNode, useCallback, useEffect, useState } from "react";
-import type { ResolvedSound, Terminal } from "../../engine/index.ts";
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { barsOf, hasSoundToggle, type ResolvedSound, type Terminal } from "../../engine/index.ts";
 import { useTerminalSnapshot } from "../terminal-context.ts";
-import { SoundContext } from "./context.ts";
+import { SoundContext, type SoundToggle, SoundToggleContext } from "./context.ts";
 import { type SoundCue, Synth } from "./synth.ts";
 import "./sound.css";
 
@@ -32,7 +32,13 @@ interface Props {
     children: ReactNode;
 }
 
-/** Plays the program's sounds, and shows the toggle that mutes them. */
+/** The toggle's label: a note, crossed out while muted. */
+export const toggleLabel = (muted: boolean) => (muted ? "[♪×]" : "[♪]");
+
+/**
+ * Plays the program's sounds, and shows the toggle that mutes them: in the corner of the
+ * screen, unless a bar has one or the program turns it off.
+ */
 export function SoundLayer({ terminal, sound, children }: Props) {
     const [synth] = useState(() => new Synth());
     const [muted, setMuted] = useState(readMuted);
@@ -74,20 +80,33 @@ export function SoundLayer({ terminal, sound, children }: Props) {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [sound, toggle]);
 
+    const toggleState = useMemo<SoundToggle | null>(
+        () => (sound ? { muted, label: toggleLabel(muted), toggle } : null),
+        [sound, muted, toggle],
+    );
+    // (a bar with the toggle in it stands in for the one in the corner)
+    const current = useTerminalSnapshot().screen?.run.screen;
+    const { header, footer } = barsOf(terminal.program, current);
+    const inBar = hasSoundToggle(header) || hasSoundToggle(footer);
+
     return (
         <SoundContext value={play}>
-            {children}
-            <StaticHiss synth={synth} />
-            {sound && (
-                <button
-                    type="button"
-                    className="sound-toggle"
-                    aria-pressed={!muted}
-                    onClick={toggle}
-                >
-                    {muted ? "[SOUND OFF]" : "[SOUND ON]"}
-                </button>
-            )}
+            <SoundToggleContext value={toggleState}>
+                {children}
+                <StaticHiss synth={synth} />
+                {sound?.button && !inBar && (
+                    <button
+                        type="button"
+                        className="sound-toggle"
+                        aria-label="Sound"
+                        aria-pressed={!muted}
+                        title={`Sound ${muted ? "off" : "on"} (Ctrl+M)`}
+                        onClick={toggle}
+                    >
+                        {toggleLabel(muted)}
+                    </button>
+                )}
+            </SoundToggleContext>
         </SoundContext>
     );
 }

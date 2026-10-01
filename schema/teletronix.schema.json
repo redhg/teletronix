@@ -597,6 +597,25 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "soundToggle": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "The sound toggle here"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "soundToggle"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                             }
                                         ]
                                     },
@@ -991,6 +1010,25 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "soundToggle": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "The sound toggle here"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "soundToggle"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                             }
                                         ]
                                     },
@@ -1385,6 +1423,25 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "soundToggle": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "The sound toggle here"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "soundToggle"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                             }
                                         ]
                                     },
@@ -1803,6 +1860,25 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "soundToggle": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "The sound toggle here"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "soundToggle"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                             }
                                         ]
                                     },
@@ -2197,6 +2273,25 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "soundToggle": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "The sound toggle here"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "soundToggle"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                             }
                                         ]
                                     },
@@ -2591,6 +2686,25 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "soundToggle": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "The sound toggle here"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "soundToggle"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                             }
                                         ]
                                     },
@@ -3311,6 +3425,10 @@
                                 },
                                 "hum": {
                                     "description": "A CRT's mains hum and high-pitched whine, all the time (default: false)",
+                                    "type": "boolean"
+                                },
+                                "button": {
+                                    "description": "Whether the sound toggle shows in the corner of the screen (default: true). Without it, players mute with Ctrl+M, or a { \"soundToggle\": true } in a bar.",
                                     "type": "boolean"
                                 },
                                 "voices": {
@@ -4486,6 +4604,25 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "soundToggle": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "The sound toggle here"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "soundToggle"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                                         }
                                                     ]
                                                 },
@@ -4880,6 +5017,25 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "soundToggle": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "The sound toggle here"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "soundToggle"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                                         }
                                                     ]
                                                 },
@@ -5274,6 +5430,25 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "soundToggle": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "The sound toggle here"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "soundToggle"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                                         }
                                                     ]
                                                 },
@@ -5701,6 +5876,25 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "soundToggle": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "The sound toggle here"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "soundToggle"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                                         }
                                                     ]
                                                 },
@@ -6095,6 +6289,25 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "soundToggle": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "The sound toggle here"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "soundToggle"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                                         }
                                                     ]
                                                 },
@@ -6489,6 +6702,25 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "soundToggle": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "The sound toggle here"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "soundToggle"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "The sound toggle: [♪] while the sound is on, [♪×] while it's muted. Clicking it mutes or unmutes, like Ctrl+M. With it in a bar, the toggle in the corner of the screen goes. It shows only when the program has sound."
                                                         }
                                                     ]
                                                 },

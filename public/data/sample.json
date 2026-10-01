@@ -6,7 +6,7 @@
         "description": "Demonstrates every Teletronix feature.",
         "start": "startup",
         "waitForReveal": true,
-        "header": [{ "left": { "breadcrumb": true }, "right": { "text": "[HOME]", "action": { "screen": "home" } } }],
+        "header": [{ "left": { "breadcrumb": true }, "right": { "soundToggle": true } }],
         "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false, "target": "NONE", "shipX": 5, "shipY": 2 },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },

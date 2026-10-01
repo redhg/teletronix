@@ -93,28 +93,72 @@ test("can be muted, and stays muted", async ({ page, player, audio }) => {
     await player.open(program);
     await player.tap();
     const toggle = page.locator(".sound-toggle");
-    await expect(toggle).toHaveText("[SOUND ON]");
+    await expect(toggle).toHaveText("[♪]");
     await toggle.click();
-    await expect(toggle).toHaveText("[SOUND OFF]");
+    await expect(toggle).toHaveText("[♪×]");
     const played = await audio.during(() => player.link("> LASER").click(), 300);
     expect(played).toEqual({ oscillators: 0, noise: 0, loops: 0, recipes: 0 });
 
     await page.reload();
-    await expect(page.locator(".sound-toggle")).toHaveText("[SOUND OFF]");
+    await expect(page.locator(".sound-toggle")).toHaveText("[♪×]");
 });
 
 test("mutes and unmutes with Ctrl+M", async ({ page, player }) => {
     await player.open(program);
     const toggle = page.locator(".sound-toggle");
     await page.keyboard.press("Control+m");
-    await expect(toggle).toHaveText("[SOUND OFF]");
+    await expect(toggle).toHaveText("[♪×]");
     await page.keyboard.press("Control+m");
-    await expect(toggle).toHaveText("[SOUND ON]");
+    await expect(toggle).toHaveText("[♪]");
 });
 
 test("can be turned off by the program", async ({ page, player }) => {
     await player.open({ ...program, config: { ...program.config, sound: false } });
     await expect(page.locator(".sound-toggle")).toHaveCount(0);
+});
+
+test("can leave the toggle out of the corner, still muting with Ctrl+M", async ({
+    page,
+    player,
+}) => {
+    await player.open({ ...program, config: { ...program.config, sound: { button: false } } });
+    await expect(player.link("> BEEP")).toBeVisible();
+    await expect(page.locator(".sound-toggle")).toHaveCount(0);
+    await page.keyboard.press("Control+m");
+    expect(await page.evaluate(() => localStorage.getItem("teletronix:muted"))).toBe("true");
+});
+
+test("can have the toggle in a bar instead of the corner", async ({ page, player }) => {
+    await player.open({
+        ...program,
+        config: { ...program.config, header: [{ left: "SHIP", right: { soundToggle: true } }] },
+        screens: { ...program.screens, sounds: { ...program.screens.sounds, header: false } },
+    });
+    const toggle = page.locator(".bar-header").getByRole("button", { name: "Sound" });
+    await expect(toggle).toHaveText("[♪]");
+    await expect(toggle).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".sound-toggle")).toHaveCount(0);
+    await toggle.click();
+    await expect(toggle).toHaveText("[♪×]");
+    await page.keyboard.press("Control+m");
+    await expect(toggle).toHaveText("[♪]");
+
+    // a screen without the bar has the corner's toggle back
+    await player.link("> SOUNDS").click();
+    await expect(page.locator(".sound-toggle")).toHaveText("[♪]");
+});
+
+test("leaves a bar's toggle out when the program has no sound", async ({ page, player }) => {
+    await player.open({
+        ...program,
+        config: {
+            ...program.config,
+            sound: false,
+            header: [{ left: "SHIP", right: { soundToggle: true } }],
+        },
+    });
+    await expect(page.locator(".bar-header")).toHaveText(/^SHIP\s*$/);
+    await expect(page.locator(".bar-header button")).toHaveCount(0);
 });
 
 test.describe("with motion", () => {

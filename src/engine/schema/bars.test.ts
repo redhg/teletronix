@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type BarLine, BarLineSchema, layoutBarLine } from "./bars.ts";
+import { type BarLine, BarLineSchema, hasSoundToggle, layoutBarLine } from "./bars.ts";
 import { ActionSchema } from "./common.ts";
 import { parseProgram } from "./program.ts";
 
@@ -66,7 +66,7 @@ describe("bar breadcrumbs", () => {
         { text: "SPINNERS" },
     ];
     const crumbs = (input: unknown, columns: number) =>
-        layoutBarLine(line(input), columns, (text) => text, trail);
+        layoutBarLine(line(input), columns, (text) => text, { trail });
 
     it("show the trail, each step a link but the last", () => {
         expect(crumbs({ left: { breadcrumb: true } }, 28)).toEqual([
@@ -111,5 +111,24 @@ describe("bar breadcrumbs", () => {
 
     it("with no trail, show nothing", () => {
         expect(drawn({ left: { breadcrumb: true }, right: "R" }, 4)).toBe("   R");
+    });
+});
+
+describe("bar sound toggles", () => {
+    const toggle = { left: "SHIP", right: { soundToggle: true } };
+
+    it("show the label they're given, and nothing without sound", () => {
+        const text = (soundToggle?: string) =>
+            layoutBarLine(line(toggle), 12, (text) => text, { soundToggle })
+                .map((piece) => piece.text)
+                .join("");
+        expect(text("[♪×]")).toBe("SHIP    [♪×]");
+        expect(text()).toBe("SHIP        ");
+    });
+
+    it("are found in a bar", () => {
+        expect(hasSoundToggle([line("TEXT"), line(toggle)])).toBe(true);
+        expect(hasSoundToggle([line("TEXT")])).toBe(false);
+        expect(hasSoundToggle(undefined)).toBe(false);
     });
 });

@@ -16,6 +16,7 @@ import {
     BarLinkSchema,
     BarSchema,
     BarSlotSchema,
+    BarSoundToggleSchema,
 } from "../src/engine/schema/bars.ts";
 import {
     ActionCaseSchema,
@@ -229,6 +230,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Bar slot", BarSlotSchema],
             ["Bar link", BarLinkSchema],
             ["Bar breadcrumb", BarBreadcrumbSchema],
+            ["Bar sound toggle", BarSoundToggleSchema],
         ],
     ],
     [
