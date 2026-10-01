@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { parseProgram, type TeletronixFile } from "./program.ts";
+import { ActionSchema } from "./common.ts";
+import { breadcrumb, parseProgram, type TeletronixFile, trailTo } from "./program.ts";
 
 const file = (overrides: Partial<TeletronixFile> = {}): TeletronixFile => ({
     config: { name: "Test" },
@@ -173,5 +174,58 @@ describe("parseProgram", () => {
     it("quotes ids that aren't identifiers in paths", () => {
         const input = { ...file(), screens: { "screen-1": { content: [{ type: "text" }] } } };
         expect(errors(input)[0]?.path).toMatch(/^screens\["screen-1"\]\.content\[0\]/);
+    });
+});
+
+describe("breadcrumbs", () => {
+    const program = (screens: Record<string, unknown>) => {
+        const result = parseProgram({ config: { name: "T", start: "home" }, screens });
+        if (!result.ok) throw new Error(JSON.stringify(result.errors));
+        return result.program;
+    };
+    const tree = {
+        home: { content: [] },
+        readouts: { title: "READOUTS & DIALS", parent: "home", content: [] },
+        spinners: { parent: "readouts", content: [] },
+    };
+
+    it("follow parents from the top down, named by title or id", () => {
+        expect(trailTo(program(tree), "spinners")).toEqual([
+            { id: "home", title: "HOME" },
+            { id: "readouts", title: "READOUTS & DIALS" },
+            { id: "spinners", title: "SPINNERS" },
+        ]);
+        expect(trailTo(program(tree), "home")).toEqual([{ id: "home", title: "HOME" }]);
+    });
+
+    it("link every step but the last", () => {
+        expect(breadcrumb(program(tree), "spinners")).toEqual([
+            { text: "HOME", action: ActionSchema.parse({ screen: "home" }) },
+            { text: "READOUTS & DIALS", action: ActionSchema.parse({ screen: "readouts" }) },
+            { text: "SPINNERS" },
+        ]);
+    });
+
+    it("report unknown parents and parents in a circle", () => {
+        expect(
+            errors({
+                config: { name: "T", start: "a" },
+                screens: {
+                    a: { parent: "gone", content: [] },
+                    b: { parent: "c", content: [] },
+                    c: { parent: "b", content: [] },
+                },
+            }),
+        ).toEqual([
+            { path: "screens.a.parent", message: 'Unknown screen "gone"' },
+            {
+                path: "screens.b.parent",
+                message: "Its parents go round in a circle: one of them needs no parent",
+            },
+            {
+                path: "screens.c.parent",
+                message: "Its parents go round in a circle: one of them needs no parent",
+            },
+        ]);
     });
 });

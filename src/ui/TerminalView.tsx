@@ -131,8 +131,12 @@ export function TerminalView({ layoutKey }: Props) {
                     <StaticView options={INTERSTITIAL_STATIC} />
                 </div>
             )}
-            {header && <Bar lines={header} position="header" columns={columns} />}
-            {footer && <Bar lines={footer} position="footer" columns={columns} />}
+            {header && (
+                <Bar lines={header} position="header" columns={columns} screenId={current?.id} />
+            )}
+            {footer && (
+                <Bar lines={footer} position="footer" columns={columns} screenId={current?.id} />
+            )}
             <EffectsLayer effects={effects} />
             {dialog && <DialogView key={dialog.id} dialog={dialog} />}
         </AutoscrollContext>

@@ -10,6 +10,7 @@ import { StaticOptionsSchema } from "../src/effects/static/definition.ts";
 import { VignetteOptionsSchema } from "../src/effects/vignette/definition.ts";
 import { CustomThemeSchema, ThemeSchema } from "../src/engine/schema/appearance.ts";
 import {
+    BarBreadcrumbSchema,
     BarLineObjectSchema,
     BarLineSchema,
     BarLinkSchema,
@@ -96,6 +97,7 @@ import {
     ImageRevealObjectSchema,
     ImageRevealSchema,
 } from "../src/modules/bitmap/definition.ts";
+import { BreadcrumbSchema } from "../src/modules/breadcrumb/definition.ts";
 import { ButtonSchema, ButtonsSchema } from "../src/modules/buttons/definition.ts";
 import {
     ChecklistItemObjectSchema,
@@ -226,6 +228,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Bar line slots", BarLineObjectSchema],
             ["Bar slot", BarSlotSchema],
             ["Bar link", BarLinkSchema],
+            ["Bar breadcrumb", BarBreadcrumbSchema],
         ],
     ],
     [
@@ -313,6 +316,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Columns", ColumnsSchema, '"type": "columns"'],
             ["Pause", PauseSchema, '"type": "pause"'],
             ["Rule", HorizontalRuleSchema, '"type": "rule"'],
+            ["Breadcrumb", BreadcrumbSchema, '"type": "breadcrumb"'],
             ["Buttons", ButtonsSchema, '"type": "buttons"'],
             ["Button", ButtonSchema],
         ],

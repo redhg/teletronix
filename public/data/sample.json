@@ -6,7 +6,7 @@
         "description": "Demonstrates every Teletronix feature.",
         "start": "startup",
         "waitForReveal": true,
-        "header": [{ "left": "TELETRONIX // SAMPLE PROGRAM", "right": { "text": "[HOME]", "action": { "screen": "home" } } }],
+        "header": [{ "left": { "breadcrumb": true }, "right": { "text": "[HOME]", "action": { "screen": "home" } } }],
         "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false, "target": "NONE", "shipX": 5, "shipY": 2 },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
@@ -37,6 +37,8 @@
             ]
         },
         "cat-text": {
+            "title": "TEXT & LAYOUT",
+            "parent": "home",
             "content": [
                 "TEXT & LAYOUT",
                 { "type": "rule" },
@@ -66,6 +68,8 @@
             ]
         },
         "cat-reveals": {
+            "title": "REVEALS & EFFECTS",
+            "parent": "home",
             "content": [
                 "REVEALS & EFFECTS",
                 { "type": "rule" },
@@ -89,6 +93,8 @@
             ]
         },
         "cat-controls": {
+            "title": "CONTROLS",
+            "parent": "home",
             "content": [
                 "CONTROLS",
                 { "type": "rule" },
@@ -118,6 +124,8 @@
             ]
         },
         "cat-readouts": {
+            "title": "READOUTS",
+            "parent": "home",
             "content": [
                 "READOUTS",
                 { "type": "rule" },
@@ -145,6 +153,8 @@
             ]
         },
         "cat-computers": {
+            "title": "COMPUTERS",
+            "parent": "home",
             "content": [
                 "COMPUTERS",
                 { "type": "rule" },
@@ -166,6 +176,8 @@
             ]
         },
         "cat-story": {
+            "title": "STORY & STATE",
+            "parent": "home",
             "content": [
                 "STORY & STATE",
                 { "type": "rule" },
@@ -181,6 +193,7 @@
             ]
         },
         "columns": {
+            "parent": "cat-text",
             "content": [
                 "COLUMNS",
                 { "type": "rule" },
@@ -213,6 +226,7 @@
             "preset": { "type": "boot", "title": "TELETRONIX SAMPLE SYSTEM v2.0", "pause": true, "next": "home" }
         },
         "effects": {
+            "parent": "cat-reveals",
             "content": [
                 "EFFECTS",
                 "=======",
@@ -240,6 +254,8 @@
             ]
         },
         "fx-channel": {
+            "title": "CHANNEL 3",
+            "parent": "effects",
             "transition": "static",
             "content": [
                 "CHANNEL 3",
@@ -251,11 +267,15 @@
             ]
         },
         "fx-noise": {
+            "title": "NOISE",
+            "parent": "effects",
             "effects": { "static": { "opacity": 1, "scale": 2 } },
             "next": { "after": 1500, "action": { "screen": "fx-restored" } },
             "content": []
         },
         "fx-restored": {
+            "title": "RESTORED",
+            "parent": "fx-noise",
             "reveal": "glitch",
             "next": { "key": "any", "action": { "screen": "effects" } },
             "content": [
@@ -267,6 +287,8 @@
             ]
         },
         "fx-static": {
+            "title": "STATIC",
+            "parent": "effects",
             "effects": { "static": { "opacity": 0.25 } },
             "content": [
                 "STATIC",
@@ -278,6 +300,8 @@
             ]
         },
         "fx-bloom": {
+            "title": "BLOOM",
+            "parent": "effects",
             "effects": { "bloom": true },
             "content": [
                 "BLOOM",
@@ -289,6 +313,8 @@
             ]
         },
         "fx-vignette": {
+            "title": "VIGNETTE",
+            "parent": "effects",
             "effects": { "vignette": true },
             "content": [
                 "VIGNETTE",
@@ -300,6 +326,8 @@
             ]
         },
         "fx-flicker": {
+            "title": "FLICKER",
+            "parent": "effects",
             "effects": { "flicker": true },
             "content": [
                 "FLICKER",
@@ -311,6 +339,8 @@
             ]
         },
         "fx-fringe": {
+            "title": "FRINGE",
+            "parent": "effects",
             "effects": { "fringe": { "offset": 1.5 } },
             "content": [
                 "FRINGE",
@@ -322,6 +352,8 @@
             ]
         },
         "fx-all": {
+            "title": "EVERYTHING",
+            "parent": "effects",
             "effects": { "bloom": true, "vignette": true, "flicker": { "strength": 0.3 }, "static": { "opacity": 0.1 }, "fringe": true },
             "content": [
                 "EVERYTHING",
@@ -333,6 +365,8 @@
             ]
         },
         "fx-clean": {
+            "title": "NO SCANLINES",
+            "parent": "effects",
             "effects": { "scanlines": false },
             "content": [
                 "NO SCANLINES",
@@ -344,6 +378,8 @@
             ]
         },
         "fx-afterglow": {
+            "title": "AFTERGLOW",
+            "parent": "effects",
             "transition": { "type": "fade", "duration": 1500 },
             "content": [
                 "AFTERGLOW",
@@ -355,6 +391,7 @@
             ]
         },
         "dialogs": {
+            "parent": "cat-controls",
             "content": [
                 "DIALOGS",
                 "=======",
@@ -369,6 +406,7 @@
             ]
         },
         "progress": {
+            "parent": "cat-readouts",
             "content": [
                 "PROGRESS",
                 "========",
@@ -395,6 +433,7 @@
             ]
         },
         "upload": {
+            "parent": "progress",
             "content": [
                 "UPLOADING STATION LOGS. PRESS <ESC> TO ABORT.",
                 "",
@@ -408,10 +447,13 @@
             ]
         },
         "upload-done": {
+            "title": "DONE",
+            "parent": "upload",
             "next": { "key": "any", "action": { "screen": "progress" } },
             "content": ["UPLOAD COMPLETE.", "", "Press any key."]
         },
         "autoscroll": {
+            "parent": "cat-text",
             "reveal": { "type": "teletype", "speed": 4 },
             "content": [
                 "AUTOSCROLL",
@@ -466,6 +508,8 @@
             ]
         },
         "autoscroll-off": {
+            "title": "OFF",
+            "parent": "autoscroll",
             "reveal": { "type": "teletype", "speed": 4 },
             "autoscroll": false,
             "content": [
@@ -521,6 +565,7 @@
             ]
         },
         "sliders": {
+            "parent": "cat-controls",
             "content": [
                 "SLIDERS",
                 "=======",
@@ -557,6 +602,7 @@
             ]
         },
         "transmission": {
+            "parent": "sliders",
             "transition": "static",
             "reveal": "glitch",
             "content": [
@@ -568,6 +614,7 @@
             ]
         },
         "variables": {
+            "parent": "cat-story",
             "content": [
                 "VARIABLES",
                 "=========",
@@ -603,6 +650,8 @@
             ]
         },
         "vault": {
+            "title": "THE VAULT",
+            "parent": "variables",
             "reveal": "glitch",
             "content": [
                 "THE VAULT",
@@ -614,6 +663,7 @@
             ]
         },
         "sounds": {
+            "parent": "cat-reveals",
             "sound": "powerup",
             "content": [
                 "SOUNDS",
@@ -632,6 +682,7 @@
             ]
         },
         "keys": {
+            "parent": "cat-controls",
             "next": [
                 { "key": "y", "action": { "screen": "destroyed" } },
                 { "key": ["n", "Escape"], "action": { "screen": "home" } },
@@ -647,10 +698,13 @@
             ]
         },
         "keys-timeout": {
+            "title": "TIMED OUT",
+            "parent": "keys",
             "next": { "key": "any", "action": { "screen": "home" } },
             "content": ["No answer. Self-destruct cancelled.", "", "Press any key."]
         },
         "destroyed": {
+            "parent": "keys",
             "transition": "glitch",
             "reveal": "glitch",
             "content": [
@@ -662,6 +716,7 @@
             ]
         },
         "sections": {
+            "parent": "cat-text",
             "content": [
                 "SECTIONS",
                 "========",
@@ -720,6 +775,7 @@
             ]
         },
         "bars": {
+            "parent": "cat-text",
             "header": [{ "left": "YPSILON-14 // DEEP SPACE RELAY", "right": "SECTOR 14/B" }],
             "footer": [
                 {
@@ -736,12 +792,17 @@
                 "",
                 "A line is text, or \"left\", \"center\" and \"right\" spread across it. They can show variables, which update as they change, and hold links, like [?] HELP below.",
                 "",
+                "A breadcrumb shows where you are, following each screen's \"parent\": the usual header has one, { \"breadcrumb\": true }, and it can go on a screen too, as an element:",
+                "",
+                { "type": "breadcrumb" },
+                "",
                 { "type": "link", "text": "> EARN 10 CREDITS", "action": { "set": { "credits": { "add": 10 } } } },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "pauses": {
+            "parent": "cat-text",
             "content": [
                 "PAUSES",
                 "======",
@@ -762,6 +823,7 @@
             ]
         },
         "buttons": {
+            "parent": "cat-controls",
             "content": [
                 "BUTTONS",
                 "=======",
@@ -784,6 +846,7 @@
             ]
         },
         "numbers": {
+            "parent": "cat-controls",
             "content": [
                 "NUMBERS",
                 "=======",
@@ -816,6 +879,7 @@
             ]
         },
         "timers": {
+            "parent": "cat-readouts",
             "footer": [{ "left": "SELF-DESTRUCT: {destruct}", "right": "SECTOR 14/B" }],
             "content": [
                 "TIMERS",
@@ -843,6 +907,8 @@
             ]
         },
         "timer-boom": {
+            "title": "BOOM",
+            "parent": "timers",
             "transition": "static",
             "content": [
                 { "type": "text", "text": "SELF-DESTRUCT COMPLETE.", "className": "alert" },
@@ -853,6 +919,7 @@
             ]
         },
         "meters": {
+            "parent": "cat-readouts",
             "content": [
                 "METERS",
                 "======",
@@ -884,6 +951,7 @@
             ]
         },
         "tables": {
+            "parent": "cat-text",
             "content": [
                 "TABLES",
                 "======",
@@ -919,6 +987,7 @@
             ]
         },
         "menus": {
+            "parent": "cat-controls",
             "content": [
                 "MENUS",
                 "=====",
@@ -940,6 +1009,8 @@
             ]
         },
         "image-effects": {
+            "title": "IMAGE EFFECTS",
+            "parent": "images",
             "content": [
                 "IMAGE REVEAL EFFECTS",
                 "====================",
@@ -969,6 +1040,8 @@
             ]
         },
         "ascii": {
+            "title": "ASCII ART",
+            "parent": "cat-text",
             "content": [
                 "ASCII ART",
                 "=========",
@@ -980,10 +1053,13 @@
             ]
         },
         "boot": {
+            "parent": "presets",
             "header": false,
             "preset": { "type": "boot", "pause": true, "next": "presets" }
         },
         "boot-custom": {
+            "title": "BOOT (CUSTOM)",
+            "parent": "presets",
             "header": false,
             "preset": {
                 "type": "boot",
@@ -1002,10 +1078,12 @@
             }
         },
         "shutdown": {
+            "parent": "presets",
             "header": false,
             "preset": { "type": "shutdown", "next": "presets" }
         },
         "error": {
+            "parent": "presets",
             "header": false,
             "preset": {
                 "type": "error",
@@ -1015,10 +1093,12 @@
             }
         },
         "crash": {
+            "parent": "presets",
             "header": false,
             "preset": { "type": "crash", "message": ["*** STOP: 0x0000007B", "INACCESSIBLE_BOOT_DEVICE"], "next": "presets" }
         },
         "presets": {
+            "parent": "home",
             "content": [
                 "PRESETS",
                 "=======",
@@ -1066,6 +1146,7 @@
             ]
         },
         "checklists": {
+            "parent": "cat-readouts",
             "content": [
                 "CHECKLISTS",
                 "==========",
@@ -1090,6 +1171,7 @@
             ]
         },
         "counters": {
+            "parent": "cat-readouts",
             "content": [
                 "COUNTERS",
                 "========",
@@ -1111,6 +1193,7 @@
             ]
         },
         "visuals": {
+            "parent": "cat-reveals",
             "content": [
                 "VISUALS",
                 "=======",
@@ -1170,6 +1253,7 @@
             ]
         },
         "spinners": {
+            "parent": "cat-readouts",
             "content": [
                 "SPINNERS",
                 "========",
@@ -1209,6 +1293,8 @@
             ]
         },
         "hexdumps": {
+            "title": "HEX DUMPS",
+            "parent": "cat-computers",
             "content": [
                 "HEX DUMPS",
                 "=========",
@@ -1231,6 +1317,8 @@
             ]
         },
         "hexeditor": {
+            "title": "HEX EDITOR",
+            "parent": "presets",
             "preset": {
                 "type": "hexeditor",
                 "file": "CREW_MANIFEST.DAT",
@@ -1245,6 +1333,7 @@
             }
         },
         "login": {
+            "parent": "presets",
             "header": false,
             "preset": {
                 "type": "login",
@@ -1260,6 +1349,8 @@
             }
         },
         "login-welcome": {
+            "title": "WELCOME",
+            "parent": "login",
             "content": [
                 "WELCOME, {name}.",
                 "",
@@ -1269,6 +1360,8 @@
             ]
         },
         "login-locked": {
+            "title": "LOCKED OUT",
+            "parent": "login",
             "content": [
                 { "type": "text", "text": "SECURITY LOCKOUT", "className": "alert" },
                 "",
@@ -1279,6 +1372,7 @@
             ]
         },
         "decrypt": {
+            "parent": "presets",
             "header": false,
             "preset": {
                 "type": "decrypt",
@@ -1296,6 +1390,8 @@
             ]
         },
         "decrypt-fail": {
+            "title": "DECRYPT (FAILS)",
+            "parent": "presets",
             "header": false,
             "preset": {
                 "type": "decrypt",
@@ -1314,6 +1410,7 @@
             ]
         },
         "countdown": {
+            "parent": "presets",
             "header": false,
             "preset": {
                 "type": "countdown",
@@ -1324,6 +1421,8 @@
             }
         },
         "countdown-aborted": {
+            "title": "ABORTED",
+            "parent": "countdown",
             "content": [
                 "SELF-DESTRUCT SEQUENCE ABORTED.",
                 "",
@@ -1333,6 +1432,8 @@
             ]
         },
         "transmission-preset": {
+            "title": "TRANSMISSION",
+            "parent": "presets",
             "header": false,
             "preset": {
                 "type": "transmission",
@@ -1350,6 +1451,7 @@
             }
         },
         "modem": {
+            "parent": "presets",
             "header": false,
             "preset": { "type": "modem", "dial": "ATDT 1-800-555-0199", "connect": "CONNECT 2400/ARQ" },
             "content": [
@@ -1363,6 +1465,7 @@
             ]
         },
         "inbox": {
+            "parent": "presets",
             "preset": {
                 "type": "inbox",
                 "title": "MU-TH-UR 6000 // MESSAGES FOR: SCIENCE OFFICER",
@@ -1394,6 +1497,7 @@
             ]
         },
         "directory": {
+            "parent": "presets",
             "preset": {
                 "type": "directory",
                 "path": "C:\\NOSTROMO",
@@ -1415,6 +1519,8 @@
             ]
         },
         "directory-unix": {
+            "title": "DIRECTORY (UNIX)",
+            "parent": "presets",
             "preset": {
                 "type": "directory",
                 "style": "unix",
@@ -1434,6 +1540,7 @@
             ]
         },
         "dashboard": {
+            "parent": "cat-readouts",
             "header": [{ "left": "SHIP SYSTEMS // NOSTROMO", "right": "FUEL [alert]{fuel}%[/]   HULL {hull}%" }],
             "content": [
                 "A dashboard, made of ordinary elements: meters showing variables, and visuals, laid out in columns. Move the fuel valve and watch it all follow, the waveform too.",
@@ -1461,6 +1568,7 @@
             ]
         },
         "shell": {
+            "parent": "cat-computers",
             "preset": {
                 "type": "shell",
                 "banner": ["MU-TH-UR 6000 // NOSTROMO MAINFRAME", "Type help for a list of commands, and exit to leave."],
@@ -1488,6 +1596,8 @@
             }
         },
         "shell-dos": {
+            "title": "SHELL (DOS)",
+            "parent": "cat-computers",
             "preset": {
                 "type": "shell",
                 "style": "dos",
@@ -1516,6 +1626,7 @@
             }
         },
         "rules": {
+            "parent": "cat-text",
             "content": [
                 "RULES",
                 { "type": "rule" },
@@ -1543,6 +1654,8 @@
             ]
         },
         "random": {
+            "title": "RANDOMNESS",
+            "parent": "cat-story",
             "content": [
                 "RANDOMNESS",
                 { "type": "rule" },
@@ -1564,10 +1677,12 @@
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
-        "door-1": { "content": ["Behind door 1: a storage closet, full of mops.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
-        "door-2": { "content": ["Behind door 2: the galley. Someone's left the coffee on.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
-        "door-3": { "content": ["Behind door 3: [alert]the airlock[/alert]. Best not.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
+        "door-1": { "title": "DOOR 1", "parent": "random", "content": ["Behind door 1: a storage closet, full of mops.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
+        "door-2": { "title": "DOOR 2", "parent": "random", "content": ["Behind door 2: the galley. Someone's left the coffee on.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
+        "door-3": { "title": "DOOR 3", "parent": "random", "content": ["Behind door 3: [alert]the airlock[/alert]. Best not.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
         "log": {
+            "title": "LOG FEED",
+            "parent": "cat-readouts",
             "content": [
                 "LOG FEED",
                 { "type": "rule" },
@@ -1580,6 +1695,7 @@
             ]
         },
         "conversation": {
+            "parent": "cat-computers",
             "content": [
                 "MU-TH-UR 6000 INTERFACE",
                 { "type": "rule" },
@@ -1627,6 +1743,8 @@
             ]
         },
         "maps": {
+            "title": "STAR MAP",
+            "parent": "cat-computers",
             "content": [
                 "STAR MAP // ZETA II RETICULI",
                 { "type": "rule" },
@@ -1666,6 +1784,8 @@
             ]
         },
         "toggles": {
+            "title": "TOGGLES & CHOICES",
+            "parent": "cat-controls",
             "content": [
                 "TOGGLES & CHOICES",
                 "=================",
@@ -1695,6 +1815,7 @@
             ]
         },
         "prompt": {
+            "parent": "cat-controls",
             "content": [
                 "PROMPT",
                 "======",
@@ -1720,6 +1841,7 @@
             ]
         },
         "images": {
+            "parent": "cat-reveals",
             "content": [
                 "IMAGES",
                 "======",
@@ -1754,6 +1876,7 @@
             ]
         },
         "text": {
+            "parent": "cat-text",
             "content": [
                 "TEXT",
                 "====",
@@ -1787,6 +1910,7 @@
             ]
         },
         "reveals": {
+            "parent": "cat-reveals",
             "content": [
                 "REVEALS",
                 "=======",
@@ -1801,6 +1925,7 @@
             ]
         },
         "instant": {
+            "parent": "reveals",
             "reveal": "instant",
             "content": [
                 "INSTANT",
@@ -1819,6 +1944,7 @@
             ]
         },
         "links": {
+            "parent": "cat-controls",
             "content": [
                 "LINKS",
                 "=====",
@@ -1839,6 +1965,7 @@
             ]
         },
         "glitch": {
+            "parent": "cat-reveals",
             "reveal": "glitch",
             "transition": "glitch",
             "content": [
@@ -1856,6 +1983,8 @@
             ]
         },
         "glitch2": {
+            "title": "SYSTEM LOG",
+            "parent": "glitch",
             "reveal": "glitch",
             "transition": { "type": "glitch", "duration": 1500 },
             "content": [
@@ -1870,6 +1999,7 @@
             ]
         },
         "secret": {
+            "parent": "links",
             "content": [
                 { "type": "text", "text": "ACCESS GRANTED", "className": "alert" },
                 "",

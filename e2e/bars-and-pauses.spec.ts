@@ -119,6 +119,48 @@ test.describe("bars", () => {
     });
 });
 
+const crumbs: Program = {
+    config: {
+        name: "Crumbs",
+        start: "home",
+        header: [{ left: { breadcrumb: true }, right: "SHIP" }],
+    },
+    screens: {
+        home: {
+            content: [{ type: "link", text: "> READOUTS", action: { screen: "readouts" } }],
+        },
+        readouts: {
+            title: "READOUTS & DIALS",
+            parent: "home",
+            content: [{ type: "link", text: "> SPINNERS", action: { screen: "spinners" } }],
+        },
+        spinners: { parent: "readouts", content: [{ type: "breadcrumb", separator: " / " }] },
+    },
+};
+
+test.describe("breadcrumbs", () => {
+    test("show where you are, in a bar or on a screen, and link back up", async ({
+        page,
+        player,
+    }) => {
+        await player.open(crumbs);
+        const header = page.locator(".bar-header");
+        await expect(header).toContainText("HOME");
+        await player.link("> READOUTS").click();
+        await player.link("> SPINNERS").click();
+        await expect(header).toContainText("HOME › READOUTS & DIALS › SPINNERS");
+        // the screen's own, with its separator: the last step isn't a link
+        const trail = player.screen.getByRole("navigation", { name: "Breadcrumb" });
+        await expect(trail).toHaveText("HOME / READOUTS & DIALS / SPINNERS");
+        await expect(trail.getByRole("button")).toHaveText(["HOME", "READOUTS & DIALS"]);
+
+        await header.getByRole("button", { name: "READOUTS & DIALS" }).click();
+        await expect(player.link("> SPINNERS")).toBeVisible();
+        await expect(header).not.toContainText("SPINNERS");
+        await expect(header.getByRole("button")).toHaveText(["HOME"]);
+    });
+});
+
 test.describe("pause", () => {
     const pauses: Program = {
         config: { name: "Pauses", start: "home" },

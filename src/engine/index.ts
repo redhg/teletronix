@@ -29,7 +29,7 @@ export {
     type ThemeName,
     type ThemeSetting,
 } from "./schema/appearance.ts";
-export { type BarLine, type BarPiece, layoutBarLine } from "./schema/bars.ts";
+export { type BarCrumb, type BarLine, type BarPiece, layoutBarLine } from "./schema/bars.ts";
 export type { Action } from "./schema/common.ts";
 export { dialogAction } from "./schema/dialog.ts";
 export {
@@ -45,12 +45,15 @@ export {
 } from "./schema/effects.ts";
 export type { Element, ElementOf, ElementType } from "./schema/elements.ts";
 export {
+    breadcrumb,
+    type Crumb,
     type Dialog,
     type ParseError,
     type ParseResult,
     type Program,
     parseProgram,
     type Screen,
+    trailTo,
 } from "./schema/program.ts";
 export {
     type Cue,

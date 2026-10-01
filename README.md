@@ -85,6 +85,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"section"` | A header that expands and collapses the elements under it. See below. |
 | `"columns"` | Lays elements out in columns, e.g. a long list of links. See below. |
 | `"rule"` | A horizontal rule, of any character or pattern, with an optional label set into it. See below. |
+| `"breadcrumb"` | Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link back. See [Breadcrumbs](#breadcrumbs). |
 | `"pause"` | Stops the reveal with "-- PRESS ANY KEY TO CONTINUE --" until a key or tap. See below. |
 | `"buttons"` | A row of `[ BUTTONS ]`, each with an `action` and an optional hotkey. See below. |
 | `"timer"` | A clock on the screen, counting down or up. See [Timers](#timers). |
@@ -634,6 +635,24 @@ They don't scroll or reveal, and stay put between screens. Each line is text, or
 (`{ "text", "action" }`), which works at any time. Variables in them update as they change.
 A line with `"className": "plain"` uses the screen's own colors instead, e.g. a subtitle
 under an inverse title line. A screen can set its own `header`/`footer`, or `false` to hide one.
+
+### Breadcrumbs
+```json
+"screens": {
+    "home": { "content": [ ... ] },
+    "readouts": { "title": "READOUTS & DIALS", "parent": "home", "content": [ ... ] },
+    "spinners": { "parent": "readouts", "content": [ ... ] }
+},
+"config": { "header": [{ "left": { "breadcrumb": true }, "right": "SHIP" }] }
+```
+A breadcrumb shows where the player is: `HOME › READOUTS & DIALS › SPINNERS`. It follows each
+screen's `parent` up to a screen without one, naming each by its `title` (default: its id, in
+capitals). Every step but the last is a link back to its screen. A screen's place doesn't
+depend on how the player got there, so a screen reached from several menus has one parent.
+
+`{ "breadcrumb": true }` in a bar puts one there, with an optional `separator` (default `" › "`).
+It fits in the room the rest of the line leaves, losing steps from the left (`… › NOISE ›
+RESTORED`) when it's too long. `{ "type": "breadcrumb" }` puts one on a screen, as an element.
 
 ### Meters
 ```json

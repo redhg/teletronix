@@ -17,12 +17,40 @@ export const BarLinkSchema = z
     })
     .meta({ description: "A link in a bar, usable at any time" });
 
-export const BarSlotSchema = z
-    .union([z.string().meta({ description: "Text" }), BarLinkSchema])
-    .transform((slot): BarSlot => (typeof slot === "string" ? { text: slot } : slot))
+export const BarBreadcrumbSchema = z
+    .strictObject({
+        breadcrumb: z.literal(true).meta({ description: "A breadcrumb here" }),
+        separator: z.string().default(" › ").meta({
+            description: 'What goes between the steps (default: " › ")',
+        }),
+        className: z
+            .string()
+            .optional()
+            .meta({ description: 'Space-separated CSS classes, e.g. "alert"' }),
+    })
     .meta({
         description:
-            'Text, which can show variables ("{credits}"), or a link: { "text", "action" }',
+            "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each " +
+            "step a link but the last. A long one loses steps from the left.",
+    });
+
+export const BarSlotSchema = z
+    .union([z.string().meta({ description: "Text" }), BarLinkSchema, BarBreadcrumbSchema])
+    .transform((slot): BarSlot => {
+        if (typeof slot === "string") return { text: slot };
+        if ("breadcrumb" in slot) {
+            return {
+                text: "",
+                breadcrumb: { separator: slot.separator },
+                className: slot.className,
+            };
+        }
+        return slot;
+    })
+    .meta({
+        description:
+            'Text, which can show variables ("{credits}"), a link: { "text", "action" }, or ' +
+            '{ "breadcrumb": true }',
     });
 
 export const BarLineObjectSchema = z
@@ -62,6 +90,14 @@ export interface BarSlot {
     text: string;
     action?: Action;
     className?: string;
+    /** A breadcrumb in place of text (see BarBreadcrumbSchema) */
+    breadcrumb?: { separator: string };
+}
+
+/** A step of a breadcrumb in a bar: its name, and where it goes (none for the last). */
+export interface BarCrumb {
+    text: string;
+    action?: Action;
 }
 
 export interface BarLine {
@@ -79,6 +115,8 @@ export interface BarPiece {
     slot?: SlotName;
     /** CSS classes from inline markup, e.g. [alert]...[/] */
     style?: string;
+    /** For a breadcrumb's step: where it goes */
+    action?: Action;
 }
 
 /**
@@ -90,14 +128,55 @@ export function layoutBarLine(
     line: BarLine,
     columns: number,
     format: (text: string) => string,
+    /** The breadcrumb, for a breadcrumb slot: from the top down to the current screen. */
+    trail: readonly BarCrumb[] = [],
 ): BarPiece[] {
-    const cells: { char: string; slot?: SlotName; style?: string }[] = Array.from(
+    const cells: { char: string; slot?: SlotName; style?: string; crumb?: number }[] = Array.from(
         { length: columns },
         () => ({ char: " " }),
     );
+    // a breadcrumb: its steps, each cell remembering which step it's part of
+    const placeCrumbs = (slot: SlotName, separator: string, start: (length: number) => number) => {
+        let steps = trail.map((crumb, index) => ({ text: format(crumb.text), crumb: index }));
+        const width = () =>
+            steps.reduce((sum, step) => sum + step.text.length, 0) +
+            separator.length * Math.max(0, steps.length - 1);
+        // it has the room the other slots leave, with a space beside each
+        const room =
+            columns -
+            (["left", "center", "right"] as const)
+                .filter((other) => other !== slot && line[other] && !line[other].breadcrumb)
+                .reduce(
+                    (sum, other) =>
+                        sum + parseMarkup(format(line[other]?.text ?? "")).text.length + 1,
+                    0,
+                );
+        // too long: steps go from the left, with "…" where they were
+        while (steps.length > 1 && width() > room) {
+            const rest = steps.slice(steps[0]?.crumb === -1 ? 2 : 1);
+            steps = rest.length > 1 ? [{ text: "…", crumb: -1 }, ...rest] : rest;
+        }
+        let at = Math.max(0, start(width()));
+        steps.forEach((step, k) => {
+            const text = k === 0 ? step.text : separator + step.text;
+            const skip = k === 0 ? 0 : separator.length;
+            for (let i = 0; i < text.length && at < columns; i++, at++) {
+                const cell = cells[at];
+                if (cell && !cell.slot) {
+                    Object.assign(cell, {
+                        char: text[i],
+                        slot,
+                        ...(i >= skip && step.crumb >= 0 ? { crumb: step.crumb } : {}),
+                    });
+                }
+            }
+        });
+    };
     const place = (slot: SlotName, start: (length: number) => number) => {
+        const content = line[slot];
+        if (content?.breadcrumb) return placeCrumbs(slot, content.breadcrumb.separator, start);
         // (laid out by the text it shows, without its markup)
-        const { text, styles } = parseMarkup(line[slot] ? format(line[slot].text) : "");
+        const { text, styles } = parseMarkup(content ? format(content.text) : "");
         const classes = classesAt(styles, text.length);
         const from = Math.max(0, start(text.length));
         for (let i = 0; i < text.length && from + i < columns; i++) {
@@ -116,16 +195,28 @@ export function layoutBarLine(
     place("center", (length) => Math.floor((columns - length) / 2));
 
     const pieces: BarPiece[] = [];
+    let lastCrumb: number | undefined;
     for (const cell of cells) {
         const last = pieces.at(-1);
-        if (last && last.slot === cell.slot && last.style === cell.style) last.text += cell.char;
-        else {
+        // (a breadcrumb's steps are pieces of their own, where they're links)
+        const action = cell.crumb === undefined ? undefined : trail[cell.crumb]?.action;
+        const lastAction = lastCrumb === undefined ? undefined : trail[lastCrumb]?.action;
+        if (
+            last &&
+            last.slot === cell.slot &&
+            last.style === cell.style &&
+            (lastCrumb === cell.crumb || (!action && !lastAction))
+        ) {
+            last.text += cell.char;
+        } else {
             pieces.push({
                 text: cell.char,
                 ...(cell.slot ? { slot: cell.slot } : {}),
                 ...(cell.style ? { style: cell.style } : {}),
+                ...(action ? { action } : {}),
             });
         }
+        lastCrumb = cell.crumb;
     }
     return pieces;
 }

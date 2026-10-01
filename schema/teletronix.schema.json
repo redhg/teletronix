@@ -573,6 +573,30 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "A link in a bar, usable at any time"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "breadcrumb": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "A breadcrumb here"
+                                                    },
+                                                    "separator": {
+                                                        "default": " › ",
+                                                        "description": "What goes between the steps (default: \" › \")",
+                                                        "type": "string"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "breadcrumb"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                             }
                                         ]
                                     },
@@ -943,6 +967,30 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "A link in a bar, usable at any time"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "breadcrumb": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "A breadcrumb here"
+                                                    },
+                                                    "separator": {
+                                                        "default": " › ",
+                                                        "description": "What goes between the steps (default: \" › \")",
+                                                        "type": "string"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "breadcrumb"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                             }
                                         ]
                                     },
@@ -1313,6 +1361,30 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "A link in a bar, usable at any time"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "breadcrumb": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "A breadcrumb here"
+                                                    },
+                                                    "separator": {
+                                                        "default": " › ",
+                                                        "description": "What goes between the steps (default: \" › \")",
+                                                        "type": "string"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "breadcrumb"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                             }
                                         ]
                                     },
@@ -1707,6 +1779,30 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "A link in a bar, usable at any time"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "breadcrumb": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "A breadcrumb here"
+                                                    },
+                                                    "separator": {
+                                                        "default": " › ",
+                                                        "description": "What goes between the steps (default: \" › \")",
+                                                        "type": "string"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "breadcrumb"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                             }
                                         ]
                                     },
@@ -2077,6 +2173,30 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "A link in a bar, usable at any time"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "breadcrumb": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "A breadcrumb here"
+                                                    },
+                                                    "separator": {
+                                                        "default": " › ",
+                                                        "description": "What goes between the steps (default: \" › \")",
+                                                        "type": "string"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "breadcrumb"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                             }
                                         ]
                                     },
@@ -2447,6 +2567,30 @@
                                                 ],
                                                 "additionalProperties": false,
                                                 "description": "A link in a bar, usable at any time"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "breadcrumb": {
+                                                        "type": "boolean",
+                                                        "const": true,
+                                                        "description": "A breadcrumb here"
+                                                    },
+                                                    "separator": {
+                                                        "default": " › ",
+                                                        "description": "What goes between the steps (default: \" › \")",
+                                                        "type": "string"
+                                                    },
+                                                    "className": {
+                                                        "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "breadcrumb"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                             }
                                         ]
                                     },
@@ -3590,6 +3734,16 @@
             "additionalProperties": {
                 "type": "object",
                 "properties": {
+                    "title": {
+                        "description": "Its name in a breadcrumb, e.g. \"SPINNERS\" (default: its id, in capitals)",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "parent": {
+                        "description": "The screen it belongs under, for breadcrumbs: HOME › READOUTS › SPINNERS. A screen without one is at the top.",
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]+$"
+                    },
                     "reveal": {
                         "description": "Default reveal for this screen's elements",
                         "anyOf": [
@@ -4308,6 +4462,30 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "A link in a bar, usable at any time"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "breadcrumb": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "A breadcrumb here"
+                                                                },
+                                                                "separator": {
+                                                                    "default": " › ",
+                                                                    "description": "What goes between the steps (default: \" › \")",
+                                                                    "type": "string"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "breadcrumb"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                                         }
                                                     ]
                                                 },
@@ -4678,6 +4856,30 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "A link in a bar, usable at any time"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "breadcrumb": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "A breadcrumb here"
+                                                                },
+                                                                "separator": {
+                                                                    "default": " › ",
+                                                                    "description": "What goes between the steps (default: \" › \")",
+                                                                    "type": "string"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "breadcrumb"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                                         }
                                                     ]
                                                 },
@@ -5048,6 +5250,30 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "A link in a bar, usable at any time"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "breadcrumb": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "A breadcrumb here"
+                                                                },
+                                                                "separator": {
+                                                                    "default": " › ",
+                                                                    "description": "What goes between the steps (default: \" › \")",
+                                                                    "type": "string"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "breadcrumb"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                                         }
                                                     ]
                                                 },
@@ -5451,6 +5677,30 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "A link in a bar, usable at any time"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "breadcrumb": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "A breadcrumb here"
+                                                                },
+                                                                "separator": {
+                                                                    "default": " › ",
+                                                                    "description": "What goes between the steps (default: \" › \")",
+                                                                    "type": "string"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "breadcrumb"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                                         }
                                                     ]
                                                 },
@@ -5821,6 +6071,30 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "A link in a bar, usable at any time"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "breadcrumb": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "A breadcrumb here"
+                                                                },
+                                                                "separator": {
+                                                                    "default": " › ",
+                                                                    "description": "What goes between the steps (default: \" › \")",
+                                                                    "type": "string"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "breadcrumb"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                                         }
                                                     ]
                                                 },
@@ -6191,6 +6465,30 @@
                                                             ],
                                                             "additionalProperties": false,
                                                             "description": "A link in a bar, usable at any time"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "breadcrumb": {
+                                                                    "type": "boolean",
+                                                                    "const": true,
+                                                                    "description": "A breadcrumb here"
+                                                                },
+                                                                "separator": {
+                                                                    "default": " › ",
+                                                                    "description": "What goes between the steps (default: \" › \")",
+                                                                    "type": "string"
+                                                                },
+                                                                "className": {
+                                                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "breadcrumb"
+                                                            ],
+                                                            "additionalProperties": false,
+                                                            "description": "Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link but the last. A long one loses steps from the left."
                                                         }
                                                     ]
                                                 },
@@ -25930,6 +26228,116 @@
                             ],
                             "additionalProperties": false,
                             "description": "A horizontal rule: a line across the screen (or a section or column) of any character or pattern, with an optional label set into it. It always fits the width."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "breadcrumb"
+                                },
+                                "separator": {
+                                    "default": " › ",
+                                    "description": "What goes between the steps (default: \" › \")",
+                                    "type": "string"
+                                },
+                                "align": {
+                                    "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "left",
+                                        "center",
+                                        "right"
+                                    ]
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Where the player is, following screens' parents (see a screen's \"parent\" and \"title\"): HOME › READOUTS › SPINNERS, each step a link back but the last. It appears at once."
                         },
                         {
                             "type": "object",

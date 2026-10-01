@@ -14,9 +14,10 @@ import {
     ThemeSchema,
     type ThemeSetting,
 } from "./appearance.ts";
-import { type BarLine, BarSchema, barActions } from "./bars.ts";
+import { type BarCrumb, type BarLine, BarSchema, barActions } from "./bars.ts";
 import {
     type Action,
+    ActionSchema,
     AlignSchema,
     GlitchOptionsSchema,
     IdSchema,
@@ -58,6 +59,14 @@ export const DEFAULT_GLITCH_DURATION = 1000;
 
 export const ScreenSchema = z
     .strictObject({
+        title: z.string().min(1).optional().meta({
+            description: 'Its name in a breadcrumb, e.g. "SPINNERS" (default: its id, in capitals)',
+        }),
+        parent: IdSchema.optional().meta({
+            description:
+                "The screen it belongs under, for breadcrumbs: HOME › READOUTS › SPINNERS. A " +
+                "screen without one is at the top.",
+        }),
         reveal: RevealSchema.optional().meta({
             description: "Default reveal for this screen's elements",
         }),
@@ -256,6 +265,10 @@ export interface Defaults {
 
 export interface Screen {
     id: string;
+    /** Its name in a breadcrumb */
+    title?: string;
+    /** The screen it belongs under, for breadcrumbs */
+    parent?: string;
     reveal?: RevealOption;
     transition?: TransitionOption;
     effects?: EffectsSetting;
@@ -365,13 +378,15 @@ function normalize(
         const content = normalizeContent(items, `${id}#`);
         const { reveal, transition, autoscroll, align, waitForReveal } = screen;
         const effects = screen.effects ?? preset?.effects;
-        const { sound } = screen;
+        const { sound, title, parent } = screen;
         const header = screen.header ?? preset?.header;
         const footer = screen.footer ?? preset?.footer;
         const rules = [...(screen.next ?? []), ...(preset?.next ? [preset.next] : [])];
         const next = rules.length > 0 ? rules : undefined;
         screens.set(id, {
             id,
+            ...(title === undefined ? {} : { title }),
+            ...(parent === undefined ? {} : { parent }),
             reveal,
             transition,
             effects,
@@ -522,6 +537,16 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
 
     for (const screen of program.screens.values()) {
         report(["screens", screen.id, "sound"], unknownSound(screen.sound));
+        if (screen.parent !== undefined) {
+            if (!program.screens.has(screen.parent)) {
+                report(["screens", screen.id, "parent"], `Unknown screen "${screen.parent}"`);
+            } else if (trailTo(program, screen.id).length === 0) {
+                report(
+                    ["screens", screen.id, "parent"],
+                    "Its parents go round in a circle: one of them needs no parent",
+                );
+            }
+        }
         checkBar(["screens", screen.id, "header"], screen.header);
         checkBar(["screens", screen.id, "footer"], screen.footer);
 
@@ -586,6 +611,42 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
 /** The schema a program file is parsed with: given the file as written, for its presets. */
 const programSchema = (written: unknown) =>
     FileSchema.transform((file, ctx) => normalize(file, written, ctx)).superRefine(checkReferences);
+
+// ─── Breadcrumbs ─────────────────────────────────────────────────────────────
+
+/** A step of a breadcrumb: a screen's id, and its name. */
+export interface Crumb {
+    id: string;
+    title: string;
+}
+
+/**
+ * The screens from the top down to this one, following parents: HOME › READOUTS › SPINNERS.
+ * Empty if its parents go round in a circle (which parsing reports).
+ */
+export function trailTo(program: Pick<Program, "screens">, screenId: string): Crumb[] {
+    const trail: Crumb[] = [];
+    const seen = new Set<string>();
+    let id: string | undefined = screenId;
+    while (id !== undefined) {
+        if (seen.has(id)) return [];
+        seen.add(id);
+        const screen = program.screens.get(id);
+        if (!screen) break;
+        trail.unshift({ id, title: screen.title ?? id.toUpperCase() });
+        id = screen.parent;
+    }
+    return trail;
+}
+
+/** The breadcrumb to show on this screen: each step a link to its screen, but the last. */
+export function breadcrumb(program: Pick<Program, "screens">, screenId: string): BarCrumb[] {
+    const trail = trailTo(program, screenId);
+    return trail.map((crumb, index) => ({
+        text: crumb.title,
+        ...(index < trail.length - 1 ? { action: ActionSchema.parse({ screen: crumb.id }) } : {}),
+    }));
+}
 
 // ─── Parsing ─────────────────────────────────────────────────────────────────
 

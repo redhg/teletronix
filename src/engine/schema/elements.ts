@@ -2,6 +2,11 @@ import { z } from "zod";
 import { type AsciiElement, AsciiSchema, asciiModule } from "../../modules/ascii/definition.ts";
 import { type BitmapElement, BitmapSchema, bitmapModule } from "../../modules/bitmap/definition.ts";
 import {
+    type BreadcrumbElement,
+    BreadcrumbSchema,
+    breadcrumbModule,
+} from "../../modules/breadcrumb/definition.ts";
+import {
     type ButtonsElement,
     ButtonsSchema,
     buttonsModule,
@@ -122,6 +127,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     DecryptSchema,
     ShellSchema,
     HorizontalRuleSchema,
+    BreadcrumbSchema,
     LogSchema,
     ConversationSchema,
     MapSchema,
@@ -166,6 +172,7 @@ export type Element =
     | DecryptElement
     | ShellElement
     | RuleElement
+    | BreadcrumbElement
     | LogElement
     | ConversationElement
     | MapElement;
@@ -202,6 +209,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     decrypt: decryptModule,
     shell: shellModule,
     rule: ruleModule,
+    breadcrumb: breadcrumbModule,
     log: logModule,
     conversation: conversationModule,
     map: mapModule,

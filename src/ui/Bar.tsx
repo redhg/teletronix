@@ -1,4 +1,5 @@
-import { type BarLine, layoutBarLine } from "../engine/index.ts";
+import { useMemo } from "react";
+import { type BarLine, breadcrumb, layoutBarLine } from "../engine/index.ts";
 import { classNames } from "./element-view.ts";
 import { useSound } from "./sound/context.ts";
 import { useTerminal } from "./terminal-context.ts";
@@ -9,24 +10,30 @@ interface Props {
     position: "header" | "footer";
     /** Characters per line, the same as the screen's, so the bars line up with it. */
     columns: number;
+    /** The current screen, for a breadcrumb */
+    screenId?: string;
 }
 
 /**
  * A header or status bar: lines pinned to the edge of the window. Its parent re-renders
  * whenever a variable changes, so the text shown stays current.
  */
-export function Bar({ lines, position, columns }: Props) {
+export function Bar({ lines, position, columns, screenId }: Props) {
     const terminal = useTerminal();
     const sound = useSound();
+    const trail = useMemo(
+        () => (screenId === undefined ? [] : breadcrumb(terminal.program, screenId)),
+        [terminal, screenId],
+    );
 
     return (
         <div className={classNames("bar", `bar-${position}`)}>
             {lines.map((line, index) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: a bar's lines never reorder
                 <div key={index} className={classNames("bar-line", line.className)}>
-                    {layoutBarLine(line, columns, terminal.format).map((piece, k) => {
+                    {layoutBarLine(line, columns, terminal.format, trail).map((piece, k) => {
                         const slot = piece.slot && line[piece.slot];
-                        const action = slot?.action;
+                        const action = piece.action ?? slot?.action;
                         if (!action) {
                             return (
                                 <span
@@ -45,7 +52,7 @@ export function Bar({ lines, position, columns }: Props) {
                                 // biome-ignore lint/suspicious/noArrayIndexKey: laid out afresh each time
                                 key={k}
                                 type="button"
-                                className={classNames("bar-link", slot.className, piece.style)}
+                                className={classNames("bar-link", slot?.className, piece.style)}
                                 onClick={() => {
                                     sound({ type: "select" });
                                     terminal.dispatch(action);

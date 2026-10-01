@@ -1,0 +1,13 @@
+/* A breadcrumb: its steps run along one line, wrapping between steps if they must */
+.breadcrumb {
+    min-height: 1lh;
+}
+
+.breadcrumb .breadcrumb-step {
+    display: inline;
+    width: auto;
+}
+
+.breadcrumb .breadcrumb-step:disabled {
+    cursor: default;
+}

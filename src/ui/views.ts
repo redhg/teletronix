@@ -1,6 +1,7 @@
 import type { ElementOf, ElementType } from "../engine/index.ts";
 import { AsciiView } from "../modules/ascii/View.tsx";
 import { BitmapView } from "../modules/bitmap/View.tsx";
+import { BreadcrumbView } from "../modules/breadcrumb/View.tsx";
 import { ButtonsView } from "../modules/buttons/View.tsx";
 import { ChecklistView } from "../modules/checklist/View.tsx";
 import { ChoiceView } from "../modules/choice/View.tsx";
@@ -64,6 +65,7 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     decrypt: DecryptView,
     shell: ShellView,
     rule: RuleView,
+    breadcrumb: BreadcrumbView,
     log: LogView,
     conversation: ConversationView,
     map: MapView,
