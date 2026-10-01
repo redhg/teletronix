@@ -18,6 +18,11 @@ import {
     createColumnsSchema,
 } from "../../modules/columns/definition.ts";
 import {
+    type ConversationElement,
+    ConversationSchema,
+    conversationModule,
+} from "../../modules/conversation/definition.ts";
+import {
     type CounterElement,
     CounterSchema,
     counterModule,
@@ -117,6 +122,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     ShellSchema,
     HorizontalRuleSchema,
     LogSchema,
+    ConversationSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -158,7 +164,8 @@ export type Element =
     | DecryptElement
     | ShellElement
     | RuleElement
-    | LogElement;
+    | LogElement
+    | ConversationElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -193,6 +200,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     shell: shellModule,
     rule: ruleModule,
     log: logModule,
+    conversation: conversationModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {

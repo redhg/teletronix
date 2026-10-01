@@ -1,8 +1,13 @@
 import { classesAt, parseMarkup } from "../engine/index.ts";
 
-/** Text with inline markup ([alert]...[/]), as spans, for text the engine doesn't draw. */
-export function StyledText({ text }: { text: string }) {
-    const { text: plain, styles } = parseMarkup(text);
+/**
+ * Text with inline markup ([alert]...[/]), as spans, for text the engine doesn't draw. With
+ * `limit`, only that many of its characters (e.g. while it types out).
+ */
+export function StyledText({ text, limit }: { text: string; limit?: number }) {
+    const parsed = parseMarkup(text);
+    const styles = parsed.styles;
+    const plain = limit === undefined ? parsed.text : parsed.text.slice(0, limit);
     if (styles.length === 0) return <>{plain}</>;
     // the stretches where the classes are the same
     const classes = classesAt(styles, plain.length);

@@ -73,6 +73,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"visual"` | Line art that moves: an oscilloscope, a chart, a radar or a turning wireframe. See below. |
 | `"decrypt"` | A message that starts scrambled and resolves a few characters at a time, with an optional progress bar. See below. |
 | `"hexdump"` | Bytes as a hex dump: your text, random bytes with text hidden in them, or a file. See below. |
+| `"conversation"` | A conversation with a computer: it speaks, the player picks a numbered reply, and it answers. See below. |
 | `"log"` | A live log: lines that keep arriving, one every so often, with optional timestamps. See below. |
 | `"spinner"` | A spinner that turns for a while, or until a key, holding the screen. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
@@ -278,6 +279,35 @@ the top half of the window. With reduced motion, it stays put. `exit` gives it a
   leave by.
 
 The `hexeditor` [preset](#presets) is a whole screen of one, with a header bar.
+
+### Conversations
+```json
+{
+    "type": "conversation",
+    "speaker": "MOTHER: ",
+    "start": "hello",
+    "nodes": {
+        "hello": {
+            "say": "INTERFACE 2037 READY FOR INQUIRY.",
+            "replies": [
+                { "text": "WHAT IS SPECIAL ORDER 937?", "next": "order", "if": { "cleared": true } },
+                { "text": "EMERGENCY OVERRIDE 100375.", "next": "override", "once": true },
+                { "text": "(LOG OFF)", "action": { "back": true } }
+            ]
+        },
+        "override": { "say": "OVERRIDE ACCEPTED.", "action": { "set": { "cleared": true } }, "replies": [{ "text": "...", "next": "hello" }] },
+        "order": { "say": ["PRIORITY ONE: INSURE RETURN OF ORGANISM.", "CREW EXPENDABLE."] }
+    }
+}
+```
+A conversation goes from part to part (`nodes`, by name), starting at `start`. Each part `say`s
+its lines, typed out after the `speaker` (every `speed` milliseconds a character, default 25),
+then runs its `action` if it has one, and offers its numbered `replies`: the player clicks one,
+or presses its number. A reply goes on to its `next` part and/or runs its `action` (set a
+variable, go to a screen, go `back`), and is said after `you` (default `> `). Replies with an
+`if` are only offered while it holds, and `once` ones until they've been chosen (remembered when
+the player comes back). A part with no replies ends the conversation. A click, Enter or Space
+finishes the line being typed. Lines and replies can show variables and inline markup.
 
 ### Logs
 ```json

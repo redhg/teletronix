@@ -6,7 +6,7 @@
         "description": "Demonstrates every Teletronix feature.",
         "start": "home",
         "waitForReveal": true,
-        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN" },
+        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
     "screens": {
@@ -29,6 +29,7 @@
                         { "type": "link", "text": "> BARS", "action": { "screen": "bars" } },
                         { "type": "link", "text": "> BUTTONS", "action": { "screen": "buttons" } },
                         { "type": "link", "text": "> CHECKLISTS", "action": { "screen": "checklists" } },
+                        { "type": "link", "text": "> CONVERSATION", "action": { "screen": "conversation" } },
                         { "type": "link", "text": "> COUNTERS", "action": { "screen": "counters" } },
                         { "type": "link", "text": "> DASHBOARD", "action": { "screen": "dashboard" } },
                         { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
@@ -1415,6 +1416,53 @@
                 { "type": "log", "lines": ["CREW REVIVED FROM HYPERSLEEP", "MOTHER: COURSE CHANGED", "SIGNAL RECEIVED: ORIGIN LV-426", "[alert]SIGNAL IS A WARNING[/]", "DESCENT TO LV-426 BEGUN", "LANDING: HULL DAMAGE, DECK C", "EXPEDITION LEAVES SHIP", "KANE INJURED: RETURNING", "[alert]QUARANTINE OVERRIDDEN[/]"], "time": "06:12", "loop": true, "rows": 8 },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "conversation": {
+            "content": [
+                "MU-TH-UR 6000 INTERFACE",
+                { "type": "rule" },
+                "",
+                {
+                    "type": "conversation",
+                    "speaker": "MOTHER: ",
+                    "start": "hello",
+                    "nodes": {
+                        "hello": {
+                            "say": ["INTERFACE 2037 READY FOR INQUIRY."],
+                            "replies": [
+                                { "text": "WHAT ARE MY CHANCES?", "next": "chances" },
+                                { "text": "REQUEST CLARIFICATION ON SCIENCE INABILITY TO NEUTRALIZE ALIEN.", "next": "937", "if": { "authorized": false } },
+                                { "text": "WHAT IS SPECIAL ORDER 937?", "next": "order", "if": { "authorized": true } },
+                                { "text": "EMERGENCY COMMAND OVERRIDE 100375.", "next": "override", "once": true, "if": { "authorized": false } },
+                                { "text": "(LOG OFF)", "action": { "back": true } }
+                            ]
+                        },
+                        "chances": {
+                            "say": ["DOES NOT COMPUTE."],
+                            "replies": [{ "text": "...", "next": "hello" }]
+                        },
+                        "937": {
+                            "say": ["UNABLE TO CLARIFY."],
+                            "replies": [{ "text": "WHY?", "next": "hello" }]
+                        },
+                        "override": {
+                            "say": ["OVERRIDE ACCEPTED.", "[alert]SECURITY CLEARANCE: SCIENCE OFFICER[/]"],
+                            "action": { "set": { "authorized": true } },
+                            "replies": [{ "text": "...", "next": "hello" }]
+                        },
+                        "order": {
+                            "say": [
+                                "NOSTROMO REROUTED TO NEW CO-ORDINATES.",
+                                "INVESTIGATE LIFE FORM. GATHER SPECIMEN.",
+                                "PRIORITY ONE: INSURE RETURN OF ORGANISM FOR ANALYSIS.",
+                                "ALL OTHER CONSIDERATIONS SECONDARY.",
+                                "[alert]CREW EXPENDABLE.[/]"
+                            ],
+                            "replies": [{ "text": "(LOG OFF)", "action": { "back": true } }]
+                        }
+                    }
+                }
             ]
         },
         "toggles": {

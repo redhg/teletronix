@@ -1892,3 +1892,59 @@ test.describe("log", () => {
         await expect(player.screen.getByRole("log")).toBeVisible();
     });
 });
+
+test.describe("conversation", () => {
+    test.use({ reducedMotion: "no-preference" });
+
+    test("speaks, offers replies by number, and answers", async ({ page, player }) => {
+        await player.open({
+            config: { name: "Talk", start: "home", reveal: "instant", variables: { asked: false } },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "conversation",
+                            speaker: "MOTHER: ",
+                            speed: 5,
+                            start: "hello",
+                            nodes: {
+                                hello: {
+                                    say: "GOOD MORNING.",
+                                    replies: [
+                                        {
+                                            text: "WHAT IS [alert]937[/]?",
+                                            next: "secret",
+                                            once: true,
+                                        },
+                                        { text: "GOODBYE", action: { screen: "away" } },
+                                    ],
+                                },
+                                secret: {
+                                    say: ["UNABLE TO CLARIFY."],
+                                    action: { set: { asked: true } },
+                                    replies: [{ text: "BACK", next: "hello" }],
+                                },
+                            },
+                        },
+                    ],
+                },
+                away: { content: ["AWAY, ASKED {asked}"] },
+            },
+        } as Program);
+        const talk = player.screen.locator(".conversation");
+        await expect(talk.locator(".conversation-line").first()).toHaveText(
+            "MOTHER: GOOD MORNING.",
+        );
+        const replies = talk.locator(".conversation-replies button");
+        await expect(replies).toHaveText(["1. WHAT IS 937?", "2. GOODBYE"]);
+        await expect(replies.first().locator(".alert")).toHaveText("937");
+        await page.keyboard.press("1");
+        await expect(talk).toContainText("> WHAT IS 937?");
+        await expect(talk).toContainText("MOTHER: UNABLE TO CLARIFY.");
+        await replies.getByText("BACK").click();
+        // the once-only reply has gone
+        await expect(replies).toHaveText(["1. GOODBYE"]);
+        await page.keyboard.press("1");
+        await expect(player.screen).toContainText("AWAY, ASKED true");
+    });
+});

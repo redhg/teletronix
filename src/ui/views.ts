@@ -5,6 +5,7 @@ import { ButtonsView } from "../modules/buttons/View.tsx";
 import { ChecklistView } from "../modules/checklist/View.tsx";
 import { ChoiceView } from "../modules/choice/View.tsx";
 import { ColumnsView } from "../modules/columns/View.tsx";
+import { ConversationView } from "../modules/conversation/View.tsx";
 import { CounterView } from "../modules/counter/View.tsx";
 import { CrashView } from "../modules/crash/View.tsx";
 import { DecryptView } from "../modules/decrypt/View.tsx";
@@ -63,4 +64,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     shell: ShellView,
     rule: RuleView,
     log: LogView,
+    conversation: ConversationView,
 };

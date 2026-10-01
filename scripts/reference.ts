@@ -103,6 +103,11 @@ import {
     ChecklistSchema,
 } from "../src/modules/checklist/definition.ts";
 import { ChoiceMarkersSchema, ChoiceSchema } from "../src/modules/choice/definition.ts";
+import {
+    ConversationNodeSchema,
+    ConversationSchema,
+    ReplySchema,
+} from "../src/modules/conversation/definition.ts";
 import { CounterSchema } from "../src/modules/counter/definition.ts";
 import { CrashSchema } from "../src/modules/crash/definition.ts";
 import { DecryptSchema } from "../src/modules/decrypt/definition.ts";
@@ -280,6 +285,9 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Hex dump exit", HexdumpExitSchema],
             ["Decrypt element", DecryptSchema, '"type": "decrypt"'],
             ["Log", LogSchema, '"type": "log"'],
+            ["Conversation", ConversationSchema, '"type": "conversation"'],
+            ["Conversation part", ConversationNodeSchema],
+            ["Conversation reply", ReplySchema],
             ["Spinner", SpinnerSchema, '"type": "spinner"'],
             ["Spinner interrupt", SpinnerInterruptSchema],
             ["Counter", CounterSchema, '"type": "counter"'],

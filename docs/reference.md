@@ -10,7 +10,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem), [Inbox](#inbox), [Inbox message](#inbox-message), [Inbox labels](#inbox-labels), [Directory](#directory), [Directory entry](#directory-entry), [Shell](#shell)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Random](#random), [Pick](#pick), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Log](#log), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Rule](#rule), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Log](#log), [Conversation](#conversation), [Conversation part](#conversation-part), [Conversation reply](#conversation-reply), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Rule](#rule), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -666,6 +666,7 @@ One of:
 - [Shell element](#shell-element)
 - [Rule](#rule)
 - [Log](#log)
+- [Conversation](#conversation)
 
 <a id="text"></a>
 
@@ -1230,6 +1231,50 @@ A live log: lines that keep arriving, one every so often, like a ship's systems 
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 | `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="conversation"></a>
+
+### Conversation (`"type": "conversation"`)
+
+A conversation with a computer: it says something, the player picks a numbered reply, and it answers, part by part, keeping a transcript
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `start` | id | **required** | The part it starts with |
+| `nodes` | map of id → [Conversation part](#conversation-part) | **required** | The parts of the conversation, by name |
+| `speaker` | string | `""` | Text before what the computer says, e.g. "MOTHER: " |
+| `you` | string | `"> "` | Text before the player's replies, as they're said |
+| `speed` | number, ≥ 0 | `25` | Milliseconds per character as the computer speaks |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="conversation-part"></a>
+
+### Conversation part
+
+A part of a conversation: what the computer says, and the replies
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `say` | string \| string[] | **required** | What the computer says, typed out: a line or a list (variables and markup work) |
+| `replies` | [Conversation reply](#conversation-reply)[] |  | The player's replies, numbered. Without any, the conversation ends here. |
+| `action` | [Action](#action) |  | What happens on arriving here, after it has spoken, e.g. set a variable |
+
+<a id="conversation-reply"></a>
+
+### Conversation reply
+
+A reply the player can choose
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `text` | string | **required** | What the player says |
+| `next` | id |  | The part of the conversation it leads to |
+| `action` | [Action](#action) |  | What happens when it's chosen, e.g. set a variable or go to a screen |
+| `if` | [Condition](#condition) |  | Only offered while this holds |
+| `once` | boolean | `false` | Only offered until it's been chosen, even on later visits |
 
 <a id="spinner"></a>
 

@@ -26010,6 +26010,874 @@
                             ],
                             "additionalProperties": false,
                             "description": "A live log: lines that keep arriving, one every so often, like a ship's systems reporting in. It runs alongside the rest of the screen."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "conversation"
+                                },
+                                "start": {
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                    "description": "The part it starts with"
+                                },
+                                "nodes": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                    },
+                                    "additionalProperties": {
+                                        "type": "object",
+                                        "properties": {
+                                            "say": {
+                                                "description": "What the computer says, typed out: a line or a list (variables and markup work)",
+                                                "anyOf": [
+                                                    {
+                                                        "type": "string"
+                                                    },
+                                                    {
+                                                        "minItems": 1,
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "replies": {
+                                                "description": "The player's replies, numbered. Without any, the conversation ends here.",
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "text": {
+                                                            "type": "string",
+                                                            "minLength": 1,
+                                                            "description": "What the player says"
+                                                        },
+                                                        "next": {
+                                                            "description": "The part of the conversation it leads to",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "action": {
+                                                            "description": "What happens when it's chosen, e.g. set a variable or go to a screen",
+                                                            "anyOf": [
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "if": {
+                                                                            "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                            "$ref": "#/$defs/Condition"
+                                                                        },
+                                                                        "screen": {
+                                                                            "description": "A screen to go to, or a list of screens to go to one of, at random",
+                                                                            "anyOf": [
+                                                                                {
+                                                                                    "type": "string",
+                                                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                                },
+                                                                                {
+                                                                                    "minItems": 1,
+                                                                                    "type": "array",
+                                                                                    "items": {
+                                                                                        "type": "string",
+                                                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                                    }
+                                                                                }
+                                                                            ]
+                                                                        },
+                                                                        "dialog": {
+                                                                            "description": "A dialog to open, or a list of dialogs to open one of, at random",
+                                                                            "anyOf": [
+                                                                                {
+                                                                                    "type": "string",
+                                                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                                },
+                                                                                {
+                                                                                    "minItems": 1,
+                                                                                    "type": "array",
+                                                                                    "items": {
+                                                                                        "type": "string",
+                                                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                                    }
+                                                                                }
+                                                                            ]
+                                                                        },
+                                                                        "set": {
+                                                                            "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                            "type": "object",
+                                                                            "propertyNames": {
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                                "description": "A variable declared in config.variables"
+                                                                            },
+                                                                            "additionalProperties": {
+                                                                                "anyOf": [
+                                                                                    {
+                                                                                        "description": "true or false, a number, or text",
+                                                                                        "type": [
+                                                                                            "boolean",
+                                                                                            "number",
+                                                                                            "string"
+                                                                                        ]
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "add": {
+                                                                                                "type": "number",
+                                                                                                "description": "How much to add (negative to subtract)"
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "add"
+                                                                                        ],
+                                                                                        "additionalProperties": false,
+                                                                                        "description": "Adds to a number variable"
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "random": {
+                                                                                                "type": "array",
+                                                                                                "prefixItems": [
+                                                                                                    {
+                                                                                                        "type": "integer",
+                                                                                                        "minimum": -9007199254740991,
+                                                                                                        "maximum": 9007199254740991
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "type": "integer",
+                                                                                                        "minimum": -9007199254740991,
+                                                                                                        "maximum": 9007199254740991
+                                                                                                    }
+                                                                                                ],
+                                                                                                "items": false,
+                                                                                                "minItems": 2,
+                                                                                                "maxItems": 2,
+                                                                                                "description": "The lowest and highest it can be, e.g. [1, 20] for a d20"
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "random"
+                                                                                        ],
+                                                                                        "additionalProperties": false,
+                                                                                        "description": "Sets a number variable to a whole number at random, like a dice roll"
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "pick": {
+                                                                                                "minItems": 1,
+                                                                                                "type": "array",
+                                                                                                "items": {
+                                                                                                    "description": "true or false, a number, or text",
+                                                                                                    "type": [
+                                                                                                        "boolean",
+                                                                                                        "number",
+                                                                                                        "string"
+                                                                                                    ]
+                                                                                                },
+                                                                                                "description": "The values to pick from, each as likely"
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "pick"
+                                                                                        ],
+                                                                                        "additionalProperties": false,
+                                                                                        "description": "Sets a variable to one of these values, at random"
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        "startTimer": {
+                                                                            "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                        },
+                                                                        "stopTimer": {
+                                                                            "description": "A timer to stop where it is",
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                        },
+                                                                        "resetTimer": {
+                                                                            "description": "A timer to stop and put back to its start",
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                        },
+                                                                        "sound": {
+                                                                            "description": "A sound from the program's sounds, played as the action happens",
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "back": {
+                                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                            "type": "boolean",
+                                                                            "const": true
+                                                                        },
+                                                                        "restart": {
+                                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                            "type": "boolean",
+                                                                            "const": true
+                                                                        }
+                                                                    },
+                                                                    "additionalProperties": false,
+                                                                    "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                                },
+                                                                {
+                                                                    "minItems": 1,
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "if": {
+                                                                                "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                                "$ref": "#/$defs/Condition"
+                                                                            },
+                                                                            "screen": {
+                                                                                "description": "A screen to go to, or a list of screens to go to one of, at random",
+                                                                                "anyOf": [
+                                                                                    {
+                                                                                        "type": "string",
+                                                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                                    },
+                                                                                    {
+                                                                                        "minItems": 1,
+                                                                                        "type": "array",
+                                                                                        "items": {
+                                                                                            "type": "string",
+                                                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "dialog": {
+                                                                                "description": "A dialog to open, or a list of dialogs to open one of, at random",
+                                                                                "anyOf": [
+                                                                                    {
+                                                                                        "type": "string",
+                                                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                                    },
+                                                                                    {
+                                                                                        "minItems": 1,
+                                                                                        "type": "array",
+                                                                                        "items": {
+                                                                                            "type": "string",
+                                                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "set": {
+                                                                                "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                                "type": "object",
+                                                                                "propertyNames": {
+                                                                                    "type": "string",
+                                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                                    "description": "A variable declared in config.variables"
+                                                                                },
+                                                                                "additionalProperties": {
+                                                                                    "anyOf": [
+                                                                                        {
+                                                                                            "description": "true or false, a number, or text",
+                                                                                            "type": [
+                                                                                                "boolean",
+                                                                                                "number",
+                                                                                                "string"
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "type": "object",
+                                                                                            "properties": {
+                                                                                                "add": {
+                                                                                                    "type": "number",
+                                                                                                    "description": "How much to add (negative to subtract)"
+                                                                                                }
+                                                                                            },
+                                                                                            "required": [
+                                                                                                "add"
+                                                                                            ],
+                                                                                            "additionalProperties": false,
+                                                                                            "description": "Adds to a number variable"
+                                                                                        },
+                                                                                        {
+                                                                                            "type": "object",
+                                                                                            "properties": {
+                                                                                                "random": {
+                                                                                                    "type": "array",
+                                                                                                    "prefixItems": [
+                                                                                                        {
+                                                                                                            "type": "integer",
+                                                                                                            "minimum": -9007199254740991,
+                                                                                                            "maximum": 9007199254740991
+                                                                                                        },
+                                                                                                        {
+                                                                                                            "type": "integer",
+                                                                                                            "minimum": -9007199254740991,
+                                                                                                            "maximum": 9007199254740991
+                                                                                                        }
+                                                                                                    ],
+                                                                                                    "items": false,
+                                                                                                    "minItems": 2,
+                                                                                                    "maxItems": 2,
+                                                                                                    "description": "The lowest and highest it can be, e.g. [1, 20] for a d20"
+                                                                                                }
+                                                                                            },
+                                                                                            "required": [
+                                                                                                "random"
+                                                                                            ],
+                                                                                            "additionalProperties": false,
+                                                                                            "description": "Sets a number variable to a whole number at random, like a dice roll"
+                                                                                        },
+                                                                                        {
+                                                                                            "type": "object",
+                                                                                            "properties": {
+                                                                                                "pick": {
+                                                                                                    "minItems": 1,
+                                                                                                    "type": "array",
+                                                                                                    "items": {
+                                                                                                        "description": "true or false, a number, or text",
+                                                                                                        "type": [
+                                                                                                            "boolean",
+                                                                                                            "number",
+                                                                                                            "string"
+                                                                                                        ]
+                                                                                                    },
+                                                                                                    "description": "The values to pick from, each as likely"
+                                                                                                }
+                                                                                            },
+                                                                                            "required": [
+                                                                                                "pick"
+                                                                                            ],
+                                                                                            "additionalProperties": false,
+                                                                                            "description": "Sets a variable to one of these values, at random"
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            },
+                                                                            "startTimer": {
+                                                                                "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                            },
+                                                                            "stopTimer": {
+                                                                                "description": "A timer to stop where it is",
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                            },
+                                                                            "resetTimer": {
+                                                                                "description": "A timer to stop and put back to its start",
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                            },
+                                                                            "sound": {
+                                                                                "description": "A sound from the program's sounds, played as the action happens",
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                                            },
+                                                                            "back": {
+                                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                "type": "boolean",
+                                                                                "const": true
+                                                                            },
+                                                                            "restart": {
+                                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                "type": "boolean",
+                                                                                "const": true
+                                                                            }
+                                                                        },
+                                                                        "additionalProperties": false,
+                                                                        "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        "if": {
+                                                            "description": "Only offered while this holds",
+                                                            "$ref": "#/$defs/Condition"
+                                                        },
+                                                        "once": {
+                                                            "default": false,
+                                                            "description": "Only offered until it's been chosen, even on later visits (default: false)",
+                                                            "type": "boolean"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "text"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "A reply the player can choose"
+                                                }
+                                            },
+                                            "action": {
+                                                "description": "What happens on arriving here, after it has spoken, e.g. set a variable",
+                                                "anyOf": [
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "if": {
+                                                                "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                "$ref": "#/$defs/Condition"
+                                                            },
+                                                            "screen": {
+                                                                "description": "A screen to go to, or a list of screens to go to one of, at random",
+                                                                "anyOf": [
+                                                                    {
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                    },
+                                                                    {
+                                                                        "minItems": 1,
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "dialog": {
+                                                                "description": "A dialog to open, or a list of dialogs to open one of, at random",
+                                                                "anyOf": [
+                                                                    {
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$",
+                                                                        "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                    },
+                                                                    {
+                                                                        "minItems": 1,
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "set": {
+                                                                "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                "type": "object",
+                                                                "propertyNames": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                    "description": "A variable declared in config.variables"
+                                                                },
+                                                                "additionalProperties": {
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "description": "true or false, a number, or text",
+                                                                            "type": [
+                                                                                "boolean",
+                                                                                "number",
+                                                                                "string"
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "add": {
+                                                                                    "type": "number",
+                                                                                    "description": "How much to add (negative to subtract)"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "add"
+                                                                            ],
+                                                                            "additionalProperties": false,
+                                                                            "description": "Adds to a number variable"
+                                                                        },
+                                                                        {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "random": {
+                                                                                    "type": "array",
+                                                                                    "prefixItems": [
+                                                                                        {
+                                                                                            "type": "integer",
+                                                                                            "minimum": -9007199254740991,
+                                                                                            "maximum": 9007199254740991
+                                                                                        },
+                                                                                        {
+                                                                                            "type": "integer",
+                                                                                            "minimum": -9007199254740991,
+                                                                                            "maximum": 9007199254740991
+                                                                                        }
+                                                                                    ],
+                                                                                    "items": false,
+                                                                                    "minItems": 2,
+                                                                                    "maxItems": 2,
+                                                                                    "description": "The lowest and highest it can be, e.g. [1, 20] for a d20"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "random"
+                                                                            ],
+                                                                            "additionalProperties": false,
+                                                                            "description": "Sets a number variable to a whole number at random, like a dice roll"
+                                                                        },
+                                                                        {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "pick": {
+                                                                                    "minItems": 1,
+                                                                                    "type": "array",
+                                                                                    "items": {
+                                                                                        "description": "true or false, a number, or text",
+                                                                                        "type": [
+                                                                                            "boolean",
+                                                                                            "number",
+                                                                                            "string"
+                                                                                        ]
+                                                                                    },
+                                                                                    "description": "The values to pick from, each as likely"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "pick"
+                                                                            ],
+                                                                            "additionalProperties": false,
+                                                                            "description": "Sets a variable to one of these values, at random"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "startTimer": {
+                                                                "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                            },
+                                                            "stopTimer": {
+                                                                "description": "A timer to stop where it is",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                            },
+                                                            "resetTimer": {
+                                                                "description": "A timer to stop and put back to its start",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                            },
+                                                            "sound": {
+                                                                "description": "A sound from the program's sounds, played as the action happens",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
+                                                            }
+                                                        },
+                                                        "additionalProperties": false,
+                                                        "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                    },
+                                                    {
+                                                        "minItems": 1,
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "if": {
+                                                                    "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                    "$ref": "#/$defs/Condition"
+                                                                },
+                                                                "screen": {
+                                                                    "description": "A screen to go to, or a list of screens to go to one of, at random",
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                        },
+                                                                        {
+                                                                            "minItems": 1,
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                "dialog": {
+                                                                    "description": "A dialog to open, or a list of dialogs to open one of, at random",
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                        },
+                                                                        {
+                                                                            "minItems": 1,
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                "set": {
+                                                                    "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                    "type": "object",
+                                                                    "propertyNames": {
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                        "description": "A variable declared in config.variables"
+                                                                    },
+                                                                    "additionalProperties": {
+                                                                        "anyOf": [
+                                                                            {
+                                                                                "description": "true or false, a number, or text",
+                                                                                "type": [
+                                                                                    "boolean",
+                                                                                    "number",
+                                                                                    "string"
+                                                                                ]
+                                                                            },
+                                                                            {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "add": {
+                                                                                        "type": "number",
+                                                                                        "description": "How much to add (negative to subtract)"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "add"
+                                                                                ],
+                                                                                "additionalProperties": false,
+                                                                                "description": "Adds to a number variable"
+                                                                            },
+                                                                            {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "random": {
+                                                                                        "type": "array",
+                                                                                        "prefixItems": [
+                                                                                            {
+                                                                                                "type": "integer",
+                                                                                                "minimum": -9007199254740991,
+                                                                                                "maximum": 9007199254740991
+                                                                                            },
+                                                                                            {
+                                                                                                "type": "integer",
+                                                                                                "minimum": -9007199254740991,
+                                                                                                "maximum": 9007199254740991
+                                                                                            }
+                                                                                        ],
+                                                                                        "items": false,
+                                                                                        "minItems": 2,
+                                                                                        "maxItems": 2,
+                                                                                        "description": "The lowest and highest it can be, e.g. [1, 20] for a d20"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "random"
+                                                                                ],
+                                                                                "additionalProperties": false,
+                                                                                "description": "Sets a number variable to a whole number at random, like a dice roll"
+                                                                            },
+                                                                            {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "pick": {
+                                                                                        "minItems": 1,
+                                                                                        "type": "array",
+                                                                                        "items": {
+                                                                                            "description": "true or false, a number, or text",
+                                                                                            "type": [
+                                                                                                "boolean",
+                                                                                                "number",
+                                                                                                "string"
+                                                                                            ]
+                                                                                        },
+                                                                                        "description": "The values to pick from, each as likely"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "pick"
+                                                                                ],
+                                                                                "additionalProperties": false,
+                                                                                "description": "Sets a variable to one of these values, at random"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "startTimer": {
+                                                                    "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                },
+                                                                "stopTimer": {
+                                                                    "description": "A timer to stop where it is",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                },
+                                                                "resetTimer": {
+                                                                    "description": "A timer to stop and put back to its start",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                },
+                                                                "sound": {
+                                                                    "description": "A sound from the program's sounds, played as the action happens",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
+                                                                }
+                                                            },
+                                                            "additionalProperties": false,
+                                                            "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "say"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "A part of a conversation: what the computer says, and the replies"
+                                    },
+                                    "description": "The parts of the conversation, by name"
+                                },
+                                "speaker": {
+                                    "default": "",
+                                    "description": "Text before what the computer says, e.g. \"MOTHER: \"",
+                                    "type": "string"
+                                },
+                                "you": {
+                                    "default": "> ",
+                                    "description": "Text before the player's replies, as they're said (default: \"> \")",
+                                    "type": "string"
+                                },
+                                "speed": {
+                                    "default": 25,
+                                    "description": "Milliseconds per character as the computer speaks (default: 25)",
+                                    "type": "number",
+                                    "minimum": 0
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "start",
+                                "nodes"
+                            ],
+                            "additionalProperties": false,
+                            "description": "A conversation with a computer: it says something, the player picks a numbered reply, and it answers, part by part, keeping a transcript"
                         }
                     ]
                 }
