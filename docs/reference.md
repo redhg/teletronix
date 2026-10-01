@@ -10,7 +10,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem), [Inbox](#inbox), [Inbox message](#inbox-message), [Inbox labels](#inbox-labels), [Directory](#directory), [Directory entry](#directory-entry), [Shell](#shell)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Rule](#rule), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -643,6 +643,7 @@ One of:
 - [Login element](#login-element)
 - [Decrypt element](#decrypt-element)
 - [Shell element](#shell-element)
+- [Rule](#rule)
 
 <a id="text"></a>
 
@@ -1505,6 +1506,26 @@ Stops the screen's reveal and shows a line of text until the player presses a ke
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `text` | string | `"-- PRESS ANY KEY TO CONTINUE --"` | What it shows while waiting |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="rule"></a>
+
+### Rule (`"type": "rule"`)
+
+A horizontal rule: a line across the screen (or a section or column) of any character or pattern, with an optional label set into it. It always fits the width.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `char` | string | `"─"` | What it's drawn with: a character, or a pattern repeated along it, e.g. "═", "=", "-=" or "·:·" |
+| `label` | string |  | Text set into it, e.g. "CREW MANIFEST": ──── CREW MANIFEST ──── |
+| `labelAlign` | `"left"` \| `"center"` \| `"right"` | `"center"` | Where the label goes: "left", "center" or "right" |
+| `padding` | whole number, ≥ 0 | `1` | Spaces either side of the label |
+| `ends` | any[] |  | Characters at each end, e.g. ["├", "┤"] to join a box, or ["<", ">"] |
+| `cols` | whole number, ≥ 1 |  | Its width in characters (default: the whole line); on a narrower screen, it fits the screen |
 | `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |

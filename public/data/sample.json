@@ -46,6 +46,7 @@
                         { "type": "link", "text": "> PROGRESS", "action": { "screen": "progress" } },
                         { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
                         { "type": "link", "text": "> REVEALS", "action": { "screen": "reveals" } },
+                        { "type": "link", "text": "> RULES", "action": { "screen": "rules" } },
                         { "type": "link", "text": "> SECTIONS", "action": { "screen": "sections" } },
                         { "type": "link", "text": "> SLIDERS", "action": { "screen": "sliders" } },
                         { "type": "link", "text": "> SOUNDS", "action": { "screen": "sounds" } },
@@ -1347,6 +1348,33 @@
                 ],
                 "next": "presets"
             }
+        },
+        "rules": {
+            "content": [
+                "RULES",
+                { "type": "rule" },
+                "",
+                "A rule is a line across the screen, or a section, or a column. It always fits the width: try resizing the window.",
+                "",
+                "It can be drawn with any character, or a pattern:",
+                "",
+                { "type": "rule", "char": "═" },
+                { "type": "rule", "char": "-=" },
+                { "type": "rule", "char": "·:·" },
+                "",
+                "It can have a label set into it, in the middle or to one side:",
+                "",
+                { "type": "rule", "label": "CREW MANIFEST" },
+                { "type": "rule", "label": "SECTION 2", "labelAlign": "left", "char": "═" },
+                { "type": "rule", "label": "END OF FILE", "labelAlign": "right", "className": "alert" },
+                "",
+                "And ends, to join a box, or to point:",
+                "",
+                { "type": "rule", "ends": ["├", "┤"] },
+                { "type": "rule", "ends": ["<", ">"], "char": "=", "label": "40 COLUMNS", "cols": 40 },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
         },
         "toggles": {
             "content": [

@@ -18,6 +18,7 @@ import { PauseView } from "../modules/pause/View.tsx";
 import { PowerOffView } from "../modules/poweroff/View.tsx";
 import { ProgressView } from "../modules/progress/View.tsx";
 import { PromptView } from "../modules/prompt/View.tsx";
+import { RuleView } from "../modules/rule/View.tsx";
 import { SectionView } from "../modules/section/View.tsx";
 import { ShellView } from "../modules/shell/View.tsx";
 import { SliderView } from "../modules/slider/View.tsx";
@@ -59,4 +60,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     login: LoginView,
     decrypt: DecryptView,
     shell: ShellView,
+    rule: RuleView,
 };

@@ -17039,6 +17039,159 @@
                             ],
                             "additionalProperties": false,
                             "description": "A command line over a little computer of your own: files and folders to list, read and move between, programs to run, and commands of your own. It keeps a transcript, like a real terminal."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "rule"
+                                },
+                                "char": {
+                                    "default": "─",
+                                    "description": "What it's drawn with: a character, or a pattern repeated along it, e.g. \"═\", \"=\", \"-=\" or \"·:·\" (default: \"─\")",
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "label": {
+                                    "description": "Text set into it, e.g. \"CREW MANIFEST\": ──── CREW MANIFEST ────",
+                                    "type": "string"
+                                },
+                                "labelAlign": {
+                                    "default": "center",
+                                    "description": "Where the label goes: \"left\", \"center\" or \"right\" (default: \"center\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "left",
+                                        "center",
+                                        "right"
+                                    ]
+                                },
+                                "padding": {
+                                    "default": 1,
+                                    "description": "Spaces either side of the label (default: 1)",
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991
+                                },
+                                "ends": {
+                                    "description": "Characters at each end, e.g. [\"├\", \"┤\"] to join a box, or [\"<\", \">\"]",
+                                    "type": "array",
+                                    "prefixItems": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ],
+                                    "items": false,
+                                    "minItems": 2,
+                                    "maxItems": 2
+                                },
+                                "cols": {
+                                    "description": "Its width in characters (default: the whole line); on a narrower screen, it fits the screen",
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                },
+                                "align": {
+                                    "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "left",
+                                        "center",
+                                        "right"
+                                    ]
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ],
+                            "additionalProperties": false,
+                            "description": "A horizontal rule: a line across the screen (or a section or column) of any character or pattern, with an optional label set into it. It always fits the width."
                         }
                     ]
                 }

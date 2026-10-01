@@ -51,6 +51,11 @@ import {
 } from "../../modules/progress/definition.ts";
 import { type PromptElement, PromptSchema, promptModule } from "../../modules/prompt/definition.ts";
 import {
+    HorizontalRuleSchema,
+    type RuleElement,
+    ruleModule,
+} from "../../modules/rule/definition.ts";
+import {
     createSectionSchema,
     type SectionElement,
     sectionModule,
@@ -109,6 +114,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     LoginSchema,
     DecryptSchema,
     ShellSchema,
+    HorizontalRuleSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -148,7 +154,8 @@ export type Element =
     | HexdumpElement
     | LoginElement
     | DecryptElement
-    | ShellElement;
+    | ShellElement
+    | RuleElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -181,6 +188,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     login: loginModule,
     decrypt: decryptModule,
     shell: shellModule,
+    rule: ruleModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
@@ -205,6 +213,7 @@ const ALIGNABLE = new Set<ElementType>([
     "link",
     "toggle",
     "pause",
+    "rule",
     "buttons",
     "timer",
     "table",

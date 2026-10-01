@@ -124,6 +124,7 @@ import {
     ProgressSchema,
 } from "../src/modules/progress/definition.ts";
 import { CommandSchema, PromptSchema } from "../src/modules/prompt/definition.ts";
+import { HorizontalRuleSchema } from "../src/modules/rule/definition.ts";
 import { SectionMarkersSchema } from "../src/modules/section/definition.ts";
 import {
     ShellCommandSchema,
@@ -291,6 +292,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Section markers", SectionMarkersSchema],
             ["Columns", ColumnsSchema, '"type": "columns"'],
             ["Pause", PauseSchema, '"type": "pause"'],
+            ["Rule", HorizontalRuleSchema, '"type": "rule"'],
             ["Buttons", ButtonsSchema, '"type": "buttons"'],
             ["Button", ButtonSchema],
         ],

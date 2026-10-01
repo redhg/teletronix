@@ -79,6 +79,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"table"` | Rows and columns of text, with optional box-drawn borders. See below. |
 | `"section"` | A header that expands and collapses the elements under it. See below. |
 | `"columns"` | Lays elements out in columns, e.g. a long list of links. See below. |
+| `"rule"` | A horizontal rule, of any character or pattern, with an optional label set into it. See below. |
 | `"pause"` | Stops the reveal with "-- PRESS ANY KEY TO CONTINUE --" until a key or tap. See below. |
 | `"buttons"` | A row of `[ BUTTONS ]`, each with an `action` and an optional hotkey. See below. |
 | `"timer"` | A clock on the screen, counting down or up. See [Timers](#timers). |
@@ -476,6 +477,17 @@ turn, like a directory listing, so a sorted list reads top to bottom; `"order": 
 fills each row instead. With `minWidth` (in characters), a narrow screen gets fewer columns,
 e.g. 3 on a monitor and 2 on a phone. The contents reveal in order, before the rest of the
 screen.
+
+### Rules
+```json
+{ "type": "rule", "char": "═", "label": "CREW MANIFEST", "labelAlign": "left" }
+```
+A line across the screen (or the section or column it's in), drawn with `char`: a character
+(default `─`) or a pattern repeated along it, e.g. `"-="`. It always fits the width, redrawing
+when the window changes, or `cols` makes it narrower. A `label` is set into it: in the middle,
+or `"labelAlign": "left"` or `"right"`, with `padding` spaces either side (default 1); a label
+that doesn't fit is cut short with `~`. `ends` puts characters at each end, e.g. `["├", "┤"]`
+to join a box, or `["<", ">"]`. Screen readers get the label, if any.
 
 ### Pauses
 ```json

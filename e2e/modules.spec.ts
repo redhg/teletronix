@@ -1744,3 +1744,35 @@ test.describe("shell", () => {
         await expect(player.screen).toContainText("BYE");
     });
 });
+
+test.describe("rule", () => {
+    test("fills the line, and fits it again when the window changes", async ({ page, player }) => {
+        await page.setViewportSize({ width: 1280, height: 720 });
+        await player.open({
+            config: { name: "Rule", start: "home", reveal: "instant" },
+            screens: { home: { content: [{ type: "rule", label: "LOG" }, "END"] } },
+        } as Program);
+        const shown = player.screen.locator(".rule [aria-hidden='true']");
+        await expect(shown).toContainText(" LOG ");
+        // as wide as the screen, give or take part of a character
+        const fits = async () => {
+            const rule = await shown.boundingBox();
+            const screen = await player.screen.boundingBox();
+            return Math.abs((rule?.width ?? 0) - (screen?.width ?? 0)) < 20;
+        };
+        expect(await fits()).toBe(true);
+        const wide = ((await shown.textContent()) ?? "").length;
+        // (narrower, at the same text size)
+        await page.setViewportSize({ width: 900, height: 700 });
+        await expect
+            .poll(async () => ((await shown.textContent()) ?? "").length)
+            .toBeLessThan(wide);
+        expect(await fits()).toBe(true);
+        // still one line
+        const box = await player.screen.locator(".rule").boundingBox();
+        const line = await player.screen.locator(".text").boundingBox();
+        expect(box?.height).toBe(line?.height);
+        // screen readers get the label
+        await expect(player.screen.locator(".rule .sr-only")).toHaveText("LOG");
+    });
+});
