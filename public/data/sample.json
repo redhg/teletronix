@@ -881,6 +881,10 @@
                 "  Garbage that never stops. Press a key to restart.",
                 { "type": "link", "text": "> LOGIN", "action": { "screen": "login" } },
                 "  Log in as RIPLEY, password JONESY. Three wrong tries lock it, until you reload.",
+                { "type": "link", "text": "> DECRYPT", "action": { "screen": "decrypt" } },
+                "  A message resolving out of scrambled characters.",
+                { "type": "link", "text": "> DECRYPT, FAILING", "action": { "screen": "decrypt-fail" } },
+                "  One that sweeps from start to end in hex, and fails partway.",
                 { "type": "link", "text": "> HEX EDITOR", "action": { "screen": "hexeditor" } },
                 "  A recovered file that scrolls until something turns up. Take over with the arrow keys; <esc> leaves.",
                 "",
@@ -1095,6 +1099,39 @@
                 "",
                 "Too many wrong tries: the login stays locked until you reload the page.",
                 "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+            ]
+        },
+        "decrypt": {
+            "preset": {
+                "type": "decrypt",
+                "text": [
+                    "PRIORITY ONE: INSURE RETURN OF ORGANISM",
+                    "FOR ANALYSIS. ALL OTHER CONSIDERATIONS",
+                    "SECONDARY. CREW EXPENDABLE."
+                ],
+                "duration": 4000
+            },
+            "content": [
+                "",
+                { "type": "link", "text": "> AGAIN", "action": { "screen": "decrypt" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+            ]
+        },
+        "decrypt-fail": {
+            "preset": {
+                "type": "decrypt",
+                "title": "RECOVERING FLIGHT RECORDER...",
+                "text": ["LAST ENTRY: HULL BREACH ON DECK C.", "ALL HANDS ABANDON SHIP. COORDINATES FOLLOW."],
+                "bar": "RECOVERING ",
+                "charset": "hex",
+                "order": "sweep",
+                "failAt": 64,
+                "failed": "DATA CORRUPT"
+            },
+            "content": [
+                "",
+                { "type": "link", "text": "> AGAIN", "action": { "screen": "decrypt-fail" } },
                 { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
             ]
         },

@@ -272,3 +272,34 @@ describe("the login preset", () => {
         expect(content[0]).not.toHaveProperty("granted");
     });
 });
+
+describe("the decrypt preset", () => {
+    it("is a title, then the message decrypting, going on when it's done or fails", () => {
+        const { content } = expanded({
+            type: "decrypt",
+            text: ["SECRET", "PLANS"],
+            next: "home",
+            failNext: "elsewhere",
+            failAt: 60,
+        });
+        expect(content).toMatchObject([
+            { type: "text", text: "INTERCEPTED TRANSMISSION. DECRYPTING..." },
+            { type: "text", text: "" },
+            {
+                type: "decrypt",
+                text: "SECRET\nPLANS",
+                bar: "DECRYPTING ",
+                failAt: 60,
+                onComplete: { after: 1500, action: [{ screen: "home" }] },
+                onFail: { after: 1500, action: [{ screen: "elsewhere" }] },
+            },
+        ]);
+    });
+
+    it("can leave out its title and bar, and stay", () => {
+        const { content } = expanded({ type: "decrypt", text: "X", title: false, bar: false });
+        expect(content).toHaveLength(1);
+        expect(content[0]).not.toHaveProperty("bar");
+        expect(content[0]).not.toHaveProperty("onComplete");
+    });
+});

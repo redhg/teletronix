@@ -70,6 +70,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"power-off"` | Switches the screen off like an old CRT: the picture collapses to a line, then a dot. See [Presets](#presets). |
 | `"crash"` | Fills the window with garbage that never stops changing. See [Presets](#presets). |
 | `"visual"` | Line art that moves: an oscilloscope, a chart, a radar or a turning wireframe. See below. |
+| `"decrypt"` | A message that starts scrambled and resolves a few characters at a time, with an optional progress bar. See below. |
 | `"hexdump"` | Bytes as a hex dump: your text, random bytes with text hidden in them, or a file. See below. |
 | `"spinner"` | A spinner that turns for a while, or until a key, holding the screen. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
@@ -211,6 +212,27 @@ It's `cols` characters wide (default: the screen's width) and `rows` lines tall 
 Waveforms and charts have a faint grid, unless `"grid": false`. Visuals only move while they're in
 view, and with reduced motion they're still pictures. Put a few side by side with
 [`"columns"`](#columns).
+
+### Decrypting
+```json
+{
+    "type": "decrypt",
+    "text": ["PRIORITY ONE: INSURE RETURN OF ORGANISM.", "CREW EXPENDABLE."],
+    "duration": 4000,
+    "bar": "DECRYPTING ",
+    "onComplete": { "after": 1500, "action": { "screen": "orders" } }
+}
+```
+The `text` (a string or a list of lines) starts as scrambled characters, and each comes right at
+its own moment over `duration` milliseconds (default 3000). Spaces and line breaks stay put, so
+the layout never shifts.
+- `charset`: what it scrambles with: `"symbols"` (the default), `"hex"`, `"binary"`, `"letters"`,
+  or your own characters. `order`: `"random"` (the default), or `"sweep"`, from start to end.
+- `bar` adds a progress bar under it, after that label, ending in `done` (default `COMPLETE`).
+- `failAt` stops it at that percentage, leaving the rest scrambled, with `failed` (default
+  `FAILED`) at the end of the bar.
+- `onComplete` and `onFail` run an action (or `{ "after", "action" }`) when it finishes or fails.
+- Skipping finishes it at once; so does reduced motion. Screen readers get the message itself.
 
 ### Hex dumps
 ```json
@@ -443,6 +465,7 @@ also be written out by hand. See [the reference](docs/reference.md#presets) for 
 | `"shutdown"` | A `title`, a checklist of `checks`, and a `message`, then the screen switches off like an old CRT (unless `"powerOff": false`) `after` a moment. A key press (or a tap) switches back on, going to `next` (default: the start screen); `"restart": false` stays off for good. |
 | `"error"` | A `title`, `message` and `code` in a blinking box, in the alert color, like an Amiga's Guru Meditation. A key press (or a tap) goes to `next` (default: the start screen); `"restart": false` stays for good. |
 | `"login"` | A login screen: a warning `title` in the alert color, then a [login](#logins) with its `accounts` that goes to `next` (default: the start screen), showing `granted` first. With `attempts`, too many wrong tries go to the `lockout` screen. It takes the login's other settings too. |
+| `"decrypt"` | A message [decrypting](#decrypting): a `title`, then the `text` with a progress `bar` (its label, or `false` for none), going on to `next` after `after` milliseconds. With `failAt`, it fails partway, going to `failNext`. It takes the decrypt element's other settings too. |
 | `"hexeditor"` | A read-only hex editor: a [hex dump](#hex-dumps) filling the screen, with a cursor to move through it, a status bar (in place of the program's), and a header bar with the editor's `title` and the `file` name. Give it bytes as a hex dump (`text`, `size`, `src`, `highlight`…), and `autoscroll` (with `stopAt`) to have it scroll through them by itself. <esc>, or the `exit` link in the header bar, goes to `next` (default: the start screen). |
 | `"crash"` | The whole window fills with garbage that never stops changing: the screen before breaks apart, and a `message` surfaces through the noise now and then. With `next`, a key press (or a tap) restarts there. With reduced motion, it's a still picture. |
 

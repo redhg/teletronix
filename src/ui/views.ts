@@ -7,6 +7,7 @@ import { ChoiceView } from "../modules/choice/View.tsx";
 import { ColumnsView } from "../modules/columns/View.tsx";
 import { CounterView } from "../modules/counter/View.tsx";
 import { CrashView } from "../modules/crash/View.tsx";
+import { DecryptView } from "../modules/decrypt/View.tsx";
 import { HexdumpView } from "../modules/hexdump/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
 import { LoginView } from "../modules/login/View.tsx";
@@ -55,4 +56,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     spinner: SpinnerView,
     hexdump: HexdumpView,
     login: LoginView,
+    decrypt: DecryptView,
 };

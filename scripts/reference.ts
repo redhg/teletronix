@@ -43,6 +43,7 @@ import { RuleSchema } from "../src/engine/schema/next.ts";
 import {
     BootPresetSchema,
     CrashPresetSchema,
+    DecryptPresetSchema,
     ErrorPresetSchema,
     HexeditorPresetSchema,
     LoginPresetSchema,
@@ -93,6 +94,7 @@ import {
 import { ChoiceMarkersSchema, ChoiceSchema } from "../src/modules/choice/definition.ts";
 import { CounterSchema } from "../src/modules/counter/definition.ts";
 import { CrashSchema } from "../src/modules/crash/definition.ts";
+import { DecryptSchema } from "../src/modules/decrypt/definition.ts";
 import {
     ByteRangeSchema,
     HexdumpExitSchema,
@@ -176,6 +178,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Crash", CrashPresetSchema, '"type": "crash"'],
             ["Hex editor", HexeditorPresetSchema, '"type": "hexeditor"'],
             ["Login", LoginPresetSchema, '"type": "login"'],
+            ["Decrypt", DecryptPresetSchema, '"type": "decrypt"'],
         ],
     ],
     [
@@ -236,6 +239,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Hex dump highlight", HighlightSchema],
             ["Byte range", ByteRangeSchema],
             ["Hex dump exit", HexdumpExitSchema],
+            ["Decrypt element", DecryptSchema, '"type": "decrypt"'],
             ["Spinner", SpinnerSchema, '"type": "spinner"'],
             ["Spinner interrupt", SpinnerInterruptSchema],
             ["Counter", CounterSchema, '"type": "counter"'],

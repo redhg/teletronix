@@ -411,6 +411,65 @@ export const LoginPresetSchema = z
             "its accounts, with an optional limit on wrong tries",
     });
 
+export const DECRYPT_DEFAULTS = {
+    title: "INTERCEPTED TRANSMISSION. DECRYPTING...",
+    bar: "DECRYPTING ",
+    after: 1500,
+};
+
+export const DecryptPresetSchema = z
+    .strictObject({
+        type: z.literal("decrypt"),
+        title: Line("A line above the message", DECRYPT_DEFAULTS.title),
+        text: z
+            .union([z.string().min(1), z.array(z.string()).min(1)])
+            .meta({ description: "The message it decrypts: a string, or a list of lines" }),
+        bar: z
+            .union([z.string(), z.literal(false)])
+            .default(DECRYPT_DEFAULTS.bar)
+            .meta({
+                description: `The progress bar's label, or false for no bar (default: "${DECRYPT_DEFAULTS.bar}")`,
+            }),
+        next: IdSchema.optional().meta({
+            description: "The screen to go to once it has decrypted (default: stay)",
+        }),
+        failNext: IdSchema.optional().meta({
+            description: "With failAt, the screen to go to when it fails (default: stay)",
+        }),
+        after: z
+            .number()
+            .min(0)
+            .default(DECRYPT_DEFAULTS.after)
+            .meta({
+                description: `Milliseconds before going on (default: ${DECRYPT_DEFAULTS.after})`,
+            }),
+        // the rest is the decrypt element's
+        duration: z.number().positive().optional().meta({
+            description: "Milliseconds it takes to decrypt (default: 3000)",
+        }),
+        charset: z.string().min(2).optional().meta({
+            description:
+                'The characters it scrambles with: "symbols", "hex", "binary", "letters", or your own',
+        }),
+        order: z.enum(["random", "sweep"]).optional().meta({
+            description: 'Which characters come right first: "random" or "sweep"',
+        }),
+        failAt: z.number().min(0).max(100).optional().meta({
+            description: "Stop at this percentage, leaving the rest scrambled: it fails",
+        }),
+        done: z.string().optional().meta({
+            description: 'Shown in place of the percentage at the end (default: "COMPLETE")',
+        }),
+        failed: z.string().optional().meta({
+            description: 'Shown in place of the percentage when it fails (default: "FAILED")',
+        }),
+    })
+    .meta({
+        description:
+            "A message decrypting: scrambled characters resolving a few at a time, with a " +
+            "progress bar, then on to the next screen. It can fail partway.",
+    });
+
 export const PresetSchema = z
     .discriminatedUnion("type", [
         BootPresetSchema,
@@ -419,6 +478,7 @@ export const PresetSchema = z
         CrashPresetSchema,
         HexeditorPresetSchema,
         LoginPresetSchema,
+        DecryptPresetSchema,
     ])
     .meta({ description: "A ready-made screen, with a few settings of its own" });
 
@@ -579,6 +639,26 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                         action: { screen: next ?? start },
                         ...(granted === false ? {} : { granted }),
                         ...(lockout === undefined ? {} : { onLocked: { screen: lockout } }),
+                    },
+                ],
+                after: [],
+            };
+        }
+        case "decrypt": {
+            const { type: _, title, bar, next, failNext, after, ...decrypt } = preset;
+            const goOn = (screen: string | undefined) =>
+                screen === undefined ? {} : { after, action: { screen } };
+            const onComplete = goOn(next);
+            const onFail = goOn(failNext);
+            return {
+                before: [
+                    ...(title === false ? [] : [title, ""]),
+                    {
+                        type: "decrypt",
+                        ...decrypt,
+                        ...(bar === false ? {} : { bar }),
+                        ...("action" in onComplete ? { onComplete } : {}),
+                        ...("action" in onFail ? { onFail } : {}),
                     },
                 ],
                 after: [],

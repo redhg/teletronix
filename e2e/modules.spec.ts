@@ -1520,3 +1520,48 @@ test.describe("login", () => {
         );
     });
 });
+
+test.describe("decrypt", () => {
+    test.use({ reducedMotion: "no-preference" });
+
+    const secrets = {
+        config: { name: "Decrypt", start: "home", reveal: "instant" },
+        screens: {
+            home: {
+                content: [
+                    {
+                        type: "decrypt",
+                        text: "CREW EXPENDABLE",
+                        duration: 800,
+                        bar: "D ",
+                        // (long enough to see it finished, under load)
+                        onComplete: { after: 1500, action: { screen: "next" } },
+                    },
+                ],
+            },
+            fails: {
+                content: [
+                    { type: "decrypt", text: "ABANDON SHIP", duration: 600, failAt: 50, bar: "D " },
+                ],
+            },
+            next: { content: ["NEXT"] },
+        },
+    } as Program;
+    const shown = (player: Player) => player.screen.locator(".decrypt [aria-hidden='true']");
+
+    test("resolves the message, then goes on", async ({ player }) => {
+        await player.open(secrets);
+        await expect(shown(player)).not.toContainText("CREW EXPENDABLE");
+        // screen readers get the message, not the scramble
+        await expect(player.screen.locator(".decrypt .sr-only")).toHaveText("CREW EXPENDABLE");
+        await expect(shown(player)).toContainText("CREW EXPENDABLE");
+        await expect(shown(player)).toContainText("COMPLETE");
+        await expect(player.screen).toContainText("NEXT");
+    });
+
+    test("fails partway, leaving the rest scrambled", async ({ player }) => {
+        await player.open({ ...secrets, config: { ...secrets.config, start: "fails" } });
+        await expect(shown(player)).toContainText("FAILED");
+        await expect(shown(player)).not.toContainText("ABANDON SHIP");
+    });
+});

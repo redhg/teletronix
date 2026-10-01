@@ -7,10 +7,10 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
-- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login)
+- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -143,6 +143,7 @@ One of:
 - [Crash](#crash)
 - [Hex editor](#hex-editor)
 - [Login](#login)
+- [Decrypt](#decrypt)
 
 <a id="boot"></a>
 
@@ -263,6 +264,27 @@ A login screen: a line of warning, then a username and password checked against 
 | `remaining` | string |  | With attempts, shown after denied: {n} is how many tries are left |
 | `locked` | string |  | Shown once it's locked |
 | `variable` | id |  | A text variable that gets the username, on logging in |
+
+<a id="decrypt"></a>
+
+### Decrypt (`"type": "decrypt"`)
+
+A message decrypting: scrambled characters resolving a few at a time, with a progress bar, then on to the next screen. It can fail partway.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `title` | string \| `false` | `"INTERCEPTED TRANSMISSION. DECRYPTING..."` | A line above the message, or false for none |
+| `text` | string \| string[] | **required** | The message it decrypts: a string, or a list of lines |
+| `bar` | string \| `false` | `"DECRYPTING "` | The progress bar's label, or false for no bar |
+| `next` | id | stay | The screen to go to once it has decrypted |
+| `failNext` | id | stay | With failAt, the screen to go to when it fails |
+| `after` | number, ≥ 0 | `1500` | Milliseconds before going on |
+| `duration` | number, > 0 | `3000` | Milliseconds it takes to decrypt |
+| `charset` | string |  | The characters it scrambles with: "symbols", "hex", "binary", "letters", or your own |
+| `order` | `"random"` \| `"sweep"` |  | Which characters come right first: "random" or "sweep" |
+| `failAt` | number, 0–100 |  | Stop at this percentage, leaving the rest scrambled: it fails |
+| `done` | string | `"COMPLETE"` | Shown in place of the percentage at the end |
+| `failed` | string | `"FAILED"` | Shown in place of the percentage when it fails |
 
 ## Bars
 
@@ -471,6 +493,7 @@ One of:
 - [Spinner](#spinner)
 - [Hex dump](#hex-dump)
 - [Login element](#login-element)
+- [Decrypt element](#decrypt-element)
 
 <a id="text"></a>
 
@@ -913,6 +936,30 @@ A key that leaves a hex dump, once it has appeared
 |---|---|---|---|
 | `key` | string \| string[] | `"Escape"` | The key: "any", a key name, or an array |
 | `action` | [Action](#action) | **required** | What happens |
+
+<a id="decrypt-element"></a>
+
+### Decrypt element (`"type": "decrypt"`)
+
+A message that starts as scrambled characters and resolves, a few at a time, like a codebreaker at work. It can fail partway, and show a progress bar.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `text` | string \| string[] | **required** | The message it decrypts: a string, or a list of lines |
+| `duration` | number, > 0 | `3000` | Milliseconds it takes to decrypt |
+| `charset` | `"symbols"` \| `"hex"` \| `"binary"` \| `"letters"` \| string | `"symbols"` | The characters it scrambles with: "symbols", "hex", "binary", "letters", or your own, e.g. "#%&@" |
+| `order` | `"random"` \| `"sweep"` | `"random"` | Which characters come right first: "random", or "sweep", from the start to the end |
+| `failAt` | number, 0–100 |  | Stop at this percentage, leaving the rest scrambled: a decryption that fails |
+| `bar` | string |  | A progress bar under the message, after this label, e.g. "DECRYPTING " |
+| `done` | string | `"COMPLETE"` | With bar, shown in place of the percentage at the end |
+| `failed` | string | `"FAILED"` | With bar, shown in place of the percentage when it fails |
+| `onComplete` | [Progress outcome](#progress-outcome) |  | What happens once it has decrypted: an action, or { after, action } to pause first |
+| `onFail` | [Progress outcome](#progress-outcome) |  | What happens when it fails (with failAt): an action, or { after, action } |
+| `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
 <a id="spinner"></a>
 

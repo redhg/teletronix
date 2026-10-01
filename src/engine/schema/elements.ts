@@ -24,6 +24,11 @@ import {
 } from "../../modules/counter/definition.ts";
 import { type CrashElement, CrashSchema, crashModule } from "../../modules/crash/definition.ts";
 import {
+    type DecryptElement,
+    DecryptSchema,
+    decryptModule,
+} from "../../modules/decrypt/definition.ts";
+import {
     type HexdumpElement,
     HexdumpSchema,
     hexdumpModule,
@@ -101,6 +106,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     SpinnerSchema,
     HexdumpSchema,
     LoginSchema,
+    DecryptSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -138,7 +144,8 @@ export type Element =
     | VisualElement
     | SpinnerElement
     | HexdumpElement
-    | LoginElement;
+    | LoginElement
+    | DecryptElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -169,6 +176,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     spinner: spinnerModule,
     hexdump: hexdumpModule,
     login: loginModule,
+    decrypt: decryptModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
@@ -188,6 +196,7 @@ const ALIGNABLE = new Set<ElementType>([
     "checklist",
     "choice",
     "counter",
+    "decrypt",
     "text",
     "link",
     "toggle",
