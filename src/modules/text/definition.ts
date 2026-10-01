@@ -14,6 +14,15 @@ export const TextSchema = z
                     "The text to display: a string, which may contain line breaks, or a list " +
                     "of lines (easier to read and edit for ASCII art)",
             }),
+        pick: z
+            .array(z.string())
+            .min(1)
+            .optional()
+            .meta({
+                description:
+                    "Lines to show one of, chosen at random each time the screen is shown " +
+                    "(a rumor, a fortune, a guard's greeting)",
+            }),
         src: z
             .string()
             .min(1)
@@ -36,15 +45,20 @@ export const TextSchema = z
         align: ElementAlignSchema,
         ...ElementBaseShape,
     })
-    .refine((element) => (element.text === undefined) !== (element.src === undefined), {
-        message: 'Give it "text" or "src" (a text file), not both',
-    })
+    .refine(
+        (element) =>
+            [element.text, element.src, element.pick].filter((given) => given !== undefined)
+                .length === 1,
+        { message: 'Give it one of "text", "src" (a text file) or "pick" (lines to pick from)' },
+    )
     .meta({ description: "A block of text. A bare string is shorthand for this." });
 
 export type TextElement = z.output<typeof TextSchema> & ElementIdentity;
 
 export const textModule: ModuleDefinition<TextElement> = {
-    text: (element, _memory, _format, loaded) => {
+    choices: (element) => element.pick?.length ?? 0,
+    text: (element, _memory, _format, loaded, pick) => {
+        if (element.pick) return element.pick[pick ?? 0] ?? "";
         if (element.src === undefined) return element.text ?? "";
         if (loaded === LOAD_FAILED) return `[FILE UNAVAILABLE: ${element.src}]`;
         return typeof loaded === "string" ? loaded : "";

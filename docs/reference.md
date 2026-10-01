@@ -9,7 +9,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
 - **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem), [Inbox](#inbox), [Inbox message](#inbox-message), [Inbox labels](#inbox-labels), [Directory](#directory), [Directory entry](#directory-entry), [Shell](#shell)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
-- **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
+- **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Random](#random), [Pick](#pick), [Timers](#timers), [Timer](#timer)
 - **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Rule](#rule), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
@@ -568,9 +568,9 @@ Holds when the condition in it doesn't
 
 ### Set
 
-Variables to change, and their new values, e.g. { "keycard": true }, or { "credits": { "add": -10 } } to add to a number
+Variables to change, and their new values, e.g. { "keycard": true }, { "credits": { "add": -10 } } to add to a number, { "roll": { "random": [1, 20] } } for a number at random, or { "weather": { "pick": ["RAIN", "FOG"] } } for one of several
 
-A map of variable name → boolean | number | string | [Add](#add).
+A map of variable name → boolean | number | string | [Add](#add) | [Random](#random) | [Pick](#pick).
 
 <a id="add"></a>
 
@@ -581,6 +581,26 @@ Adds to a number variable
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `add` | number | **required** | How much to add (negative to subtract) |
+
+<a id="random"></a>
+
+### Random
+
+Sets a number variable to a whole number at random, like a dice roll
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `random` | [whole number, whole number] | **required** | The lowest and highest it can be, e.g. [1, 20] for a d20 |
+
+<a id="pick"></a>
+
+### Pick
+
+Sets a variable to one of these values, at random
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `pick` | (boolean \| number \| string)[] | **required** | The values to pick from, each as likely |
 
 <a id="timers"></a>
 
@@ -654,6 +674,7 @@ A block of text. A bare string is shorthand for this.
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `text` | string \| string[] |  | The text to display: a string, which may contain line breaks, or a list of lines (easier to read and edit for ASCII art) |
+| `pick` | string[] |  | Lines to show one of, chosen at random each time the screen is shown (a rumor, a fortune, a guard's greeting) |
 | `src` | string |  | A text file to display instead, e.g. ASCII art, relative to the page ("data/art/logo.txt"): its text is shown exactly, with no escaping needed. The screen waits for it to load. |
 | `wrap` | boolean | `true` | Wrap long lines to fit the screen. Set false for preformatted text such as ASCII art: spaces and line breaks are kept exactly, and anything past the right edge is cut off |
 | `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
@@ -913,8 +934,8 @@ A prompt that only takes whole numbers: a keypad, a door code, a fuel setting. O
 |---|---|---|---|
 | `prompt` | string | `"> "` | Text shown before the input |
 | `digits` | whole number, 1–15 |  | The most digits it takes, e.g. 4 for a PIN |
-| `min` | whole number, ≥ -9007199254740991 |  | The lowest number it accepts |
-| `max` | whole number, ≥ -9007199254740991 |  | The highest number it accepts |
+| `min` | whole number |  | The lowest number it accepts |
+| `max` | whole number |  | The highest number it accepts |
 | `step` | whole number, > 0 | `1` | How much the up and down arrow keys change the number (Shift: ten times as much) |
 | `mask` | boolean | `false` | Show * for each digit, for codes and PINs |
 | `on` | [Number rule](#number-rule)[] |  | Actions for numbers in ranges. The first rule the number meets runs. |
@@ -934,7 +955,7 @@ An action for numbers in a range. Set more than one condition and the number mus
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `equals` | whole number, ≥ -9007199254740991 |  | Exactly this number |
+| `equals` | whole number |  | Exactly this number |
 | `atLeast` | number |  | This number or more |
 | `atMost` | number |  | This number or less |
 | `action` | [Action](#action) | **required** | What happens |
@@ -1232,8 +1253,8 @@ A number that counts up (or down) quickly to a target, like a computer's memory 
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `label` | string | `""` | Text before the number |
-| `from` | whole number, ≥ -9007199254740991 | `0` | Where it starts counting |
-| `to` | whole number, ≥ -9007199254740991 | **required** | Where it stops counting |
+| `from` | whole number | `0` | Where it starts counting |
+| `to` | whole number | **required** | Where it stops counting |
 | `step` | whole number, > 0 | `1` | Count in steps of this much, e.g. 64 |
 | `duration` | number, > 0 | `1500` | Milliseconds to count from `from` to `to` |
 | `unit` | string | `""` | Text right after the number, e.g. "K" |
@@ -1524,7 +1545,7 @@ A horizontal rule: a line across the screen (or a section or column) of any char
 | `label` | string |  | Text set into it, e.g. "CREW MANIFEST": ──── CREW MANIFEST ──── |
 | `labelAlign` | `"left"` \| `"center"` \| `"right"` | `"center"` | Where the label goes: "left", "center" or "right" |
 | `padding` | whole number, ≥ 0 | `1` | Spaces either side of the label |
-| `ends` | any[] |  | Characters at each end, e.g. ["├", "┤"] to join a box, or ["<", ">"] |
+| `ends` | [string, string] |  | Characters at each end, e.g. ["├", "┤"] to join a box, or ["<", ">"] |
 | `cols` | whole number, ≥ 1 |  | Its width in characters (default: the whole line); on a narrower screen, it fits the screen |
 | `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
@@ -1959,8 +1980,8 @@ Go to a screen or open a dialog, changing variables and playing a sound on the w
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `if` | [Condition](#condition) |  | Only when this holds; otherwise the next case in the list is tried |
-| `screen` | id |  | A screen to go to |
-| `dialog` | id |  | A dialog to open |
+| `screen` | id \| id[] |  | A screen to go to, or a list of screens to go to one of, at random |
+| `dialog` | id \| id[] |  | A dialog to open, or a list of dialogs to open one of, at random |
 | `set` | [Set](#set) |  | Variables to change first, e.g. { "keycard": true } |
 | `startTimer` | id |  | A timer to start (or carry on, if it was stopped partway) |
 | `stopTimer` | id |  | A timer to stop where it is |

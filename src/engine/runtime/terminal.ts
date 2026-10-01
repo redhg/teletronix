@@ -177,7 +177,10 @@ export class Terminal {
         if (chosen.set) {
             for (const assignment of chosen.set) {
                 const current = this.variables.get(assignment.variable);
-                this.variables.set(assignment.variable, assign(assignment, current));
+                this.variables.set(
+                    assignment.variable,
+                    assign(assignment, current, this.random ?? Math.random),
+                );
             }
             this.variablesChanged();
             // a timed `next` rule may apply now
@@ -192,8 +195,13 @@ export class Terminal {
             this.syncTicker();
         }
         if (chosen.sound) this.cue({ type: "sound", name: chosen.sound });
-        if (chosen.screen !== undefined) this.navigate(chosen.screen);
-        else if (chosen.dialog !== undefined) this.openDialog(chosen.dialog);
+        // a list of screens (or dialogs) is one of them, at random
+        const one = (ids: string | string[]) =>
+            typeof ids === "string"
+                ? ids
+                : (ids[Math.floor((this.random ?? Math.random)() * ids.length)] ?? ids[0] ?? "");
+        if (chosen.screen !== undefined) this.navigate(one(chosen.screen));
+        else if (chosen.dialog !== undefined) this.openDialog(one(chosen.dialog));
         this.flush();
         return chosen;
     }

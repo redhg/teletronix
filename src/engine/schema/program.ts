@@ -450,12 +450,14 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
             : [];
     const actionProblems = (action: Action): string[] =>
         action.flatMap((choice) => [
-            ...(choice.screen !== undefined && !program.screens.has(choice.screen)
-                ? [`Unknown screen "${choice.screen}"`]
-                : []),
-            ...(choice.dialog !== undefined && !program.dialogs.has(choice.dialog)
-                ? [`Unknown dialog "${choice.dialog}"`]
-                : []),
+            ...[choice.screen ?? []]
+                .flat()
+                .filter((id) => !program.screens.has(id))
+                .map((id) => `Unknown screen "${id}"`),
+            ...[choice.dialog ?? []]
+                .flat()
+                .filter((id) => !program.dialogs.has(id))
+                .map((id) => `Unknown dialog "${id}"`),
             ...[unknownSound(choice.sound) ?? []].flat(),
             ...conditionProblems(choice.if),
             ...checkAssignments(choice.set ?? [], program.variables),

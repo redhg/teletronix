@@ -629,6 +629,17 @@ adds to a number:
 
 Variables change before the action goes anywhere, so the next screen sees the new values.
 
+**Randomness.** `{ "random": [1, 20] }` sets a number variable to a whole number from the first
+to the second, like a dice roll; `{ "pick": ["RAIN", "FOG"] }` sets a variable to one of a list.
+An action's `screen` (or `dialog`) can be a list, to go to one of them at random:
+`{ "screen": ["ambush", "quiet-corridor", "quiet-corridor"] }` (listing one twice makes it twice
+as likely). And a text element with `"pick": [ ... ]` shows one of its lines, chosen each time
+its screen is shown.
+
+```json
+{ "type": "link", "text": "> ROLL", "action": { "set": { "roll": { "random": [1, 20] } } } }
+```
+
 **Binding controls.** With `"variable"`, a control keeps its value in a variable (and starts
 from it):
 - a toggle: `true`/`false` for two states (the second is `true`), otherwise the state's index from 0

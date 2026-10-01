@@ -33,7 +33,14 @@ export interface ModuleDefinition<E, M = never> {
          * e.g. a file's text. Undefined while it's loading; LOAD_FAILED if it couldn't.
          */
         loaded?: unknown,
+        /** Which of its choices it shows this visit, for one that picks (see choices). */
+        pick?: number,
     ): string;
+    /**
+     * For an element that shows one of several things at random (e.g. a text's pick), how
+     * many there are: one is chosen each time its screen is shown.
+     */
+    choices?(element: E): number;
     /** Every action the element can dispatch, so targets can be validated when parsing. */
     actions?(element: E): Action[];
     /**

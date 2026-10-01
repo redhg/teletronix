@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { TeletronixFile } from "../schema/program.ts";
+import { seededRandom } from "../random.ts";
+import { parseProgram, type TeletronixFile } from "../schema/program.ts";
 import type { Terminal } from "./terminal.ts";
 import { createTestTerminal } from "./test-helpers.ts";
 
@@ -203,5 +204,93 @@ describe("restart", () => {
         expect(terminal.variable("lights")).toBe(false);
         // no transition from the screen that was showing
         expect(terminal.getSnapshot().outgoing).toBeNull();
+    });
+});
+
+describe("randomness", () => {
+    const file = {
+        config: {
+            name: "Test",
+            reveal: "instant" as const,
+            variables: { roll: 0, weather: "CLEAR" },
+        },
+        screens: {
+            home: { content: [{ type: "text" as const, pick: ["ONE", "TWO", "THREE"] }] },
+            a: { content: ["A"] },
+            b: { content: ["B"] },
+            c: { content: ["C"] },
+        },
+    };
+
+    it("rolls numbers and picks values, within their range", () => {
+        const { terminal } = createTestTerminal(file, { random: seededRandom(7) });
+        terminal.start();
+        const rolls = new Set<number>();
+        const picks = new Set<unknown>();
+        for (let i = 0; i < 200; i++) {
+            terminal.dispatch([
+                {
+                    set: [
+                        { variable: "roll", random: [1, 6] },
+                        { variable: "weather", pick: ["RAIN", "FOG"] },
+                    ],
+                },
+            ]);
+            rolls.add(terminal.variable("roll") as number);
+            picks.add(terminal.variable("weather"));
+        }
+        expect([...rolls].sort()).toEqual([1, 2, 3, 4, 5, 6]);
+        expect([...picks].sort()).toEqual(["FOG", "RAIN"]);
+    });
+
+    it("goes to one of several screens", () => {
+        const { terminal } = createTestTerminal(file, { random: seededRandom(3) });
+        terminal.start();
+        const seen = new Set<string>();
+        for (let i = 0; i < 60; i++) {
+            terminal.dispatch([{ screen: ["a", "b", "c"] }]);
+            seen.add(terminal.getSnapshot().screen?.run.screen.id ?? "");
+        }
+        expect([...seen].sort()).toEqual(["a", "b", "c"]);
+    });
+
+    it("shows one of a text's lines, chosen each visit and kept for it", () => {
+        const { terminal } = createTestTerminal(file, { random: seededRandom(11) });
+        const shown = new Set<string>();
+        for (let i = 0; i < 30; i++) {
+            terminal.navigate("home");
+            const run = terminal.getSnapshot().screen?.run;
+            const first = run?.text;
+            run?.refreshAll();
+            expect(run?.text).toBe(first);
+            shown.add(first ?? "");
+        }
+        expect([...shown].sort()).toEqual(["ONE", "THREE", "TWO"]);
+    });
+
+    it("checks what's set at random suits the variable", () => {
+        const result = parseProgram({
+            ...file,
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "link",
+                            text: "x",
+                            action: {
+                                set: { weather: { random: [1, 2] }, roll: { pick: ["A"] } },
+                                screen: ["a", "nope"],
+                            },
+                        },
+                    ],
+                },
+                a: { content: [] },
+            },
+        });
+        expect(result.ok ? [] : result.errors.map((error) => error.message)).toEqual([
+            'Unknown screen "nope"',
+            '"weather" is text; only numbers can be random numbers',
+            '"roll" is a number, so it can\'t be set to "A"',
+        ]);
     });
 });

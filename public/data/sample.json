@@ -6,7 +6,7 @@
         "description": "Demonstrates every Teletronix feature.",
         "start": "home",
         "waitForReveal": true,
-        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL" },
+        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN" },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
     "screens": {
@@ -45,6 +45,7 @@
                         { "type": "link", "text": "> PRESETS", "action": { "screen": "presets" } },
                         { "type": "link", "text": "> PROGRESS", "action": { "screen": "progress" } },
                         { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
+                        { "type": "link", "text": "> RANDOMNESS", "action": { "screen": "random" } },
                         { "type": "link", "text": "> REVEALS", "action": { "screen": "reveals" } },
                         { "type": "link", "text": "> RULES", "action": { "screen": "rules" } },
                         { "type": "link", "text": "> SECTIONS", "action": { "screen": "sections" } },
@@ -1376,6 +1377,31 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
+        "random": {
+            "content": [
+                "RANDOMNESS",
+                { "type": "rule" },
+                "",
+                "A variable can be set at random: a whole number between two others, like a dice roll, or one of a list.",
+                "",
+                { "type": "link", "text": "> ROLL A D20", "action": { "set": { "roll": { "random": [1, 20] }, "luck": { "pick": ["GOOD", "BAD", "STRANGE"] } } } },
+                "YOU ROLLED: {roll}. YOUR LUCK: {luck}.",
+                "",
+                "A text can show one of several lines, chosen each time you come to the screen:",
+                "",
+                { "type": "text", "pick": ["RUMOR: The quartermaster is hoarding coffee.", "RUMOR: Deck C hasn't been swept in weeks.", "RUMOR: Someone saw lights on the derelict.", "RUMOR: The captain talks to MOTHER at night."], "className": "alert" },
+                "",
+                "And an action can go to one of several screens:",
+                "",
+                { "type": "link", "text": "> OPEN A DOOR, ANY DOOR", "action": { "screen": ["door-1", "door-2", "door-3"] } },
+                "",
+                { "type": "link", "text": "> AGAIN", "action": { "screen": "random" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
+        "door-1": { "content": ["Behind door 1: a storage closet, full of mops.", "", { "type": "link", "text": "> BACK", "action": { "screen": "random" } }] },
+        "door-2": { "content": ["Behind door 2: the galley. Someone's left the coffee on.", "", { "type": "link", "text": "> BACK", "action": { "screen": "random" } }] },
+        "door-3": { "content": ["Behind door 3: [alert]the airlock[/alert]. Best not.", "", { "type": "link", "text": "> BACK", "action": { "screen": "random" } }] },
         "toggles": {
             "content": [
                 "TOGGLES & CHOICES",

@@ -169,8 +169,18 @@ export const ActionCaseSchema = z
         if: ConditionSchema.optional().meta({
             description: "Only when this holds; otherwise the next case in the list is tried",
         }),
-        screen: IdSchema.optional().meta({ description: "A screen to go to" }),
-        dialog: IdSchema.optional().meta({ description: "A dialog to open" }),
+        screen: z
+            .union([IdSchema, z.array(IdSchema).min(1)])
+            .optional()
+            .meta({
+                description: "A screen to go to, or a list of screens to go to one of, at random",
+            }),
+        dialog: z
+            .union([IdSchema, z.array(IdSchema).min(1)])
+            .optional()
+            .meta({
+                description: "A dialog to open, or a list of dialogs to open one of, at random",
+            }),
         set: AssignmentsSchema.optional().meta({
             description: 'Variables to change first, e.g. { "keycard": true }',
         }),

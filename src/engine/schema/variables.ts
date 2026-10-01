@@ -193,30 +193,63 @@ export const AddSchema = z
     })
     .meta({ description: "Adds to a number variable" });
 
+export const RandomSchema = z
+    .strictObject({
+        random: z
+            .tuple([z.int(), z.int()])
+            .refine(([low, high]) => low <= high, {
+                message: "The first number can't be the larger",
+            })
+            .meta({ description: "The lowest and highest it can be, e.g. [1, 20] for a d20" }),
+    })
+    .meta({ description: "Sets a number variable to a whole number at random, like a dice roll" });
+
+export const PickSchema = z
+    .strictObject({
+        pick: z.array(VariableValueSchema).min(1).meta({
+            description: "The values to pick from, each as likely",
+        }),
+    })
+    .meta({ description: "Sets a variable to one of these values, at random" });
+
 export const AssignmentsSchema = z
-    .record(VariableNameSchema, z.union([VariableValueSchema, AddSchema]))
+    .record(VariableNameSchema, z.union([VariableValueSchema, AddSchema, RandomSchema, PickSchema]))
     .transform((set) =>
-        Object.entries(set).map(
-            ([variable, change]): Assignment =>
-                typeof change === "object"
-                    ? { variable, add: change.add }
-                    : { variable, value: change },
-        ),
+        Object.entries(set).map(([variable, change]): Assignment => {
+            if (typeof change !== "object") return { variable, value: change };
+            if ("add" in change) return { variable, add: change.add };
+            if ("random" in change) return { variable, random: change.random };
+            return { variable, pick: change.pick };
+        }),
     )
     .meta({
         description:
-            'Variables to change, and their new values, e.g. { "keycard": true }, or ' +
-            '{ "credits": { "add": -10 } } to add to a number',
+            'Variables to change, and their new values, e.g. { "keycard": true }, ' +
+            '{ "credits": { "add": -10 } } to add to a number, { "roll": { "random": [1, 20] } } ' +
+            'for a number at random, or { "weather": { "pick": ["RAIN", "FOG"] } } for one of several',
     });
 
 export type Assignment =
     | { variable: string; value: VariableValue }
-    | { variable: string; add: number };
+    | { variable: string; add: number }
+    | { variable: string; random: [number, number] }
+    | { variable: string; pick: VariableValue[] };
 
-/** A variable's value after an assignment. */
-export function assign(assignment: Assignment, current: VariableValue | undefined): VariableValue {
+/** A variable's value after an assignment. `random` is for the ones made at random. */
+export function assign(
+    assignment: Assignment,
+    current: VariableValue | undefined,
+    random: () => number = Math.random,
+): VariableValue {
     if ("value" in assignment) return assignment.value;
-    return (typeof current === "number" ? current : 0) + assignment.add;
+    if ("add" in assignment) return (typeof current === "number" ? current : 0) + assignment.add;
+    if ("random" in assignment) {
+        const [low, high] = assignment.random;
+        return low + Math.floor(random() * (high - low + 1));
+    }
+    return (
+        assignment.pick[Math.floor(random() * assignment.pick.length)] ?? assignment.pick[0] ?? ""
+    );
 }
 
 /** Problems with assignments, given the declared variables. */
@@ -228,10 +261,20 @@ export function checkAssignments(
         const declared = variables.get(assignment.variable);
         if (declared === undefined) return [unknownVariable(assignment.variable)];
         const type = typeOf(declared);
-        if ("add" in assignment) {
+        if ("add" in assignment || "random" in assignment) {
             return type === "number"
                 ? []
-                : [`"${assignment.variable}" is ${article(type)}; only numbers can be added to`];
+                : [
+                      `"${assignment.variable}" is ${article(type)}; only numbers can be ${"add" in assignment ? "added to" : "random numbers"}`,
+                  ];
+        }
+        if ("pick" in assignment) {
+            const wrong = assignment.pick.find((value) => typeOf(value) !== type);
+            return wrong === undefined
+                ? []
+                : [
+                      `"${assignment.variable}" is ${article(type)}, so it can't be set to ${JSON.stringify(wrong)}`,
+                  ];
         }
         return typeOf(assignment.value) === type
             ? []

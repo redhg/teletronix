@@ -76,6 +76,8 @@ import {
     ComparisonSchema,
     ConditionSchema,
     NotConditionSchema,
+    PickSchema,
+    RandomSchema,
     VariablesSchema,
     VariableTestsSchema,
 } from "../src/engine/schema/variables.ts";
@@ -155,6 +157,7 @@ interface JsonSchema {
     properties?: Record<string, JsonSchema>;
     required?: string[];
     items?: JsonSchema;
+    prefixItems?: JsonSchema[];
     additionalProperties?: JsonSchema | boolean;
     minimum?: number;
     maximum?: number;
@@ -230,6 +233,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Not", NotConditionSchema],
             ["Set", AssignmentsSchema],
             ["Add", AddSchema],
+            ["Random", RandomSchema],
+            ["Pick", PickSchema],
             ["Timers", TimersSchema],
             ["Timer", TimerSchema],
         ],
@@ -428,6 +433,9 @@ export function generateReference(): { markdown: string; missing: string[] } {
 
         switch (json.type) {
             case "array": {
+                // a fixed list, e.g. [low, high]
+                if (json.prefixItems)
+                    return `[${json.prefixItems.map((item) => typeOf(item)).join(", ")}]`;
                 const item = typeOf(json.items ?? {});
                 return item.includes(" | ") ? `(${item})[]` : `${item}[]`;
             }
@@ -439,17 +447,21 @@ export function generateReference(): { markdown: string; missing: string[] } {
             case "number":
             case "integer": {
                 const kind = json.type === "integer" ? "whole number" : "number";
-                // Zod gives whole numbers a maximum of Number.MAX_SAFE_INTEGER; that's no limit
+                // Zod gives whole numbers limits of ±Number.MAX_SAFE_INTEGER; that's no limit
                 const maximum =
                     json.maximum !== undefined && json.maximum < Number.MAX_SAFE_INTEGER
                         ? json.maximum
                         : undefined;
-                if (json.minimum !== undefined && maximum !== undefined) {
-                    return `${kind}, ${json.minimum}–${maximum}`;
+                const minimum =
+                    json.minimum !== undefined && json.minimum > -Number.MAX_SAFE_INTEGER
+                        ? json.minimum
+                        : undefined;
+                if (minimum !== undefined && maximum !== undefined) {
+                    return `${kind}, ${minimum}–${maximum}`;
                 }
                 if (json.exclusiveMinimum !== undefined)
                     return `${kind}, > ${json.exclusiveMinimum}`;
-                if (json.minimum !== undefined) return `${kind}, ≥ ${json.minimum}`;
+                if (minimum !== undefined) return `${kind}, ≥ ${minimum}`;
                 return kind;
             }
             case "string":

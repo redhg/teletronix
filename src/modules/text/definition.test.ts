@@ -50,7 +50,7 @@ describe("text from a file", () => {
         expect(drawn(run, 2)).toBe("[FILE UNAVAILABLE: data/art/missing.txt]");
     });
 
-    it("needs text or a file, not both", () => {
+    it("needs one of text, a file, or lines to pick from", () => {
         const result = parseProgram({
             config: { name: "T" },
             screens: {
@@ -58,8 +58,8 @@ describe("text from a file", () => {
             },
         } as TeletronixFile);
         expect(result.ok ? [] : result.errors.map((e) => e.message)).toEqual([
-            'Give it "text" or "src" (a text file), not both',
-            'Give it "text" or "src" (a text file), not both',
+            'Give it one of "text", "src" (a text file) or "pick" (lines to pick from)',
+            'Give it one of "text", "src" (a text file) or "pick" (lines to pick from)',
         ]);
     });
 

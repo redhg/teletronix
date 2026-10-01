@@ -82,6 +82,8 @@ interface ElementRun {
     progressListeners: Set<ProgressListener>;
     /** What the element loaded, if it needed to (see ModuleDefinition.text). */
     loaded?: unknown;
+    /** Which of its choices it shows this visit (see ModuleDefinition.choices). */
+    pick?: number;
 }
 
 /**
@@ -148,7 +150,13 @@ export class ScreenRun {
         );
 
         this.runs = this.content.map((element, index) => {
-            const { text, styles } = this.textOf(element);
+            // one of its choices, chosen afresh each visit
+            const choices = moduleFor(element).choices?.(element) ?? 0;
+            const pick =
+                choices > 0
+                    ? Math.min(choices - 1, Math.floor((options.random ?? Math.random)() * choices))
+                    : undefined;
+            const { text, styles } = this.textOf(element, undefined, pick);
             const loading = options.load?.(element);
             loading?.then(
                 (value) => this.loaded(index, value),
@@ -160,6 +168,7 @@ export class ScreenRun {
                 state: loading ? "unloaded" : "ready",
                 text,
                 styles,
+                ...(pick === undefined ? {} : { pick }),
                 layout: this.layout(element, text),
                 frame: [],
                 progress: 0,
@@ -434,7 +443,7 @@ export class ScreenRun {
             return;
         }
 
-        const { text, styles } = this.textOf(run.element, run.loaded);
+        const { text, styles } = this.textOf(run.element, run.loaded, run.pick);
         if (text === run.text && sameStyles(styles, run.styles)) return;
 
         run.text = text;
@@ -567,12 +576,17 @@ export class ScreenRun {
     }
 
     /** An element's text, without its inline markup, and where its styles go. */
-    private textOf(element: Element, loaded?: unknown): { text: string; styles: StyleRange[] } {
+    private textOf(
+        element: Element,
+        loaded?: unknown,
+        pick?: number,
+    ): { text: string; styles: StyleRange[] } {
         const text = moduleFor(element).text(
             element,
             this.options.recall?.(element.id),
             this.options.format,
             loaded,
+            pick,
         );
         const { text: plain, styles } = parseMarkup(this.options.format?.(text) ?? text);
         return { text: plain, styles };
@@ -639,7 +653,7 @@ export class ScreenRun {
         run.state = "ready";
         // what it loaded may be its text (e.g. a file's): lay it out, and reveal that
         run.loaded = value;
-        const { text, styles } = this.textOf(run.element, value);
+        const { text, styles } = this.textOf(run.element, value, run.pick);
         run.styles = styles;
         if (text !== run.text) {
             run.text = text;
