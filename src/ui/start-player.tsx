@@ -41,6 +41,13 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
         ticker: new AnimationFrameTicker(),
         load: loadElement,
         instant: matchMedia("(prefers-reduced-motion: reduce)").matches,
+        // #id in the address starts on that screen (handy while writing one)
+        startAt: screenInHash(),
+    });
+    // and changing it jumps there
+    window.addEventListener("hashchange", () => {
+        const screen = screenInHash();
+        if (screen !== undefined && program.screens.has(screen)) terminal.navigate(screen);
     });
     // carry on from saved progress, and keep saving (not while previewing settings)
     if (!params.has("preview")) keepSaved(terminal);
@@ -60,4 +67,10 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
             />
         </StrictMode>,
     );
+}
+
+/** The screen named in the page's address, as #id, if any. */
+function screenInHash(): string | undefined {
+    const id = decodeURIComponent(location.hash.slice(1));
+    return id === "" ? undefined : id;
 }

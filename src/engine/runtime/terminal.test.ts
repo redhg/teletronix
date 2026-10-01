@@ -293,3 +293,29 @@ describe("going back", () => {
         expect(at(resumed)).toBe("one");
     });
 });
+
+describe("starting somewhere else", () => {
+    const file = {
+        config: { name: "Test", reveal: "instant" as const, start: "one" },
+        screens: { one: { content: ["ONE"] }, two: { content: ["TWO"] } },
+    };
+
+    it("starts on the screen asked for, if there is one", () => {
+        const at = (startAt: string) => {
+            const { terminal } = createTestTerminal(file, { startAt });
+            terminal.start();
+            return terminal.getSnapshot().screen?.run.screen.id;
+        };
+        expect(at("two")).toBe("two");
+        expect(at("nowhere")).toBe("one");
+    });
+
+    it("comes before a saved game's screen, and a restart still goes to the start", () => {
+        const { terminal } = createTestTerminal(file, { startAt: "two" });
+        terminal.restoreState({ version: 1, screen: "one", variables: {}, memory: {}, timers: {} });
+        terminal.start();
+        expect(terminal.getSnapshot().screen?.run.screen.id).toBe("two");
+        terminal.dispatch([{ restart: true }]);
+        expect(terminal.getSnapshot().screen?.run.screen.id).toBe("one");
+    });
+});

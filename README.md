@@ -13,6 +13,8 @@ npm run dev    # http://localhost:5173
 
 Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `sample`.
 `?data=ypsilon14` runs *The Haunting of Ypsilon-14*, converted from Phosphor.
+`#<screen>` starts on that screen instead of the start screen, e.g.
+<http://localhost:5173/?data=sample#home>, and changing it jumps there: handy while writing one.
 
 | Script | |
 |---|---|

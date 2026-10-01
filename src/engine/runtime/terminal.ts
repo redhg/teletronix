@@ -28,6 +28,11 @@ export interface TerminalOptions {
     columns?: number;
     /** Show everything instantly (e.g. for prefers-reduced-motion). */
     instant?: boolean;
+    /**
+     * The screen to start on, instead of the program's start screen (and a saved game's), e.g.
+     * from the page's address. Ignored if the program has no such screen.
+     */
+    startAt?: string;
     /** Randomness for effects. Defaults to Math.random. */
     random?: Random;
     /**
@@ -85,6 +90,7 @@ export class Terminal {
     private readonly instant: boolean;
     private readonly random: Random | undefined;
     private readonly load: TerminalOptions["load"];
+    private readonly startAt: string | undefined;
     /** Per-element state that outlives a screen visit (see ModuleDefinition). */
     private readonly memory = new Map<string, unknown>();
     /** The program's variables, from their starting values. */
@@ -136,6 +142,10 @@ export class Terminal {
         this.instant = options.instant ?? false;
         this.random = options.random;
         this.load = options.load;
+        this.startAt =
+            options.startAt !== undefined && options.program.screens.has(options.startAt)
+                ? options.startAt
+                : undefined;
         this.configEffects = options.program.effects;
         this.variables = new Map(options.program.variables);
         for (const screen of options.program.screens.values()) {
@@ -165,7 +175,7 @@ export class Terminal {
     start(): void {
         // (a restored game's timers are as they were saved)
         if (this.resumeAt === null) this.startTimers();
-        const screen = this.resumeAt ?? this.program.start;
+        const screen = this.startAt ?? this.resumeAt ?? this.program.start;
         this.resumeAt = null;
         this.navigate(screen);
     }

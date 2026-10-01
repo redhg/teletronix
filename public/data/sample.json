@@ -893,7 +893,7 @@
                 "  One that sweeps from start to end in hex, and fails partway.",
                 { "type": "link", "text": "> COUNTDOWN", "action": { "screen": "countdown" } },
                 "  A self-destruct sequence. Abort it with code 1138, or let it run out...",
-                { "type": "link", "text": "> TRANSMISSION", "action": { "screen": "transmission" } },
+                { "type": "link", "text": "> TRANSMISSION", "action": { "screen": "transmission-preset" } },
                 "  A message coming in through the static.",
                 { "type": "link", "text": "> MODEM", "action": { "screen": "modem" } },
                 "  Dialling in to a bulletin board, crackle and all.",
@@ -1176,7 +1176,7 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
             ]
         },
-        "transmission": {
+        "transmission-preset": {
             "preset": {
                 "type": "transmission",
                 "from": "SOURCE: NARCISSUS, SHUTTLE OF USCSS NOSTROMO",

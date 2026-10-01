@@ -229,3 +229,24 @@ test.describe("the context menu", () => {
         expect(await opened(player.screen.locator(".text"))).toBe(true);
     });
 });
+
+test.describe("an address with #screen", () => {
+    const program = {
+        config: { name: "Hash", start: "home", reveal: "instant" },
+        screens: { home: { content: ["HOME"] }, other: { content: ["OTHER"] } },
+    } as Program;
+
+    test("starts on that screen, and jumps when it changes", async ({ page, player }) => {
+        await player.open(program, "#other");
+        await expect(player.screen).toContainText("OTHER");
+        await page.evaluate(() => {
+            location.hash = "#home";
+        });
+        await expect(player.screen).toContainText("HOME");
+    });
+
+    test("starts as usual for a screen that isn't there", async ({ player }) => {
+        await player.open(program, "#nowhere");
+        await expect(player.screen).toContainText("HOME");
+    });
+});
