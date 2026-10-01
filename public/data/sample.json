@@ -891,6 +891,8 @@
                 "  A message coming in through the static.",
                 { "type": "link", "text": "> MODEM", "action": { "screen": "modem" } },
                 "  Dialling in to a bulletin board, crackle and all.",
+                { "type": "link", "text": "> INBOX", "action": { "screen": "inbox" } },
+                "  Messages that open to show their bodies.",
                 { "type": "link", "text": "> HEX EDITOR", "action": { "screen": "hexeditor" } },
                 "  A recovered file that scrolls until something turns up. Take over with the arrow keys; <esc> leaves.",
                 "",
@@ -1185,6 +1187,37 @@
                 "NEW MESSAGES: 3",
                 "",
                 { "type": "link", "text": "> HANG UP", "action": { "screen": "presets" } }
+            ]
+        },
+        "inbox": {
+            "preset": {
+                "type": "inbox",
+                "title": "MU-TH-UR 6000 // MESSAGES FOR: SCIENCE OFFICER",
+                "messages": [
+                    {
+                        "from": "MOTHER",
+                        "subject": "SPECIAL ORDER 937",
+                        "date": "2122-06-03",
+                        "unread": true,
+                        "body": ["PRIORITY ONE: INSURE RETURN OF ORGANISM FOR ANALYSIS.", "ALL OTHER CONSIDERATIONS SECONDARY. CREW EXPENDABLE."]
+                    },
+                    {
+                        "from": "DALLAS",
+                        "subject": "Course correction",
+                        "date": "2122-06-02",
+                        "body": "We're picking up a transmission from LV-426. Company policy says we check it out. Meeting at 0800."
+                    },
+                    {
+                        "from": "PARKER",
+                        "subject": "Bonus situation",
+                        "date": "2122-05-30",
+                        "body": "Brett and I would like to discuss the bonus situation. Again."
+                    }
+                ]
+            },
+            "content": [
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
             ]
         },
         "toggles": {

@@ -652,6 +652,80 @@ export const ModemPresetSchema = z
             "CONNECT, then the screen's own content (a BBS's welcome, say), or on to next",
     });
 
+export const INBOX_DEFAULTS = {
+    title: "INBOX",
+    labels: { from: "FROM", subject: "SUBJECT", date: "DATE" },
+    unread: "*",
+};
+
+export const InboxMessageSchema = z
+    .strictObject({
+        from: z.string().min(1).meta({ description: "Who it's from" }),
+        subject: z.string().min(1).meta({ description: "What it's about" }),
+        date: z.string().optional().meta({ description: "When it was sent, as you like" }),
+        body: z
+            .union([z.string(), z.array(z.string()).min(1)])
+            .meta({ description: "The message: a string, or a list of lines" }),
+        unread: z.boolean().default(false).meta({
+            description: "Mark it as unread (default: false)",
+        }),
+    })
+    .meta({ description: "A message in an inbox" });
+
+export const InboxLabelsSchema = z
+    .strictObject({
+        from: z
+            .string()
+            .default(INBOX_DEFAULTS.labels.from)
+            .meta({
+                description: `(default: "${INBOX_DEFAULTS.labels.from}")`,
+            }),
+        subject: z
+            .string()
+            .default(INBOX_DEFAULTS.labels.subject)
+            .meta({
+                description: `(default: "${INBOX_DEFAULTS.labels.subject}")`,
+            }),
+        date: z
+            .string()
+            .default(INBOX_DEFAULTS.labels.date)
+            .meta({
+                description: `(default: "${INBOX_DEFAULTS.labels.date}")`,
+            }),
+    })
+    .meta({ description: "The inbox's column headings" });
+
+export const InboxPresetSchema = z
+    .strictObject({
+        type: z.literal("inbox"),
+        title: Line("The first line", INBOX_DEFAULTS.title),
+        messages: z.array(InboxMessageSchema).min(1).meta({
+            description: "The messages, in order, each opening to show its body",
+        }),
+        labels: z
+            .union([InboxLabelsSchema, z.literal(false)])
+            .default(InboxLabelsSchema.parse({}))
+            .meta({
+                description:
+                    'Column headings over the messages: { "from", "subject", "date" }, or false for none',
+            }),
+        unread: z
+            .string()
+            .default(INBOX_DEFAULTS.unread)
+            .meta({
+                description: `What marks an unread message (default: "${INBOX_DEFAULTS.unread}")`,
+            }),
+    })
+    .meta({
+        description:
+            "An inbox: a list of messages (from, subject, date), each opening to show its body. " +
+            "The screen's own content (e.g. a link back) goes after it.",
+    });
+
+/** Text padded (or cut short with "~") to exactly `width` characters. */
+const padTo = (text: string, width: number) =>
+    text.length > width ? `${text.slice(0, width - 1)}~` : text.padEnd(width);
+
 export const PresetSchema = z
     .discriminatedUnion("type", [
         BootPresetSchema,
@@ -664,6 +738,7 @@ export const PresetSchema = z
         CountdownPresetSchema,
         TransmissionPresetSchema,
         ModemPresetSchema,
+        InboxPresetSchema,
     ])
     .meta({ description: "A ready-made screen, with a few settings of its own" });
 
@@ -979,6 +1054,47 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                 ],
                 after: pause,
                 next: preset.next === undefined ? undefined : goTo(preset.next, wait),
+            };
+        }
+        case "inbox": {
+            const { messages, labels, unread } = preset;
+            const width = (texts: string[], most: number) =>
+                Math.min(most, Math.max(...texts.map((text) => text.length)));
+            const fromWidth = width(
+                [...(labels ? [labels.from] : []), ...messages.map((m) => m.from)],
+                16,
+            );
+            const subjectWidth = width(
+                [...(labels ? [labels.subject] : []), ...messages.map((m) => m.subject)],
+                30,
+            );
+            const flag = " ".repeat(unread.length);
+            // the section markers' width, so the headings line up over the titles
+            const markers = { closed: "►", open: "▼" };
+            const row = (mark: string, from: string, subject: string, date = "") =>
+                `${mark} ${padTo(from, fromWidth)}  ${padTo(subject, subjectWidth)}  ${date}`.trimEnd();
+            return {
+                before: [
+                    ...(preset.title === false ? [] : [preset.title, ""]),
+                    ...(labels ? [`  ${row(flag, labels.from, labels.subject, labels.date)}`] : []),
+                    ...messages.map((message) => ({
+                        type: "section",
+                        title: row(
+                            message.unread ? unread : flag,
+                            message.from,
+                            message.subject,
+                            message.date,
+                        ),
+                        markers,
+                        indent: 2,
+                        content: [
+                            "",
+                            ...(Array.isArray(message.body) ? message.body : [message.body]),
+                            "",
+                        ],
+                    })),
+                ],
+                after: [],
             };
         }
         case "hexeditor": {

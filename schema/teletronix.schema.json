@@ -5533,6 +5533,126 @@
                                 ],
                                 "additionalProperties": false,
                                 "description": "Dialling in: the modem's commands, a dialling spinner, a crackling handshake, and CONNECT, then the screen's own content (a BBS's welcome, say), or on to next"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "const": "inbox"
+                                    },
+                                    "title": {
+                                        "default": "INBOX",
+                                        "description": "The first line, or false for none (default: \"INBOX\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "messages": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "from": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "description": "Who it's from"
+                                                },
+                                                "subject": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "description": "What it's about"
+                                                },
+                                                "date": {
+                                                    "description": "When it was sent, as you like",
+                                                    "type": "string"
+                                                },
+                                                "body": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "minItems": 1,
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "description": "The message: a string, or a list of lines"
+                                                },
+                                                "unread": {
+                                                    "default": false,
+                                                    "description": "Mark it as unread (default: false)",
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "from",
+                                                "subject",
+                                                "body"
+                                            ],
+                                            "additionalProperties": false,
+                                            "description": "A message in an inbox"
+                                        },
+                                        "description": "The messages, in order, each opening to show its body"
+                                    },
+                                    "labels": {
+                                        "default": {
+                                            "from": "FROM",
+                                            "subject": "SUBJECT",
+                                            "date": "DATE"
+                                        },
+                                        "description": "Column headings over the messages: { \"from\", \"subject\", \"date\" }, or false for none",
+                                        "anyOf": [
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "from": {
+                                                        "default": "FROM",
+                                                        "description": "(default: \"FROM\")",
+                                                        "type": "string"
+                                                    },
+                                                    "subject": {
+                                                        "default": "SUBJECT",
+                                                        "description": "(default: \"SUBJECT\")",
+                                                        "type": "string"
+                                                    },
+                                                    "date": {
+                                                        "default": "DATE",
+                                                        "description": "(default: \"DATE\")",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "additionalProperties": false,
+                                                "description": "The inbox's column headings"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "unread": {
+                                        "default": "*",
+                                        "description": "What marks an unread message (default: \"*\")",
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "type",
+                                    "messages"
+                                ],
+                                "additionalProperties": false,
+                                "description": "An inbox: a list of messages (from, subject, date), each opening to show its body. The screen's own content (e.g. a link back) goes after it."
                             }
                         ]
                     },

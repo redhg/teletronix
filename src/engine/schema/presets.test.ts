@@ -417,3 +417,52 @@ describe("the modem preset", () => {
         expect(content).toMatchObject([{ type: "text", text: "ATDT 911" }]);
     });
 });
+
+describe("the inbox preset", () => {
+    it("lists messages in columns, each opening to show its body", () => {
+        const { content } = expanded({
+            type: "inbox",
+            messages: [
+                {
+                    from: "MOTHER",
+                    subject: "SPECIAL ORDER 937",
+                    date: "06-03",
+                    body: "CREW EXPENDABLE.",
+                    unread: true,
+                },
+                { from: "DALLAS", subject: "CREW MEETING", body: ["MESS HALL.", "1800 HOURS."] },
+            ],
+        });
+        expect(content).toMatchObject([
+            { type: "text", text: "INBOX" },
+            { type: "text", text: "" },
+            { type: "text", text: "    FROM    SUBJECT            DATE" },
+            {
+                type: "section",
+                title: "* MOTHER  SPECIAL ORDER 937  06-03",
+                markers: { closed: "►", open: "▼" },
+                content: [{ text: "" }, { text: "CREW EXPENDABLE." }, { text: "" }],
+            },
+            {
+                type: "section",
+                title: "  DALLAS  CREW MEETING",
+                content: [
+                    { text: "" },
+                    { text: "MESS HALL." },
+                    { text: "1800 HOURS." },
+                    { text: "" },
+                ],
+            },
+        ]);
+    });
+
+    it("cuts long columns short", () => {
+        const { content } = expanded({
+            type: "inbox",
+            title: false,
+            labels: false,
+            messages: [{ from: "A VERY LONG SENDER NAME INDEED", subject: "HI", body: "X" }],
+        });
+        expect(content[0]).toMatchObject({ title: "  A VERY LONG SEN~  HI" });
+    });
+});
