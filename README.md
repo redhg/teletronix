@@ -612,6 +612,22 @@ it has the keyboard (click it, or tab to it).
 A frame's `width` is in characters, border included; frames without one share what's left,
 `gap` characters apart (default 1). On a screen where a frame would be narrower than `minWidth`
 (default 20), they stack, each the whole width.
+
+#### Showing screens in a frame
+```json
+{ "type": "frames", "frames": [
+    { "title": "CREW", "width": 22, "content": [
+        { "type": "link", "text": "> RIPLEY", "action": { "frame": "record", "screen": "rec-ripley" } }
+    ] },
+    { "title": "RECORD", "name": "record", "screen": "rec-dallas" }
+] }
+```
+A frame with a `name` can show other screens. An action with `"frame"` and a `"screen"` reveals
+that screen's content in the frame, in place of what was there, without leaving the screen it's
+on: a menu on one side and records on the other. Links in the screen shown can do the same,
+e.g. a record linking to the next. A frame's `screen` is what it shows to begin with (in place
+of its `content`), and it remembers what it's showing when you come back. On a screen without
+that frame (e.g. a record opened by itself), the action just goes to the screen.
 ### Rules
 ```json
 { "type": "rule", "char": "═", "label": "CREW MANIFEST", "labelAlign": "left" }

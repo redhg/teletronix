@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ScreenRun } from "../../engine/runtime/screen-run.ts";
 import { createTestTerminal } from "../../engine/runtime/test-helpers.ts";
+import { ActionSchema } from "../../engine/schema/common.ts";
 import { parseProgram, type TeletronixFile } from "../../engine/schema/program.ts";
 import { type FrameElement, frameLayout, frameTop } from "./definition.ts";
 
@@ -155,5 +156,74 @@ describe("frames", () => {
         const [long] = frames([{ title: "A VERY LONG TITLE" }]);
         const cut = frameTop(long as FrameElement, 14);
         expect((cut.before + cut.title + cut.after).length).toBe(14);
+    });
+
+    describe("showing screens", () => {
+        const file: TeletronixFile = {
+            config: { name: "Test", reveal: "instant" },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "frames",
+                            frames: [{ content: ["MENU"] }, { name: "detail", screen: "dallas" }],
+                        },
+                    ],
+                },
+                dallas: { content: ["DALLAS"] },
+                ripley: { content: ["RIPLEY", "WARRANT OFFICER"] },
+            },
+        };
+        const show = (screen: string) => ActionSchema.parse({ frame: "detail", screen });
+        const detail = (terminal: ReturnType<typeof createTestTerminal>["terminal"]) => {
+            const run = terminal.getSnapshot().screen?.run as ScreenRun;
+            const group = run.contents("home#0") as ScreenRun;
+            const frame = group.contents("home#0.1") as ScreenRun;
+            return frame.elements.map((element) => element.id);
+        };
+
+        it("start with their screen's content", () => {
+            const { terminal } = createTestTerminal(file);
+            terminal.start();
+            expect(detail(terminal)).toEqual(["dallas#0"]);
+        });
+
+        it("show a screen a link puts there, without leaving, and remember it", () => {
+            const { terminal } = createTestTerminal(file);
+            terminal.start();
+            terminal.dispatch(show("ripley"));
+            expect(terminal.getSnapshot().screen?.run.screen.id).toBe("home");
+            expect(detail(terminal)).toEqual(["ripley#0", "ripley#1"]);
+
+            terminal.navigate("dallas");
+            terminal.navigate("home");
+            expect(detail(terminal)).toEqual(["ripley#0", "ripley#1"]);
+        });
+
+        it("go to the screen, where there's no such frame", () => {
+            const { terminal } = createTestTerminal(file);
+            terminal.navigate("dallas");
+            terminal.dispatch(show("ripley"));
+            expect(terminal.getSnapshot().screen?.run.screen.id).toBe("ripley");
+        });
+
+        it("are checked: frame names, and their screens", () => {
+            const result = parseProgram({
+                config: { name: "T" },
+                screens: {
+                    home: {
+                        content: [
+                            { type: "frames", frames: [{ name: "a", screen: "gone" }] },
+                            { type: "link", text: "x", action: { frame: "b", screen: "home" } },
+                        ],
+                    },
+                },
+            });
+            expect(result.ok ? [] : result.errors.map((error) => error.message)).toEqual([
+                'Unknown screen "gone"',
+                'No frame is named "b"',
+            ]);
+            expect(ActionSchema.safeParse({ frame: "a" }).success).toBe(false);
+        });
     });
 });

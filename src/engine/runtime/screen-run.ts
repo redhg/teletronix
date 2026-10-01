@@ -57,6 +57,8 @@ export interface ScreenRunOptions {
     holds?: (condition: Condition) => boolean;
     /** Fills variables into text. */
     format?: (text: string) => string;
+    /** A screen of the program, for a frame showing one. */
+    screen?: (screenId: string) => Screen | undefined;
     /** Skip every reveal (e.g. for prefers-reduced-motion). */
     instant?: boolean;
     random?: Random;
@@ -141,6 +143,8 @@ export class ScreenRun {
     private readonly children = new Map<number, ScreenRun>();
     /** Whether the reveal has reached its end, and waits for its frames to finish. */
     private awaitingFrames = false;
+    /** The screen each frame's run is of, if it's showing one. */
+    private readonly frameScreens = new Map<number, string | undefined>();
     /** The slide each carousel's run is of. */
     private readonly slides = new Map<number, number>();
     /** A section whose contents the run is holding for while they reveal, or -1. */
@@ -451,7 +455,7 @@ export class ScreenRun {
             for (const child of this.children.values()) child.refresh(elementId);
             return;
         }
-        if (run.element.type === "section" || run.element.type === "carousel") {
+        if (["section", "carousel", "frame"].includes(run.element.type)) {
             this.syncContents(index);
         }
 
@@ -557,6 +561,12 @@ export class ScreenRun {
         return Math.max(1, this.columns - indent);
     }
 
+    /** The screen a frame is showing: the one a link put there, or its own to begin with. */
+    private frameScreen(frame: FrameElement): string | undefined {
+        const shown = (this.options.recall?.(frame.id) as string | undefined) ?? frame.screen;
+        return shown !== undefined && this.options.screen?.(shown) ? shown : undefined;
+    }
+
     /** The slide a carousel is showing. */
     private slideOf(carousel: CarouselElement): number {
         return currentSlide(carousel, this.options.recall?.(carousel.id) as number | undefined);
@@ -571,7 +581,14 @@ export class ScreenRun {
             | FramesElement
             | FrameElement;
         let content: Element[];
-        if (holder.type === "frames") {
+        // a screen shown in a frame: its content, revealed and aligned its own way
+        let shown: Screen | undefined;
+        if (holder.type === "frame") {
+            const screenId = this.frameScreen(holder);
+            this.frameScreens.set(index, screenId);
+            shown = screenId === undefined ? undefined : this.options.screen?.(screenId);
+            content = shown?.content ?? holder.content;
+        } else if (holder.type === "frames") {
             content = holder.frames;
         } else if (holder.type === "carousel") {
             const slide = this.slideOf(holder);
@@ -584,8 +601,10 @@ export class ScreenRun {
             {
                 ...this.screen,
                 // the element's reveal is its contents' default, and a carousel's alignment
-                reveal: holder.reveal ?? this.screen.reveal,
-                align: (holder.type === "carousel" && holder.align) || this.screen.align,
+                reveal: shown?.reveal ?? holder.reveal ?? this.screen.reveal,
+                align:
+                    shown?.align ??
+                    ((holder.type === "carousel" && holder.align) || this.screen.align),
                 next: undefined,
                 sound: undefined,
                 content,
@@ -620,10 +639,12 @@ export class ScreenRun {
         if (run?.state !== "done" || this.eraser) return;
         const now = this.options.now();
         const { element } = run;
-        if (element.type === "carousel") {
-            if (!this.children.has(index) || this.slides.get(index) === this.slideOf(element)) {
-                return;
-            }
+        if (element.type === "carousel" || element.type === "frame") {
+            const same =
+                element.type === "carousel"
+                    ? this.slides.get(index) === this.slideOf(element)
+                    : this.frameScreens.get(index) === this.frameScreen(element);
+            if (!this.children.has(index) || same) return;
             this.children.delete(index);
             this.openContents(index, now);
             return;

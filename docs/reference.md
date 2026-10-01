@@ -1731,11 +1731,13 @@ A frame: a panel of its own, which scrolls by itself
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `title` | string |  | Set into the top of its border, e.g. "SYSTEM LOG" |
+| `name` | id |  | Its name, for links to show a screen in it: { "frame": "detail", "screen": "crew-ripley" } |
+| `screen` | id |  | A screen whose content it shows to begin with, in place of its own content |
 | `rows` | whole number, ≥ 1 | `10` | How many lines tall it is; more scroll |
 | `width` | whole number, ≥ 5 | an equal share of what the frames with a width leave | Its width in characters, border included |
 | `border` | boolean | `true` | Whether it has a box-drawn border |
 | `autoscroll` | boolean | `true` | Whether it scrolls to follow its text as it types in, until the player scrolls it themselves |
-| `content` | [Content](#content)[] | **required** | Its elements, revealed in order, like a screen's |
+| `content` | [Content](#content)[] |  | Its elements, revealed in order, like a screen's (or see screen) |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
@@ -2222,6 +2224,7 @@ Go to a screen or open a dialog, changing variables and playing a sound on the w
 | `if` | [Condition](#condition) |  | Only when this holds; otherwise the next case in the list is tried |
 | `screen` | id \| id[] |  | A screen to go to, or a list of screens to go to one of, at random |
 | `dialog` | id \| id[] |  | A dialog to open, or a list of dialogs to open one of, at random |
+| `frame` | id |  | Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen. |
 | `set` | [Set](#set) |  | Variables to change first, e.g. { "keycard": true } |
 | `startTimer` | id |  | A timer to start (or carry on, if it was stopped partway) |
 | `stopTimer` | id |  | A timer to stop where it is |

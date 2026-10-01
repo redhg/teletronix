@@ -296,7 +296,95 @@
                 "",
                 "On a narrow screen, frames stack, each the whole width. A frame can't hold a pause: put one after the frames.",
                 "",
+                { "type": "link", "text": "> CREW RECORDS", "action": { "screen": "frame-records" } },
+                { "type": "text", "text": "  Links that show screens in a frame: a menu and a record, side by side.", "className": "dim" },
+                "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "frame-records": {
+            "title": "CREW RECORDS",
+            "parent": "frames",
+            "content": [
+                "CREW RECORDS",
+                "============",
+                "",
+                "A frame with a \"name\" can show other screens: a link with { \"frame\": \"record\", \"screen\": \"rec-ripley\" } reveals that screen's content in it, without leaving this one. The frame starts with its \"screen\", and remembers what it's showing when you come back.",
+                "",
+                { "type": "frames", "frames": [
+                    { "title": "CREW", "rows": 10, "width": 22, "content": [
+                        "SELECT A RECORD:",
+                        "",
+                        { "type": "link", "text": "> DALLAS", "action": { "frame": "record", "screen": "rec-dallas" } },
+                        { "type": "link", "text": "> RIPLEY", "action": { "frame": "record", "screen": "rec-ripley" } },
+                        { "type": "link", "text": "> KANE", "action": { "frame": "record", "screen": "rec-kane" } },
+                        { "type": "link", "text": "> ASH", "action": { "frame": "record", "screen": "rec-ash" } }
+                    ] },
+                    { "title": "RECORD", "name": "record", "screen": "rec-dallas", "rows": 10 }
+                ] },
+                "",
+                "Opened by itself, a record is an ordinary screen, and links to the frame just go to their screen.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "rec-dallas": {
+            "title": "DALLAS",
+            "parent": "frame-records",
+            "content": [
+                "PERSONNEL FILE // DALLAS, A.",
+                { "type": "rule" },
+                { "type": "table", "rows": [["RANK", "CAPTAIN"], ["STATUS", "ACTIVE"]] },
+                "",
+                "Twelve years with the company. Prefers to delegate the dull jobs."
+            ]
+        },
+        "rec-ripley": {
+            "title": "RIPLEY",
+            "parent": "frame-records",
+            "content": [
+                "PERSONNEL FILE // RIPLEY, E.",
+                { "type": "rule" },
+                { "type": "table", "rows": [["RANK", "WARRANT OFFICER"], ["STATUS", "ACTIVE"]] },
+                "",
+                "Strict on quarantine procedure. Owns a cat."
+            ]
+        },
+        "rec-kane": {
+            "title": "KANE",
+            "parent": "frame-records",
+            "content": [
+                "PERSONNEL FILE // KANE, G.",
+                { "type": "rule" },
+                { "type": "table", "rows": [["RANK", "EXECUTIVE OFFICER"], ["STATUS", "[alert]MEDICAL HOLD[/]"]] },
+                "",
+                "Found unconscious after the surface expedition. Do not disturb."
+            ]
+        },
+        "rec-ash": {
+            "title": "ASH",
+            "parent": "frame-records",
+            "content": [
+                "PERSONNEL FILE // ASH",
+                { "type": "rule" },
+                { "type": "table", "rows": [["RANK", "SCIENCE OFFICER"], ["STATUS", "[alert]UNDER REVIEW[/]"]] },
+                "",
+                "Replaced the regular science officer two days before departure.",
+                "",
+                { "type": "link", "text": "> SPECIAL ORDER 937", "action": { "frame": "record", "screen": "order-937" } }
+            ]
+        },
+        "order-937": {
+            "title": "ORDER 937",
+            "parent": "rec-ash",
+            "content": [
+                { "type": "text", "text": "SPECIAL ORDER 937", "className": "alert" },
+                { "type": "rule" },
+                "PRIORITY ONE. INSURE RETURN OF ORGANISM FOR ANALYSIS. ALL OTHER CONSIDERATIONS SECONDARY.",
+                "",
+                { "type": "text", "text": "CREW EXPENDABLE.", "className": "alert blink" },
+                "",
+                { "type": "link", "text": "> BACK TO ASH", "action": { "frame": "record", "screen": "rec-ash" } }
             ]
         },
         "columns": {

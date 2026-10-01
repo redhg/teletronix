@@ -275,11 +275,34 @@ export class Terminal {
             typeof ids === "string"
                 ? ids
                 : (ids[Math.floor((this.random ?? Math.random)() * ids.length)] ?? ids[0] ?? "");
+        const frame = chosen.frame === undefined ? undefined : this.frameNamed(chosen.frame);
         if (chosen.back) this.goBack();
+        else if (frame && chosen.screen !== undefined) this.showInFrame(frame, one(chosen.screen));
         else if (chosen.screen !== undefined) this.navigate(one(chosen.screen));
         else if (chosen.dialog !== undefined) this.openDialog(one(chosen.dialog));
         this.flush();
         return chosen;
+    }
+
+    /** The frame on the current screen with this name, if there is one. */
+    private frameNamed(name: string): string | undefined {
+        let found: string | undefined;
+        if (this.run) {
+            forEachElement(this.run.screen.content, (element) => {
+                if (found === undefined && element.type === "frame" && element.name === name) {
+                    found = element.id;
+                }
+            });
+        }
+        return found;
+    }
+
+    /** Shows a screen's content in a frame on the current screen, in place of what was there. */
+    private showInFrame(frameId: string, screenId: string): void {
+        const screen = this.program.screens.get(screenId);
+        if (!screen) throw new Error(`Unknown screen "${screenId}"`);
+        if (screen.sound) this.cue({ type: "sound", name: screen.sound });
+        this.remember(frameId, screenId);
     }
 
     /** A variable's current value, or a timer's, in whole seconds. */
@@ -348,6 +371,7 @@ export class Terminal {
             recall: (elementId) => this.recall(elementId),
             holds: this.holds,
             format: this.format,
+            screen: (screenId) => this.program.screens.get(screenId),
             random: this.random,
             onChange: this.markDirty,
             onWake: this.wake,

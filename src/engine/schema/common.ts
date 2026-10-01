@@ -181,6 +181,11 @@ export const ActionCaseSchema = z
             .meta({
                 description: "A dialog to open, or a list of dialogs to open one of, at random",
             }),
+        frame: IdSchema.optional().meta({
+            description:
+                "Show the screen in this frame on the current screen (see a frame's name), " +
+                "instead of going to it. Without that frame there, it goes to the screen.",
+        }),
         set: AssignmentsSchema.optional().meta({
             description: 'Variables to change first, e.g. { "keycard": true }',
         }),
@@ -210,6 +215,12 @@ export const ActionCaseSchema = z
                     "Start the program over, as if just loaded: the start screen, with every " +
                     "variable, timer and element's memory (e.g. a locked login) back where it began",
             }),
+    })
+    .refine((action) => action.frame === undefined || action.screen !== undefined, {
+        message: 'Showing something in a frame needs the "screen" to show',
+    })
+    .refine((action) => !(action.frame && (action.back || action.restart)), {
+        message: 'A frame shows a screen: leave out "back" and "restart"',
     })
     .refine((action) => !(action.screen && action.dialog), {
         message: 'Set "screen" or "dialog", not both',

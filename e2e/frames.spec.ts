@@ -122,4 +122,56 @@ test.describe("frames", () => {
         expect(right.y).toBeGreaterThan(left.y + left.height - 1);
         expect(Math.abs(right.width - left.width)).toBeLessThan(1);
     });
+
+    test("show the screen a link puts there, without leaving, and remember it", async ({
+        page,
+        player,
+    }) => {
+        await player.open({
+            config: { name: "Records", start: "home" },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "frames",
+                            frames: [
+                                {
+                                    content: [
+                                        {
+                                            type: "link",
+                                            text: "> RIPLEY",
+                                            action: { frame: "record", screen: "ripley" },
+                                        },
+                                        {
+                                            type: "link",
+                                            text: "> AWAY",
+                                            action: { screen: "away" },
+                                        },
+                                    ],
+                                },
+                                { name: "record", title: "RECORD", screen: "dallas" },
+                            ],
+                        },
+                    ],
+                },
+                dallas: { content: ["DALLAS FILE"] },
+                ripley: { content: ["RIPLEY FILE"] },
+                away: {
+                    content: [{ type: "link", text: "> RETURN", action: { screen: "home" } }],
+                },
+            },
+        });
+        const record = player.screen.getByRole("region", { name: "RECORD" });
+        await expect(record).toContainText("DALLAS FILE");
+        await player.link("> RIPLEY").click();
+        await expect(record).toContainText("RIPLEY FILE");
+        await expect(record).not.toContainText("DALLAS FILE");
+        await expect(page).not.toHaveURL(/#ripley/);
+
+        await player.link("> AWAY").click();
+        await player.link("> RETURN").click();
+        await expect(player.screen.getByRole("region", { name: "RECORD" })).toContainText(
+            "RIPLEY FILE",
+        );
+    });
 });

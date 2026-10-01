@@ -461,7 +461,7 @@ function normalizeContent(items: readonly unknown[], prefix: string): Element[] 
                 type: "frame",
                 id: `${id}.${index}`,
                 layout: { gap, minWidth },
-                content: normalizeContent(frame.content, `${id}.${index}.`),
+                content: normalizeContent(frame.content ?? [], `${id}.${index}.`),
             }));
         } else if (element.type === "carousel") {
             element.slides = element.slides.map((slide, index) =>
@@ -498,8 +498,20 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
         name !== undefined && !program.timers.has(name)
             ? [`Unknown timer "${name}" (declare it in config.timers)`]
             : [];
+    // the frames links can show screens in, by name
+    const frameNames = new Set<string>();
+    for (const screen of program.screens.values()) {
+        forEachElement(screen.content, (element) => {
+            if (element.type === "frame" && element.name !== undefined) {
+                frameNames.add(element.name);
+            }
+        });
+    }
     const actionProblems = (action: Action): string[] =>
         action.flatMap((choice) => [
+            ...(choice.frame !== undefined && !frameNames.has(choice.frame)
+                ? [`No frame is named "${choice.frame}"`]
+                : []),
             ...[choice.screen ?? []]
                 .flat()
                 .filter((id) => !program.screens.has(id))
@@ -576,6 +588,11 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
             const module = moduleFor(element);
             report([...path, "sound"], unknownSound(element.sound));
             report([...path, "if"], conditionProblems(element.if));
+            if (element.type === "frame" && element.screen !== undefined) {
+                if (!program.screens.has(element.screen)) {
+                    report([...path, "screen"], `Unknown screen "${element.screen}"`);
+                }
+            }
             if (element.type === "pause" && at.includes("frames")) {
                 report(
                     path,

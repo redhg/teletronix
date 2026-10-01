@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ElementIdentity, ModuleDefinition } from "../../engine/module.ts";
-import { ElementBaseShape } from "../../engine/schema/common.ts";
+import { ElementBaseShape, IdSchema } from "../../engine/schema/common.ts";
 import type { Element } from "../../engine/schema/elements.ts";
 import type { RawContent } from "../section/definition.ts";
 
@@ -16,6 +16,15 @@ export const createFrameSchema = (content: () => z.ZodType<RawContent[], RawCont
         .strictObject({
             title: z.string().optional().meta({
                 description: 'Set into the top of its border, e.g. "SYSTEM LOG"',
+            }),
+            name: IdSchema.optional().meta({
+                description:
+                    'Its name, for links to show a screen in it: { "frame": "detail", "screen": ' +
+                    '"crew-ripley" }',
+            }),
+            screen: IdSchema.optional().meta({
+                description:
+                    "A screen whose content it shows to begin with, in place of its own content",
             }),
             rows: z.int().min(1).default(10).meta({
                 description: "How many lines tall it is; more scroll (default: 10)",
@@ -40,8 +49,8 @@ export const createFrameSchema = (content: () => z.ZodType<RawContent[], RawCont
                         "Whether it scrolls to follow its text as it types in, until the player " +
                         "scrolls it themselves (default: true)",
                 }),
-            content: z.lazy(content).meta({
-                description: "Its elements, revealed in order, like a screen's",
+            content: z.lazy(content).optional().meta({
+                description: "Its elements, revealed in order, like a screen's (or see screen)",
             }),
             ...ElementBaseShape,
         })
@@ -78,6 +87,9 @@ export const createFramesSchema = (frame: ReturnType<typeof createFrameSchema>) 
 
 type FramesOutput = z.output<ReturnType<typeof createFramesSchema>>;
 
+/** A frame's memory: the screen it's showing, if a link has put one there. */
+export type FrameMemory = string;
+
 /** One frame, as an element of its own (made from a frames element when the program loads). */
 export type FrameElement = Omit<FramesOutput["frames"][number], "content"> &
     ElementIdentity & {
@@ -95,7 +107,7 @@ export const framesModule: ModuleDefinition<FramesElement> = {
     text: () => "",
 };
 
-export const frameModule: ModuleDefinition<FrameElement> = {
+export const frameModule: ModuleDefinition<FrameElement, FrameMemory> = {
     text: () => "",
 };
 

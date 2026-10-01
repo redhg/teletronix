@@ -67,6 +67,16 @@ export function FrameView({ element, run }: ElementViewProps<FrameElement>) {
         return () => observer.disconnect();
     }, [measure]);
 
+    // a new screen shown in it starts at the top, following its text
+    useLayoutEffect(() => {
+        const box = scroller.current;
+        if (!box || !contents) return;
+        following.current = element.autoscroll;
+        box.scrollTop = 0;
+        placed.current = 0;
+        measure();
+    }, [contents, element.autoscroll, measure]);
+
     // scrolling it back to the bottom follows again; away from it stops following
     useEffect(() => {
         const box = scroller.current;

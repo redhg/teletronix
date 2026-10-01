@@ -269,6 +269,11 @@
                                                                             }
                                                                         ]
                                                                     },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                         "type": "object",
@@ -437,6 +442,11 @@
                                                                                     }
                                                                                 }
                                                                             ]
+                                                                        },
+                                                                        "frame": {
+                                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$"
                                                                         },
                                                                         "set": {
                                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -682,6 +692,11 @@
                                                                             }
                                                                         ]
                                                                     },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                         "type": "object",
@@ -850,6 +865,11 @@
                                                                                     }
                                                                                 }
                                                                             ]
+                                                                        },
+                                                                        "frame": {
+                                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$"
                                                                         },
                                                                         "set": {
                                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -1095,6 +1115,11 @@
                                                                             }
                                                                         ]
                                                                     },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                         "type": "object",
@@ -1263,6 +1288,11 @@
                                                                                     }
                                                                                 }
                                                                             ]
+                                                                        },
+                                                                        "frame": {
+                                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$"
                                                                         },
                                                                         "set": {
                                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -1532,6 +1562,11 @@
                                                                             }
                                                                         ]
                                                                     },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                         "type": "object",
@@ -1700,6 +1735,11 @@
                                                                                     }
                                                                                 }
                                                                             ]
+                                                                        },
+                                                                        "frame": {
+                                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$"
                                                                         },
                                                                         "set": {
                                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -1945,6 +1985,11 @@
                                                                             }
                                                                         ]
                                                                     },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                         "type": "object",
@@ -2113,6 +2158,11 @@
                                                                                     }
                                                                                 }
                                                                             ]
+                                                                        },
+                                                                        "frame": {
+                                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$"
                                                                         },
                                                                         "set": {
                                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -2358,6 +2408,11 @@
                                                                             }
                                                                         ]
                                                                     },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                         "type": "object",
@@ -2526,6 +2581,11 @@
                                                                                     }
                                                                                 }
                                                                             ]
+                                                                        },
+                                                                        "frame": {
+                                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$"
                                                                         },
                                                                         "set": {
                                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -2851,6 +2911,11 @@
                                                     }
                                                 ]
                                             },
+                                            "frame": {
+                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                            },
                                             "set": {
                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                 "type": "object",
@@ -3019,6 +3084,11 @@
                                                             }
                                                         }
                                                     ]
+                                                },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -4276,6 +4346,11 @@
                                                                                         }
                                                                                     ]
                                                                                 },
+                                                                                "frame": {
+                                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                    "type": "string",
+                                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
                                                                                 "set": {
                                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                                     "type": "object",
@@ -4444,6 +4519,11 @@
                                                                                                 }
                                                                                             }
                                                                                         ]
+                                                                                    },
+                                                                                    "frame": {
+                                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                        "type": "string",
+                                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                                     },
                                                                                     "set": {
                                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -4689,6 +4769,11 @@
                                                                                         }
                                                                                     ]
                                                                                 },
+                                                                                "frame": {
+                                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                    "type": "string",
+                                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
                                                                                 "set": {
                                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                                     "type": "object",
@@ -4857,6 +4942,11 @@
                                                                                                 }
                                                                                             }
                                                                                         ]
+                                                                                    },
+                                                                                    "frame": {
+                                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                        "type": "string",
+                                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                                     },
                                                                                     "set": {
                                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -5102,6 +5192,11 @@
                                                                                         }
                                                                                     ]
                                                                                 },
+                                                                                "frame": {
+                                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                    "type": "string",
+                                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
                                                                                 "set": {
                                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                                     "type": "object",
@@ -5270,6 +5365,11 @@
                                                                                                 }
                                                                                             }
                                                                                         ]
+                                                                                    },
+                                                                                    "frame": {
+                                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                        "type": "string",
+                                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                                     },
                                                                                     "set": {
                                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -5548,6 +5648,11 @@
                                                                                         }
                                                                                     ]
                                                                                 },
+                                                                                "frame": {
+                                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                    "type": "string",
+                                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
                                                                                 "set": {
                                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                                     "type": "object",
@@ -5716,6 +5821,11 @@
                                                                                                 }
                                                                                             }
                                                                                         ]
+                                                                                    },
+                                                                                    "frame": {
+                                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                        "type": "string",
+                                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                                     },
                                                                                     "set": {
                                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -5961,6 +6071,11 @@
                                                                                         }
                                                                                     ]
                                                                                 },
+                                                                                "frame": {
+                                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                    "type": "string",
+                                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
                                                                                 "set": {
                                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                                     "type": "object",
@@ -6129,6 +6244,11 @@
                                                                                                 }
                                                                                             }
                                                                                         ]
+                                                                                    },
+                                                                                    "frame": {
+                                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                        "type": "string",
+                                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                                     },
                                                                                     "set": {
                                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -6374,6 +6494,11 @@
                                                                                         }
                                                                                     ]
                                                                                 },
+                                                                                "frame": {
+                                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                    "type": "string",
+                                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
                                                                                 "set": {
                                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                                     "type": "object",
@@ -6542,6 +6667,11 @@
                                                                                                 }
                                                                                             }
                                                                                         ]
+                                                                                    },
+                                                                                    "frame": {
+                                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                        "type": "string",
+                                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                                     },
                                                                                     "set": {
                                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -6822,6 +6952,11 @@
                                                             }
                                                         ]
                                                     },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                         "type": "object",
@@ -6990,6 +7125,11 @@
                                                                     }
                                                                 }
                                                             ]
+                                                        },
+                                                        "frame": {
+                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
                                                         },
                                                         "set": {
                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -7202,6 +7342,11 @@
                                                                 }
                                                             ]
                                                         },
+                                                        "frame": {
+                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
                                                         "set": {
                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                             "type": "object",
@@ -7370,6 +7515,11 @@
                                                                         }
                                                                     }
                                                                 ]
+                                                            },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -8167,6 +8317,11 @@
                                                                         }
                                                                     ]
                                                                 },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                     "type": "object",
@@ -8335,6 +8490,11 @@
                                                                                 }
                                                                             }
                                                                         ]
+                                                                    },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -9180,6 +9340,11 @@
                                                                         }
                                                                     ]
                                                                 },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                     "type": "object",
@@ -9348,6 +9513,11 @@
                                                                                 }
                                                                             }
                                                                         ]
+                                                                    },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -9627,6 +9797,11 @@
                                                                         }
                                                                     ]
                                                                 },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                     "type": "object",
@@ -9795,6 +9970,11 @@
                                                                                 }
                                                                             }
                                                                         ]
+                                                                    },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -10096,6 +10276,11 @@
                                                             }
                                                         ]
                                                     },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                         "type": "object",
@@ -10264,6 +10449,11 @@
                                                                     }
                                                                 }
                                                             ]
+                                                        },
+                                                        "frame": {
+                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
                                                         },
                                                         "set": {
                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -10453,6 +10643,11 @@
                                                             }
                                                         ]
                                                     },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                         "type": "object",
@@ -10621,6 +10816,11 @@
                                                                     }
                                                                 }
                                                             ]
+                                                        },
+                                                        "frame": {
+                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
                                                         },
                                                         "set": {
                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -11157,6 +11357,11 @@
                                                     }
                                                 ]
                                             },
+                                            "frame": {
+                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                            },
                                             "set": {
                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                 "type": "object",
@@ -11325,6 +11530,11 @@
                                                             }
                                                         }
                                                     ]
+                                                },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -11715,6 +11925,11 @@
                                                         }
                                                     ]
                                                 },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                     "type": "object",
@@ -11883,6 +12098,11 @@
                                                                 }
                                                             }
                                                         ]
+                                                    },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -12056,6 +12276,11 @@
                                                         }
                                                     ]
                                                 },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                     "type": "object",
@@ -12224,6 +12449,11 @@
                                                                 }
                                                             }
                                                         ]
+                                                    },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -12663,6 +12893,11 @@
                                                                     }
                                                                 ]
                                                             },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                 "type": "object",
@@ -12831,6 +13066,11 @@
                                                                             }
                                                                         }
                                                                     ]
+                                                                },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -13013,6 +13253,11 @@
                                                         }
                                                     ]
                                                 },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                     "type": "object",
@@ -13181,6 +13426,11 @@
                                                                 }
                                                             }
                                                         ]
+                                                    },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -13666,6 +13916,11 @@
                                                                 }
                                                             ]
                                                         },
+                                                        "frame": {
+                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
                                                         "set": {
                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                             "type": "object",
@@ -13834,6 +14089,11 @@
                                                                         }
                                                                     }
                                                                 ]
+                                                            },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -14015,6 +14275,11 @@
                                                                         }
                                                                     ]
                                                                 },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                     "type": "object",
@@ -14183,6 +14448,11 @@
                                                                                 }
                                                                             }
                                                                         ]
+                                                                    },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -14398,6 +14668,11 @@
                                                                 }
                                                             ]
                                                         },
+                                                        "frame": {
+                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
                                                         "set": {
                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                             "type": "object",
@@ -14566,6 +14841,11 @@
                                                                         }
                                                                     }
                                                                 ]
+                                                            },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -14915,6 +15195,11 @@
                                                                     }
                                                                 ]
                                                             },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                 "type": "object",
@@ -15083,6 +15368,11 @@
                                                                             }
                                                                         }
                                                                     ]
+                                                                },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -15265,6 +15555,11 @@
                                                         }
                                                     ]
                                                 },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                     "type": "object",
@@ -15433,6 +15728,11 @@
                                                                 }
                                                             }
                                                         ]
+                                                    },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -15980,6 +16280,11 @@
                                                                     }
                                                                 ]
                                                             },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                 "type": "object",
@@ -16148,6 +16453,11 @@
                                                                             }
                                                                         }
                                                                     ]
+                                                                },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -16321,6 +16631,11 @@
                                                                     }
                                                                 ]
                                                             },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                 "type": "object",
@@ -16489,6 +16804,11 @@
                                                                             }
                                                                         }
                                                                     ]
+                                                                },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -16849,6 +17169,11 @@
                                                                     }
                                                                 ]
                                                             },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                 "type": "object",
@@ -17017,6 +17342,11 @@
                                                                             }
                                                                         }
                                                                     ]
+                                                                },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -17198,6 +17528,11 @@
                                                         }
                                                     ]
                                                 },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                     "type": "object",
@@ -17366,6 +17701,11 @@
                                                                 }
                                                             }
                                                         ]
+                                                    },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -17677,6 +18017,11 @@
                                                         }
                                                     ]
                                                 },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                     "type": "object",
@@ -17845,6 +18190,11 @@
                                                                 }
                                                             }
                                                         ]
+                                                    },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -18670,6 +19020,11 @@
                                                         }
                                                     ]
                                                 },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                     "type": "object",
@@ -18838,6 +19193,11 @@
                                                                 }
                                                             }
                                                         ]
+                                                    },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -19150,6 +19510,11 @@
                                                                     }
                                                                 ]
                                                             },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                 "type": "object",
@@ -19318,6 +19683,11 @@
                                                                             }
                                                                         }
                                                                     ]
+                                                                },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -19491,6 +19861,11 @@
                                                                     }
                                                                 ]
                                                             },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                 "type": "object",
@@ -19659,6 +20034,11 @@
                                                                             }
                                                                         }
                                                                     ]
+                                                                },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -20933,6 +21313,11 @@
                                                                 }
                                                             ]
                                                         },
+                                                        "frame": {
+                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
                                                         "set": {
                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                             "type": "object",
@@ -21101,6 +21486,11 @@
                                                                         }
                                                                     }
                                                                 ]
+                                                            },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -21282,6 +21672,11 @@
                                                                         }
                                                                     ]
                                                                 },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                     "type": "object",
@@ -21450,6 +21845,11 @@
                                                                                 }
                                                                             }
                                                                         ]
+                                                                    },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -21659,6 +22059,11 @@
                                                                 }
                                                             ]
                                                         },
+                                                        "frame": {
+                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
                                                         "set": {
                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                             "type": "object",
@@ -21827,6 +22232,11 @@
                                                                         }
                                                                     }
                                                                 ]
+                                                            },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -22277,6 +22687,11 @@
                                                                 }
                                                             ]
                                                         },
+                                                        "frame": {
+                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
                                                         "set": {
                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                             "type": "object",
@@ -22445,6 +22860,11 @@
                                                                         }
                                                                     }
                                                                 ]
+                                                            },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -22764,6 +23184,11 @@
                                                                     }
                                                                 ]
                                                             },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                 "type": "object",
@@ -22932,6 +23357,11 @@
                                                                             }
                                                                         }
                                                                     ]
+                                                                },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -23114,6 +23544,11 @@
                                                         }
                                                     ]
                                                 },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                     "type": "object",
@@ -23282,6 +23717,11 @@
                                                                 }
                                                             }
                                                         ]
+                                                    },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -23491,6 +23931,11 @@
                                                         }
                                                     ]
                                                 },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                     "type": "object",
@@ -23659,6 +24104,11 @@
                                                                 }
                                                             }
                                                         ]
+                                                    },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -24002,6 +24452,11 @@
                                                                 }
                                                             ]
                                                         },
+                                                        "frame": {
+                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
                                                         "set": {
                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                             "type": "object",
@@ -24170,6 +24625,11 @@
                                                                         }
                                                                     }
                                                                 ]
+                                                            },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -24351,6 +24811,11 @@
                                                                         }
                                                                     ]
                                                                 },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                     "type": "object",
@@ -24519,6 +24984,11 @@
                                                                                 }
                                                                             }
                                                                         ]
+                                                                    },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -24704,6 +25174,11 @@
                                                                 }
                                                             ]
                                                         },
+                                                        "frame": {
+                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
                                                         "set": {
                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                             "type": "object",
@@ -24872,6 +25347,11 @@
                                                                         }
                                                                     }
                                                                 ]
+                                                            },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -25053,6 +25533,11 @@
                                                                         }
                                                                     ]
                                                                 },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                     "type": "object",
@@ -25221,6 +25706,11 @@
                                                                                 }
                                                                             }
                                                                         ]
+                                                                    },
+                                                                    "frame": {
+                                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
                                                                     "set": {
                                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -25559,6 +26049,11 @@
                                                                     }
                                                                 ]
                                                             },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                 "type": "object",
@@ -25727,6 +26222,11 @@
                                                                             }
                                                                         }
                                                                     ]
+                                                                },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -25930,6 +26430,11 @@
                                                         }
                                                     ]
                                                 },
+                                                "frame": {
+                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
                                                 "set": {
                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                     "type": "object",
@@ -26098,6 +26603,11 @@
                                                                 }
                                                             }
                                                         ]
+                                                    },
+                                                    "frame": {
+                                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
                                                     "set": {
                                                         "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -26812,6 +27322,11 @@
                                                                                 }
                                                                             ]
                                                                         },
+                                                                        "frame": {
+                                                                            "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
                                                                         "set": {
                                                                             "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                             "type": "object",
@@ -26980,6 +27495,11 @@
                                                                                         }
                                                                                     }
                                                                                 ]
+                                                                            },
+                                                                            "frame": {
+                                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                                "type": "string",
+                                                                                "pattern": "^[A-Za-z0-9_-]+$"
                                                                             },
                                                                             "set": {
                                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -27170,6 +27690,11 @@
                                                                     }
                                                                 ]
                                                             },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                 "type": "object",
@@ -27338,6 +27863,11 @@
                                                                             }
                                                                         }
                                                                     ]
+                                                                },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -27744,6 +28274,11 @@
                                                                     }
                                                                 ]
                                                             },
+                                                            "frame": {
+                                                                "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
                                                             "set": {
                                                                 "description": "Variables to change first, e.g. { \"keycard\": true }",
                                                                 "type": "object",
@@ -27912,6 +28447,11 @@
                                                                             }
                                                                         }
                                                                     ]
+                                                                },
+                                                                "frame": {
+                                                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
                                                                 "set": {
                                                                     "description": "Variables to change first, e.g. { \"keycard\": true }",
@@ -28360,6 +28900,16 @@
                                                 "description": "Set into the top of its border, e.g. \"SYSTEM LOG\"",
                                                 "type": "string"
                                             },
+                                            "name": {
+                                                "description": "Its name, for links to show a screen in it: { \"frame\": \"detail\", \"screen\": \"crew-ripley\" }",
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                            },
+                                            "screen": {
+                                                "description": "A screen whose content it shows to begin with, in place of its own content",
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                            },
                                             "rows": {
                                                 "default": 10,
                                                 "description": "How many lines tall it is; more scroll (default: 10)",
@@ -28384,7 +28934,7 @@
                                                 "type": "boolean"
                                             },
                                             "content": {
-                                                "description": "Its elements, revealed in order, like a screen's",
+                                                "description": "Its elements, revealed in order, like a screen's (or see screen)",
                                                 "type": "array",
                                                 "items": {
                                                     "$ref": "#/$defs/Content"
@@ -28473,9 +29023,6 @@
                                                 "$ref": "#/$defs/Condition"
                                             }
                                         },
-                                        "required": [
-                                            "content"
-                                        ],
                                         "additionalProperties": false,
                                         "description": "A frame: a panel of its own, which scrolls by itself"
                                     },
