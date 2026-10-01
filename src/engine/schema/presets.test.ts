@@ -344,3 +344,49 @@ describe("the countdown preset", () => {
         ]);
     });
 });
+
+describe("the transmission preset", () => {
+    it("locks on, types the message slowly through static, and signs off", () => {
+        const result = parseProgram(
+            screenFile({
+                type: "transmission",
+                from: "FROM: NOSTROMO",
+                text: ["THIS IS RIPLEY.", "SIGNING OFF."],
+                pause: true,
+                next: "home",
+            }),
+        );
+        if (!result.ok) throw new Error(JSON.stringify(result.errors));
+        const screen = result.program.screens.get("preset");
+        expect(screen?.content).toMatchObject([
+            { type: "text", text: "INCOMING TRANSMISSION" },
+            { type: "spinner", label: "ACQUIRING SIGNAL ", done: "LOCKED" },
+            { type: "text", text: "FROM: NOSTROMO" },
+            { type: "text", text: "" },
+            {
+                type: "text",
+                text: "THIS IS RIPLEY.\nSIGNING OFF.",
+                reveal: { type: "teletype", speed: 40 },
+            },
+            { type: "text", text: "" },
+            { type: "text", text: "-- END OF TRANSMISSION --" },
+            { type: "text", text: "" },
+            { type: "pause", text: "PRESS ANY KEY TO CONTINUE" },
+        ]);
+        expect(screen?.next).toEqual([{ after: 0, action: [{ screen: "home" }] }]);
+        expect(screen?.effects).toMatchObject({ static: { opacity: 0.12 }, flicker: true });
+    });
+
+    it("can be quiet, and keep the screen's own effects", () => {
+        const quiet = parseProgram(
+            screenFile({ type: "transmission", text: "HI", noise: false, acquire: false }),
+        );
+        if (!quiet.ok) throw new Error(JSON.stringify(quiet.errors));
+        expect(quiet.program.screens.get("preset")?.effects).toBeUndefined();
+        const own = parseProgram(
+            screenFile({ type: "transmission", text: "HI" }, { effects: { vignette: true } }),
+        );
+        if (!own.ok) throw new Error(JSON.stringify(own.errors));
+        expect(own.program.screens.get("preset")?.effects).toEqual({ vignette: true });
+    });
+});

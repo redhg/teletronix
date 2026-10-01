@@ -8,6 +8,7 @@ import { HighlightSchema } from "../../modules/hexdump/definition.ts";
 import { AccountSchema } from "../../modules/login/definition.ts";
 import type { BarLine } from "./bars.ts";
 import { ActionSchema, IdSchema } from "./common.ts";
+import { EffectsSchema, type EffectsSetting } from "./effects.ts";
 import { ContentSchema } from "./elements.ts";
 import type { NextRule } from "./next.ts";
 import { VariableNameSchema } from "./variables.ts";
@@ -534,6 +535,72 @@ export const CountdownPresetSchema = z
             "optional abort code. At zero, it goes to next; the right code goes to aborted.",
     });
 
+export const TRANSMISSION_DEFAULTS = {
+    title: "INCOMING TRANSMISSION",
+    acquire: "ACQUIRING SIGNAL ",
+    locked: "LOCKED",
+    signoff: "-- END OF TRANSMISSION --",
+    speed: 40,
+    pause: "PRESS ANY KEY TO CONTINUE",
+};
+
+/** A pause at the end of a preset, and how it goes on: as boot and transmission do. */
+const PauseSettingSchema = z
+    .union([z.boolean(), z.string().min(1)])
+    .default(false)
+    .meta({
+        description:
+            "Wait for a key press (or a tap) at the end, with a line of text: true for " +
+            `"${TRANSMISSION_DEFAULTS.pause}", or the text to show (default: false)`,
+    });
+
+export const TransmissionPresetSchema = z
+    .strictObject({
+        type: z.literal("transmission"),
+        title: Line("The first line", TRANSMISSION_DEFAULTS.title),
+        acquire: Line(
+            "A spinner while the signal locks on, with this label",
+            TRANSMISSION_DEFAULTS.acquire,
+        ),
+        locked: z
+            .string()
+            .default(TRANSMISSION_DEFAULTS.locked)
+            .meta({
+                description: `Shown once the signal locks on (default: "${TRANSMISSION_DEFAULTS.locked}")`,
+            }),
+        from: z.string().optional().meta({
+            description: 'A line saying where it\'s from, e.g. "FROM: USCSS NOSTROMO"',
+        }),
+        text: z
+            .union([z.string().min(1), z.array(z.string()).min(1)])
+            .meta({ description: "The message: a string, or a list of lines" }),
+        speed: z
+            .number()
+            .positive()
+            .default(TRANSMISSION_DEFAULTS.speed)
+            .meta({
+                description: `Milliseconds per character as it types in (default: ${TRANSMISSION_DEFAULTS.speed})`,
+            }),
+        signoff: Line("The last line", TRANSMISSION_DEFAULTS.signoff),
+        noise: z.boolean().default(true).meta({
+            description:
+                "Static and flicker over the screen, unless it sets its own effects (default: true)",
+        }),
+        pause: PauseSettingSchema,
+        next: IdSchema.optional().meta({
+            description: "The screen to go to once it has finished (default: stay)",
+        }),
+        after: z.number().min(0).optional().meta({
+            description:
+                "Milliseconds to wait before going to `next` (default: 2000, or 0 after a pause)",
+        }),
+    })
+    .meta({
+        description:
+            "A message coming in: a signal locking on, the message typing in slowly through " +
+            "static, and a sign-off, then on to the next screen",
+    });
+
 export const PresetSchema = z
     .discriminatedUnion("type", [
         BootPresetSchema,
@@ -544,6 +611,7 @@ export const PresetSchema = z
         LoginPresetSchema,
         DecryptPresetSchema,
         CountdownPresetSchema,
+        TransmissionPresetSchema,
     ])
     .meta({ description: "A ready-made screen, with a few settings of its own" });
 
@@ -559,6 +627,8 @@ export interface Expanded {
     header?: BarLine[];
     /** A status bar for the screen (or false for none), unless it has its own. */
     footer?: BarLine[] | false;
+    /** Effects for the screen, unless it has its own. */
+    effects?: EffectsSetting;
 }
 
 /** Lines with a blank line between each group, leaving out empty groups. */
@@ -767,6 +837,52 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                     ...abort,
                 ],
                 after: [],
+            };
+        }
+        case "transmission": {
+            const acquire =
+                preset.acquire === false
+                    ? []
+                    : [
+                          {
+                              type: "spinner",
+                              label: preset.acquire,
+                              style: "dots",
+                              duration: 2000,
+                              done: preset.locked,
+                          },
+                      ];
+            const pause =
+                preset.pause === false
+                    ? []
+                    : [
+                          "",
+                          {
+                              type: "pause",
+                              text:
+                                  preset.pause === true
+                                      ? TRANSMISSION_DEFAULTS.pause
+                                      : preset.pause,
+                          },
+                      ];
+            const wait = preset.after ?? (preset.pause !== false ? 0 : 2000);
+            return {
+                before: spaced(
+                    [...line(preset.title), ...acquire, ...(preset.from ? [preset.from] : [])],
+                    [
+                        {
+                            type: "text",
+                            text: preset.text,
+                            reveal: { type: "teletype", speed: preset.speed },
+                        },
+                    ],
+                    line(preset.signoff),
+                ),
+                after: pause,
+                next: preset.next === undefined ? undefined : goTo(preset.next, wait),
+                ...(preset.noise
+                    ? { effects: EffectsSchema.parse({ static: { opacity: 0.12 }, flicker: true }) }
+                    : {}),
             };
         }
         case "hexeditor": {

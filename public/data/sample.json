@@ -887,6 +887,8 @@
                 "  One that sweeps from start to end in hex, and fails partway.",
                 { "type": "link", "text": "> COUNTDOWN", "action": { "screen": "countdown" } },
                 "  A self-destruct sequence. Abort it with code 1138, or let it run out...",
+                { "type": "link", "text": "> TRANSMISSION", "action": { "screen": "transmission" } },
+                "  A message coming in through the static.",
                 { "type": "link", "text": "> HEX EDITOR", "action": { "screen": "hexeditor" } },
                 "  A recovered file that scrolls until something turns up. Take over with the arrow keys; <esc> leaves.",
                 "",
@@ -1154,6 +1156,22 @@
                 "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
             ]
+        },
+        "transmission": {
+            "preset": {
+                "type": "transmission",
+                "from": "SOURCE: NARCISSUS, SHUTTLE OF USCSS NOSTROMO",
+                "text": [
+                    "FINAL REPORT OF THE COMMERCIAL STARSHIP NOSTROMO,",
+                    "THIRD OFFICER REPORTING.",
+                    "THE OTHER MEMBERS OF THE CREW... ARE DEAD.",
+                    "CARGO AND SHIP DESTROYED.",
+                    "I SHOULD REACH THE FRONTIER IN ABOUT SIX WEEKS.",
+                    "THIS IS RIPLEY, LAST SURVIVOR OF THE NOSTROMO, SIGNING OFF."
+                ],
+                "pause": true,
+                "next": "presets"
+            }
         },
         "toggles": {
             "content": [

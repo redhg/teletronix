@@ -5315,6 +5315,119 @@
                                 ],
                                 "additionalProperties": false,
                                 "description": "A self-destruct countdown: a blinking warning, the time in big digits, and an optional abort code. At zero, it goes to next; the right code goes to aborted."
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "const": "transmission"
+                                    },
+                                    "title": {
+                                        "default": "INCOMING TRANSMISSION",
+                                        "description": "The first line, or false for none (default: \"INCOMING TRANSMISSION\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "acquire": {
+                                        "default": "ACQUIRING SIGNAL ",
+                                        "description": "A spinner while the signal locks on, with this label, or false for none (default: \"ACQUIRING SIGNAL \")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "locked": {
+                                        "default": "LOCKED",
+                                        "description": "Shown once the signal locks on (default: \"LOCKED\")",
+                                        "type": "string"
+                                    },
+                                    "from": {
+                                        "description": "A line saying where it's from, e.g. \"FROM: USCSS NOSTROMO\"",
+                                        "type": "string"
+                                    },
+                                    "text": {
+                                        "anyOf": [
+                                            {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            {
+                                                "minItems": 1,
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        ],
+                                        "description": "The message: a string, or a list of lines"
+                                    },
+                                    "speed": {
+                                        "default": 40,
+                                        "description": "Milliseconds per character as it types in (default: 40)",
+                                        "type": "number",
+                                        "exclusiveMinimum": 0
+                                    },
+                                    "signoff": {
+                                        "default": "-- END OF TRANSMISSION --",
+                                        "description": "The last line, or false for none (default: \"-- END OF TRANSMISSION --\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "noise": {
+                                        "default": true,
+                                        "description": "Static and flicker over the screen, unless it sets its own effects (default: true)",
+                                        "type": "boolean"
+                                    },
+                                    "pause": {
+                                        "default": false,
+                                        "description": "Wait for a key press (or a tap) at the end, with a line of text: true for \"PRESS ANY KEY TO CONTINUE\", or the text to show (default: false)",
+                                        "anyOf": [
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "string",
+                                                "minLength": 1
+                                            }
+                                        ]
+                                    },
+                                    "next": {
+                                        "description": "The screen to go to once it has finished (default: stay)",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                    },
+                                    "after": {
+                                        "description": "Milliseconds to wait before going to `next` (default: 2000, or 0 after a pause)",
+                                        "type": "number",
+                                        "minimum": 0
+                                    }
+                                },
+                                "required": [
+                                    "type",
+                                    "text"
+                                ],
+                                "additionalProperties": false,
+                                "description": "A message coming in: a signal locking on, the message typing in slowly through static, and a sign-off, then on to the next screen"
                             }
                         ]
                     },

@@ -7,7 +7,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
-- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown)
+- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
 - **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
@@ -145,6 +145,7 @@ One of:
 - [Login](#login)
 - [Decrypt](#decrypt)
 - [Countdown](#countdown)
+- [Transmission](#transmission)
 
 <a id="boot"></a>
 
@@ -306,6 +307,26 @@ A self-destruct countdown: a blinking warning, the time in big digits, and an op
 | `aborted` | id | the program's start screen | With code, the screen to go to once it's aborted |
 | `prompt` | string | `"ABORT CODE: "` | With code, the prompt |
 | `wrong` | string | `"INVALID CODE."` | With code, shown after a wrong one |
+
+<a id="transmission"></a>
+
+### Transmission (`"type": "transmission"`)
+
+A message coming in: a signal locking on, the message typing in slowly through static, and a sign-off, then on to the next screen
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `title` | string \| `false` | `"INCOMING TRANSMISSION"` | The first line, or false for none |
+| `acquire` | string \| `false` | `"ACQUIRING SIGNAL "` | A spinner while the signal locks on, with this label, or false for none |
+| `locked` | string | `"LOCKED"` | Shown once the signal locks on |
+| `from` | string |  | A line saying where it's from, e.g. "FROM: USCSS NOSTROMO" |
+| `text` | string \| string[] | **required** | The message: a string, or a list of lines |
+| `speed` | number, > 0 | `40` | Milliseconds per character as it types in |
+| `signoff` | string \| `false` | `"-- END OF TRANSMISSION --"` | The last line, or false for none |
+| `noise` | boolean | `true` | Static and flicker over the screen, unless it sets its own effects |
+| `pause` | boolean \| string | `false` | Wait for a key press (or a tap) at the end, with a line of text: true for "PRESS ANY KEY TO CONTINUE", or the text to show |
+| `next` | id | stay | The screen to go to once it has finished |
+| `after` | number, ≥ 0 | 2000, or 0 after a pause | Milliseconds to wait before going to `next` |
 
 ## Bars
 

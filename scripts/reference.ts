@@ -51,6 +51,7 @@ import {
     MemorySchema,
     PresetSchema,
     ShutdownPresetSchema,
+    TransmissionPresetSchema,
 } from "../src/engine/schema/presets.ts";
 import {
     ConfigSchema,
@@ -181,6 +182,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Login", LoginPresetSchema, '"type": "login"'],
             ["Decrypt", DecryptPresetSchema, '"type": "decrypt"'],
             ["Countdown", CountdownPresetSchema, '"type": "countdown"'],
+            ["Transmission", TransmissionPresetSchema, '"type": "transmission"'],
         ],
     ],
     [
