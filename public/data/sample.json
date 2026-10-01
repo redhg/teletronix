@@ -254,8 +254,6 @@
                     ]
                 ] },
                 "",
-                { "type": "pause", "button": true },
-                "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
