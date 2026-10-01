@@ -83,6 +83,16 @@ test.describe("the player", () => {
         expect((await styles(page)).fontSize).toBe(40);
     });
 
+    test.describe("on a phone", () => {
+        test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 });
+
+        test("keeps text readable, crisp in the screen's own pixels", async ({ page, player }) => {
+            // (Departure Mono is 11 pixels tall: 5 screen pixels each, at 3 to a CSS pixel)
+            await player.open(withConfig({}));
+            await expect.poll(async () => (await styles(page)).fontSize).toBeCloseTo(55 / 3, 1);
+        });
+    });
+
     test("spaces lines by lineSpacing", async ({ page, player }) => {
         const spacing = () =>
             page.evaluate(() => {

@@ -16,8 +16,13 @@
     --font-target: 16px;
     /* a program's fontScale: bigger or smaller text, still steps of the font's pixels */
     --font-scale: 0.75;
+    /* Screen pixels per CSS pixel (set from the window). On a sharper screen, a pixel font
+       is crisp at more sizes: whole screen pixels for each of its pixels. */
+    --pixel-ratio: 1;
+    /* text is never smaller than this, so it stays readable on a phone */
+    --font-min: 16px;
     --font-size: max(
-        var(--font-px),
+        round(up, var(--font-min), calc(var(--font-px) / var(--pixel-ratio))),
         round(nearest, calc(var(--font-target) * var(--font-scale)), var(--font-px))
     );
     /* whole pixels, so lines of pixel text don't land between screen pixels */

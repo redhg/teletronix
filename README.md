@@ -939,6 +939,8 @@ installed, the browser's own monospace font stands in; they can be any size.
 `config.fontScale` makes text bigger or smaller, from 0.5 to 2 (default 0.75). It scales the
 usual size, which already adapts to the window, so text stays in proportion on a phone and a
 big monitor. Pixel fonts still snap to whole multiples of their pixels, so they grow in steps.
+Text is never smaller than 16px, so it stays readable on a phone; there, a pixel font snaps to
+the screen's own (smaller) pixels, so it's crisp at more sizes.
 
 `config.lineSpacing` sets how far apart lines are, as a multiple of the text's size, from 1 to 2
 (default 1.25). At 1, lines touch, as on the original machines, so block art (`█▓▒░`) and box

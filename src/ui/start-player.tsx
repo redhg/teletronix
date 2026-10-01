@@ -3,7 +3,7 @@ import type { Root } from "react-dom/client";
 import { Terminal } from "../engine/index.ts";
 import { rememberProgram } from "../last-program.ts";
 import { AnimationFrameTicker } from "./animation-frame-ticker.ts";
-import { applyAppearance, loadFont } from "./appearance.ts";
+import { applyAppearance, followPixelRatio, loadFont } from "./appearance.ts";
 import { ErrorView } from "./ErrorView.tsx";
 import { loadElement } from "./load-element.ts";
 import { loadProgram } from "./load-program.ts";
@@ -30,6 +30,7 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
     if (!params.has("preview")) rememberProgram(location.search);
     document.title = program.config.name;
     applyAppearance(program.palette, program.font, program.fontScale, program.lineSpacing);
+    followPixelRatio();
     // wait briefly for the font, so the first measurement of the line length is right
     await Promise.race([
         loadFont(program.font).catch(() => undefined),

@@ -68,3 +68,20 @@ export function applyAppearance(
     // pixel fonts stay sharp without smoothing; installed (outline) fonts need it
     root.setProperty("--font-smoothing", isSystemFont(font) ? "auto" : "none");
 }
+
+/**
+ * Keeps --pixel-ratio up to date (it changes with zoom, and moving to another screen), so
+ * small text can snap to the screen's own pixels. Returns a function that stops.
+ */
+export function followPixelRatio(): () => void {
+    let query: MediaQueryList | null = null;
+    const update = () => {
+        query?.removeEventListener("change", update);
+        const ratio = window.devicePixelRatio || 1;
+        document.documentElement.style.setProperty("--pixel-ratio", String(ratio));
+        query = matchMedia(`(resolution: ${ratio}dppx)`);
+        query.addEventListener("change", update);
+    };
+    update();
+    return () => query?.removeEventListener("change", update);
+}
