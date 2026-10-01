@@ -25874,6 +25874,142 @@
                             ],
                             "additionalProperties": false,
                             "description": "A horizontal rule: a line across the screen (or a section or column) of any character or pattern, with an optional label set into it. It always fits the width."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "log"
+                                },
+                                "lines": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "description": "The lines that arrive, in order (they can show variables and inline markup, e.g. [alert]WARNING[/])"
+                                },
+                                "interval": {
+                                    "default": 1500,
+                                    "description": "Milliseconds between lines, varied a little each time so it looks alive (default: 1500)",
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                },
+                                "loop": {
+                                    "default": false,
+                                    "description": "Start the lines again once they've all arrived, for good (default: false)",
+                                    "type": "boolean"
+                                },
+                                "order": {
+                                    "default": "sequence",
+                                    "description": "The order lines arrive in: \"sequence\" or \"random\" (default: \"sequence\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "sequence",
+                                        "random"
+                                    ]
+                                },
+                                "time": {
+                                    "description": "A clock time to start from, e.g. \"06:12\" or \"06:12:30\": each line gets the time it arrived, [06:12:03], counting real seconds",
+                                    "type": "string",
+                                    "pattern": "^\\d{1,2}:\\d{2}(:\\d{2})?$"
+                                },
+                                "rows": {
+                                    "description": "Keep only this many of the latest lines, the oldest going as new ones come (default: all of them, or 10 when it loops)",
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "lines"
+                            ],
+                            "additionalProperties": false,
+                            "description": "A live log: lines that keep arriving, one every so often, like a ship's systems reporting in. It runs alongside the rest of the screen."
                         }
                     ]
                 }

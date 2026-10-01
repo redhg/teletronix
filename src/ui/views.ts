@@ -10,6 +10,7 @@ import { CrashView } from "../modules/crash/View.tsx";
 import { DecryptView } from "../modules/decrypt/View.tsx";
 import { HexdumpView } from "../modules/hexdump/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
+import { LogView } from "../modules/log/View.tsx";
 import { LoginView } from "../modules/login/View.tsx";
 import { MenuView } from "../modules/menu/View.tsx";
 import { MeterView } from "../modules/meter/View.tsx";
@@ -61,4 +62,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     decrypt: DecryptView,
     shell: ShellView,
     rule: RuleView,
+    log: LogView,
 };

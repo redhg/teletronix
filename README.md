@@ -73,6 +73,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"visual"` | Line art that moves: an oscilloscope, a chart, a radar or a turning wireframe. See below. |
 | `"decrypt"` | A message that starts scrambled and resolves a few characters at a time, with an optional progress bar. See below. |
 | `"hexdump"` | Bytes as a hex dump: your text, random bytes with text hidden in them, or a file. See below. |
+| `"log"` | A live log: lines that keep arriving, one every so often, with optional timestamps. See below. |
 | `"spinner"` | A spinner that turns for a while, or until a key, holding the screen. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
 | `"meter"` | A gauge: a bar showing a variable or timer, live. See below. |
@@ -278,6 +279,18 @@ the top half of the window. With reduced motion, it stays put. `exit` gives it a
 
 The `hexeditor` [preset](#presets) is a whole screen of one, with a header bar.
 
+### Logs
+```json
+{ "type": "log", "lines": ["HULL SENSOR 4: NOMINAL", "[alert]AIRLOCK 2: PRESSURE DROP[/]"], "time": "06:12", "loop": true, "rows": 6 }
+```
+A log's `lines` arrive one at a time while its screen is up, every `interval` milliseconds
+(default 1500, varied a little each time), in order or with `"order": "random"`. With `time` (a
+clock time like `"06:12"`), each line is stamped `[06:12:03]` with when it arrived. With
+`"loop": true` it starts the lines again once they've all arrived, for good. `rows` keeps only
+the latest lines (by default all of them, or 10 when it loops). Lines can show variables and
+inline markup. It runs alongside the rest of the screen, and screen readers hear new lines.
+
+### Spinners
 ```json
 {
     "type": "spinner",

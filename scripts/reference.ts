@@ -113,6 +113,7 @@ import {
     HighlightSchema,
 } from "../src/modules/hexdump/definition.ts";
 import { LinkSchema } from "../src/modules/link/definition.ts";
+import { LogSchema } from "../src/modules/log/definition.ts";
 import { AccountSchema, LoginSchema } from "../src/modules/login/definition.ts";
 import { MenuItemSchema, MenuSchema } from "../src/modules/menu/definition.ts";
 import { MeterRangeSchema, MeterSchema } from "../src/modules/meter/definition.ts";
@@ -278,6 +279,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Byte range", ByteRangeSchema],
             ["Hex dump exit", HexdumpExitSchema],
             ["Decrypt element", DecryptSchema, '"type": "decrypt"'],
+            ["Log", LogSchema, '"type": "log"'],
             ["Spinner", SpinnerSchema, '"type": "spinner"'],
             ["Spinner interrupt", SpinnerInterruptSchema],
             ["Counter", CounterSchema, '"type": "counter"'],

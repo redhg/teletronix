@@ -38,6 +38,7 @@
                         { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
                         { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
                         { "type": "link", "text": "> LINKS", "action": { "screen": "links" } },
+                        { "type": "link", "text": "> LOG FEED", "action": { "screen": "log" } },
                         { "type": "link", "text": "> MENUS", "action": { "screen": "menus" } },
                         { "type": "link", "text": "> METERS", "action": { "screen": "meters" } },
                         { "type": "link", "text": "> NUMBERS", "action": { "screen": "numbers" } },
@@ -1294,6 +1295,8 @@
                 "",
                 { "type": "slider", "label": "FUEL VALVE ", "variable": "fuel" },
                 "",
+                { "type": "log", "lines": ["HULL SENSOR 4: NOMINAL", "FUEL FLOW {fuel}%", "NAV: COURSE HOLDING", "COMMS: NO SIGNAL", "[alert]AIRLOCK 2: PRESSURE DROP[/]", "LIFE SUPPORT: NOMINAL"], "time": "06:12", "loop": true, "rows": 5, "order": "random", "interval": 2000 },
+                "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
@@ -1402,6 +1405,18 @@
         "door-1": { "content": ["Behind door 1: a storage closet, full of mops.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
         "door-2": { "content": ["Behind door 2: the galley. Someone's left the coffee on.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
         "door-3": { "content": ["Behind door 3: [alert]the airlock[/alert]. Best not.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
+        "log": {
+            "content": [
+                "LOG FEED",
+                { "type": "rule" },
+                "",
+                "A log's lines keep arriving, one every so often, while the screen is up. This one stamps each with the time, from 06:12, and goes on for good, keeping the latest eight.",
+                "",
+                { "type": "log", "lines": ["CREW REVIVED FROM HYPERSLEEP", "MOTHER: COURSE CHANGED", "SIGNAL RECEIVED: ORIGIN LV-426", "[alert]SIGNAL IS A WARNING[/]", "DESCENT TO LV-426 BEGUN", "LANDING: HULL DAMAGE, DECK C", "EXPEDITION LEAVES SHIP", "KANE INJURED: RETURNING", "[alert]QUARANTINE OVERRIDDEN[/]"], "time": "06:12", "loop": true, "rows": 8 },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+            ]
+        },
         "toggles": {
             "content": [
                 "TOGGLES & CHOICES",

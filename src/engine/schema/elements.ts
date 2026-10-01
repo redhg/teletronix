@@ -34,6 +34,7 @@ import {
     hexdumpModule,
 } from "../../modules/hexdump/definition.ts";
 import { type LinkElement, LinkSchema, linkModule } from "../../modules/link/definition.ts";
+import { type LogElement, LogSchema, logModule } from "../../modules/log/definition.ts";
 import { type LoginElement, LoginSchema, loginModule } from "../../modules/login/definition.ts";
 import { type MenuElement, MenuSchema, menuModule } from "../../modules/menu/definition.ts";
 import { type MeterElement, MeterSchema, meterModule } from "../../modules/meter/definition.ts";
@@ -115,6 +116,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     DecryptSchema,
     ShellSchema,
     HorizontalRuleSchema,
+    LogSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -155,7 +157,8 @@ export type Element =
     | LoginElement
     | DecryptElement
     | ShellElement
-    | RuleElement;
+    | RuleElement
+    | LogElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -189,6 +192,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     decrypt: decryptModule,
     shell: shellModule,
     rule: ruleModule,
+    log: logModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {

@@ -1862,3 +1862,33 @@ test.describe("saving progress", () => {
         await expect(player.screen).not.toContainText("NEXT, SCORE");
     });
 });
+
+test.describe("log", () => {
+    test("adds lines as they arrive, stamped, keeping the latest", async ({ player }) => {
+        await player.open({
+            config: { name: "Log", start: "home", reveal: "instant" },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "log",
+                            lines: ["ONE", "[alert]TWO[/]", "THREE"],
+                            interval: 100,
+                            loop: true,
+                            rows: 4,
+                            time: "06:12",
+                        },
+                    ],
+                },
+            },
+        } as Program);
+        const lines = player.screen.locator(".log .log-line");
+        await expect(lines.first()).toHaveText(/^\[06:12:0\d\] ONE$/);
+        await expect(player.screen.locator(".log .alert").first()).toHaveText("TWO");
+        // it keeps going, and keeps only the latest four
+        await expect.poll(() => lines.count()).toBe(4);
+        await expect(lines.first()).not.toHaveText(/ONE$/, { timeout: 3000 });
+        expect(await lines.count()).toBe(4);
+        await expect(player.screen.getByRole("log")).toBeVisible();
+    });
+});
