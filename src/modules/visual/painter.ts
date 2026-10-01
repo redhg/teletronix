@@ -23,6 +23,13 @@ export class VisualPainter {
     private stepped = 0;
     private readonly blips: Blip[];
     private readonly mesh: Mesh | null;
+    /** What a level's variable says, from 0 to 1, or null without one (see setLevel). */
+    private level: number | null = null;
+    /** The level, eased towards, so a waveform grows rather than jumps. */
+    private eased: number | null = null;
+    /** How far a wireframe has turned, and when that was worked out. */
+    private turned = 0;
+    private turnedAt: number | null = null;
 
     constructor(visual: VisualElement, random: () => number = Math.random) {
         this.visual = visual;
@@ -42,8 +49,17 @@ export class VisualPainter {
         return { angle: this.random() * Math.PI * 2, distance: 0.2 + this.random() * 0.75 };
     }
 
+    /** What its level's variable says now, from 0 to 1 (see VisualElement.level). */
+    setLevel(level: number | null): void {
+        this.level = level;
+        if (this.eased === null) this.eased = level;
+    }
+
     /** Draws the visual as it is `time` seconds in (already sped up), in `color`. */
     draw(context: CanvasRenderingContext2D, time: number, color: string, scale: number): void {
+        if (this.level !== null && this.eased !== null) {
+            this.eased += (this.level - this.eased) * 0.08;
+        }
         const { width, height } = context.canvas;
         context.clearRect(0, 0, width, height);
         context.strokeStyle = color;
@@ -111,7 +127,8 @@ export class VisualPainter {
         time: number,
         scale: number,
     ) {
-        const { wave, frequency, amplitude } = this.visual;
+        const { wave, frequency } = this.visual;
+        const amplitude = this.eased ?? this.visual.amplitude;
         this.graticule(context, width, height);
         context.beginPath();
         const step = 2 * scale;
@@ -135,7 +152,9 @@ export class VisualPainter {
         const due = Math.floor(time / CHART_STEP);
         for (; this.stepped < due; this.stepped++) {
             const last = this.values.at(-1) ?? 0.5;
-            this.values.push(nextValue(last, this.visual.volatility, this.random));
+            this.values.push(
+                nextValue(last, this.visual.volatility, this.random, this.level ?? 0.5),
+            );
             this.values.shift();
         }
         const into = time / CHART_STEP - due;
@@ -199,7 +218,10 @@ export class VisualPainter {
         }
 
         // blips flare as the arm passes, then fade; now and then one moves on
-        for (const [index, blip] of this.blips.entries()) {
+        // (with a level, only so many of them)
+        const shown =
+            this.level === null ? this.blips.length : Math.round(this.level * this.blips.length);
+        for (const [index, blip] of this.blips.slice(0, shown).entries()) {
             const since = (((sweep - blip.angle) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
             if (since < 0.05 && this.random() < 0.02) this.blips[index] = this.newBlip();
             // (never quite gone: a faint echo until the arm comes round again)
@@ -224,7 +246,11 @@ export class VisualPainter {
         height: number,
         time: number,
     ) {
-        const yaw = time * 0.6;
+        // (a level changes how fast it turns, from where it's got to)
+        const since = this.turnedAt === null ? 0 : time - this.turnedAt;
+        this.turned += since * 0.6 * (this.eased ?? 1);
+        this.turnedAt = time;
+        const yaw = this.turned;
         const pitch = 0.45 + Math.sin(time * 0.3) * 0.3;
         const turned = shape.points.map((point) => rotate(point, yaw, pitch));
         const flat = turned.map((point) => project(point, width, height));

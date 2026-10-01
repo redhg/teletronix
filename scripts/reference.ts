@@ -149,7 +149,7 @@ import { TableColumnSchema, TableSchema } from "../src/modules/table/definition.
 import { TextSchema } from "../src/modules/text/definition.ts";
 import { TimerElementSchema } from "../src/modules/timer/definition.ts";
 import { ToggleSchema } from "../src/modules/toggle/definition.ts";
-import { VisualSchema } from "../src/modules/visual/definition.ts";
+import { VisualLevelSchema, VisualSchema } from "../src/modules/visual/definition.ts";
 
 interface JsonSchema {
     $ref?: string;
@@ -301,6 +301,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Power off", PowerOffSchema, '"type": "power-off"'],
             ["Crash element", CrashSchema, '"type": "crash"'],
             ["Visual", VisualSchema, '"type": "visual"'],
+            ["Visual level", VisualLevelSchema],
             ["Slider", SliderSchema, '"type": "slider"'],
             ["Slider rule", SliderRuleSchema],
             ["Meter", MeterSchema, '"type": "meter"'],

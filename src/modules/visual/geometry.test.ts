@@ -106,3 +106,16 @@ describe("terrain", () => {
         }
     });
 });
+
+describe("a chart following a level", () => {
+    it("wanders around it", () => {
+        const random = seededRandom(5);
+        let value = 0.5;
+        let sum = 0;
+        for (let i = 0; i < 2000; i++) {
+            value = nextValue(value, 0.3, random, 0.85);
+            if (i >= 1000) sum += value;
+        }
+        expect(sum / 1000).toBeGreaterThan(0.75);
+    });
+});

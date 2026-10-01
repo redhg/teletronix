@@ -20157,6 +20157,31 @@
                                         "terrain"
                                     ]
                                 },
+                                "level": {
+                                    "description": "A number variable it follows as it changes: a waveform's height, the level a chart wanders around, how many blips a radar shows, or how fast a wireframe turns",
+                                    "type": "object",
+                                    "properties": {
+                                        "variable": {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                            "description": "The number variable it follows"
+                                        },
+                                        "min": {
+                                            "default": 0,
+                                            "description": "Its lowest value (default: 0)",
+                                            "type": "number"
+                                        },
+                                        "max": {
+                                            "default": 100,
+                                            "description": "Its highest value (default: 100)",
+                                            "type": "number"
+                                        }
+                                    },
+                                    "required": [
+                                        "variable"
+                                    ],
+                                    "additionalProperties": false
+                                },
                                 "className": {
                                     "description": "Space-separated CSS classes, e.g. \"alert\"",
                                     "type": "string"

@@ -2008,3 +2008,54 @@ test.describe("map", () => {
         await expect(status).toHaveText("A1 0,0 ");
     });
 });
+
+test.describe("visual following a variable", () => {
+    test.use({ reducedMotion: "no-preference" });
+
+    test("a waveform grows as its variable does", async ({ player }) => {
+        await player.open({
+            config: { name: "Level", start: "home", reveal: "instant", variables: { power: 0 } },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "visual",
+                            kind: "waveform",
+                            rows: 6,
+                            grid: false,
+                            level: { variable: "power" },
+                        },
+                        { type: "link", text: "> FULL POWER", action: { set: { power: 100 } } },
+                    ],
+                },
+            },
+        } as Program);
+        // how tall the drawing is: the rows with anything lit
+        const extent = () =>
+            player.screen.locator(".visual canvas").evaluate((canvas: HTMLCanvasElement) => {
+                const context = canvas.getContext("2d");
+                const data = context?.getImageData(0, 0, canvas.width, canvas.height).data ?? [];
+                let top = canvas.height;
+                let bottom = 0;
+                for (let y = 0; y < canvas.height; y++) {
+                    for (let x = 0; x < canvas.width; x += 4) {
+                        if ((data[(y * canvas.width + x) * 4 + 3] ?? 0) > 128) {
+                            top = Math.min(top, y);
+                            bottom = Math.max(bottom, y);
+                        }
+                    }
+                }
+                return { span: bottom - top, height: canvas.height };
+            });
+        await expect.poll(async () => (await extent()).span).toBeGreaterThan(0);
+        const flat = await extent();
+        expect(flat.span).toBeLessThan(flat.height * 0.2);
+        await player.screen.getByRole("button", { name: "> FULL POWER" }).click();
+        await expect
+            .poll(async () => {
+                const tall = await extent();
+                return tall.span / tall.height;
+            })
+            .toBeGreaterThan(0.6);
+    });
+});

@@ -1278,7 +1278,7 @@
         "dashboard": {
             "header": [{ "left": "SHIP SYSTEMS // NOSTROMO", "right": "FUEL [alert]{fuel}%[/]   HULL {hull}%" }],
             "content": [
-                "A dashboard, made of ordinary elements: meters showing variables, and visuals, laid out in columns. Move the fuel valve and watch it all follow.",
+                "A dashboard, made of ordinary elements: meters showing variables, and visuals, laid out in columns. Move the fuel valve and watch it all follow, the waveform too.",
                 "",
                 {
                     "type": "columns",
@@ -1289,7 +1289,7 @@
                         { "type": "meter", "label": "FUEL ", "variable": "fuel", "unit": "%", "on": [{ "atMost": 20, "className": "alert" }] },
                         { "type": "meter", "label": "HULL ", "variable": "hull", "unit": "%", "on": [{ "atMost": 30, "className": "alert" }] },
                         { "type": "visual", "kind": "radar", "rows": 8, "blips": 4 },
-                        { "type": "visual", "kind": "waveform", "rows": 8, "wave": ["sine", "noise"] },
+                        { "type": "visual", "kind": "waveform", "rows": 8, "wave": ["sine", "noise"], "level": { "variable": "fuel" } },
                         { "type": "visual", "kind": "chart", "rows": 5 },
                         { "type": "visual", "kind": "chart", "rows": 5, "style": "bars", "volatility": 0.6 }
                     ]

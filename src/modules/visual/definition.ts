@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { ElementIdentity, ModuleDefinition } from "../../engine/module.ts";
 import { createTimedReveal } from "../../engine/reveal/index.ts";
 import { ElementBaseShape } from "../../engine/schema/common.ts";
+import { type Condition, VariableNameSchema } from "../../engine/schema/variables.ts";
 
 export const VISUAL_KINDS = ["waveform", "chart", "radar", "wireframe"] as const;
 export const WAVES = ["sine", "square", "saw", "triangle", "noise"] as const;
@@ -16,6 +17,14 @@ const DEFAULT_ALT: Record<(typeof VISUAL_KINDS)[number], string> = {
     radar: "A radar sweep",
     wireframe: "A wireframe shape, turning",
 };
+
+export const VisualLevelSchema = z
+    .strictObject({
+        variable: VariableNameSchema.meta({ description: "The number variable it follows" }),
+        min: z.number().default(0).meta({ description: "Its lowest value (default: 0)" }),
+        max: z.number().default(100).meta({ description: "Its highest value (default: 100)" }),
+    })
+    .meta({ description: "A number variable a visual follows, and its range" });
 
 export const VisualSchema = z
     .strictObject({
@@ -78,6 +87,11 @@ export const VisualSchema = z
                     'A wireframe\'s shape: "cube", "pyramid", "octahedron", "icosahedron", "torus", or ' +
                     '"terrain" (a landscape flying past) (default: "cube")',
             }),
+        level: VisualLevelSchema.optional().meta({
+            description:
+                "A number variable it follows as it changes: a waveform's height, the level a " +
+                "chart wanders around, how many blips a radar shows, or how fast a wireframe turns",
+        }),
         ...ElementBaseShape,
     })
     .meta({
@@ -90,7 +104,17 @@ export type VisualElement = z.output<typeof VisualSchema> & ElementIdentity;
 
 export const visualAlt = (visual: VisualElement) => visual.alt ?? DEFAULT_ALT[visual.kind];
 
+/** Where a level's variable is between its min and max, from 0 to 1. */
+export function levelOf(visual: VisualElement, value: unknown): number | null {
+    if (!visual.level || typeof value !== "number") return null;
+    const { min, max } = visual.level;
+    return max === min ? 0 : Math.min(1, Math.max(0, (value - min) / (max - min)));
+}
+
 export const visualModule: ModuleDefinition<VisualElement> = {
+    // (a level's variable: checked like a test of it, so it must be a number)
+    conditions: (visual): Condition[] =>
+        visual.level ? [{ variable: visual.level.variable, atLeast: 0 }] : [],
     text: () => "",
     reveal: (_visual, _spec, context) => createTimedReveal(context.instant ? 0 : WARM_UP),
 };

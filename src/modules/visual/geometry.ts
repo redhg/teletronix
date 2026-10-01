@@ -47,8 +47,14 @@ export function mixAt(waves: readonly Wave[], phase: number, noise: readonly num
  * A chart's next value, in (0, 1): a random walk that drifts back to the middle, with a
  * spike now and then.
  */
-export function nextValue(value: number, volatility: number, random: () => number): number {
-    let next = value + (random() - 0.5) * volatility * 0.4 + (0.5 - value) * 0.05;
+export function nextValue(
+    value: number,
+    volatility: number,
+    random: () => number,
+    /** Where it drifts back to (default: the middle). */
+    around = 0.5,
+): number {
+    let next = value + (random() - 0.5) * volatility * 0.4 + (around - value) * 0.05;
     if (random() < 0.03 * volatility) next += (random() < 0.5 ? -1 : 1) * 0.35;
     return Math.min(0.97, Math.max(0.03, next));
 }

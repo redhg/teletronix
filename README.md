@@ -227,6 +227,10 @@ It's `cols` characters wide (default: the screen's width) and `rows` lines tall 
 | `"radar"` | A sweep, with `blips` that flare as it passes. |
 | `"wireframe"` | A turning `shape`: `"cube"`, `"pyramid"`, `"octahedron"`, `"icosahedron"` or `"torus"`, or `"terrain"`, a landscape flying past. |
 
+`"level": { "variable": "fuel", "min": 0, "max": 100 }` makes a visual follow a number variable
+as it changes: a waveform's height, the level a chart wanders around, how many blips a radar
+shows, or how fast a wireframe turns. A slider can tune an oscilloscope.
+
 Waveforms and charts have a faint grid, unless `"grid": false`. Visuals only move while they're in
 view, and with reduced motion they're still pictures. Put a few side by side with
 [`"columns"`](#columns).
