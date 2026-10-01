@@ -6,7 +6,13 @@ import ibmEga from "../assets/fonts/WebPlus_IBM_EGA_8x14.woff";
 import ibmMda from "../assets/fonts/WebPlus_IBM_MDA.woff";
 import ibmVga from "../assets/fonts/WebPlus_IBM_VGA_9x16.woff";
 import toshibaSatellite from "../assets/fonts/WebPlus_ToshibaSat_8x16.woff";
-import { FONTS, type FontId, isSystemFont, type Palette } from "../engine/index.ts";
+import {
+    DEFAULT_FONT_SCALE,
+    FONTS,
+    type FontId,
+    isSystemFont,
+    type Palette,
+} from "../engine/index.ts";
 
 // Fonts from The Ultimate Oldschool PC Font Pack by VileR (https://int10h.org/oldschool-pc-fonts/,
 // CC BY-SA 4.0) and Departure Mono by Helena Zhang (SIL OFL 1.1). Licenses: public/licenses/.
@@ -44,7 +50,7 @@ const family = (font: FontId) => `Teletronix ${font}`;
 export function applyAppearance(
     palette: Palette,
     font: FontId,
-    fontScale = 1,
+    fontScale = DEFAULT_FONT_SCALE,
     lineSpacing = 1.25,
 ): void {
     const root = document.documentElement.style;

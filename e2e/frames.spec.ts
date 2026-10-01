@@ -116,7 +116,11 @@ test.describe("frames", () => {
 
     test("stack on a narrow screen, each the whole width", async ({ page, player }) => {
         await page.setViewportSize({ width: 360, height: 700 });
-        await player.open(program);
+        // (in a big font, so a phone's width is few characters)
+        await player.open({
+            ...program,
+            config: { ...program.config, font: "ast-premiumexec", fontScale: 1 },
+        });
         const frames = player.screen.locator(".frame");
         const [left, right] = [await box(frames.nth(0)), await box(frames.nth(1))];
         expect(right.y).toBeGreaterThan(left.y + left.height - 1);

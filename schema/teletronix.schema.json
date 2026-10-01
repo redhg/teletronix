@@ -3288,13 +3288,13 @@
                         "consolas",
                         "menlo"
                     ],
-                    "description": "The typeface: a period PC font, or one installed on the player's computer (\"courier-new\", \"consolas\" on Windows, \"menlo\" on macOS; the browser's own monospace font where it isn't) (default: \"ast-premiumexec\")"
+                    "description": "The typeface: a period PC font, or one installed on the player's computer (\"courier-new\", \"consolas\" on Windows, \"menlo\" on macOS; the browser's own monospace font where it isn't) (default: \"departure-mono\")"
                 },
                 "fontScale": {
                     "type": "number",
                     "minimum": 0.5,
                     "maximum": 2,
-                    "description": "How big text is, from 0.5 (half the usual size) to 2 (twice). A pixel font still snaps to whole multiples of its pixels, so it grows in steps (default: 1)"
+                    "description": "How big text is, from 0.5 (half the usual size) to 2 (twice). A pixel font still snaps to whole multiples of its pixels, so it grows in steps (default: 0.75)"
                 },
                 "lineSpacing": {
                     "type": "number",

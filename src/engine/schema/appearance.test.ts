@@ -7,11 +7,12 @@ const parse = (config: object) =>
     parseProgram({ config: { name: "Test", ...config }, screens: { home: { content: ["x"] } } });
 
 describe("appearance", () => {
-    it("defaults to the default theme and AST Premium Exec", () => {
+    it("defaults to the default theme and Departure Mono, at 0.75", () => {
         const result = parse({});
         if (!result.ok) throw new Error(JSON.stringify(result.errors));
         expect(result.program.palette).toEqual(THEMES.default);
-        expect(result.program.font).toBe("ast-premiumexec");
+        expect(result.program.font).toBe("departure-mono");
+        expect(result.program.fontScale).toBe(0.75);
     });
 
     it("takes a named theme, or custom colors with a default alert color", () => {

@@ -32,17 +32,17 @@ export const FONTS = {
 export const isSystemFont = (font: FontId): boolean => "system" in FONTS[font];
 
 export type FontId = keyof typeof FONTS;
-export const DEFAULT_FONT: FontId = "ast-premiumexec";
+export const DEFAULT_FONT: FontId = "departure-mono";
 
 export const FontSchema = z.enum(Object.keys(FONTS) as [FontId, ...FontId[]]).meta({
     description:
         "The typeface: a period PC font, or one installed on the player's computer " +
         '("courier-new", "consolas" on Windows, "menlo" on macOS; the browser\'s own ' +
-        'monospace font where it isn\'t) (default: "ast-premiumexec")',
+        'monospace font where it isn\'t) (default: "departure-mono")',
 });
 
 /** How much bigger (or smaller) than usual text is. */
-export const DEFAULT_FONT_SCALE = 1;
+export const DEFAULT_FONT_SCALE = 0.75;
 
 export const FontScaleSchema = z
     .number()
@@ -51,7 +51,7 @@ export const FontScaleSchema = z
     .meta({
         description:
             "How big text is, from 0.5 (half the usual size) to 2 (twice). A pixel font still " +
-            "snaps to whole multiples of its pixels, so it grows in steps (default: 1)",
+            "snaps to whole multiples of its pixels, so it grows in steps (default: 0.75)",
     });
 
 /** How far apart lines are, as a multiple of the text's size. */

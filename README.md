@@ -929,14 +929,14 @@ off, in `config` for the whole program or on a screen.
 
 ### Appearance
 `config.theme` sets the colors: `"default"` (pale blue on black), `"amber"`, `"green"`, `"white"`, or your
-own, e.g. `{ "fg": "#33ff66", "bg": "#001100" }`. `config.font` picks a typeface: `"ast-premiumexec"`
-(the default), `"ibm-vga"`, `"ibm-ega"`, `"ibm-cga"`, `"ibm-cga-thin"`, `"ibm-mda"`,
-`"toshiba-satellite"` or `"departure-mono"`. Text is sized to whole multiples of the font's pixel
+own, e.g. `{ "fg": "#33ff66", "bg": "#001100" }`. `config.font` picks a typeface: `"departure-mono"`
+(the default), `"ast-premiumexec"`, `"ibm-vga"`, `"ibm-ega"`, `"ibm-cga"`, `"ibm-cga-thin"`,
+`"ibm-mda"` or `"toshiba-satellite"`. Text is sized to whole multiples of the font's pixel
 height, so it stays crisp. Or a font installed on the player's computer: `"courier-new"`,
 `"consolas"` (Windows) or `"menlo"` (macOS). These aren't bundled, so where one isn't
 installed, the browser's own monospace font stands in; they can be any size.
 
-`config.fontScale` makes text bigger or smaller, from 0.5 to 2 (default 1). It scales the
+`config.fontScale` makes text bigger or smaller, from 0.5 to 2 (default 0.75). It scales the
 usual size, which already adapts to the window, so text stays in proportion on a phone and a
 big monitor. Pixel fonts still snap to whole multiples of their pixels, so they grow in steps.
 

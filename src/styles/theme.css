@@ -15,7 +15,7 @@
     --font-px: 16px;
     --font-target: 16px;
     /* a program's fontScale: bigger or smaller text, still steps of the font's pixels */
-    --font-scale: 1;
+    --font-scale: 0.75;
     --font-size: max(
         var(--font-px),
         round(nearest, calc(var(--font-target) * var(--font-scale)), var(--font-px))

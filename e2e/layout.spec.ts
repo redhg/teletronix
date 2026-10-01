@@ -276,7 +276,12 @@ test.describe("columns", () => {
     });
 
     test("use fewer columns on a narrow screen", async ({ page, player }) => {
-        await player.open(program());
+        // (in a big font, so a phone's width is few characters)
+        const narrow = program();
+        await player.open({
+            ...narrow,
+            config: { ...narrow.config, font: "ast-premiumexec", fontScale: 1 },
+        });
         await page.setViewportSize({ width: 360, height: 700 });
         await expect
             .poll(async () => Math.max(...(await grid(page)).map((cell) => cell.column)))
