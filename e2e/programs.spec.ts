@@ -74,6 +74,8 @@ test.describe("the programs in public/data", () => {
     test.slow();
 
     test("the sample draws every screen its links reach", async ({ player }) => {
+        // (it replays the sample from the start for each link, and it has a lot of them)
+        test.setTimeout(240_000);
         const screens = await crawl(player, "sample");
         expect(screens.size).toBeGreaterThan(20);
     });

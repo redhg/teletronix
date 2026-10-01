@@ -194,7 +194,7 @@ export function ConversationView({ element, state }: ElementViewProps<Conversati
                         <button
                             key={key}
                             type="button"
-                            className="link control"
+                            className="control conversation-reply"
                             onClick={() => choose(reply, key)}
                         >
                             {`${i + 1}. `}
