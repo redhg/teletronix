@@ -42,6 +42,7 @@ import { ColumnsSchema, ContentSchema, SectionSchema } from "../src/engine/schem
 import { RuleSchema } from "../src/engine/schema/next.ts";
 import {
     BootPresetSchema,
+    CountdownPresetSchema,
     CrashPresetSchema,
     DecryptPresetSchema,
     ErrorPresetSchema,
@@ -179,6 +180,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Hex editor", HexeditorPresetSchema, '"type": "hexeditor"'],
             ["Login", LoginPresetSchema, '"type": "login"'],
             ["Decrypt", DecryptPresetSchema, '"type": "decrypt"'],
+            ["Countdown", CountdownPresetSchema, '"type": "countdown"'],
         ],
     ],
     [

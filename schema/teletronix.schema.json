@@ -5223,6 +5223,98 @@
                                 ],
                                 "additionalProperties": false,
                                 "description": "A message decrypting: scrambled characters resolving a few at a time, with a progress bar, then on to the next screen. It can fail partway."
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "const": "countdown"
+                                    },
+                                    "title": {
+                                        "default": "*** SELF-DESTRUCT SEQUENCE ACTIVATED ***",
+                                        "description": "A warning, blinking in the alert color, or false for none (default: \"*** SELF-DESTRUCT SEQUENCE ACTIVATED ***\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "message": {
+                                        "default": "ALL PERSONNEL EVACUATE IMMEDIATELY.",
+                                        "description": "A line under it, or false for none (default: \"ALL PERSONNEL EVACUATE IMMEDIATELY.\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "seconds": {
+                                        "default": 60,
+                                        "description": "Seconds it counts down from (default: 60)",
+                                        "type": "number",
+                                        "exclusiveMinimum": 0
+                                    },
+                                    "label": {
+                                        "default": "T-MINUS",
+                                        "description": "A line above the time (default: \"T-MINUS\")",
+                                        "type": "string"
+                                    },
+                                    "format": {
+                                        "default": "mm:ss",
+                                        "description": "How the time is shown: \"mm:ss\", \"hh:mm:ss\" or \"ss\" (default: \"mm:ss\")",
+                                        "type": "string",
+                                        "enum": [
+                                            "mm:ss",
+                                            "hh:mm:ss",
+                                            "ss"
+                                        ]
+                                    },
+                                    "big": {
+                                        "default": true,
+                                        "description": "Show the time in big block digits (default: true)",
+                                        "type": "boolean"
+                                    },
+                                    "next": {
+                                        "description": "The screen to go to when it reaches zero (default: the program's start screen)",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                    },
+                                    "code": {
+                                        "description": "A number that aborts it, typed at a prompt under the time (default: none)",
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 9007199254740991
+                                    },
+                                    "aborted": {
+                                        "description": "With code, the screen to go to once it's aborted (default: the program's start screen)",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                    },
+                                    "prompt": {
+                                        "default": "ABORT CODE: ",
+                                        "description": "With code, the prompt (default: \"ABORT CODE: \")",
+                                        "type": "string"
+                                    },
+                                    "wrong": {
+                                        "default": "INVALID CODE.",
+                                        "description": "With code, shown after a wrong one (default: \"INVALID CODE.\")",
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ],
+                                "additionalProperties": false,
+                                "description": "A self-destruct countdown: a blinking warning, the time in big digits, and an optional abort code. At zero, it goes to next; the right code goes to aborted."
                             }
                         ]
                     },
@@ -9886,6 +9978,11 @@
                                             }
                                         }
                                     ]
+                                },
+                                "big": {
+                                    "default": false,
+                                    "description": "Show the time in big block digits, five lines tall, under the label (where they fit across the screen) (default: false)",
+                                    "type": "boolean"
                                 },
                                 "align": {
                                     "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",

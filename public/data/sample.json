@@ -885,6 +885,8 @@
                 "  A message resolving out of scrambled characters.",
                 { "type": "link", "text": "> DECRYPT, FAILING", "action": { "screen": "decrypt-fail" } },
                 "  One that sweeps from start to end in hex, and fails partway.",
+                { "type": "link", "text": "> COUNTDOWN", "action": { "screen": "countdown" } },
+                "  A self-destruct sequence. Abort it with code 1138, or let it run out...",
                 { "type": "link", "text": "> HEX EDITOR", "action": { "screen": "hexeditor" } },
                 "  A recovered file that scrolls until something turns up. Take over with the arrow keys; <esc> leaves.",
                 "",
@@ -1132,6 +1134,24 @@
             "content": [
                 "",
                 { "type": "link", "text": "> AGAIN", "action": { "screen": "decrypt-fail" } },
+                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+            ]
+        },
+        "countdown": {
+            "preset": {
+                "type": "countdown",
+                "seconds": 30,
+                "code": 1138,
+                "aborted": "countdown-aborted",
+                "next": "crash"
+            }
+        },
+        "countdown-aborted": {
+            "content": [
+                "SELF-DESTRUCT SEQUENCE ABORTED.",
+                "",
+                "That was the countdown preset: a blinking warning, a timer in big digits, and an abort code. Without a code, there's no stopping it.",
+                "",
                 { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
             ]
         },

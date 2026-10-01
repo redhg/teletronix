@@ -470,6 +470,70 @@ export const DecryptPresetSchema = z
             "progress bar, then on to the next screen. It can fail partway.",
     });
 
+export const COUNTDOWN_DEFAULTS = {
+    title: "*** SELF-DESTRUCT SEQUENCE ACTIVATED ***",
+    message: "ALL PERSONNEL EVACUATE IMMEDIATELY.",
+    seconds: 60,
+    label: "T-MINUS",
+    prompt: "ABORT CODE: ",
+    wrong: "INVALID CODE.",
+};
+
+export const CountdownPresetSchema = z
+    .strictObject({
+        type: z.literal("countdown"),
+        title: Line("A warning, blinking in the alert color", COUNTDOWN_DEFAULTS.title),
+        message: Line("A line under it", COUNTDOWN_DEFAULTS.message),
+        seconds: z
+            .number()
+            .positive()
+            .default(COUNTDOWN_DEFAULTS.seconds)
+            .meta({
+                description: `Seconds it counts down from (default: ${COUNTDOWN_DEFAULTS.seconds})`,
+            }),
+        label: z
+            .string()
+            .default(COUNTDOWN_DEFAULTS.label)
+            .meta({
+                description: `A line above the time (default: "${COUNTDOWN_DEFAULTS.label}")`,
+            }),
+        format: z.enum(["mm:ss", "hh:mm:ss", "ss"]).default("mm:ss").meta({
+            description: 'How the time is shown: "mm:ss", "hh:mm:ss" or "ss" (default: "mm:ss")',
+        }),
+        big: z.boolean().default(true).meta({
+            description: "Show the time in big block digits (default: true)",
+        }),
+        next: IdSchema.optional().meta({
+            description:
+                "The screen to go to when it reaches zero (default: the program's start screen)",
+        }),
+        code: z.int().min(0).optional().meta({
+            description:
+                "A number that aborts it, typed at a prompt under the time (default: none)",
+        }),
+        aborted: IdSchema.optional().meta({
+            description:
+                "With code, the screen to go to once it's aborted (default: the program's start screen)",
+        }),
+        prompt: z
+            .string()
+            .default(COUNTDOWN_DEFAULTS.prompt)
+            .meta({
+                description: `With code, the prompt (default: "${COUNTDOWN_DEFAULTS.prompt}")`,
+            }),
+        wrong: z
+            .string()
+            .default(COUNTDOWN_DEFAULTS.wrong)
+            .meta({
+                description: `With code, shown after a wrong one (default: "${COUNTDOWN_DEFAULTS.wrong}")`,
+            }),
+    })
+    .meta({
+        description:
+            "A self-destruct countdown: a blinking warning, the time in big digits, and an " +
+            "optional abort code. At zero, it goes to next; the right code goes to aborted.",
+    });
+
 export const PresetSchema = z
     .discriminatedUnion("type", [
         BootPresetSchema,
@@ -479,6 +543,7 @@ export const PresetSchema = z
         HexeditorPresetSchema,
         LoginPresetSchema,
         DecryptPresetSchema,
+        CountdownPresetSchema,
     ])
     .meta({ description: "A ready-made screen, with a few settings of its own" });
 
@@ -660,6 +725,46 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                         ...("action" in onComplete ? { onComplete } : {}),
                         ...("action" in onFail ? { onFail } : {}),
                     },
+                ],
+                after: [],
+            };
+        }
+        case "countdown": {
+            const abort =
+                preset.code === undefined
+                    ? []
+                    : [
+                          "",
+                          {
+                              type: "number",
+                              prompt: preset.prompt,
+                              digits: Math.max(1, String(preset.code).length),
+                              on: [
+                                  {
+                                      equals: preset.code,
+                                      action: { screen: preset.aborted ?? start },
+                                  },
+                              ],
+                              unknown: preset.wrong,
+                          },
+                      ];
+            return {
+                before: [
+                    ...(preset.title === false
+                        ? []
+                        : [{ type: "text", text: preset.title, className: "alert blink" }, ""]),
+                    ...(preset.message === false ? [] : [preset.message, ""]),
+                    {
+                        type: "timer",
+                        label: preset.label ? `${preset.label} ` : "",
+                        from: preset.seconds,
+                        to: 0,
+                        format: preset.format,
+                        big: preset.big,
+                        className: "alert",
+                        onComplete: { screen: preset.next ?? start },
+                    },
+                    ...abort,
                 ],
                 after: [],
             };

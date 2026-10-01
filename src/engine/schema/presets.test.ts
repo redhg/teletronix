@@ -303,3 +303,44 @@ describe("the decrypt preset", () => {
         expect(content[0]).not.toHaveProperty("onComplete");
     });
 });
+
+describe("the countdown preset", () => {
+    it("is a blinking warning, a big timer, and an abort code", () => {
+        const { content } = expanded({
+            type: "countdown",
+            seconds: 90,
+            code: 1138,
+            aborted: "elsewhere",
+            next: "home",
+        });
+        expect(content).toMatchObject([
+            { type: "text", className: "alert blink" },
+            { type: "text", text: "" },
+            { type: "text", text: "ALL PERSONNEL EVACUATE IMMEDIATELY." },
+            { type: "text", text: "" },
+            {
+                type: "timer",
+                label: "T-MINUS ",
+                from: 90,
+                to: 0,
+                big: true,
+                onComplete: [{ screen: "home" }],
+            },
+            { type: "text", text: "" },
+            {
+                type: "number",
+                prompt: "ABORT CODE: ",
+                digits: 4,
+                on: [{ equals: 1138, action: [{ screen: "elsewhere" }] }],
+                unknown: "INVALID CODE.",
+            },
+        ]);
+    });
+
+    it("goes to the start screen by default, without a code to type", () => {
+        const { content } = expanded({ type: "countdown", title: false, message: false });
+        expect(content).toMatchObject([
+            { type: "timer", from: 60, onComplete: [{ screen: "home" }] },
+        ]);
+    });
+});

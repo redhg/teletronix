@@ -7,7 +7,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
-- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt)
+- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
 - **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
@@ -144,6 +144,7 @@ One of:
 - [Hex editor](#hex-editor)
 - [Login](#login)
 - [Decrypt](#decrypt)
+- [Countdown](#countdown)
 
 <a id="boot"></a>
 
@@ -285,6 +286,26 @@ A message decrypting: scrambled characters resolving a few at a time, with a pro
 | `failAt` | number, 0–100 |  | Stop at this percentage, leaving the rest scrambled: it fails |
 | `done` | string | `"COMPLETE"` | Shown in place of the percentage at the end |
 | `failed` | string | `"FAILED"` | Shown in place of the percentage when it fails |
+
+<a id="countdown"></a>
+
+### Countdown (`"type": "countdown"`)
+
+A self-destruct countdown: a blinking warning, the time in big digits, and an optional abort code. At zero, it goes to next; the right code goes to aborted.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `title` | string \| `false` | `"*** SELF-DESTRUCT SEQUENCE ACTIVATED ***"` | A warning, blinking in the alert color, or false for none |
+| `message` | string \| `false` | `"ALL PERSONNEL EVACUATE IMMEDIATELY."` | A line under it, or false for none |
+| `seconds` | number, > 0 | `60` | Seconds it counts down from |
+| `label` | string | `"T-MINUS"` | A line above the time |
+| `format` | `"mm:ss"` \| `"hh:mm:ss"` \| `"ss"` | `"mm:ss"` | How the time is shown: "mm:ss", "hh:mm:ss" or "ss" |
+| `big` | boolean | `true` | Show the time in big block digits |
+| `next` | id | the program's start screen | The screen to go to when it reaches zero |
+| `code` | whole number, ≥ 0 | none | A number that aborts it, typed at a prompt under the time |
+| `aborted` | id | the program's start screen | With code, the screen to go to once it's aborted |
+| `prompt` | string | `"ABORT CODE: "` | With code, the prompt |
+| `wrong` | string | `"INVALID CODE."` | With code, shown after a wrong one |
 
 ## Bars
 
@@ -726,6 +747,7 @@ A clock on the screen: a program timer (with "timer"), or a timer of its own, wh
 | `to` | number, ≥ 0 | `0` | Seconds it stops at: lower than from to count down, higher to count up |
 | `format` | `"mm:ss"` \| `"hh:mm:ss"` \| `"ss"` | `"mm:ss"` | How the time is shown: "mm:ss", "hh:mm:ss" or "ss" |
 | `onComplete` | [Action](#action) |  | What happens when it reaches to |
+| `big` | boolean | `false` | Show the time in big block digits, five lines tall, under the label (where they fit across the screen) |
 | `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |

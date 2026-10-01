@@ -17,6 +17,14 @@ export const TimerElementSchema = z
                 "its own, set up with from, to, format and onComplete.",
         }),
         ...ClockShape,
+        big: z
+            .boolean()
+            .default(false)
+            .meta({
+                description:
+                    "Show the time in big block digits, five lines tall, under the label (where " +
+                    "they fit across the screen) (default: false)",
+            }),
         align: ElementAlignSchema,
         ...ElementBaseShape,
     })

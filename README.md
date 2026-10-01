@@ -466,6 +466,7 @@ also be written out by hand. See [the reference](docs/reference.md#presets) for 
 | `"error"` | A `title`, `message` and `code` in a blinking box, in the alert color, like an Amiga's Guru Meditation. A key press (or a tap) goes to `next` (default: the start screen); `"restart": false` stays for good. |
 | `"login"` | A login screen: a warning `title` in the alert color, then a [login](#logins) with its `accounts` that goes to `next` (default: the start screen), showing `granted` first. With `attempts`, too many wrong tries go to the `lockout` screen. It takes the login's other settings too. |
 | `"decrypt"` | A message [decrypting](#decrypting): a `title`, then the `text` with a progress `bar` (its label, or `false` for none), going on to `next` after `after` milliseconds. With `failAt`, it fails partway, going to `failNext`. It takes the decrypt element's other settings too. |
+| `"countdown"` | A self-destruct sequence: a blinking warning `title` and a `message`, then the time counting down from `seconds` in big digits (unless `"big": false`), going to `next` at zero. With a `code`, the player can type it at a `prompt` to abort, going to `aborted`; a wrong one shows `wrong`. |
 | `"hexeditor"` | A read-only hex editor: a [hex dump](#hex-dumps) filling the screen, with a cursor to move through it, a status bar (in place of the program's), and a header bar with the editor's `title` and the `file` name. Give it bytes as a hex dump (`text`, `size`, `src`, `highlight`…), and `autoscroll` (with `stopAt`) to have it scroll through them by itself. <esc>, or the `exit` link in the header bar, goes to `next` (default: the start screen). |
 | `"crash"` | The whole window fills with garbage that never stops changing: the screen before breaks apart, and a `message` surfaces through the noise now and then. With `next`, a key press (or a tap) restarts there. With reduced motion, it's a still picture. |
 
@@ -623,6 +624,12 @@ A `"timer"` element shows a clock on the screen, after its `label`: a program ti
 ```json
 { "type": "timer", "label": "AIRLOCK CYCLE: ", "from": 10, "onComplete": { "dialog": "cycled" } }
 ```
+
+With `"big": true`, the time is drawn in big block digits, five lines tall, under the label
+(where they fit across the screen; otherwise it's ordinary text).
+
+For a warning that must be seen, the `blink` class makes text blink (it holds still with reduced
+motion): `"className": "alert blink"`.
 
 ### Dialogs
 `dialogs` holds modal dialogs, opened by any `{ "dialog": "<id>" }` action:

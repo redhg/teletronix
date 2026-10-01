@@ -47,6 +47,17 @@ body {
     }
 }
 
+/* text that blinks, for warnings that must be seen: "className": "alert blink" */
+.blink {
+    animation: blink 1s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .blink {
+        animation: none;
+    }
+}
+
 .sr-only {
     position: absolute;
     width: 1px;

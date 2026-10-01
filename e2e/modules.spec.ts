@@ -1565,3 +1565,45 @@ test.describe("decrypt", () => {
         await expect(shown(player)).not.toContainText("ABANDON SHIP");
     });
 });
+
+test.describe("countdown preset", () => {
+    const sequence = (seconds: number) =>
+        ({
+            config: { name: "Countdown", start: "home", reveal: "instant" },
+            screens: {
+                home: {
+                    preset: {
+                        type: "countdown",
+                        seconds,
+                        code: 42,
+                        aborted: "safe",
+                        next: "boom",
+                    },
+                },
+                safe: { content: ["SAFE"] },
+                boom: { content: ["BOOM"] },
+            },
+        }) as Program;
+
+    test("shows big digits, and the right code aborts it", async ({ page, player }) => {
+        await player.open(sequence(60));
+        await expect(player.screen.locator(".alert.blink")).toContainText("SELF-DESTRUCT");
+        const digits = player.screen.locator(".timer-digits");
+        await expect(digits).toContainText("██");
+        // the time, for screen readers
+        await expect(player.screen.locator(".timer-big .sr-only")).toHaveText(
+            /^T-MINUS 0[01]:\d\d$/,
+        );
+        await page.keyboard.type("41");
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("INVALID CODE.");
+        await page.keyboard.type("42");
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toHaveText(/SAFE/);
+    });
+
+    test("goes to next when it runs out", async ({ player }) => {
+        await player.open(sequence(1));
+        await expect(player.screen).toContainText("BOOM", { timeout: 5000 });
+    });
+});
