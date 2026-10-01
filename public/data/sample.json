@@ -234,7 +234,7 @@
                     ]
                 ] },
                 "",
-                { "type": "pause" },
+                { "type": "pause", "button": true },
                 "",
                 "It's bound to a variable, so the story knows where you are: last read, dossier {dossier}. It's remembered if you leave and come back.",
                 "",
@@ -254,7 +254,7 @@
                     ]
                 ] },
                 "",
-                { "type": "pause" },
+                { "type": "pause", "button": true },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
@@ -881,10 +881,10 @@
                 "STATION LOG, DAY 39. Night shift heard knocking in the service ducts. Probably thermal contraction.",
                 { "type": "pause", "text": "[ MORE ]", "align": "center" },
                 "STATION LOG, DAY 40. The knocking has a pattern. Three, then two, then three.",
-                { "type": "pause" },
+                { "type": "pause", "button": true, "text": "[ OPEN NEXT ENTRY ]" },
                 { "type": "text", "text": "STATION LOG, DAY 41. [ENTRY CORRUPTED]", "className": "alert" },
                 "",
-                "Skipping stops at each pause too. Its text can be changed, and centered, like the [ MORE ] above.",
+                "Skipping stops at each pause too. Its text can be changed, and centered, like the [ MORE ] above. With \"button\": true, like [ OPEN NEXT ENTRY ], only clicking it (or Enter or Space) carries on: not any key, or a tap anywhere.",
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]

@@ -609,6 +609,11 @@ A pause stops the screen's reveal and shows its `text` (default
 the reveal carries on, so a long screen can be read a page at a time. Skipping stops at each
 pause too. A pause inside an open section holds the whole screen.
 
+With `"button": true`, the pause is a button (default text `[ CONTINUE ]`): only clicking it, or
+Enter or Space while it has the keyboard, carries on, not any key or a tap anywhere. It takes the
+keyboard when it appears. Use it where the player might press keys for something else meanwhile,
+e.g. flipping a carousel above it.
+
 ### Presets
 A preset is a ready-made screen, set up with a few settings instead of content:
 ```json

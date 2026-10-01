@@ -15808,9 +15808,13 @@
                                     "const": "pause"
                                 },
                                 "text": {
-                                    "default": "-- PRESS ANY KEY TO CONTINUE --",
-                                    "description": "What it shows while waiting (default: \"-- PRESS ANY KEY TO CONTINUE --\")",
+                                    "description": "What it shows while waiting (default: \"-- PRESS ANY KEY TO CONTINUE --\", or \"[ CONTINUE ]\" for a button)",
                                     "type": "string"
+                                },
+                                "button": {
+                                    "default": false,
+                                    "description": "Make it a button: only clicking it, or Enter or Space while it has the keyboard, carries on, not any key or a tap anywhere. It takes the keyboard when it appears (default: false)",
+                                    "type": "boolean"
                                 },
                                 "align": {
                                     "description": "Where the text sits across the screen: \"left\", \"center\" or \"right\". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts (default: the screen's, or \"left\")",
@@ -15908,7 +15912,7 @@
                                 "type"
                             ],
                             "additionalProperties": false,
-                            "description": "Stops the screen's reveal and shows a line of text until the player presses a key or taps; then the line goes and the reveal carries on. Skipping stops at it too."
+                            "description": "Stops the screen's reveal and shows a line of text until the player presses a key or taps (or, as a button, clicks it); then the line goes and the reveal carries on. Skipping stops at it too."
                         },
                         {
                             "type": "object",

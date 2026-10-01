@@ -198,4 +198,35 @@ test.describe("pause", () => {
         await expect(player.screen).toContainText("THE END");
         await expect(player.screen.locator(".pause")).toHaveCount(0);
     });
+
+    test("as a button, waits to be pressed, taking the keyboard", async ({ page, player }) => {
+        await player.open({
+            config: { name: "Button", start: "home" },
+            screens: {
+                home: {
+                    content: [
+                        "PAGE ONE",
+                        { type: "pause", button: true },
+                        "PAGE TWO",
+                        { type: "pause", button: true, text: "[ NEXT PAGE ]" },
+                        "THE END",
+                    ],
+                },
+            },
+        });
+        const button = player.screen.getByRole("button", { name: "[ CONTINUE ]" });
+        await expect(button).toBeFocused();
+
+        // not any key, and not a tap elsewhere
+        await page.keyboard.press("x");
+        await player.tap();
+        await expect(player.screen).not.toContainText("PAGE TWO");
+
+        // Enter on it carries on; then the next is clicked
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("PAGE TWO");
+        await player.screen.getByRole("button", { name: "[ NEXT PAGE ]" }).click();
+        await expect(player.screen).toContainText("THE END");
+        await expect(player.screen.locator(".pause")).toHaveCount(0);
+    });
 });

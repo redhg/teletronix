@@ -492,11 +492,18 @@ export class Terminal {
      * Returns whether the key was used. `key` is a KeyboardEvent.key value.
      */
     pressKey(key: string): boolean {
-        // a pause in the reveal waits for any key
+        // a pause in the reveal waits for any key; one that's a button waits to be pressed,
+        // though buttons' hotkeys still work
         if (!this.dialog && this.run?.paused) {
+            if (this.run.pausedOnButton) {
+                const hotkey = this.run.hotkey(key);
+                if (!hotkey) return false;
+                this.cue({ type: "select" });
+                this.dispatch(hotkey);
+                return true;
+            }
             if (!keyMatches(["any"], key)) return false;
-            this.run.continue(this.ticker.now());
-            this.settle();
+            this.continuePause();
             return true;
         }
         // the element being revealed gets first refusal (e.g. to interrupt a progress bar)
@@ -528,13 +535,21 @@ export class Terminal {
      */
     tap(): boolean {
         if (!this.dialog && this.run?.paused) {
-            this.run.continue(this.ticker.now());
-            this.settle();
+            // (a pause that's a button waits for a click on it)
+            if (this.run.pausedOnButton) return false;
+            this.continuePause();
             return true;
         }
         const rule = ruleForTap(this.rules());
         if (!rule || this.run?.finishedAt === null) return false;
         return this.trigger(rule);
+    }
+
+    /** Carries on after the pause the reveal is waiting at, e.g. when its button is pressed. */
+    continuePause(): void {
+        if (this.dialog || !this.run?.paused) return;
+        this.run.continue(this.ticker.now());
+        this.settle();
     }
 
     /** The text of the screen before this one, as it was when the player left it. */

@@ -249,6 +249,13 @@ export class ScreenRun {
         return this.pausedAt !== -1 || [...this.children.values()].some((child) => child.paused);
     }
 
+    /** Whether the pause the reveal is waiting at (here, or in an open section) is a button. */
+    get pausedOnButton(): boolean {
+        const element = this.runs[this.pausedAt]?.element;
+        if (element) return element.type === "pause" && element.button;
+        return [...this.children.values()].some((child) => child.paused && child.pausedOnButton);
+    }
+
     /** Whether the reveal is waiting at this pause element. */
     pausedOn(elementId: string): boolean {
         return this.runs[this.pausedAt]?.element.id === elementId;

@@ -1709,11 +1709,12 @@ Slides shown one at a time, like records on a terminal: flipped with its ◄ PRE
 
 ### Pause (`"type": "pause"`)
 
-Stops the screen's reveal and shows a line of text until the player presses a key or taps; then the line goes and the reveal carries on. Skipping stops at it too.
+Stops the screen's reveal and shows a line of text until the player presses a key or taps (or, as a button, clicks it); then the line goes and the reveal carries on. Skipping stops at it too.
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `text` | string | `"-- PRESS ANY KEY TO CONTINUE --"` | What it shows while waiting |
+| `text` | string | "-- PRESS ANY KEY TO CONTINUE --", or "[ CONTINUE ]" for a button | What it shows while waiting |
+| `button` | boolean | `false` | Make it a button: only clicking it, or Enter or Space while it has the keyboard, carries on, not any key or a tap anywhere. It takes the keyboard when it appears |
 | `align` | `"left"` \| `"center"` \| `"right"` | the screen's, or "left" | Where the text sits across the screen: "left", "center" or "right". Centered and right-aligned text moves as one block, so its lines keep their shape (e.g. ASCII art): the widest line decides where every line starts |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
