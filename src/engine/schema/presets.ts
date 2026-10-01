@@ -726,6 +726,53 @@ export const InboxPresetSchema = z
 const padTo = (text: string, width: number) =>
     text.length > width ? `${text.slice(0, width - 1)}~` : text.padEnd(width);
 
+export const DirectoryEntrySchema = z
+    .strictObject({
+        name: z.string().min(1).meta({ description: "The file's or folder's name" }),
+        size: z.int().min(0).optional().meta({ description: "Its size in bytes (files only)" }),
+        date: z.string().optional().meta({ description: "When it was last changed, as you like" }),
+        dir: z.boolean().default(false).meta({ description: "It's a folder (default: false)" }),
+        action: ActionSchema.optional().meta({
+            description: "What happens when it's clicked: its line becomes a link",
+        }),
+    })
+    .meta({ description: "A file or folder in a directory listing" });
+
+export const DirectoryPresetSchema = z
+    .strictObject({
+        type: z.literal("directory"),
+        style: z
+            .enum(["dos", "unix"])
+            .default("dos")
+            .meta({
+                description:
+                    'How it looks: "dos" (DIR, with <DIR> and a total) or "unix" (ls -l, with ' +
+                    'permissions) (default: "dos")',
+            }),
+        path: z.string().optional().meta({
+            description: 'The folder it lists (default: "C:\\" for dos, "/home/user" for unix)',
+        }),
+        volume: z
+            .union([z.string(), z.literal(false)])
+            .optional()
+            .meta({
+                description:
+                    'With dos, the drive\'s name, for "Volume in drive C is ...", or false for no ' +
+                    'such line (default: "TELETRONIX")',
+            }),
+        entries: z.array(DirectoryEntrySchema).min(1).meta({
+            description: "The files and folders, in order. Those with an action are links.",
+        }),
+        total: z.boolean().default(true).meta({
+            description: "A line totting up the files and bytes at the end (default: true)",
+        }),
+    })
+    .meta({
+        description:
+            "A directory listing, DOS or Unix style: names, sizes and dates, where files with an " +
+            "action open when clicked",
+    });
+
 export const PresetSchema = z
     .discriminatedUnion("type", [
         BootPresetSchema,
@@ -739,6 +786,7 @@ export const PresetSchema = z
         TransmissionPresetSchema,
         ModemPresetSchema,
         InboxPresetSchema,
+        DirectoryPresetSchema,
     ])
     .meta({ description: "A ready-made screen, with a few settings of its own" });
 
@@ -1093,6 +1141,58 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                             "",
                         ],
                     })),
+                ],
+                after: [],
+            };
+        }
+        case "directory": {
+            const { entries } = preset;
+            const files = entries.filter((entry) => !entry.dir);
+            const bytes = files.reduce((sum, entry) => sum + (entry.size ?? 0), 0);
+            const number = (n: number) => n.toLocaleString("en-US");
+            const nameWidth = Math.max(12, ...entries.map((entry) => entry.name.length));
+            const sizeWidth = Math.max(
+                5,
+                ...entries.map((entry) => (entry.dir ? 5 : number(entry.size ?? 0).length)),
+            );
+            const dateWidth = Math.max(0, ...entries.map((entry) => entry.date?.length ?? 0));
+            const row =
+                preset.style === "dos"
+                    ? (entry: (typeof entries)[number]) =>
+                          `${entry.name.padEnd(nameWidth)}  ${(entry.dir ? "<DIR>" : number(entry.size ?? 0)).padStart(sizeWidth)}  ${entry.date ?? ""}`.trimEnd()
+                    : (entry: (typeof entries)[number]) =>
+                          `${entry.dir ? "drwxr-xr-x" : "-rw-r--r--"}  ${String(entry.dir ? 4096 : (entry.size ?? 0)).padStart(sizeWidth)}  ${(entry.date ?? "").padEnd(dateWidth)}  ${entry.name}${entry.dir ? "/" : ""}`;
+            const path = preset.path ?? (preset.style === "dos" ? "C:\\" : "/home/user");
+            const volume = preset.volume ?? "TELETRONIX";
+            const header =
+                preset.style === "dos"
+                    ? [
+                          ...(volume === false
+                              ? []
+                              : [` Volume in drive ${path.charAt(0)} is ${volume}`]),
+                          ` Directory of ${path}`,
+                          "",
+                      ]
+                    : [`$ ls -l ${path}`];
+            const total = !preset.total
+                ? []
+                : preset.style === "dos"
+                  ? [
+                        `${String(files.length).padStart(10)} file(s)  ${number(bytes).padStart(12)} bytes`,
+                    ]
+                  : [`total ${Math.ceil(bytes / 1024)}`];
+            const unixTotal = preset.style === "unix" ? total : [];
+            const dosTotal = preset.style === "dos" ? total : [];
+            return {
+                before: [
+                    ...header,
+                    ...unixTotal,
+                    ...entries.map((entry) =>
+                        entry.action
+                            ? { type: "link", text: row(entry), action: entry.action }
+                            : { type: "text", text: row(entry), wrap: false },
+                    ),
+                    ...dosTotal,
                 ],
                 after: [],
             };

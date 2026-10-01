@@ -893,6 +893,10 @@
                 "  Dialling in to a bulletin board, crackle and all.",
                 { "type": "link", "text": "> INBOX", "action": { "screen": "inbox" } },
                 "  Messages that open to show their bodies.",
+                { "type": "link", "text": "> DIRECTORY", "action": { "screen": "directory" } },
+                "  A DOS-style listing, where files open other presets.",
+                { "type": "link", "text": "> DIRECTORY, UNIX STYLE", "action": { "screen": "directory-unix" } },
+                "  The same, as ls -l.",
                 { "type": "link", "text": "> HEX EDITOR", "action": { "screen": "hexeditor" } },
                 "  A recovered file that scrolls until something turns up. Take over with the arrow keys; <esc> leaves.",
                 "",
@@ -1213,6 +1217,46 @@
                         "date": "2122-05-30",
                         "body": "Brett and I would like to discuss the bonus situation. Again."
                     }
+                ]
+            },
+            "content": [
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+            ]
+        },
+        "directory": {
+            "preset": {
+                "type": "directory",
+                "path": "C:\\NOSTROMO",
+                "volume": "MU-TH-UR",
+                "entries": [
+                    { "name": "LOGS", "dir": true, "date": "06-01-22" },
+                    { "name": "AUTOEXEC.BAT", "size": 128, "date": "05-14-22" },
+                    { "name": "CREW.DAT", "size": 2048, "date": "06-03-22", "action": { "screen": "hexeditor" } },
+                    { "name": "MAIL.BOX", "size": 3120, "date": "06-03-22", "action": { "screen": "inbox" } },
+                    { "name": "ORDERS.ENC", "size": 1024, "date": "06-03-22", "action": { "screen": "decrypt" } },
+                    { "name": "SECURE.EXE", "size": 48211, "date": "04-30-22", "action": { "screen": "login" } }
+                ]
+            },
+            "content": [
+                "",
+                "Click a file to open it.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+            ]
+        },
+        "directory-unix": {
+            "preset": {
+                "type": "directory",
+                "style": "unix",
+                "path": "/home/ash",
+                "entries": [
+                    { "name": "LOGS", "dir": true, "date": "06-01-22" },
+                    { "name": "AUTOEXEC.BAT", "size": 128, "date": "05-14-22" },
+                    { "name": "CREW.DAT", "size": 2048, "date": "06-03-22", "action": { "screen": "hexeditor" } },
+                    { "name": "MAIL.BOX", "size": 3120, "date": "06-03-22", "action": { "screen": "inbox" } },
+                    { "name": "ORDERS.ENC", "size": 1024, "date": "06-03-22", "action": { "screen": "decrypt" } },
+                    { "name": "SECURE.EXE", "size": 48211, "date": "04-30-22", "action": { "screen": "login" } }
                 ]
             },
             "content": [

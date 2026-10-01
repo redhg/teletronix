@@ -7,7 +7,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 [`schema/teletronix.schema.json`](../schema/teletronix.schema.json).
 
 - **Program:** [Program](#program), [Config](#config), [Defaults](#defaults), [Teletype options](#teletype-options), [Glitch options](#glitch-options), [Screen](#screen), [Next rule](#next-rule)
-- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem), [Inbox](#inbox), [Inbox message](#inbox-message), [Inbox labels](#inbox-labels)
+- **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem), [Inbox](#inbox), [Inbox message](#inbox-message), [Inbox labels](#inbox-labels), [Directory](#directory), [Directory entry](#directory-entry)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Timers](#timers), [Timer](#timer)
 - **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Buttons](#buttons), [Button](#button)
@@ -148,6 +148,7 @@ One of:
 - [Transmission](#transmission)
 - [Modem](#modem)
 - [Inbox](#inbox)
+- [Directory](#directory)
 
 <a id="boot"></a>
 
@@ -387,6 +388,34 @@ The inbox's column headings
 | `from` | string | `"FROM"` |  |
 | `subject` | string | `"SUBJECT"` |  |
 | `date` | string | `"DATE"` |  |
+
+<a id="directory"></a>
+
+### Directory (`"type": "directory"`)
+
+A directory listing, DOS or Unix style: names, sizes and dates, where files with an action open when clicked
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `style` | `"dos"` \| `"unix"` | `"dos"` | How it looks: "dos" (DIR, with <DIR> and a total) or "unix" (ls -l, with permissions) |
+| `path` | string | "C:\" for dos, "/home/user" for unix | The folder it lists |
+| `volume` | string \| `false` | `"TELETRONIX"` | With dos, the drive's name, for "Volume in drive C is ...", or false for no such line |
+| `entries` | [Directory entry](#directory-entry)[] | **required** | The files and folders, in order. Those with an action are links. |
+| `total` | boolean | `true` | A line totting up the files and bytes at the end |
+
+<a id="directory-entry"></a>
+
+### Directory entry
+
+A file or folder in a directory listing
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `name` | string | **required** | The file's or folder's name |
+| `size` | whole number, ≥ 0 |  | Its size in bytes (files only) |
+| `date` | string |  | When it was last changed, as you like |
+| `dir` | boolean | `false` | It's a folder |
+| `action` | [Action](#action) |  | What happens when it's clicked: its line becomes a link |
 
 ## Bars
 

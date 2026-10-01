@@ -5653,6 +5653,247 @@
                                 ],
                                 "additionalProperties": false,
                                 "description": "An inbox: a list of messages (from, subject, date), each opening to show its body. The screen's own content (e.g. a link back) goes after it."
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "const": "directory"
+                                    },
+                                    "style": {
+                                        "default": "dos",
+                                        "description": "How it looks: \"dos\" (DIR, with <DIR> and a total) or \"unix\" (ls -l, with permissions) (default: \"dos\")",
+                                        "type": "string",
+                                        "enum": [
+                                            "dos",
+                                            "unix"
+                                        ]
+                                    },
+                                    "path": {
+                                        "description": "The folder it lists (default: \"C:\\\" for dos, \"/home/user\" for unix)",
+                                        "type": "string"
+                                    },
+                                    "volume": {
+                                        "description": "With dos, the drive's name, for \"Volume in drive C is ...\", or false for no such line (default: \"TELETRONIX\")",
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
+                                    "entries": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "description": "The file's or folder's name"
+                                                },
+                                                "size": {
+                                                    "description": "Its size in bytes (files only)",
+                                                    "type": "integer",
+                                                    "minimum": 0,
+                                                    "maximum": 9007199254740991
+                                                },
+                                                "date": {
+                                                    "description": "When it was last changed, as you like",
+                                                    "type": "string"
+                                                },
+                                                "dir": {
+                                                    "default": false,
+                                                    "description": "It's a folder (default: false)",
+                                                    "type": "boolean"
+                                                },
+                                                "action": {
+                                                    "description": "What happens when it's clicked: its line becomes a link",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "if": {
+                                                                    "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                    "$ref": "#/$defs/Condition"
+                                                                },
+                                                                "screen": {
+                                                                    "description": "A screen to go to",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "dialog": {
+                                                                    "description": "A dialog to open",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "set": {
+                                                                    "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                    "type": "object",
+                                                                    "propertyNames": {
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                        "description": "A variable declared in config.variables"
+                                                                    },
+                                                                    "additionalProperties": {
+                                                                        "anyOf": [
+                                                                            {
+                                                                                "description": "true or false, a number, or text",
+                                                                                "type": [
+                                                                                    "boolean",
+                                                                                    "number",
+                                                                                    "string"
+                                                                                ]
+                                                                            },
+                                                                            {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "add": {
+                                                                                        "type": "number",
+                                                                                        "description": "How much to add (negative to subtract)"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "add"
+                                                                                ],
+                                                                                "additionalProperties": false,
+                                                                                "description": "Adds to a number variable"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "startTimer": {
+                                                                    "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                },
+                                                                "stopTimer": {
+                                                                    "description": "A timer to stop where it is",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                },
+                                                                "resetTimer": {
+                                                                    "description": "A timer to stop and put back to its start",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                },
+                                                                "sound": {
+                                                                    "description": "A sound from the program's sounds, played as the action happens",
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                                                }
+                                                            },
+                                                            "additionalProperties": false,
+                                                            "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                        },
+                                                        {
+                                                            "minItems": 1,
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "if": {
+                                                                        "description": "Only when this holds; otherwise the next case in the list is tried",
+                                                                        "$ref": "#/$defs/Condition"
+                                                                    },
+                                                                    "screen": {
+                                                                        "description": "A screen to go to",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "dialog": {
+                                                                        "description": "A dialog to open",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "set": {
+                                                                        "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                                                        "type": "object",
+                                                                        "propertyNames": {
+                                                                            "type": "string",
+                                                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                                            "description": "A variable declared in config.variables"
+                                                                        },
+                                                                        "additionalProperties": {
+                                                                            "anyOf": [
+                                                                                {
+                                                                                    "description": "true or false, a number, or text",
+                                                                                    "type": [
+                                                                                        "boolean",
+                                                                                        "number",
+                                                                                        "string"
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "type": "object",
+                                                                                    "properties": {
+                                                                                        "add": {
+                                                                                            "type": "number",
+                                                                                            "description": "How much to add (negative to subtract)"
+                                                                                        }
+                                                                                    },
+                                                                                    "required": [
+                                                                                        "add"
+                                                                                    ],
+                                                                                    "additionalProperties": false,
+                                                                                    "description": "Adds to a number variable"
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    },
+                                                                    "startTimer": {
+                                                                        "description": "A timer to start (or carry on, if it was stopped partway)",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                    },
+                                                                    "stopTimer": {
+                                                                        "description": "A timer to stop where it is",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                    },
+                                                                    "resetTimer": {
+                                                                        "description": "A timer to stop and put back to its start",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                                                    },
+                                                                    "sound": {
+                                                                        "description": "A sound from the program's sounds, played as the action happens",
+                                                                        "type": "string",
+                                                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false,
+                                                                "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "name"
+                                            ],
+                                            "additionalProperties": false,
+                                            "description": "A file or folder in a directory listing"
+                                        },
+                                        "description": "The files and folders, in order. Those with an action are links."
+                                    },
+                                    "total": {
+                                        "default": true,
+                                        "description": "A line totting up the files and bytes at the end (default: true)",
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "type",
+                                    "entries"
+                                ],
+                                "additionalProperties": false,
+                                "description": "A directory listing, DOS or Unix style: names, sizes and dates, where files with an action open when clicked"
                             }
                         ]
                     },

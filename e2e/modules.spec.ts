@@ -1607,3 +1607,27 @@ test.describe("countdown preset", () => {
         await expect(player.screen).toContainText("BOOM", { timeout: 5000 });
     });
 });
+
+test.describe("directory preset", () => {
+    test("lists files, and opens the ones that open", async ({ player }) => {
+        await player.open({
+            config: { name: "Dir", start: "home", reveal: "instant" },
+            screens: {
+                home: {
+                    preset: {
+                        type: "directory",
+                        entries: [
+                            { name: "LOGS", dir: true },
+                            { name: "README.TXT", size: 64, action: { screen: "readme" } },
+                        ],
+                    },
+                },
+                readme: { content: ["HELLO"] },
+            },
+        } as Program);
+        await expect(player.screen).toContainText("<DIR>");
+        await expect(player.screen).toContainText("1 file(s)");
+        await player.screen.getByRole("button", { name: /README\.TXT/ }).click();
+        await expect(player.screen).toContainText("HELLO");
+    });
+});

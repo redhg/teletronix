@@ -466,3 +466,34 @@ describe("the inbox preset", () => {
         expect(content[0]).toMatchObject({ title: "  A VERY LONG SEN~  HI" });
     });
 });
+
+describe("the directory preset", () => {
+    const entries = [
+        { name: "LOGS", dir: true, date: "06-01-22" },
+        { name: "CREW.DAT", size: 2048, date: "06-03-22", action: { screen: "home" } },
+        { name: "NOTES.TXT", size: 128 },
+    ];
+
+    it("lists files DOS-style, with links for those that open", () => {
+        const { content } = expanded({ type: "directory", path: "C:\\NOSTROMO", entries });
+        expect(content).toMatchObject([
+            { type: "text", text: " Volume in drive C is TELETRONIX" },
+            { type: "text", text: " Directory of C:\\NOSTROMO" },
+            { type: "text", text: "" },
+            { type: "text", text: "LOGS          <DIR>  06-01-22" },
+            { type: "link", text: "CREW.DAT      2,048  06-03-22", action: [{ screen: "home" }] },
+            { type: "text", text: "NOTES.TXT       128" },
+            { type: "text", text: "         2 file(s)         2,176 bytes" },
+        ]);
+    });
+
+    it("lists files Unix-style", () => {
+        const { content } = expanded({ type: "directory", style: "unix", entries, total: false });
+        expect(content).toMatchObject([
+            { type: "text", text: "$ ls -l /home/user" },
+            { type: "text", text: "drwxr-xr-x   4096  06-01-22  LOGS/" },
+            { type: "link", text: "-rw-r--r--   2048  06-03-22  CREW.DAT" },
+            { type: "text", text: "-rw-r--r--    128            NOTES.TXT" },
+        ]);
+    });
+});

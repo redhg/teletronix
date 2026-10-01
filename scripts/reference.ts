@@ -45,6 +45,8 @@ import {
     CountdownPresetSchema,
     CrashPresetSchema,
     DecryptPresetSchema,
+    DirectoryEntrySchema,
+    DirectoryPresetSchema,
     ErrorPresetSchema,
     HexeditorPresetSchema,
     InboxLabelsSchema,
@@ -191,6 +193,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Inbox", InboxPresetSchema, '"type": "inbox"'],
             ["Inbox message", InboxMessageSchema],
             ["Inbox labels", InboxLabelsSchema],
+            ["Directory", DirectoryPresetSchema, '"type": "directory"'],
+            ["Directory entry", DirectoryEntrySchema],
         ],
     ],
     [
