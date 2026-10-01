@@ -85,7 +85,9 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"timer"` | A clock on the screen, counting down or up. See [Timers](#timers). |
 
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also change variables
-(see [Variables and conditions](#variables-and-conditions)). `{ "restart": true }` starts the
+(see [Variables and conditions](#variables-and-conditions)). `{ "back": true }` goes back to
+the screen before (and the one before that, each time), so one help screen can serve many.
+`{ "restart": true }` starts the
 program over, as if just loaded: the start screen, with every variable, timer and element's
 memory (a locked login, an opened section) back where it began. Every element takes an optional
 `className` (e.g. `"alert"`), `reveal`, and `if`.

@@ -376,6 +376,11 @@
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
+                                                                    },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                         "type": "boolean",
@@ -539,6 +544,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "back": {
+                                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         },
                                                                         "restart": {
                                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -736,6 +746,11 @@
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
+                                                                    },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                         "type": "boolean",
@@ -899,6 +914,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "back": {
+                                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         },
                                                                         "restart": {
                                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -1096,6 +1116,11 @@
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
+                                                                    },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                         "type": "boolean",
@@ -1259,6 +1284,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "back": {
+                                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         },
                                                                         "restart": {
                                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -1480,6 +1510,11 @@
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
+                                                                    },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                         "type": "boolean",
@@ -1643,6 +1678,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "back": {
+                                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         },
                                                                         "restart": {
                                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -1840,6 +1880,11 @@
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
+                                                                    },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                         "type": "boolean",
@@ -2003,6 +2048,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "back": {
+                                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         },
                                                                         "restart": {
                                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -2200,6 +2250,11 @@
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
                                                                     },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
+                                                                    },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                         "type": "boolean",
@@ -2363,6 +2418,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "back": {
+                                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         },
                                                                         "restart": {
                                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -2640,6 +2700,11 @@
                                                 "type": "string",
                                                 "pattern": "^[A-Za-z0-9_-]+$"
                                             },
+                                            "back": {
+                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                "type": "boolean",
+                                                "const": true
+                                            },
                                             "restart": {
                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                 "type": "boolean",
@@ -2803,6 +2868,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -4035,6 +4105,11 @@
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                                 },
+                                                                                "back": {
+                                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
+                                                                                },
                                                                                 "restart": {
                                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                                     "type": "boolean",
@@ -4198,6 +4273,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "back": {
+                                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     },
                                                                                     "restart": {
                                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -4395,6 +4475,11 @@
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                                 },
+                                                                                "back": {
+                                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
+                                                                                },
                                                                                 "restart": {
                                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                                     "type": "boolean",
@@ -4558,6 +4643,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "back": {
+                                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     },
                                                                                     "restart": {
                                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -4755,6 +4845,11 @@
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                                 },
+                                                                                "back": {
+                                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
+                                                                                },
                                                                                 "restart": {
                                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                                     "type": "boolean",
@@ -4918,6 +5013,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "back": {
+                                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     },
                                                                                     "restart": {
                                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -5148,6 +5248,11 @@
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                                 },
+                                                                                "back": {
+                                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
+                                                                                },
                                                                                 "restart": {
                                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                                     "type": "boolean",
@@ -5311,6 +5416,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "back": {
+                                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     },
                                                                                     "restart": {
                                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -5508,6 +5618,11 @@
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                                 },
+                                                                                "back": {
+                                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
+                                                                                },
                                                                                 "restart": {
                                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                                     "type": "boolean",
@@ -5671,6 +5786,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "back": {
+                                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     },
                                                                                     "restart": {
                                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -5868,6 +5988,11 @@
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                                 },
+                                                                                "back": {
+                                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
+                                                                                },
                                                                                 "restart": {
                                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                                     "type": "boolean",
@@ -6031,6 +6156,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "back": {
+                                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     },
                                                                                     "restart": {
                                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -6263,6 +6393,11 @@
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
+                                                    },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                         "type": "boolean",
@@ -6426,6 +6561,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "back": {
+                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         },
                                                         "restart": {
                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -6633,6 +6773,11 @@
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
                                                         },
+                                                        "back": {
+                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                            "type": "boolean",
+                                                            "const": true
+                                                        },
                                                         "restart": {
                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                             "type": "boolean",
@@ -6796,6 +6941,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -7588,6 +7738,11 @@
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
+                                                                },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                     "type": "boolean",
@@ -7751,6 +7906,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -8591,6 +8751,11 @@
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
+                                                                },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                     "type": "boolean",
@@ -8754,6 +8919,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -9028,6 +9198,11 @@
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
+                                                                },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                     "type": "boolean",
@@ -9191,6 +9366,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -9487,6 +9667,11 @@
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
+                                                    },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                         "type": "boolean",
@@ -9650,6 +9835,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "back": {
+                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         },
                                                         "restart": {
                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -9834,6 +10024,11 @@
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
                                                     },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
+                                                    },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                         "type": "boolean",
@@ -9997,6 +10192,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "back": {
+                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         },
                                                         "restart": {
                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -10523,6 +10723,11 @@
                                                 "type": "string",
                                                 "pattern": "^[A-Za-z0-9_-]+$"
                                             },
+                                            "back": {
+                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                "type": "boolean",
+                                                "const": true
+                                            },
                                             "restart": {
                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                 "type": "boolean",
@@ -10686,6 +10891,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -11061,6 +11271,11 @@
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
+                                                },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                     "type": "boolean",
@@ -11224,6 +11439,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -11392,6 +11612,11 @@
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
+                                                },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                     "type": "boolean",
@@ -11555,6 +11780,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -11989,6 +12219,11 @@
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
+                                                            },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                 "type": "boolean",
@@ -12152,6 +12387,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -12329,6 +12569,11 @@
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
+                                                },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                     "type": "boolean",
@@ -12492,6 +12737,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -12972,6 +13222,11 @@
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
                                                         },
+                                                        "back": {
+                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                            "type": "boolean",
+                                                            "const": true
+                                                        },
                                                         "restart": {
                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                             "type": "boolean",
@@ -13135,6 +13390,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -13311,6 +13571,11 @@
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
+                                                                },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                     "type": "boolean",
@@ -13474,6 +13739,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -13684,6 +13954,11 @@
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
                                                         },
+                                                        "back": {
+                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                            "type": "boolean",
+                                                            "const": true
+                                                        },
                                                         "restart": {
                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                             "type": "boolean",
@@ -13847,6 +14122,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -14191,6 +14471,11 @@
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
+                                                            },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                 "type": "boolean",
@@ -14354,6 +14639,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -14531,6 +14821,11 @@
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
+                                                },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                     "type": "boolean",
@@ -14694,6 +14989,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -15232,6 +15532,11 @@
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
+                                                            },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                 "type": "boolean",
@@ -15395,6 +15700,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -15563,6 +15873,11 @@
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
+                                                            },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                 "type": "boolean",
@@ -15726,6 +16041,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -16081,6 +16401,11 @@
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
+                                                            },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                 "type": "boolean",
@@ -16244,6 +16569,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -16420,6 +16750,11 @@
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
+                                                },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                     "type": "boolean",
@@ -16583,6 +16918,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -16889,6 +17229,11 @@
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
+                                                },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                     "type": "boolean",
@@ -17052,6 +17397,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -17872,6 +18222,11 @@
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
+                                                },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                     "type": "boolean",
@@ -18035,6 +18390,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -18342,6 +18702,11 @@
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
+                                                            },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                 "type": "boolean",
@@ -18505,6 +18870,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -18673,6 +19043,11 @@
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
+                                                            },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                 "type": "boolean",
@@ -18836,6 +19211,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -20080,6 +20460,11 @@
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
                                                         },
+                                                        "back": {
+                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                            "type": "boolean",
+                                                            "const": true
+                                                        },
                                                         "restart": {
                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                             "type": "boolean",
@@ -20243,6 +20628,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -20419,6 +20809,11 @@
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
+                                                                },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                     "type": "boolean",
@@ -20582,6 +20977,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -20786,6 +21186,11 @@
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
                                                         },
+                                                        "back": {
+                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                            "type": "boolean",
+                                                            "const": true
+                                                        },
                                                         "restart": {
                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                             "type": "boolean",
@@ -20949,6 +21354,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -21394,6 +21804,11 @@
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
                                                         },
+                                                        "back": {
+                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                            "type": "boolean",
+                                                            "const": true
+                                                        },
                                                         "restart": {
                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                             "type": "boolean",
@@ -21557,6 +21972,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -21871,6 +22291,11 @@
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
+                                                            },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                 "type": "boolean",
@@ -22034,6 +22459,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -22211,6 +22641,11 @@
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
+                                                },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                     "type": "boolean",
@@ -22374,6 +22809,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -22578,6 +23018,11 @@
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
+                                                },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                     "type": "boolean",
@@ -22741,6 +23186,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -23079,6 +23529,11 @@
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
                                                         },
+                                                        "back": {
+                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                            "type": "boolean",
+                                                            "const": true
+                                                        },
                                                         "restart": {
                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                             "type": "boolean",
@@ -23242,6 +23697,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -23418,6 +23878,11 @@
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
+                                                                },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                     "type": "boolean",
@@ -23581,6 +24046,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -23761,6 +24231,11 @@
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
                                                         },
+                                                        "back": {
+                                                            "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                            "type": "boolean",
+                                                            "const": true
+                                                        },
                                                         "restart": {
                                                             "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                             "type": "boolean",
@@ -23924,6 +24399,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -24100,6 +24580,11 @@
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                                 },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
+                                                                },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                     "type": "boolean",
@@ -24263,6 +24748,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "back": {
+                                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     },
                                                                     "restart": {
                                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -24596,6 +25086,11 @@
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
                                                             },
+                                                            "back": {
+                                                                "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                "type": "boolean",
+                                                                "const": true
+                                                            },
                                                             "restart": {
                                                                 "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                                 "type": "boolean",
@@ -24759,6 +25254,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "back": {
+                                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 },
                                                                 "restart": {
                                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
@@ -24947,6 +25447,11 @@
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
                                                 },
+                                                "back": {
+                                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                    "type": "boolean",
+                                                    "const": true
+                                                },
                                                 "restart": {
                                                     "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
                                                     "type": "boolean",
@@ -25110,6 +25615,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "back": {
+                                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     },
                                                     "restart": {
                                                         "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",

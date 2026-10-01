@@ -194,6 +194,14 @@ export const ActionCaseSchema = z
             description: "A timer to stop and put back to its start",
         }),
         sound: actionSound,
+        back: z
+            .literal(true)
+            .optional()
+            .meta({
+                description:
+                    "Go back to the screen before this one (and before that, each time), e.g. " +
+                    "from a help screen many screens link to",
+            }),
         restart: z
             .literal(true)
             .optional()
@@ -206,6 +214,9 @@ export const ActionCaseSchema = z
     .refine((action) => !(action.screen && action.dialog), {
         message: 'Set "screen" or "dialog", not both',
     })
+    .refine((action) => !(action.back && (action.screen || action.dialog || action.restart)), {
+        message: 'Going back goes to the screen before: leave out "screen", "dialog" and "restart"',
+    })
     .refine((action) => !(action.restart && (action.screen || action.dialog || action.set)), {
         message:
             'A restart goes to the start screen afresh: leave out "screen", "dialog" and "set"',
@@ -215,6 +226,7 @@ export const ActionCaseSchema = z
             action.screen !== undefined ||
             action.dialog !== undefined ||
             action.restart !== undefined ||
+            action.back !== undefined ||
             action.set !== undefined ||
             action.sound !== undefined ||
             action.startTimer !== undefined ||
@@ -222,7 +234,7 @@ export const ActionCaseSchema = z
             action.resetTimer !== undefined,
         {
             message:
-                'Set "screen", "dialog", "set", "sound", "restart" or a timer to start, stop or reset',
+                'Set "screen", "dialog", "set", "sound", "back", "restart" or a timer to start, stop or reset',
         },
     )
     .meta({

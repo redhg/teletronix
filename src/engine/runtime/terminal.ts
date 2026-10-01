@@ -68,6 +68,8 @@ export interface TerminalSnapshot {
 }
 
 const DEFAULT_COLUMNS = 80;
+/** The most screens going back can go back through. */
+const HISTORY = 50;
 
 /**
  * The engine's root. Owns navigation, dialogs and timing.
@@ -101,6 +103,8 @@ export class Terminal {
     private previous = "";
     /** A saved game's screen, to start on instead of the start screen (see restoreState). */
     private resumeAt: string | null = null;
+    /** The screens before this one, for going back: the most recent last. */
+    private history: string[] = [];
     private outgoing: ScreenRun | null = null;
     private outgoingTransition: OutgoingSnapshot["transition"] | null = null;
     private interstitial: { type: "static"; until: number } | null = null;
@@ -183,6 +187,7 @@ export class Terminal {
             variables: Object.fromEntries(this.variables),
             memory: Object.fromEntries(this.memory),
             timers,
+            history: [...this.history],
         };
     }
 
@@ -212,6 +217,13 @@ export class Terminal {
         }
         this.variablesVersion++;
         if (this.program.screens.has(state.screen)) this.resumeAt = state.screen;
+        if (Array.isArray(state.history)) {
+            this.history = state.history
+                .filter(
+                    (id): id is string => typeof id === "string" && this.program.screens.has(id),
+                )
+                .slice(-HISTORY);
+        }
     }
 
     /**
@@ -253,7 +265,8 @@ export class Terminal {
             typeof ids === "string"
                 ? ids
                 : (ids[Math.floor((this.random ?? Math.random)() * ids.length)] ?? ids[0] ?? "");
-        if (chosen.screen !== undefined) this.navigate(one(chosen.screen));
+        if (chosen.back) this.goBack();
+        else if (chosen.screen !== undefined) this.navigate(one(chosen.screen));
         else if (chosen.dialog !== undefined) this.openDialog(one(chosen.dialog));
         this.flush();
         return chosen;
@@ -282,9 +295,15 @@ export class Terminal {
      * fades) itself over the new one while the new one starts revealing, and is dropped
      * once that's finished.
      */
-    navigate(screenId: string): void {
+    navigate(screenId: string, remember = true): void {
         const screen = this.program.screens.get(screenId);
         if (!screen) throw new Error(`Unknown screen "${screenId}"`);
+        // where it came from, for going back (not when it's coming back)
+        const from = this.run?.screen.id;
+        if (remember && from !== undefined && from !== screenId) {
+            this.history.push(from);
+            if (this.history.length > HISTORY) this.history.shift();
+        }
         const now = this.ticker.now();
         this.dialog = null;
         this.nextFired = false;
@@ -337,8 +356,17 @@ export class Terminal {
      * Starts the program over, as if just loaded: the start screen, with the variables and
      * every element's memory back where they began.
      */
+    /** Goes back to the screen before this one, if there was one. */
+    goBack(): void {
+        const previous = this.history.pop();
+        if (previous !== undefined && this.program.screens.has(previous)) {
+            this.navigate(previous, false);
+        }
+    }
+
     restart(): void {
         this.resumeAt = null;
+        this.history = [];
         this.memory.clear();
         this.variables.clear();
         for (const [name, value] of this.program.variables) this.variables.set(name, value);
@@ -790,6 +818,8 @@ export interface SavedState {
     variables: Record<string, VariableValue>;
     memory: Record<string, unknown>;
     timers: Record<string, { ms: number; running: boolean }>;
+    /** The screens before it, for going back (from saves since that was added). */
+    history?: string[];
 }
 
 function isSavedState(state: unknown): state is SavedState {

@@ -1988,6 +1988,7 @@ Go to a screen or open a dialog, changing variables and playing a sound on the w
 | `stopTimer` | id |  | A timer to stop where it is |
 | `resetTimer` | id |  | A timer to stop and put back to its start |
 | `sound` | id |  | A sound from the program's sounds, played as the action happens |
+| `back` | `true` |  | Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to |
 | `restart` | `true` |  | Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began |
 
 <a id="reveal"></a>

@@ -1399,9 +1399,9 @@
                 { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
-        "door-1": { "content": ["Behind door 1: a storage closet, full of mops.", "", { "type": "link", "text": "> BACK", "action": { "screen": "random" } }] },
-        "door-2": { "content": ["Behind door 2: the galley. Someone's left the coffee on.", "", { "type": "link", "text": "> BACK", "action": { "screen": "random" } }] },
-        "door-3": { "content": ["Behind door 3: [alert]the airlock[/alert]. Best not.", "", { "type": "link", "text": "> BACK", "action": { "screen": "random" } }] },
+        "door-1": { "content": ["Behind door 1: a storage closet, full of mops.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
+        "door-2": { "content": ["Behind door 2: the galley. Someone's left the coffee on.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
+        "door-3": { "content": ["Behind door 3: [alert]the airlock[/alert]. Best not.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
         "toggles": {
             "content": [
                 "TOGGLES & CHOICES",

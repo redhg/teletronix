@@ -250,3 +250,46 @@ describe("saving progress", () => {
         expect(terminal.recall("gone#0")).toBeUndefined();
     });
 });
+
+describe("going back", () => {
+    const file = {
+        config: { name: "Test", reveal: "instant" as const },
+        screens: {
+            one: { content: ["ONE"] },
+            two: { content: ["TWO"] },
+            help: { content: ["HELP"] },
+        },
+    };
+    const at = (terminal: Terminal) => terminal.getSnapshot().screen?.run.screen.id;
+
+    it("returns through the screens before, most recent first", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.start();
+        terminal.dispatch([{ screen: "two" }]);
+        terminal.dispatch([{ screen: "help" }]);
+        terminal.dispatch([{ back: true }]);
+        expect(at(terminal)).toBe("two");
+        terminal.dispatch([{ back: true }]);
+        expect(at(terminal)).toBe("one");
+        // nowhere further back: it stays
+        terminal.dispatch([{ back: true }]);
+        expect(at(terminal)).toBe("one");
+    });
+
+    it("starts afresh on a restart, and is saved", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.start();
+        terminal.dispatch([{ screen: "two" }]);
+        const saved = terminal.saveState();
+        expect(saved.history).toEqual(["one"]);
+        terminal.dispatch([{ restart: true }]);
+        terminal.dispatch([{ back: true }]);
+        expect(at(terminal)).toBe("one");
+
+        const resumed = createTestTerminal(file).terminal;
+        resumed.restoreState(saved);
+        resumed.start();
+        resumed.dispatch([{ back: true }]);
+        expect(at(resumed)).toBe("one");
+    });
+});
