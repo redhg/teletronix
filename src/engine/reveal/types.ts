@@ -3,6 +3,8 @@ export type SegmentKind = "visible" | "cursor" | "hidden";
 export interface Segment {
     kind: SegmentKind;
     text: string;
+    /** CSS classes for this stretch of text, from inline markup (see text/markup.ts). */
+    style?: string;
 }
 
 /**

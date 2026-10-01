@@ -29,8 +29,13 @@ export function Bar({ lines, position, columns }: Props) {
                         const action = slot?.action;
                         if (!action) {
                             return (
-                                // biome-ignore lint/suspicious/noArrayIndexKey: laid out afresh each time
-                                <span key={k} className={slot?.className}>
+                                <span
+                                    // biome-ignore lint/suspicious/noArrayIndexKey: laid out afresh each time
+                                    key={k}
+                                    className={
+                                        classNames(slot?.className, piece.style) || undefined
+                                    }
+                                >
                                     {piece.text}
                                 </span>
                             );
@@ -40,7 +45,7 @@ export function Bar({ lines, position, columns }: Props) {
                                 // biome-ignore lint/suspicious/noArrayIndexKey: laid out afresh each time
                                 key={k}
                                 type="button"
-                                className={classNames("bar-link", slot.className)}
+                                className={classNames("bar-link", slot.className, piece.style)}
                                 onClick={() => {
                                     sound({ type: "select" });
                                     terminal.dispatch(action);

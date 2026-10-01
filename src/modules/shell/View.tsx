@@ -2,6 +2,7 @@ import { useContext, useLayoutEffect, useState } from "react";
 import { AutoscrollContext } from "../../ui/autoscroll.ts";
 import { CommandLine } from "../../ui/CommandLine.tsx";
 import { classNames, type ElementViewProps } from "../../ui/element-view.ts";
+import { StyledText } from "../../ui/StyledText.tsx";
 import { useTerminal } from "../../ui/terminal-context.ts";
 import type { ShellElement } from "./definition.ts";
 import { complete, promptFor, runCommand } from "./machine.ts";
@@ -54,7 +55,7 @@ export function ShellView({ element, interactive, run, index }: ElementViewProps
                             key={i}
                             className={classNames("shell-line", entry.error && "shell-error")}
                         >
-                            {line || " "}
+                            {line ? <StyledText text={line} /> : " "}
                         </div>
                     ))}
                 </div>

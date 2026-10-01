@@ -20,6 +20,7 @@ import type { Defaults, Screen } from "../schema/program.ts";
 import type { Cue } from "../schema/sound.ts";
 import type { Condition } from "../schema/variables.ts";
 import { applyLayout, type Layout, layoutText } from "../text/layout.ts";
+import { applyStyles, parseMarkup, type StyleRange, styleFrame } from "../text/markup.ts";
 
 /**
  * An element's lifecycle. Elements reveal in order, and the next starts when the current
@@ -74,6 +75,8 @@ interface ElementRun {
     text: string;
     layout: Layout;
     frame: Frame;
+    /** Where its inline styles go (see text/markup.ts), for frames over its plain text. */
+    styles: StyleRange[];
     progress: number;
     listeners: Set<FrameListener>;
     progressListeners: Set<ProgressListener>;
@@ -145,7 +148,7 @@ export class ScreenRun {
         );
 
         this.runs = this.content.map((element, index) => {
-            const text = this.textOf(element);
+            const { text, styles } = this.textOf(element);
             const loading = options.load?.(element);
             loading?.then(
                 (value) => this.loaded(index, value),
@@ -156,6 +159,7 @@ export class ScreenRun {
                 element,
                 state: loading ? "unloaded" : "ready",
                 text,
+                styles,
                 layout: this.layout(element, text),
                 frame: [],
                 progress: 0,
@@ -430,10 +434,11 @@ export class ScreenRun {
             return;
         }
 
-        const text = this.textOf(run.element, run.loaded);
-        if (text === run.text) return;
+        const { text, styles } = this.textOf(run.element, run.loaded);
+        if (text === run.text && sameStyles(styles, run.styles)) return;
 
         run.text = text;
+        run.styles = styles;
         run.layout = this.layout(run.element, text);
         if (run.state === "done") {
             run.frame = [{ kind: "visible", text }];
@@ -461,7 +466,7 @@ export class ScreenRun {
     subscribeFrame(index: number, listener: FrameListener): () => void {
         const run = this.runAt(index);
         run.listeners.add(listener);
-        listener(applyLayout(run.frame, run.layout), run.text);
+        listener(applyLayout(applyStyles(run.frame, run.styles), run.layout), run.text);
         return () => run.listeners.delete(listener);
     }
 
@@ -561,14 +566,16 @@ export class ScreenRun {
         return layoutText(text, this.columns, layoutOptions(element, fallback));
     }
 
-    private textOf(element: Element, loaded?: unknown): string {
+    /** An element's text, without its inline markup, and where its styles go. */
+    private textOf(element: Element, loaded?: unknown): { text: string; styles: StyleRange[] } {
         const text = moduleFor(element).text(
             element,
             this.options.recall?.(element.id),
             this.options.format,
             loaded,
         );
-        return this.options.format?.(text) ?? text;
+        const { text: plain, styles } = parseMarkup(this.options.format?.(text) ?? text);
+        return { text: plain, styles };
     }
 
     private buildUnits(): Unit[] {
@@ -632,7 +639,8 @@ export class ScreenRun {
         run.state = "ready";
         // what it loaded may be its text (e.g. a file's): lay it out, and reveal that
         run.loaded = value;
-        const text = this.textOf(run.element, value);
+        const { text, styles } = this.textOf(run.element, value);
+        run.styles = styles;
         if (text !== run.text) {
             run.text = text;
             run.layout = this.layout(run.element, text);
@@ -754,11 +762,13 @@ export class ScreenRun {
 
         unit.indices.forEach((index, k) => {
             const run = this.runs[index] as ElementRun;
-            const part = parts[k] ?? [];
+            // a custom reveal's frames may have markup in them (e.g. a checklist's status)
+            const part = unit.custom ? styleFrame(parts[k] ?? []) : (parts[k] ?? []);
             if (typing && !sameFrame(part, run.frame)) this.options.onCue?.({ type: "key" });
             if (unit.custom) {
                 // a custom reveal's frames are the element's text (e.g. a progress bar)
                 const text = part.map((segment) => segment.text).join("");
+                run.styles = [];
                 if (text !== run.text) {
                     run.text = text;
                     run.layout = this.layout(run.element, text);
@@ -777,7 +787,7 @@ export class ScreenRun {
 
     private emitFrame(run: ElementRun): void {
         if (run.listeners.size === 0) return;
-        const frame = applyLayout(run.frame, run.layout);
+        const frame = applyLayout(applyStyles(run.frame, run.styles), run.layout);
         for (const listener of run.listeners) listener(frame, run.text);
     }
 
@@ -790,5 +800,22 @@ export class ScreenRun {
 function sameFrame(a: Frame, b: Frame): boolean {
     if (a === b) return true;
     if (a.length !== b.length) return false;
-    return a.every((segment, i) => segment.text === b[i]?.text && segment.kind === b[i]?.kind);
+    return a.every(
+        (segment, i) =>
+            segment.text === b[i]?.text &&
+            segment.kind === b[i]?.kind &&
+            segment.style === b[i]?.style,
+    );
+}
+
+function sameStyles(a: readonly StyleRange[], b: readonly StyleRange[]): boolean {
+    return (
+        a.length === b.length &&
+        a.every(
+            (style, i) =>
+                style.start === b[i]?.start &&
+                style.end === b[i]?.end &&
+                style.className === b[i]?.className,
+        )
+    );
 }

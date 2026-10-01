@@ -68,6 +68,6 @@ export function applyBreaks(frame: Frame, breaks: readonly Break[]): Frame {
 
         text += segment.text.slice(cursor - offset);
         offset = end;
-        return { kind: segment.kind, text };
+        return { ...segment, text };
     });
 }

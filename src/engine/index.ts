@@ -60,4 +60,5 @@ export {
     type SoundKind,
     type SoundSetting,
 } from "./schema/sound.ts";
+export { applyStyles, classesAt, parseMarkup, type StyleRange } from "./text/markup.ts";
 export { ManualTicker, type Ticker, type TickListener } from "./time/ticker.ts";

@@ -23,7 +23,7 @@ export function splitFrame(frame: Frame, lengths: readonly number[]): Frame[] {
             const to = Math.min(end, segmentEnd);
             if (to > from) {
                 frames[index]?.push({
-                    kind: segment.kind,
+                    ...segment,
                     text: segment.text.slice(from - position, to - position),
                 });
             }

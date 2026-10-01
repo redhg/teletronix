@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { classesAt, parseMarkup } from "../text/markup.ts";
 import { type Action, ActionSchema } from "./common.ts";
 
 // ─── Header and status bars ──────────────────────────────────────────────────
@@ -76,6 +77,8 @@ export type SlotName = "left" | "center" | "right";
 export interface BarPiece {
     text: string;
     slot?: SlotName;
+    /** CSS classes from inline markup, e.g. [alert]...[/] */
+    style?: string;
 }
 
 /**
@@ -88,15 +91,24 @@ export function layoutBarLine(
     columns: number,
     format: (text: string) => string,
 ): BarPiece[] {
-    const cells: { char: string; slot?: SlotName }[] = Array.from({ length: columns }, () => ({
-        char: " ",
-    }));
+    const cells: { char: string; slot?: SlotName; style?: string }[] = Array.from(
+        { length: columns },
+        () => ({ char: " " }),
+    );
     const place = (slot: SlotName, start: (length: number) => number) => {
-        const text = line[slot] ? format(line[slot].text) : "";
+        // (laid out by the text it shows, without its markup)
+        const { text, styles } = parseMarkup(line[slot] ? format(line[slot].text) : "");
+        const classes = classesAt(styles, text.length);
         const from = Math.max(0, start(text.length));
         for (let i = 0; i < text.length && from + i < columns; i++) {
             const cell = cells[from + i];
-            if (cell && !cell.slot) Object.assign(cell, { char: text[i], slot });
+            if (cell && !cell.slot) {
+                Object.assign(cell, {
+                    char: text[i],
+                    slot,
+                    ...(classes[i] ? { style: classes[i] } : {}),
+                });
+            }
         }
     };
     place("left", () => 0);
@@ -106,8 +118,14 @@ export function layoutBarLine(
     const pieces: BarPiece[] = [];
     for (const cell of cells) {
         const last = pieces.at(-1);
-        if (last && last.slot === cell.slot) last.text += cell.char;
-        else pieces.push(cell.slot ? { text: cell.char, slot: cell.slot } : { text: cell.char });
+        if (last && last.slot === cell.slot && last.style === cell.style) last.text += cell.char;
+        else {
+            pieces.push({
+                text: cell.char,
+                ...(cell.slot ? { slot: cell.slot } : {}),
+                ...(cell.style ? { style: cell.style } : {}),
+            });
+        }
     }
     return pieces;
 }

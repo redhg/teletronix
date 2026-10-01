@@ -1,6 +1,7 @@
 import { type KeyboardEvent, type MouseEvent, useId, useLayoutEffect, useRef } from "react";
 import type { Dialog } from "../engine/index.ts";
 import { classNames } from "./element-view.ts";
+import { StyledText } from "./StyledText.tsx";
 import { useSound } from "./sound/context.ts";
 import { useTerminal } from "./terminal-context.ts";
 import "./dialog.css";
@@ -58,7 +59,7 @@ export function DialogView({ dialog }: { dialog: Dialog }) {
         >
             <div className="dialog-body">
                 <div id={contentId} className="dialog-content">
-                    {terminal.format(dialog.content.join("\n"))}
+                    <StyledText text={terminal.format(dialog.content.join("\n"))} />
                 </div>
                 <div className="dialog-buttons">
                     {dialog.type === "alert" ? (

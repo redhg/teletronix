@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { ElementIdentity, ModuleDefinition } from "../../engine/module.ts";
 import { ElementAlignSchema, ElementBaseShape } from "../../engine/schema/common.ts";
+import { parseMarkup } from "../../engine/text/markup.ts";
 
 export const TableColumnSchema = z
     .strictObject({
@@ -53,10 +54,14 @@ export type TableElement = z.output<typeof TableSchema> & ElementIdentity;
 
 type Align = "left" | "center" | "right";
 
+/** How many characters text shows: without its inline markup (e.g. [alert]...[/]). */
+const shown = (text: string) => parseMarkup(text).text.length;
+
 /** Text fitted to exactly `width` characters, placed by `align`. */
 function fitCell(text: string, width: number, align: Align): string {
-    const cut = text.length > width ? text.slice(0, width) : text;
-    const room = width - cut.length;
+    // (cut short, it loses its markup: there'd be no telling where to close it)
+    const cut = shown(text) > width ? parseMarkup(text).text.slice(0, width) : text;
+    const room = width - shown(cut);
     if (align === "right") return " ".repeat(room) + cut;
     if (align === "center") {
         const left = Math.floor(room / 2);
@@ -82,7 +87,7 @@ export function tableText(
         { length: count },
         (_, i) =>
             column(i)?.width ??
-            Math.max(1, header?.[i]?.length ?? 0, ...rows.map((row) => row[i]?.length ?? 0)),
+            Math.max(1, shown(header?.[i] ?? ""), ...rows.map((row) => shown(row[i] ?? ""))),
     );
     const cells = (row: string[], heading = false) =>
         row.map((cell, i) =>

@@ -39,13 +39,50 @@ export function RevealText({ run, index, label }: Props) {
             }
 
             const texts: Record<SegmentKind, string> = { visible: "", cursor: "", hidden: "" };
-            for (const segment of frame) texts[segment.kind] += segment.text;
+            // inline styles: the visible text's styled stretches, and the cursor's
+            const styled: { text: string; style?: string }[] = [];
+            let cursorStyle = "";
+            for (const segment of frame) {
+                texts[segment.kind] += segment.text;
+                if (segment.kind === "visible") {
+                    const last = styled.at(-1);
+                    if (last && last.style === segment.style) last.text += segment.text;
+                    else styled.push({ text: segment.text, style: segment.style });
+                }
+                if (segment.kind === "cursor" && segment.style) cursorStyle = segment.style;
+            }
             // a cursor on a line break would be invisible, so show it as a block first
             if (texts.cursor === "\n") texts.cursor = " \n";
 
-            for (const kind of ["visible", "cursor", "hidden"] as const) {
+            for (const kind of ["cursor", "hidden"] as const) {
                 const span = spans[kind];
                 if (span && span.textContent !== texts[kind]) span.textContent = texts[kind];
+            }
+            const cursorClass = cursorStyle ? `reveal-cursor ${cursorStyle}` : "reveal-cursor";
+            if (spans.cursor && spans.cursor.className !== cursorClass) {
+                spans.cursor.className = cursorClass;
+            }
+            const shown = spans.visible;
+            const styleKey = styled
+                .map((part) => `${part.style ?? ""}|${part.text}`)
+                .join("\u0000");
+            if (shown && styled.some((part) => part.style)) {
+                // (rebuilt only when it changes)
+                if (shown.dataset.styled !== styleKey) {
+                    shown.dataset.styled = styleKey;
+                    shown.replaceChildren(
+                        ...styled.map((part) => {
+                            if (!part.style) return document.createTextNode(part.text);
+                            const span = document.createElement("span");
+                            span.className = part.style;
+                            span.textContent = part.text;
+                            return span;
+                        }),
+                    );
+                }
+            } else if (shown && (shown.dataset.styled || shown.textContent !== texts.visible)) {
+                delete shown.dataset.styled;
+                shown.textContent = texts.visible;
             }
 
             // the cursor moved to a new line: let the autoscroller keep it in view

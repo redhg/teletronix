@@ -63,7 +63,7 @@ function applyIndent(frame: Frame, indent: number): Frame {
             text += char;
             lineStart = char === "\n";
         }
-        out.push({ kind: segment.kind, text });
+        out.push({ ...segment, text });
     }
     return out;
 }

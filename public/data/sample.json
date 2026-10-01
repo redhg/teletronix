@@ -840,7 +840,7 @@
                 "checks": [
                     "LIFE SUPPORT",
                     "NAVIGATION",
-                    { "text": "HYPERSLEEP CHAMBER 3", "status": "[FAIL]", "delay": 1200 },
+                    { "text": "HYPERSLEEP CHAMBER 3", "status": "[alert][FAIL][/]", "delay": 1200 },
                     "COMMS ARRAY"
                 ],
                 "status": "[ONLINE]",
@@ -1272,7 +1272,7 @@
             ]
         },
         "dashboard": {
-            "header": [{ "left": "SHIP SYSTEMS // NOSTROMO", "right": "FUEL {fuel}%   HULL {hull}%" }],
+            "header": [{ "left": "SHIP SYSTEMS // NOSTROMO", "right": "FUEL [alert]{fuel}%[/]   HULL {hull}%" }],
             "content": [
                 "A dashboard, made of ordinary elements: meters showing variables, and visuals, laid out in columns. Move the fuel valve and watch it all follow.",
                 "",
@@ -1473,6 +1473,8 @@
                 "",
                 "An empty string makes a blank line, like the one above.",
                 { "type": "text", "text": "Text objects can add CSS classes, like \"alert\".", "className": "alert" },
+                "",
+                "Or style just part of a line, anywhere text goes: REACTOR STATUS: [alert]CRITICAL[/alert]. EVACUATE [alert blink]NOW[/]. Write [[alert]...[[/alert], or close it with [[/]. (And [[[[ shows a [[ that's never markup.)",
                 "",
                 { "type": "text", "text": "\"align\": \"center\" puts text in the middle.", "align": "center" },
                 { "type": "text", "text": "Or \"right\", at the edge.", "align": "right" },

@@ -90,6 +90,15 @@ program over, as if just loaded: the start screen, with every variable, timer an
 memory (a locked login, an opened section) back where it began. Every element takes an optional
 `className` (e.g. `"alert"`), `reveal`, and `if`.
 
+### Inline styling
+Part of a line can have CSS classes, anywhere text goes (text, links, choices, tables, checklists,
+bars, dialogs, the shell…): `"REACTOR STATUS: [alert]CRITICAL[/alert]"`. Close with `[/alert]`
+or just `[/]`; give several classes with spaces, `[alert blink]NOW[/]`; and nest them. Only
+lowercase names that are closed later count, so text like `[ OK ]`, `[FAIL]` or `[X]` is left
+as it is, and `[[` is a `[` that's never markup: `[[alert]` shows as `[alert]`. The markup
+takes no room: lines wrap, align and type out as if it weren't there, and screen readers don't
+hear it. The built-in classes are `alert` (the alert color) and `blink`; your own need CSS.
+
 ### ASCII art
 For art drawn by hand, put it in a text file and give a text element its `src`: no escaping,
 and it's shown exactly as written (with `"wrap": false`, and `align` to place it). Like any

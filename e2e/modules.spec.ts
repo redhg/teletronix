@@ -1776,3 +1776,47 @@ test.describe("rule", () => {
         await expect(player.screen.locator(".rule .sr-only")).toHaveText("LOG");
     });
 });
+
+test.describe("inline styling", () => {
+    test("styles part of a line, in text, checklists, bars and dialogs", async ({
+        page,
+        player,
+    }) => {
+        await player.open({
+            config: {
+                name: "Styled",
+                start: "home",
+                reveal: "instant",
+                theme: { fg: "#33ff66", bg: "#001100", alert: "#ffff00" },
+                header: [{ left: "STATUS: [alert]RED[/]", right: "OK" }],
+            },
+            screens: {
+                home: {
+                    content: [
+                        "STATUS: [alert]CRITICAL[/alert]. [FAIL] stays as it is.",
+                        {
+                            type: "checklist",
+                            items: [{ text: "PUMP", status: "[alert][FAIL][/]" }],
+                            delay: 0,
+                        },
+                        { type: "link", text: "> HELP", action: { dialog: "help" } },
+                    ],
+                },
+            },
+            dialogs: { help: { type: "alert", content: "PRESS [alert]ANY[/] KEY" } },
+        } as Program);
+        const yellow = "rgb(255, 255, 0)";
+        const text = player.screen.locator(".text").first();
+        await expect(text).toContainText("STATUS: CRITICAL. [FAIL] stays as it is.");
+        await expect(text.locator("[aria-hidden='true'] .alert")).toHaveText("CRITICAL");
+        await expect(text.locator("[aria-hidden='true'] .alert")).toHaveCSS("color", yellow);
+        // the markup doesn't count towards layout, or screen readers
+        await expect(text.locator(".sr-only")).toHaveText(
+            "STATUS: CRITICAL. [FAIL] stays as it is.",
+        );
+        await expect(player.screen.locator(".checklist .alert")).toHaveText("[FAIL]");
+        await expect(page.locator(".bar-header .alert")).toHaveText("RED");
+        await player.screen.getByRole("button", { name: "> HELP" }).click();
+        await expect(player.dialog.locator(".alert")).toHaveText("ANY");
+    });
+});
