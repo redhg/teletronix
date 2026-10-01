@@ -6,7 +6,7 @@
         "description": "Demonstrates every Teletronix feature.",
         "start": "home",
         "waitForReveal": true,
-        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false },
+        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false, "target": "NONE", "shipX": 5, "shipY": 2 },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
     "screens": {
@@ -40,6 +40,7 @@
                         { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
                         { "type": "link", "text": "> LINKS", "action": { "screen": "links" } },
                         { "type": "link", "text": "> LOG FEED", "action": { "screen": "log" } },
+                        { "type": "link", "text": "> MAPS", "action": { "screen": "maps" } },
                         { "type": "link", "text": "> MENUS", "action": { "screen": "menus" } },
                         { "type": "link", "text": "> METERS", "action": { "screen": "meters" } },
                         { "type": "link", "text": "> NUMBERS", "action": { "screen": "numbers" } },
@@ -1463,6 +1464,45 @@
                         }
                     }
                 }
+            ]
+        },
+        "maps": {
+            "content": [
+                "STAR MAP // ZETA II RETICULI",
+                { "type": "rule" },
+                "Move the crosshairs with the arrow keys (shift for further) or a click; Enter or a click on a star selects it.",
+                "",
+                {
+                    "type": "map",
+                    "cols": 48,
+                    "rows": 12,
+                    "sectors": [12, 4],
+                    "cursor": { "x": 5, "y": 2 },
+                    "variable": "target",
+                    "status": "SECTOR {sector}  [{x},{y}]  {target}",
+                    "markers": [
+                        { "x": "shipX", "y": "shipY", "char": "@", "label": "NOSTROMO (YOU)", "blink": true },
+                        { "x": 20, "y": 3, "char": "*", "label": "THEDUS STATION", "action": { "set": { "shipX": 19, "shipY": 3 } } },
+                        { "x": 33, "y": 9, "char": "*", "label": "[alert]LV-426[/alert]", "className": "alert", "action": { "set": { "shipX": 32, "shipY": 9 } } },
+                        { "x": 42, "y": 1, "char": "*", "label": "GATEWAY STATION", "action": { "set": { "shipX": 41, "shipY": 1 } } },
+                        { "x": 9, "y": 10, "char": "o", "label": "ACHERON (MOON)" }
+                    ]
+                },
+                "",
+                "TARGET: {target}. Selecting a station moves the ship there: its marker follows two variables.",
+                "",
+                "A map can be a drawing too, like this deck plan, with markers on it:",
+                "",
+                {
+                    "type": "map",
+                    "grid": ["┌──────┬──────┬──────┐", "│GALLEY│ MED  │ CRYO │", "├──  ──┴──  ──┴──  ──┤", "│     CORRIDOR A     │", "└──────────┬──┬──────┘", "           │  │ AIRLOCK", "           └──┘"],
+                    "markers": [
+                        { "x": 3, "y": 3, "char": "@", "label": "YOU", "blink": true },
+                        { "x": 12, "y": 5, "char": "!", "className": "alert blink" }
+                    ]
+                },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
             ]
         },
         "toggles": {

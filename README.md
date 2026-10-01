@@ -74,6 +74,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"decrypt"` | A message that starts scrambled and resolves a few characters at a time, with an optional progress bar. See below. |
 | `"hexdump"` | Bytes as a hex dump: your text, random bytes with text hidden in them, or a file. See below. |
 | `"conversation"` | A conversation with a computer: it speaks, the player picks a numbered reply, and it answers. See below. |
+| `"map"` | A deck plan or a star field, with markers (some following variables) and optional crosshairs to select a target. See below. |
 | `"log"` | A live log: lines that keep arriving, one every so often, with optional timestamps. See below. |
 | `"spinner"` | A spinner that turns for a while, or until a key, holding the screen. See below. |
 | `"slider"` | A bar the player sets by dragging or with the arrow keys. See below. |
@@ -308,6 +309,30 @@ variable, go to a screen, go `back`), and is said after `you` (default `> `). Re
 `if` are only offered while it holds, and `once` ones until they've been chosen (remembered when
 the player comes back). A part with no replies ends the conversation. A click, Enter or Space
 finishes the line being typed. Lines and replies can show variables and inline markup.
+
+### Maps
+```json
+{
+    "type": "map",
+    "cols": 48, "rows": 12, "sectors": [12, 4],
+    "cursor": true, "variable": "target", "status": "SECTOR {sector}  {target}",
+    "markers": [
+        { "x": "shipX", "y": "shipY", "char": "@", "label": "NOSTROMO", "blink": true },
+        { "x": 33, "y": 9, "label": "LV-426", "className": "alert", "action": { "screen": "lv426" } }
+    ]
+}
+```
+A map is your own drawing (`grid`, as lines of text, e.g. a deck plan), or a star field `cols`
+wide and `rows` tall, scattered with faint `stars` (the same each time). `sectors`
+(`[width, height]`) divides it into sectors, lettered across the top and numbered down the side.
+Its rows touch, so box drawing joins up.
+- `markers` are what's on it: a `char` at `x`, `y` (counting from 0; either can be a number
+  variable's name, so a marker moves as it changes), with a `label`, optional `blink` and
+  `className`, an `if`, and an `action`.
+- `"cursor": true` (or `{ "x", "y" }` to start somewhere) adds crosshairs, moved with the arrow
+  keys (Shift: five at a time) or a click. Enter, Space or a click on a marker selects it: its
+  `action` runs, and `variable` gets its label. `status` is a line under the map, where
+  `{sector}`, `{x}`, `{y}` and `{target}` (the label under the crosshairs) are filled in.
 
 ### Logs
 ```json

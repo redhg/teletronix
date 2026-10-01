@@ -120,6 +120,7 @@ import {
 import { LinkSchema } from "../src/modules/link/definition.ts";
 import { LogSchema } from "../src/modules/log/definition.ts";
 import { AccountSchema, LoginSchema } from "../src/modules/login/definition.ts";
+import { MapMarkerSchema, MapPointSchema, MapSchema } from "../src/modules/map/definition.ts";
 import { MenuItemSchema, MenuSchema } from "../src/modules/menu/definition.ts";
 import { MeterRangeSchema, MeterSchema } from "../src/modules/meter/definition.ts";
 import { NumberRuleSchema, NumberSchema } from "../src/modules/number/definition.ts";
@@ -285,6 +286,9 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Hex dump exit", HexdumpExitSchema],
             ["Decrypt element", DecryptSchema, '"type": "decrypt"'],
             ["Log", LogSchema, '"type": "log"'],
+            ["Map", MapSchema, '"type": "map"'],
+            ["Map marker", MapMarkerSchema],
+            ["Map point", MapPointSchema],
             ["Conversation", ConversationSchema, '"type": "conversation"'],
             ["Conversation part", ConversationNodeSchema],
             ["Conversation reply", ReplySchema],

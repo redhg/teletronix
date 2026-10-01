@@ -1948,3 +1948,63 @@ test.describe("conversation", () => {
         await expect(player.screen).toContainText("AWAY, ASKED true");
     });
 });
+
+test.describe("map", () => {
+    test("moves crosshairs to a marker, selects it, and follows variables", async ({
+        page,
+        player,
+    }) => {
+        await player.open({
+            config: {
+                name: "Map",
+                start: "home",
+                reveal: "instant",
+                variables: { target: "NONE", sx: 0, sy: 0 },
+            },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "map",
+                            cols: 10,
+                            rows: 4,
+                            stars: 0,
+                            sectors: [5, 2],
+                            cursor: true,
+                            variable: "target",
+                            status: "{sector} {x},{y} {target}",
+                            markers: [
+                                { x: "sx", y: "sy", char: "@", label: "SHIP" },
+                                {
+                                    x: 7,
+                                    y: 3,
+                                    char: "*",
+                                    label: "LV-426",
+                                    action: { set: { sx: 6, sy: 3 } },
+                                },
+                            ],
+                        },
+                        "TARGET {target}",
+                    ],
+                },
+            },
+        } as Program);
+        const map = player.screen.locator(".map");
+        const status = map.locator(".map-status");
+        await expect(map).toBeFocused();
+        await expect(status).toHaveText("A1 0,0 SHIP");
+        await page.keyboard.press("Shift+ArrowRight");
+        await page.keyboard.press("ArrowRight");
+        await page.keyboard.press("ArrowRight");
+        await page.keyboard.press("Shift+ArrowDown");
+        await expect(status).toHaveText("B2 7,3 LV-426");
+        await page.keyboard.press("Enter");
+        await expect(status).toHaveText("B2 7,3 LV-426 [LOCKED]");
+        await expect(player.screen).toContainText("TARGET LV-426");
+        // the ship's marker follows its variables
+        await expect(map.locator('[data-x="6"][data-y="3"]')).toHaveText("@");
+        // a click moves the crosshairs, and doesn't skip the screen
+        await map.locator('[data-x="0"][data-y="0"]').click();
+        await expect(status).toHaveText("A1 0,0 ");
+    });
+});

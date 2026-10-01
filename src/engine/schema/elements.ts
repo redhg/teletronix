@@ -41,6 +41,7 @@ import {
 import { type LinkElement, LinkSchema, linkModule } from "../../modules/link/definition.ts";
 import { type LogElement, LogSchema, logModule } from "../../modules/log/definition.ts";
 import { type LoginElement, LoginSchema, loginModule } from "../../modules/login/definition.ts";
+import { type MapElement, MapSchema, mapModule } from "../../modules/map/definition.ts";
 import { type MenuElement, MenuSchema, menuModule } from "../../modules/menu/definition.ts";
 import { type MeterElement, MeterSchema, meterModule } from "../../modules/meter/definition.ts";
 import { type NumberElement, NumberSchema, numberModule } from "../../modules/number/definition.ts";
@@ -123,6 +124,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     HorizontalRuleSchema,
     LogSchema,
     ConversationSchema,
+    MapSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -165,7 +167,8 @@ export type Element =
     | ShellElement
     | RuleElement
     | LogElement
-    | ConversationElement;
+    | ConversationElement
+    | MapElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -201,6 +204,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     rule: ruleModule,
     log: logModule,
     conversation: conversationModule,
+    map: mapModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {
