@@ -176,6 +176,15 @@ export const ConfigSchema = z
         fontScale: FontScaleSchema.optional(),
         effects: EffectsSchema.optional(),
         sound: SoundSchema.optional(),
+        save: z
+            .boolean()
+            .optional()
+            .meta({
+                description:
+                    "Save the player's progress in the browser as they go (the screen, variables, " +
+                    "timers, and what every element remembers), and carry on from it when the " +
+                    'page is opened again. A "restart" action starts over (default: false)',
+            }),
         blockContextMenu: z
             .boolean()
             .optional()
@@ -265,6 +274,8 @@ export interface Program {
     effects?: EffectsSetting;
     autoscroll: boolean;
     blockContextMenu: boolean;
+    /** Save progress in the browser, and carry on from it */
+    save: boolean;
     /** Sound as written (for tools that edit it), and resolved */
     soundSetting?: SoundSetting;
     sound: ResolvedSound | null;
@@ -307,6 +318,7 @@ function normalize(
         effects,
         autoscroll,
         blockContextMenu,
+        save,
         sound,
         theme,
         font,
@@ -387,6 +399,7 @@ function normalize(
         effects,
         autoscroll: autoscroll ?? true,
         blockContextMenu: blockContextMenu ?? true,
+        save: save ?? false,
         soundSetting: sound,
         sound: resolveSound(sound),
         theme,

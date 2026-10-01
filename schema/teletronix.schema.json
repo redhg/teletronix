@@ -3485,6 +3485,10 @@
                     ],
                     "description": "Generated retro sound effects: true, false, or an object of options. On by default; players can mute them with the sound toggle."
                 },
+                "save": {
+                    "description": "Save the player's progress in the browser as they go (the screen, variables, timers, and what every element remembers), and carry on from it when the page is opened again. A \"restart\" action starts over (default: false)",
+                    "type": "boolean"
+                },
                 "blockContextMenu": {
                     "description": "Block the browser's right-click menu, so the program feels like a terminal rather than a web page. Text fields keep theirs (default: true)",
                     "type": "boolean"

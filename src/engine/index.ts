@@ -10,6 +10,7 @@ export {
 export {
     type Interstitial,
     type OutgoingSnapshot,
+    type SavedState,
     type ScreenSnapshot,
     Terminal,
     type TerminalSnapshot,

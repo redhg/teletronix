@@ -1820,3 +1820,45 @@ test.describe("inline styling", () => {
         await expect(player.dialog.locator(".alert")).toHaveText("ANY");
     });
 });
+
+test.describe("saving progress", () => {
+    test("carries on after a reload, until a restart", async ({ page, player }) => {
+        await player.open({
+            config: {
+                name: "Saving",
+                start: "home",
+                reveal: "instant",
+                save: true,
+                variables: { score: 0 },
+            },
+            screens: {
+                home: {
+                    content: [
+                        "SCORE {score}",
+                        { type: "link", text: "> SCORE", action: { set: { score: { add: 1 } } } },
+                        { type: "link", text: "> NEXT", action: { screen: "next" } },
+                    ],
+                },
+                next: {
+                    content: [
+                        "NEXT, SCORE {score}",
+                        { type: "link", text: "> START OVER", action: { restart: true } },
+                    ],
+                },
+            },
+        } as Program);
+        await player.screen.getByRole("button", { name: "> SCORE" }).click();
+        await player.screen.getByRole("button", { name: "> SCORE" }).click();
+        await player.screen.getByRole("button", { name: "> NEXT" }).click();
+        await expect(player.screen).toContainText("NEXT, SCORE 2");
+        await page.waitForTimeout(500);
+        await page.reload();
+        await expect(player.screen).toContainText("NEXT, SCORE 2");
+        await player.screen.getByRole("button", { name: "> START OVER" }).click();
+        await expect(player.screen).toContainText("SCORE 0");
+        await page.waitForTimeout(500);
+        await page.reload();
+        await expect(player.screen).toContainText("SCORE 0");
+        await expect(player.screen).not.toContainText("NEXT, SCORE");
+    });
+});

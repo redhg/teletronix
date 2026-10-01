@@ -99,6 +99,8 @@ export class Terminal {
     private columns: number;
     private run: ScreenRun | null = null;
     private previous = "";
+    /** A saved game's screen, to start on instead of the start screen (see restoreState). */
+    private resumeAt: string | null = null;
     private outgoing: ScreenRun | null = null;
     private outgoingTransition: OutgoingSnapshot["transition"] | null = null;
     private interstitial: { type: "static"; until: number } | null = null;
@@ -157,8 +159,59 @@ export class Terminal {
 
     /** Shows the start screen, and starts the timers that start with the program. */
     start(): void {
-        this.startTimers();
-        this.navigate(this.program.start);
+        // (a restored game's timers are as they were saved)
+        if (this.resumeAt === null) this.startTimers();
+        const screen = this.resumeAt ?? this.program.start;
+        this.resumeAt = null;
+        this.navigate(screen);
+    }
+
+    /**
+     * Where the program is, to save and carry on from later: the screen, the variables, the
+     * program's timers, and every element's memory. Plain data, for JSON.
+     */
+    saveState(): SavedState {
+        const now = this.ticker.now();
+        const timers: SavedState["timers"] = {};
+        for (const name of this.program.timers.keys()) {
+            const timer = this.timers.get(name);
+            if (timer) timers[name] = { ms: timerMs(timer, now), running: timer.running };
+        }
+        return {
+            version: 1,
+            screen: this.run?.screen.id ?? this.program.start,
+            variables: Object.fromEntries(this.variables),
+            memory: Object.fromEntries(this.memory),
+            timers,
+        };
+    }
+
+    /**
+     * Carries on from a saved state (see saveState), before start(): anything in it the
+     * program no longer has (a screen, a variable, an element) is left as the program starts.
+     */
+    restoreState(state: unknown): void {
+        if (!isSavedState(state)) return;
+        for (const [name, value] of Object.entries(state.variables)) {
+            const initial = this.program.variables.get(name);
+            if (initial !== undefined && typeof value === typeof initial) {
+                this.variables.set(name, value);
+            }
+        }
+        for (const [id, value] of Object.entries(state.memory)) {
+            if (this.elements.has(id)) this.memory.set(id, value);
+        }
+        const now = this.ticker.now();
+        for (const [name, saved] of Object.entries(state.timers)) {
+            const timer = this.timers.get(name);
+            if (!timer || typeof saved?.ms !== "number") continue;
+            const [low, high] = [timer.clock.from, timer.clock.to].sort((a, b) => a - b);
+            timer.ms = Math.min((high ?? 0) * 1000, Math.max((low ?? 0) * 1000, saved.ms));
+            timer.running = saved.running === true;
+            timer.since = now;
+        }
+        this.variablesVersion++;
+        if (this.program.screens.has(state.screen)) this.resumeAt = state.screen;
     }
 
     /**
@@ -285,6 +338,7 @@ export class Terminal {
      * every element's memory back where they began.
      */
     restart(): void {
+        this.resumeAt = null;
         this.memory.clear();
         this.variables.clear();
         for (const [name, value] of this.program.variables) this.variables.set(name, value);
@@ -727,6 +781,30 @@ export class Terminal {
         };
         for (const listener of this.listeners) listener();
     }
+}
+
+/** A program's state, as saved (see Terminal.saveState). */
+export interface SavedState {
+    version: 1;
+    screen: string;
+    variables: Record<string, VariableValue>;
+    memory: Record<string, unknown>;
+    timers: Record<string, { ms: number; running: boolean }>;
+}
+
+function isSavedState(state: unknown): state is SavedState {
+    if (typeof state !== "object" || state === null) return false;
+    const saved = state as Partial<SavedState>;
+    return (
+        saved.version === 1 &&
+        typeof saved.screen === "string" &&
+        typeof saved.variables === "object" &&
+        saved.variables !== null &&
+        typeof saved.memory === "object" &&
+        saved.memory !== null &&
+        typeof saved.timers === "object" &&
+        saved.timers !== null
+    );
 }
 
 interface TimerState {

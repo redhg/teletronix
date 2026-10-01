@@ -59,6 +59,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `fontScale` | number, 0.5–2 | `1` | How big text is, from 0.5 (half the usual size) to 2 (twice). A pixel font still snaps to whole multiples of its pixels, so it grows in steps |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |
 | `sound` | [Sound](#sound) |  | Generated retro sound effects: true, false, or an object of options. On by default; players can mute them with the sound toggle. |
+| `save` | boolean | `false` | Save the player's progress in the browser as they go (the screen, variables, timers, and what every element remembers), and carry on from it when the page is opened again. A "restart" action starts over |
 | `blockContextMenu` | boolean | `true` | Block the browser's right-click menu, so the program feels like a terminal rather than a web page. Text fields keep theirs |
 | `autoscroll` | boolean | `true` | Scroll to keep new content in view as it appears, unless the reader has scrolled up |
 

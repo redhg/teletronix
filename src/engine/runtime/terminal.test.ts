@@ -196,3 +196,57 @@ describe("the restart action", () => {
         expect(result.ok).toBe(false);
     });
 });
+
+describe("saving progress", () => {
+    const file = {
+        config: {
+            name: "Test",
+            reveal: "instant" as const,
+            variables: { score: 0, name: "X" },
+            timers: { clock: { from: 60 } },
+        },
+        screens: {
+            one: { content: [{ type: "section" as const, title: "S", content: ["x"] }] },
+            two: { content: ["TWO"] },
+        },
+    };
+
+    it("carries on from where it was saved", () => {
+        const first = createTestTerminal(file);
+        first.terminal.start();
+        first.terminal.dispatch([
+            { set: [{ variable: "score", value: 7 }], startTimer: "clock", screen: "two" },
+        ]);
+        first.terminal.remember("one#0", true);
+        first.ticker.advance(5000, 1000);
+        const saved = JSON.parse(JSON.stringify(first.terminal.saveState()));
+
+        const second = createTestTerminal(file);
+        second.terminal.restoreState(saved);
+        second.terminal.start();
+        expect(second.terminal.getSnapshot().screen?.run.screen.id).toBe("two");
+        expect(second.terminal.variable("score")).toBe(7);
+        expect(second.terminal.recall("one#0")).toBe(true);
+        // the timer carries on from where it was, still running
+        expect(second.terminal.variable("clock")).toBe(55);
+        second.ticker.advance(2000, 1000);
+        expect(second.terminal.variable("clock")).toBe(53);
+    });
+
+    it("ignores what the program no longer has, and saves that aren't saves", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.restoreState({
+            version: 1,
+            screen: "gone",
+            variables: { score: "not a number", missing: 1, name: "Y" },
+            memory: { "gone#0": true },
+            timers: {},
+        });
+        terminal.restoreState("nonsense");
+        terminal.start();
+        expect(terminal.getSnapshot().screen?.run.screen.id).toBe("one");
+        expect(terminal.variable("score")).toBe(0);
+        expect(terminal.variable("name")).toBe("Y");
+        expect(terminal.recall("gone#0")).toBeUndefined();
+    });
+});

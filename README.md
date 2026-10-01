@@ -823,6 +823,14 @@ appear) and on dialogs (instead of the usual beep). A sound named `key`, `select
 `dialog` or `alert` replaces Teletronix's own sound of that kind. Design sounds on the sound test
 page's **Custom** tab. Every sound name is checked when the program loads.
 
+### Saving progress
+`"save": true` in `config` saves the player's progress in the browser as they go: the screen
+they're on, the variables, the program's timers, and what every element remembers (open
+sections, choices, a login's tries, a shell's folder). Opening the program again carries on
+from there, so a session survives a reload, or picks up next week on the same computer. A
+`{ "restart": true }` action starts over, e.g. from a "> NEW GAME" link. Each program saves
+under its `name`; the settings page's preview never saves.
+
 ### Right-click menu
 The browser's right-click menu is blocked, so a program feels like a terminal rather than a web
 page; the prompt's text field keeps its menu, for pasting. `"blockContextMenu": false` in `config`

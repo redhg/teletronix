@@ -8,6 +8,7 @@ import { ErrorView } from "./ErrorView.tsx";
 import { loadElement } from "./load-element.ts";
 import { loadProgram } from "./load-program.ts";
 import { Player } from "./Player.tsx";
+import { keepSaved } from "./save.ts";
 import "../styles/theme.css";
 import "../styles/base.css";
 
@@ -41,6 +42,8 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
         load: loadElement,
         instant: matchMedia("(prefers-reduced-motion: reduce)").matches,
     });
+    // carry on from saved progress, and keep saving (not while previewing settings)
+    if (!params.has("preview")) keepSaved(terminal);
 
     root.render(
         <StrictMode>
