@@ -26,8 +26,9 @@ test.describe("offline", () => {
         await context.setOffline(true);
 
         await page.reload();
-        await expect(player.screen).toContainText("TELETRONIX // SAMPLE PROGRAM");
-        await player.link("> IMAGES").click();
+        // (the sample starts up with a key press: the boot screen)
+        await expect(player.screen).toContainText("TELETRONIX SAMPLE SYSTEM");
+        await page.goto("./?data=sample#images");
         await expect(player.screen.locator(".bitmap canvas").first()).toBeVisible();
         await expect(player.screen).not.toContainText("IMAGE UNAVAILABLE");
 

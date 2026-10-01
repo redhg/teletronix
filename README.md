@@ -104,7 +104,7 @@ or just `[/]`; give several classes with spaces, `[alert blink]NOW[/]`; and nest
 lowercase names that are closed later count, so text like `[ OK ]`, `[FAIL]` or `[X]` is left
 as it is, and `[[` is a `[` that's never markup: `[[alert]` shows as `[alert]`. The markup
 takes no room: lines wrap, align and type out as if it weren't there, and screen readers don't
-hear it. The built-in classes are `alert` (the alert color) and `blink`; your own need CSS.
+hear it. The built-in classes are `alert` (the alert color), `blink` and `dim` (for notes); your own need CSS.
 
 ### ASCII art
 For art drawn by hand, put it in a text file and give a text element its `src`: no escaping,

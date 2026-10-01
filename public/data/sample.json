@@ -4,8 +4,9 @@
         "name": "Teletronix Sample",
         "author": "@redhg",
         "description": "Demonstrates every Teletronix feature.",
-        "start": "home",
+        "start": "startup",
         "waitForReveal": true,
+        "header": [{ "left": "TELETRONIX // SAMPLE PROGRAM", "right": { "text": "[HOME]", "action": { "screen": "home" } } }],
         "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false, "target": "NONE", "shipX": 5, "shipY": 2 },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
@@ -13,57 +14,203 @@
         "home": {
             "content": [
                 "TELETRONIX // SAMPLE PROGRAM",
-                "============================",
+                { "type": "rule", "char": "═" },
                 "",
-                "Each line of a screen appears in turn. A bare string is a line of text. Long lines wrap at word boundaries to fit the window, so try resizing it.",
+                "A tour of everything Teletronix can do, a category at a time. Each line of a screen appears in turn: click anywhere, or press <esc>, to skip to the end. This program sets \"waitForReveal\": true, so controls only work once their screen has finished, as on a real terminal.",
                 "",
-                "Click anywhere, or press <esc>, to skip to the end of a screen. This program sets \"waitForReveal\": true, so links and other controls only work once their screen has finished revealing, as on a real terminal: until then, clicking one skips ahead too.",
+                "Choose with the arrow keys and <enter>, a number, or a click:",
+                "",
+                {
+                    "type": "menu",
+                    "items": [
+                        { "text": "1. TEXT & LAYOUT", "key": "1", "action": { "screen": "cat-text" } },
+                        { "text": "2. REVEALS & EFFECTS", "key": "2", "action": { "screen": "cat-reveals" } },
+                        { "text": "3. CONTROLS", "key": "3", "action": { "screen": "cat-controls" } },
+                        { "text": "4. READOUTS", "key": "4", "action": { "screen": "cat-readouts" } },
+                        { "text": "5. COMPUTERS", "key": "5", "action": { "screen": "cat-computers" } },
+                        { "text": "6. STORY & STATE", "key": "6", "action": { "screen": "cat-story" } },
+                        { "text": "7. PRESETS", "key": "7", "action": { "screen": "presets" } }
+                    ]
+                },
+                "",
+                "Tip: add #<screen> to the address to start on a screen, e.g. #home to skip the start-up."
+            ]
+        },
+        "cat-text": {
+            "content": [
+                "TEXT & LAYOUT",
+                { "type": "rule" },
+                "",
+                "How text appears on the screen, and how it's arranged.",
+                "",
+                { "type": "link", "text": "> TEXT", "action": { "screen": "text" } },
+                { "type": "text", "text": "  Lines, wrapping, alignment, preformatted text, and inline styling.", "className": "dim" },
+                { "type": "link", "text": "> ASCII ART", "action": { "screen": "ascii" } },
+                { "type": "text", "text": "  Art from a text file, shown exactly.", "className": "dim" },
+                { "type": "link", "text": "> RULES", "action": { "screen": "rules" } },
+                { "type": "text", "text": "  Horizontal lines, with labels and ends.", "className": "dim" },
+                { "type": "link", "text": "> TABLES", "action": { "screen": "tables" } },
+                { "type": "text", "text": "  Rows and columns, with box-drawn borders.", "className": "dim" },
+                { "type": "link", "text": "> SECTIONS", "action": { "screen": "sections" } },
+                { "type": "text", "text": "  Headers that expand and collapse.", "className": "dim" },
+                { "type": "link", "text": "> COLUMNS", "action": { "screen": "columns" } },
+                { "type": "text", "text": "  Elements laid out in columns.", "className": "dim" },
+                { "type": "link", "text": "> BARS", "action": { "screen": "bars" } },
+                { "type": "text", "text": "  Header and status bars, pinned to the window.", "className": "dim" },
+                { "type": "link", "text": "> PAUSES", "action": { "screen": "pauses" } },
+                { "type": "text", "text": "  A page at a time: press any key to continue.", "className": "dim" },
+                { "type": "link", "text": "> AUTOSCROLL", "action": { "screen": "autoscroll" } },
+                { "type": "text", "text": "  Keeping new text in view, or not.", "className": "dim" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "cat-reveals": {
+            "content": [
+                "REVEALS & EFFECTS",
+                { "type": "rule" },
+                "",
+                "How screens and their text arrive, and how the glass looks and sounds.",
+                "",
+                { "type": "link", "text": "> REVEALS", "action": { "screen": "reveals" } },
+                { "type": "text", "text": "  Teletype, glitch and instant, and transitions between screens.", "className": "dim" },
+                { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } },
+                { "type": "text", "text": "  The glitch reveal, close up.", "className": "dim" },
+                { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
+                { "type": "text", "text": "  Bitmaps, blended with the screen, and their reveal effects.", "className": "dim" },
+                { "type": "link", "text": "> VISUALS", "action": { "screen": "visuals" } },
+                { "type": "text", "text": "  Line art that moves: waveforms, charts, radar, wireframes.", "className": "dim" },
+                { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } },
+                { "type": "text", "text": "  Scanlines, static, bloom, vignette, flicker and fringe.", "className": "dim" },
+                { "type": "link", "text": "> SOUNDS", "action": { "screen": "sounds" } },
+                { "type": "text", "text": "  Key clicks, beeps, hum, and sounds of your own.", "className": "dim" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "cat-controls": {
+            "content": [
+                "CONTROLS",
+                { "type": "rule" },
+                "",
+                "Ways for the player to choose, type and adjust.",
+                "",
+                { "type": "link", "text": "> LINKS", "action": { "screen": "links" } },
+                { "type": "text", "text": "  Text to click, with a second action on shift-click or long press.", "className": "dim" },
+                { "type": "link", "text": "> BUTTONS", "action": { "screen": "buttons" } },
+                { "type": "text", "text": "  A row of [ BUTTONS ], with hotkeys.", "className": "dim" },
+                { "type": "link", "text": "> MENUS", "action": { "screen": "menus" } },
+                { "type": "text", "text": "  A BIOS-style menu, like the home screen's.", "className": "dim" },
+                { "type": "link", "text": "> TOGGLES & CHOICES", "action": { "screen": "toggles" } },
+                { "type": "text", "text": "  States that cycle, radio buttons and checkboxes.", "className": "dim" },
+                { "type": "link", "text": "> SLIDERS", "action": { "screen": "sliders" } },
+                { "type": "text", "text": "  Bars to drag, with rules that fire at thresholds.", "className": "dim" },
+                { "type": "link", "text": "> NUMBERS", "action": { "screen": "numbers" } },
+                { "type": "text", "text": "  Codes and settings, with the arrow keys.", "className": "dim" },
+                { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
+                { "type": "text", "text": "  A command line of your own commands.", "className": "dim" },
+                { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
+                { "type": "text", "text": "  Moving on with a key, or after a while.", "className": "dim" },
+                { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
+                { "type": "text", "text": "  Alerts and confirmations.", "className": "dim" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "cat-readouts": {
+            "content": [
+                "READOUTS",
+                { "type": "rule" },
+                "",
+                "Displays that show what's going on.",
+                "",
+                { "type": "link", "text": "> PROGRESS", "action": { "screen": "progress" } },
+                { "type": "text", "text": "  Bars that fill, and fail.", "className": "dim" },
+                { "type": "link", "text": "> SPINNERS", "action": { "screen": "spinners" } },
+                { "type": "text", "text": "  Something seems to happen, for a while or until a key.", "className": "dim" },
+                { "type": "link", "text": "> CHECKLISTS", "action": { "screen": "checklists" } },
+                { "type": "text", "text": "  Lines that each get a status: [ OK ].", "className": "dim" },
+                { "type": "link", "text": "> COUNTERS", "action": { "screen": "counters" } },
+                { "type": "text", "text": "  Numbers that count, like a memory test.", "className": "dim" },
+                { "type": "link", "text": "> METERS", "action": { "screen": "meters" } },
+                { "type": "text", "text": "  Gauges that follow variables.", "className": "dim" },
+                { "type": "link", "text": "> TIMERS", "action": { "screen": "timers" } },
+                { "type": "text", "text": "  Countdowns, on screen and across screens.", "className": "dim" },
+                { "type": "link", "text": "> LOG FEED", "action": { "screen": "log" } },
+                { "type": "text", "text": "  Lines that keep arriving.", "className": "dim" },
+                { "type": "link", "text": "> DASHBOARD", "action": { "screen": "dashboard" } },
+                { "type": "text", "text": "  All of the above, at once.", "className": "dim" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "cat-computers": {
+            "content": [
+                "COMPUTERS",
+                { "type": "rule" },
+                "",
+                "Little computers to poke at.",
+                "",
+                { "type": "link", "text": "> SHELL", "action": { "screen": "shell" } },
+                { "type": "text", "text": "  A command line over a file system: ls, cd, cat, and passwords.", "className": "dim" },
+                { "type": "link", "text": "> SHELL, DOS STYLE", "action": { "screen": "shell-dos" } },
+                { "type": "text", "text": "  The same, as DIR, CD and TYPE.", "className": "dim" },
+                { "type": "link", "text": "> CONVERSATION", "action": { "screen": "conversation" } },
+                { "type": "text", "text": "  A talk with MOTHER, reply by reply.", "className": "dim" },
+                { "type": "link", "text": "> MAPS", "action": { "screen": "maps" } },
+                { "type": "text", "text": "  A star map with crosshairs, and a deck plan.", "className": "dim" },
+                { "type": "link", "text": "> HEX DUMPS", "action": { "screen": "hexdumps" } },
+                { "type": "text", "text": "  Bytes, with secrets hidden in them.", "className": "dim" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "cat-story": {
+            "content": [
+                "STORY & STATE",
+                { "type": "rule" },
+                "",
+                "What the program remembers, and how chance and choice play out.",
+                "",
+                { "type": "link", "text": "> VARIABLES", "action": { "screen": "variables" } },
+                { "type": "text", "text": "  Values that actions set, controls change and text shows.", "className": "dim" },
+                { "type": "link", "text": "> RANDOMNESS", "action": { "screen": "random" } },
+                { "type": "text", "text": "  Dice, picks, and doors chosen at random.", "className": "dim" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "columns": {
+            "content": [
+                "COLUMNS",
+                { "type": "rule" },
+                "",
+                "\"columns\" lays elements out side by side on the character grid, down each column in turn (or across each row), with fewer columns on a narrower screen. Try resizing the window.",
+                "",
+                "NOSTROMO CREW MANIFEST",
                 "",
                 {
                     "type": "columns",
                     "count": 3,
-                    "minWidth": 16,
+                    "minWidth": 18,
                     "content": [
-                        { "type": "link", "text": "> ASCII ART", "action": { "screen": "ascii" } },
-                        { "type": "link", "text": "> AUTOSCROLL", "action": { "screen": "autoscroll" } },
-                        { "type": "link", "text": "> BARS", "action": { "screen": "bars" } },
-                        { "type": "link", "text": "> BUTTONS", "action": { "screen": "buttons" } },
-                        { "type": "link", "text": "> CHECKLISTS", "action": { "screen": "checklists" } },
-                        { "type": "link", "text": "> CONVERSATION", "action": { "screen": "conversation" } },
-                        { "type": "link", "text": "> COUNTERS", "action": { "screen": "counters" } },
-                        { "type": "link", "text": "> DASHBOARD", "action": { "screen": "dashboard" } },
-                        { "type": "link", "text": "> DIALOGS", "action": { "screen": "dialogs" } },
-                        { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } },
-                        { "type": "link", "text": "> GLITCH", "action": { "screen": "glitch" } },
-                        { "type": "link", "text": "> HEX DUMPS", "action": { "screen": "hexdumps" } },
-                        { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
-                        { "type": "link", "text": "> KEYS", "action": { "screen": "keys" } },
-                        { "type": "link", "text": "> LINKS", "action": { "screen": "links" } },
-                        { "type": "link", "text": "> LOG FEED", "action": { "screen": "log" } },
-                        { "type": "link", "text": "> MAPS", "action": { "screen": "maps" } },
-                        { "type": "link", "text": "> MENUS", "action": { "screen": "menus" } },
-                        { "type": "link", "text": "> METERS", "action": { "screen": "meters" } },
-                        { "type": "link", "text": "> NUMBERS", "action": { "screen": "numbers" } },
-                        { "type": "link", "text": "> PAUSES", "action": { "screen": "pauses" } },
-                        { "type": "link", "text": "> PRESETS", "action": { "screen": "presets" } },
-                        { "type": "link", "text": "> PROGRESS", "action": { "screen": "progress" } },
-                        { "type": "link", "text": "> PROMPT", "action": { "screen": "prompt" } },
-                        { "type": "link", "text": "> RANDOMNESS", "action": { "screen": "random" } },
-                        { "type": "link", "text": "> REVEALS", "action": { "screen": "reveals" } },
-                        { "type": "link", "text": "> RULES", "action": { "screen": "rules" } },
-                        { "type": "link", "text": "> SECTIONS", "action": { "screen": "sections" } },
-                        { "type": "link", "text": "> SLIDERS", "action": { "screen": "sliders" } },
-                        { "type": "link", "text": "> SOUNDS", "action": { "screen": "sounds" } },
-                        { "type": "link", "text": "> SPINNERS", "action": { "screen": "spinners" } },
-                        { "type": "link", "text": "> TABLES", "action": { "screen": "tables" } },
-                        { "type": "link", "text": "> TEXT", "action": { "screen": "text" } },
-                        { "type": "link", "text": "> TIMERS", "action": { "screen": "timers" } },
-                        { "type": "link", "text": "> TOGGLES & CHOICES", "action": { "screen": "toggles" } },
-                        { "type": "link", "text": "> VARIABLES", "action": { "screen": "variables" } },
-                        { "type": "link", "text": "> VISUALS", "action": { "screen": "visuals" } }
+                        "DALLAS  (CAPTAIN)",
+                        "KANE  (EXEC. OFFICER)",
+                        "RIPLEY  (WARRANT OFF.)",
+                        "ASH  (SCIENCE OFF.)",
+                        "LAMBERT  (NAVIGATOR)",
+                        "PARKER  (CHIEF ENG.)",
+                        "BRETT  (ENG. TECH)",
+                        "JONES  (SHIP'S CAT)"
                     ]
-                }
+                },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
+        },
+        "startup": {
+            "header": false,
+            "preset": { "type": "boot", "title": "TELETRONIX SAMPLE SYSTEM v2.0", "pause": true, "next": "home" }
         },
         "effects": {
             "content": [
@@ -89,7 +236,7 @@
                 "A screen can be nothing but effects, and \"next\" moves on without a link:",
                 { "type": "link", "text": "> SIGNAL LOST", "action": { "screen": "fx-noise" } },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "fx-channel": {
@@ -218,7 +365,7 @@
                 "A confirm dialog asks a question, and each answer can do something:",
                 { "type": "link", "text": "> SELF-DESTRUCT", "className": "alert", "action": { "dialog": "destruct" } },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "progress": {
@@ -244,7 +391,7 @@
                 "",
                 "Or do something when it's done. This one uploads, and you can abort it with <esc>:",
                 { "type": "link", "text": "> UPLOAD LOGS", "action": { "screen": "upload" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "upload": {
@@ -315,7 +462,7 @@
                 "",
                 "END OF LOG.",
                 { "type": "link", "text": "> WITHOUT AUTOSCROLL", "action": { "screen": "autoscroll-off" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "autoscroll-off": {
@@ -370,7 +517,7 @@
                 "",
                 "END OF LOG.",
                 { "type": "link", "text": "> WITH AUTOSCROLL", "action": { "screen": "autoscroll" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "sliders": {
@@ -406,7 +553,7 @@
                     "onEnter": { "dialog": "reactor-set" }
                 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "transmission": {
@@ -452,7 +599,7 @@
                 "Tell it your name:",
                 { "type": "prompt", "prompt": "NAME: ", "variable": "name", "onEnter": { "screen": "variables" } },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "vault": {
@@ -481,7 +628,7 @@
                 "",
                 "Design your own on the sound test page (?sound, Custom tab).",
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "keys": {
@@ -569,7 +716,7 @@
                     ]
                 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "bars": {
@@ -591,7 +738,7 @@
                 "",
                 { "type": "link", "text": "> EARN 10 CREDITS", "action": { "set": { "credits": { "add": 10 } } } },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "pauses": {
@@ -611,7 +758,7 @@
                 "",
                 "Skipping stops at each pause too. Its text can be changed, and centered, like the [ MORE ] above.",
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "buttons": {
@@ -633,7 +780,7 @@
                     ]
                 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "numbers": {
@@ -665,7 +812,7 @@
                     "otherwise": { "dialog": "fuel-set" }
                 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "timers": {
@@ -692,7 +839,7 @@
                 "",
                 { "type": "timer", "label": "AIRLOCK CYCLE: ", "from": 10, "format": "ss", "onComplete": { "dialog": "airlock-cycled" } },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "timer-boom": {
@@ -733,7 +880,7 @@
                 { "type": "slider", "label": "FUEL MIX   ", "variable": "fuel", "unit": "%" },
                 { "type": "meter", "label": "FUEL FLOW  ", "variable": "fuel", "unit": "%", "fill": "#", "empty": "." },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "tables": {
@@ -768,7 +915,7 @@
                     ]
                 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "menus": {
@@ -787,7 +934,7 @@
                         { "text": "2. CREW MANIFEST", "key": "2", "action": { "screen": "tables" } },
                         { "text": "3. REACTOR CONTROL", "key": "3", "action": { "screen": "sliders" } },
                         { "text": "4. EMERGENCY SHUTDOWN", "key": "4", "className": "alert", "action": { "screen": "keys" } },
-                        { "text": "5. BACK", "key": "5", "action": { "screen": "home" } }
+                        { "text": "5. BACK", "key": "5", "action": { "back": true } }
                     ]
                 }
             ]
@@ -829,13 +976,15 @@
                 "Text can come from a file, with \"src\": paste ASCII art into a .txt file, no escaping needed, and it's shown exactly. Like all text, it types out:",
                 { "type": "text", "src": "data/art/puma.txt", "wrap": false, "align": "center", "reveal": { "type": "teletype", "speed": 3 } },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "boot": {
+            "header": false,
             "preset": { "type": "boot", "pause": true, "next": "presets" }
         },
         "boot-custom": {
+            "header": false,
             "preset": {
                 "type": "boot",
                 "title": "NOSTROMO MU-TH-UR 6000",
@@ -853,9 +1002,11 @@
             }
         },
         "shutdown": {
+            "header": false,
             "preset": { "type": "shutdown", "next": "presets" }
         },
         "error": {
+            "header": false,
             "preset": {
                 "type": "error",
                 "message": ["REACTOR COOLANT PRESSURE CRITICAL.", "CORE TEMPERATURE EXCEEDS LIMITS."],
@@ -864,6 +1015,7 @@
             }
         },
         "crash": {
+            "header": false,
             "preset": { "type": "crash", "message": ["*** STOP: 0x0000007B", "INACCESSIBLE_BOOT_DEVICE"], "next": "presets" }
         },
         "presets": {
@@ -876,41 +1028,41 @@
                 "Each one is ordinary content underneath (text, checklists, counters, pauses), so anything a preset does can be written out by hand too.",
                 "",
                 { "type": "link", "text": "> BOOT", "action": { "screen": "boot" } },
-                "  Starts up, then waits for a key: browsers only play sound once you've pressed one.",
+                { "type": "text", "text": "  Starts up, then waits for a key: browsers only play sound once you've pressed one.", "className": "dim" },
                 { "type": "link", "text": "> BOOT, CUSTOMIZED", "action": { "screen": "boot-custom" } },
-                "  Every line changed, and a check that fails.",
+                { "type": "text", "text": "  Every line changed, and a check that fails.", "className": "dim" },
                 { "type": "link", "text": "> SHUTDOWN", "action": { "screen": "shutdown" } },
-                "  Shuts down, then switches the screen off. Press a key to switch it back on.",
+                { "type": "text", "text": "  Shuts down, then switches the screen off. Press a key to switch it back on.", "className": "dim" },
                 { "type": "link", "text": "> ERROR", "action": { "screen": "error" } },
-                "  A fatal error in a blinking box. Press a key to restart.",
+                { "type": "text", "text": "  A fatal error in a blinking box. Press a key to restart.", "className": "dim" },
                 { "type": "link", "text": "> CRASH", "action": { "screen": "crash" } },
-                "  Garbage that never stops. Press a key to restart.",
+                { "type": "text", "text": "  Garbage that never stops. Press a key to restart.", "className": "dim" },
                 { "type": "link", "text": "> LOGIN", "action": { "screen": "login" } },
-                "  Log in as RIPLEY, password JONESY. Three wrong tries lock it, until you restart.",
+                { "type": "text", "text": "  Log in as RIPLEY, password JONESY. Three wrong tries lock it, until you restart.", "className": "dim" },
                 { "type": "link", "text": "> DECRYPT", "action": { "screen": "decrypt" } },
-                "  A message resolving out of scrambled characters.",
+                { "type": "text", "text": "  A message resolving out of scrambled characters.", "className": "dim" },
                 { "type": "link", "text": "> DECRYPT, FAILING", "action": { "screen": "decrypt-fail" } },
-                "  One that sweeps from start to end in hex, and fails partway.",
+                { "type": "text", "text": "  One that sweeps from start to end in hex, and fails partway.", "className": "dim" },
                 { "type": "link", "text": "> COUNTDOWN", "action": { "screen": "countdown" } },
-                "  A self-destruct sequence. Abort it with code 1138, or let it run out...",
+                { "type": "text", "text": "  A self-destruct sequence. Abort it with code 1138, or let it run out...", "className": "dim" },
                 { "type": "link", "text": "> TRANSMISSION", "action": { "screen": "transmission-preset" } },
-                "  A message coming in through the static.",
+                { "type": "text", "text": "  A message coming in through the static.", "className": "dim" },
                 { "type": "link", "text": "> MODEM", "action": { "screen": "modem" } },
-                "  Dialling in to a bulletin board, crackle and all.",
+                { "type": "text", "text": "  Dialling in to a bulletin board, crackle and all.", "className": "dim" },
                 { "type": "link", "text": "> INBOX", "action": { "screen": "inbox" } },
-                "  Messages that open to show their bodies.",
+                { "type": "text", "text": "  Messages that open to show their bodies.", "className": "dim" },
                 { "type": "link", "text": "> DIRECTORY", "action": { "screen": "directory" } },
-                "  A DOS-style listing, where files open other presets.",
+                { "type": "text", "text": "  A DOS-style listing, where files open other presets.", "className": "dim" },
                 { "type": "link", "text": "> DIRECTORY, UNIX STYLE", "action": { "screen": "directory-unix" } },
-                "  The same, as ls -l.",
+                { "type": "text", "text": "  The same, as ls -l.", "className": "dim" },
                 { "type": "link", "text": "> SHELL", "action": { "screen": "shell" } },
-                "  A command line over the ship's computer. Try help, ls, cd logs, cat, and sudo.",
+                { "type": "text", "text": "  A command line over the ship's computer. Try help, ls, cd logs, cat, and sudo.", "className": "dim" },
                 { "type": "link", "text": "> SHELL, DOS STYLE", "action": { "screen": "shell-dos" } },
-                "  The same computer, as DIR, TYPE and CD.",
+                { "type": "text", "text": "  The same computer, as DIR, TYPE and CD.", "className": "dim" },
                 { "type": "link", "text": "> HEX EDITOR", "action": { "screen": "hexeditor" } },
-                "  A recovered file that scrolls until something turns up. Take over with the arrow keys; <esc> leaves.",
+                { "type": "text", "text": "  A recovered file that scrolls until something turns up. Take over with the arrow keys; <esc> leaves.", "className": "dim" },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "checklists": {
@@ -934,7 +1086,7 @@
                 },
                 "",
                 { "type": "link", "text": "> AGAIN", "action": { "screen": "checklists" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "counters": {
@@ -955,7 +1107,7 @@
                 { "type": "counter", "label": "SECTORS: ", "to": 4096, "step": 256, "done": " FORMATTED" },
                 "",
                 { "type": "link", "text": "> AGAIN", "action": { "screen": "counters" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "visuals": {
@@ -1014,7 +1166,7 @@
                 "",
                 { "type": "visual", "kind": "wireframe", "shape": "terrain", "rows": 10 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "spinners": {
@@ -1053,7 +1205,7 @@
                 { "type": "spinner", "label": "AWAITING INPUT ", "style": "dots", "done": "RECEIVED" },
                 "",
                 { "type": "link", "text": "> AGAIN", "action": { "screen": "spinners" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "hexdumps": {
@@ -1075,7 +1227,7 @@
                 "",
                 "And with \"rows\", it's a window you can move through: try the arrow keys, Page Up/Down, Home and End. The HEX EDITOR preset (under PRESETS) fills the screen with one.",
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "hexeditor": {
@@ -1093,6 +1245,7 @@
             }
         },
         "login": {
+            "header": false,
             "preset": {
                 "type": "login",
                 "title": "WEYLAND-YUTANI CORP. // AUTHORIZED PERSONNEL ONLY",
@@ -1112,7 +1265,7 @@
                 "",
                 "That was the login preset. A login can also ask for a password only, keep the username in a variable (as this one did), and lock after too many wrong tries.",
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "login-locked": {
@@ -1122,10 +1275,11 @@
                 "Too many wrong tries: the login stays locked, even if you go back to it, until the program restarts. A { \"restart\": true } action starts it over, as if just loaded: every variable, timer and element's memory goes back to the start.",
                 "",
                 { "type": "link", "text": "> RESTART THE PROGRAM", "action": { "restart": true } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "decrypt": {
+            "header": false,
             "preset": {
                 "type": "decrypt",
                 "text": [
@@ -1138,10 +1292,11 @@
             "content": [
                 "",
                 { "type": "link", "text": "> AGAIN", "action": { "screen": "decrypt" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "decrypt-fail": {
+            "header": false,
             "preset": {
                 "type": "decrypt",
                 "title": "RECOVERING FLIGHT RECORDER...",
@@ -1155,10 +1310,11 @@
             "content": [
                 "",
                 { "type": "link", "text": "> AGAIN", "action": { "screen": "decrypt-fail" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "countdown": {
+            "header": false,
             "preset": {
                 "type": "countdown",
                 "seconds": 30,
@@ -1173,10 +1329,11 @@
                 "",
                 "That was the countdown preset: a blinking warning, a timer in big digits, and an abort code. Without a code, there's no stopping it.",
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "transmission-preset": {
+            "header": false,
             "preset": {
                 "type": "transmission",
                 "from": "SOURCE: NARCISSUS, SHUTTLE OF USCSS NOSTROMO",
@@ -1193,6 +1350,7 @@
             }
         },
         "modem": {
+            "header": false,
             "preset": { "type": "modem", "dial": "ATDT 1-800-555-0199", "connect": "CONNECT 2400/ARQ" },
             "content": [
                 "",
@@ -1232,7 +1390,7 @@
             },
             "content": [
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "directory": {
@@ -1253,7 +1411,7 @@
                 "",
                 "Click a file to open it.",
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "directory-unix": {
@@ -1272,7 +1430,7 @@
             },
             "content": [
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "dashboard": {
@@ -1299,7 +1457,7 @@
                 "",
                 { "type": "log", "lines": ["HULL SENSOR 4: NOMINAL", "FUEL FLOW {fuel}%", "NAV: COURSE HOLDING", "COMMS: NO SIGNAL", "[alert]AIRLOCK 2: PRESSURE DROP[/]", "LIFE SUPPORT: NOMINAL"], "time": "06:12", "loop": true, "rows": 5, "order": "random", "interval": 2000 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "shell": {
@@ -1381,7 +1539,7 @@
                 { "type": "rule", "ends": ["├", "┤"] },
                 { "type": "rule", "ends": ["<", ">"], "char": "=", "label": "40 COLUMNS", "cols": 40 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "random": {
@@ -1403,7 +1561,7 @@
                 { "type": "link", "text": "> OPEN A DOOR, ANY DOOR", "action": { "screen": ["door-1", "door-2", "door-3"] } },
                 "",
                 { "type": "link", "text": "> AGAIN", "action": { "screen": "random" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "door-1": { "content": ["Behind door 1: a storage closet, full of mops.", "", { "type": "link", "text": "> BACK", "action": { "back": true } }] },
@@ -1418,7 +1576,7 @@
                 "",
                 { "type": "log", "lines": ["CREW REVIVED FROM HYPERSLEEP", "MOTHER: COURSE CHANGED", "SIGNAL RECEIVED: ORIGIN LV-426", "[alert]SIGNAL IS A WARNING[/]", "DESCENT TO LV-426 BEGUN", "LANDING: HULL DAMAGE, DECK C", "EXPEDITION LEAVES SHIP", "KANE INJURED: RETURNING", "[alert]QUARANTINE OVERRIDDEN[/]"], "time": "06:12", "loop": true, "rows": 8 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "conversation": {
@@ -1504,7 +1662,7 @@
                     ]
                 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "toggles": {
@@ -1533,7 +1691,7 @@
                 "",
                 { "type": "choice", "multiple": true, "options": ["AIRLOCK SEALED"], "initial": [0], "className": "alert" },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "prompt": {
@@ -1592,7 +1750,7 @@
                 { "type": "bitmap", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "A photographic negative of the Gulf at night", "blend": { "mode": "difference", "with": "text" } },
                 "",
                 { "type": "link", "text": "> REVEAL EFFECTS", "action": { "screen": "image-effects" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "text": {
@@ -1625,7 +1783,7 @@
                     ]
                 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "reveals": {
@@ -1639,7 +1797,7 @@
                 "Screens and the config can set defaults too: the next screen shows everything instantly.",
                 "",
                 { "type": "link", "text": "> INSTANT SCREEN", "action": { "screen": "instant" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "instant": {
@@ -1677,7 +1835,7 @@
                     "secondaryAction": { "screen": "secret" }
                 },
                 "",
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "glitch": {
@@ -1694,7 +1852,7 @@
                 { "type": "text", "text": "An element can set its own glitch, which runs by itself, like this slow one.", "reveal": { "type": "glitch", "duration": 3000 } },
                 "",
                 { "type": "link", "text": "> NEXT PAGE", "action": { "screen": "glitch2" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "glitch2": {
@@ -1708,7 +1866,7 @@
                 "> Awaiting operator input_",
                 "",
                 { "type": "link", "text": "> PREVIOUS PAGE", "action": { "screen": "glitch" } },
-                { "type": "link", "text": "> BACK", "action": { "screen": "home" } }
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
         },
         "secret": {

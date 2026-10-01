@@ -47,6 +47,11 @@ body {
     }
 }
 
+/* text that's less important: notes, descriptions */
+.dim {
+    opacity: 0.65;
+}
+
 /* text that blinks, for warnings that must be seen: "className": "alert blink" */
 .blink {
     animation: blink 1s steps(1) infinite;

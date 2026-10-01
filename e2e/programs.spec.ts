@@ -25,6 +25,9 @@ test.describe("a program that can't be played", () => {
     });
 });
 
+/** What the crawl follows: links, and menu items. */
+const FOLLOW = 'button.link, [role="menuitem"]';
+
 /** A screen, known by the first line of its text. */
 const title = async (player: Player) => (await player.text()).trim().split("\n")[0] ?? "";
 
@@ -32,7 +35,7 @@ const title = async (player: Player) => (await player.text()).trim().split("\n")
  * Follows every link (with a click and with a shift-click) from every screen it reaches,
  * closing any dialog on the way, so each screen gets drawn once without errors.
  */
-async function crawl(player: Player, program: string): Promise<Set<string>> {
+async function crawl(player: Player, program: string, start = ""): Promise<Set<string>> {
     const { page } = player;
     type Step = { link: number; shift: boolean };
 
@@ -43,12 +46,14 @@ async function crawl(player: Player, program: string): Promise<Set<string>> {
     };
     const follow = async ({ link, shift }: Step) => {
         if (shift) await page.keyboard.down("Shift");
-        await player.screen.locator("button.link").nth(link).click();
+        await player.screen.locator(FOLLOW).nth(link).click();
         if (shift) await page.keyboard.up("Shift");
         await closeDialogs();
     };
     const replay = async (path: Step[]) => {
-        await player.open(program);
+        // (going to the same address with the same #screen wouldn't load it again)
+        await page.goto("about:blank");
+        await player.open(program, start);
         for (const step of path) await follow(step);
     };
 
@@ -60,7 +65,7 @@ async function crawl(player: Player, program: string): Promise<Set<string>> {
         const screen = await title(player);
         if (seen.has(screen)) continue;
         seen.add(screen);
-        const links = await player.screen.locator("button.link").count();
+        const links = await player.screen.locator(FOLLOW).count();
         for (let link = 0; link < links; link++) {
             queue.push([...path, { link, shift: false }], [...path, { link, shift: true }]);
         }
@@ -76,7 +81,8 @@ test.describe("the programs in public/data", () => {
     test("the sample draws every screen its links reach", async ({ player }) => {
         // (it replays the sample from the start for each link, and it has a lot of them)
         test.setTimeout(240_000);
-        const screens = await crawl(player, "sample");
+        // (from the home screen: the sample starts up with a key press)
+        const screens = await crawl(player, "sample", "#home");
         expect(screens.size).toBeGreaterThan(20);
     });
 
