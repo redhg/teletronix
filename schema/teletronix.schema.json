@@ -28175,6 +28175,160 @@
                             ],
                             "additionalProperties": false,
                             "description": "A map: a deck plan or a star field, with markers (some moving with variables), and optional crosshairs to select a target"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "carousel"
+                                },
+                                "slides": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/$defs/Content"
+                                        }
+                                    },
+                                    "description": "The slides, each a list of elements like a screen's content: images, text, tables, links… Each reveals as it comes into view."
+                                },
+                                "start": {
+                                    "default": 1,
+                                    "description": "The slide to show first, from 1 (default: 1)",
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                },
+                                "loop": {
+                                    "default": false,
+                                    "description": "Go from the last slide round to the first, and back (default: false)",
+                                    "type": "boolean"
+                                },
+                                "autoplay": {
+                                    "description": "Moves on by itself, this many milliseconds after each slide has revealed, until the player flips a slide themselves",
+                                    "type": "integer",
+                                    "minimum": 500,
+                                    "maximum": 9007199254740991
+                                },
+                                "prev": {
+                                    "default": "◄ PREV",
+                                    "description": "The link to the slide before (default: \"◄ PREV\")",
+                                    "type": "string"
+                                },
+                                "next": {
+                                    "default": "NEXT ►",
+                                    "description": "The link to the slide after (default: \"NEXT ►\")",
+                                    "type": "string"
+                                },
+                                "counter": {
+                                    "default": "{slide}/{slides}",
+                                    "description": "Between the links: which slide this is, \"{slide}\" of \"{slides}\" (default: \"{slide}/{slides}\"), or false for none",
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "boolean",
+                                            "const": false
+                                        }
+                                    ]
+                                },
+                                "variable": {
+                                    "description": "A number variable that holds the slide showing, from 1, e.g. to show a link once the last has been seen. Setting it flips the carousel.",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "slides"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Slides shown one at a time, like records on a terminal: flipped with its ◄ PREV and NEXT ► links or the ← and → keys. It remembers which slide was showing when you come back."
                         }
                     ]
                 }

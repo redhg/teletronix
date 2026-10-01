@@ -1,3 +1,4 @@
+import { type CarouselElement, currentSlide } from "../../modules/carousel/definition.ts";
 import { type ColumnsElement, columnLayout } from "../../modules/columns/definition.ts";
 import { type SectionElement, sectionOpen } from "../../modules/section/definition.ts";
 import { LOAD_FAILED } from "../module.ts";
@@ -128,10 +129,12 @@ export class ScreenRun {
     private held = -1;
     private finished: number | null = null;
     /**
-     * The contents of open sections and of columns, each a run of its own, by the index of
-     * the element that holds them.
+     * The contents of open sections, columns and carousels' slides, each a run of its own, by
+     * the index of the element that holds them.
      */
     private readonly children = new Map<number, ScreenRun>();
+    /** The slide each carousel's run is of. */
+    private readonly slides = new Map<number, number>();
     /** A section whose contents the run is holding for while they reveal, or -1. */
     private waitingOn = -1;
     /** A pause element the reveal has stopped at, waiting for a key press or tap, or -1. */
@@ -271,7 +274,7 @@ export class ScreenRun {
         return this.columns;
     }
 
-    /** The run of an open section's (or columns') contents, once its turn has come. */
+    /** The run of an open section's (or columns', or a carousel's slide's) contents, once its turn has come. */
     contents(elementId: string): ScreenRun | null {
         const index = this.runs.findIndex((run) => run.element.id === elementId);
         return this.children.get(index) ?? null;
@@ -432,7 +435,9 @@ export class ScreenRun {
             for (const child of this.children.values()) child.refresh(elementId);
             return;
         }
-        if (run.element.type === "section") this.syncSection(index);
+        if (run.element.type === "section" || run.element.type === "carousel") {
+            this.syncContents(index);
+        }
 
         // a custom reveal draws the element itself, from its memory
         const unit = this.units.find((u) => u.custom && u.indices.includes(index));
@@ -502,9 +507,9 @@ export class ScreenRun {
         this.options.onDone?.(now);
     }
 
-    /** Whether an element's contents are showing: an open section's, or columns'. */
+    /** Whether an element's contents are showing: an open section's, columns' or a carousel's. */
     private hasContents(element: Element): boolean {
-        if (element.type === "columns") return true;
+        if (element.type === "columns" || element.type === "carousel") return true;
         return (
             element.type === "section" &&
             sectionOpen(element, this.options.recall?.(element.id) as boolean | undefined)
@@ -522,17 +527,33 @@ export class ScreenRun {
         return Math.max(1, this.columns - indent);
     }
 
+    /** The slide a carousel is showing. */
+    private slideOf(carousel: CarouselElement): number {
+        return currentSlide(carousel, this.options.recall?.(carousel.id) as number | undefined);
+    }
+
     /** Starts revealing an element's contents, as a run of their own. */
     private openContents(index: number, time: number): ScreenRun {
-        const section = this.runs[index]?.element as SectionElement | ColumnsElement;
+        const holder = this.runs[index]?.element as
+            | SectionElement
+            | ColumnsElement
+            | CarouselElement;
+        let content: Element[];
+        if (holder.type === "carousel") {
+            const slide = this.slideOf(holder);
+            this.slides.set(index, slide);
+            content = holder.slides[slide] ?? [];
+        } else {
+            content = holder.content;
+        }
         const child: ScreenRun = new ScreenRun(
             {
                 ...this.screen,
                 // the element's reveal is its contents' default
-                reveal: section.reveal ?? this.screen.reveal,
+                reveal: holder.reveal ?? this.screen.reveal,
                 next: undefined,
                 sound: undefined,
-                content: section.content,
+                content,
             },
             {
                 ...this.options,
@@ -550,12 +571,24 @@ export class ScreenRun {
         return child;
     }
 
-    /** After a section's header has been clicked: shows or hides its contents to match. */
-    private syncSection(index: number): void {
+    /**
+     * After a section's header has been clicked, or a carousel flipped: shows or hides its
+     * contents to match, or reveals the carousel's new slide in place of the old.
+     */
+    private syncContents(index: number): void {
         const run = this.runs[index];
-        if (run?.element.type !== "section" || run.state !== "done" || this.eraser) return;
+        if (run?.state !== "done" || this.eraser) return;
         const now = this.options.now();
-        const open = this.hasContents(run.element);
+        const { element } = run;
+        if (element.type === "carousel") {
+            if (!this.children.has(index) || this.slides.get(index) === this.slideOf(element)) {
+                return;
+            }
+            this.children.delete(index);
+            this.openContents(index, now);
+            return;
+        }
+        const open = this.hasContents(element);
         if (open && !this.children.has(index)) {
             this.openContents(index, now);
         } else if (!open && this.children.has(index)) {
@@ -626,6 +659,7 @@ export class ScreenRun {
                 spec.type === "glitch" &&
                 element.type !== "section" &&
                 element.type !== "columns" &&
+                element.type !== "carousel" &&
                 element.type !== "pause";
             const last = groups.at(-1);
             if (block && last?.block) {

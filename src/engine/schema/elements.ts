@@ -12,6 +12,11 @@ import {
     buttonsModule,
 } from "../../modules/buttons/definition.ts";
 import {
+    type CarouselElement,
+    carouselModule,
+    createCarouselSchema,
+} from "../../modules/carousel/definition.ts";
+import {
     type ChecklistElement,
     ChecklistSchema,
     checklistModule,
@@ -95,6 +100,8 @@ import type { Align, LayoutOptions } from "../text/layout.ts";
 export const SectionSchema = createSectionSchema(() => z.array(ContentSchema));
 /** Likewise for columns. */
 export const ColumnsSchema = createColumnsSchema(() => z.array(ContentSchema));
+/** And for a carousel's slides. */
+export const CarouselSchema = createCarouselSchema(() => z.array(ContentSchema));
 
 // The registry of element modules. Adding a module means adding it here.
 export const ElementSchema = z.discriminatedUnion("type", [
@@ -131,6 +138,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     LogSchema,
     ConversationSchema,
     MapSchema,
+    CarouselSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -156,6 +164,7 @@ export type Element =
     | NumberElement
     | TimerElement
     | ColumnsElement
+    | CarouselElement
     | MeterElement
     | TableElement
     | ChoiceElement
@@ -193,6 +202,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     number: numberModule,
     timer: timerModule,
     columns: columnsModule,
+    carousel: carouselModule,
     meter: meterModule,
     table: tableModule,
     choice: choiceModule,
@@ -259,8 +269,8 @@ export function layoutOptions(element: Element, fallback: Align): LayoutOptions 
 }
 
 /**
- * Calls `visit` for every element in some content, including those inside sections, with
- * its path from the content (e.g. [2, "content", 0]).
+ * Calls `visit` for every element in some content, including those inside sections, columns
+ * and carousels, with its path from the content (e.g. [2, "content", 0]).
  */
 export function forEachElement(
     content: readonly Element[],
@@ -269,12 +279,22 @@ export function forEachElement(
 ): void {
     content.forEach((element, index) => {
         visit(element, [...path, index]);
-        const contents = contentsOf(element);
-        if (contents) forEachElement(contents, visit, [...path, index, "content"]);
+        for (const inner of contentsOf(element)) {
+            forEachElement(inner.content, visit, [...path, index, ...inner.path]);
+        }
     });
 }
 
-/** The elements an element holds (a section's or columns' contents), if it holds any. */
-export function contentsOf(element: Element): Element[] | undefined {
-    return element.type === "section" || element.type === "columns" ? element.content : undefined;
+/**
+ * The lists of elements an element holds, with where each is in it: a section's or columns'
+ * contents, or a carousel's slides.
+ */
+export function contentsOf(element: Element): { path: PropertyKey[]; content: Element[] }[] {
+    if (element.type === "section" || element.type === "columns") {
+        return [{ path: ["content"], content: element.content }];
+    }
+    if (element.type === "carousel") {
+        return element.slides.map((content, slide) => ({ path: ["slides", slide], content }));
+    }
+    return [];
 }

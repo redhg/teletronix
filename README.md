@@ -84,6 +84,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"table"` | Rows and columns of text, with optional box-drawn borders. See below. |
 | `"section"` | A header that expands and collapses the elements under it. See below. |
 | `"columns"` | Lays elements out in columns, e.g. a long list of links. See below. |
+| `"carousel"` | Slides shown one at a time, flipped with ◄ PREV and NEXT ► or the arrow keys: records, photos, pages. See below. |
 | `"rule"` | A horizontal rule, of any character or pattern, with an optional label set into it. See below. |
 | `"breadcrumb"` | Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link back. See [Breadcrumbs](#breadcrumbs). |
 | `"pause"` | Stops the reveal with "-- PRESS ANY KEY TO CONTINUE --" until a key or tap. See below. |
@@ -567,6 +568,26 @@ fills each row instead. With `minWidth` (in characters), a narrow screen gets fe
 e.g. 3 on a monitor and 2 on a phone. The contents reveal in order, before the rest of the
 screen.
 
+
+### Carousels
+```json
+{ "type": "carousel", "slides": [
+    [{ "type": "bitmap", "src": "crew/dallas.png", "cols": 30 }, "DALLAS, A. // CAPTAIN"],
+    [{ "type": "bitmap", "src": "crew/ripley.png", "cols": 30 }, "RIPLEY, E. // WARRANT OFFICER"]
+] }
+```
+Shows its `slides` one at a time, each a list of elements like a screen's content (images, text,
+tables, links…), revealed as it comes into view. Under it, a line of controls: `prev` (default
+`◄ PREV`), a `counter` (default `"{slide}/{slides}"`, or `false` for none) and `next` (default
+`NEXT ►`). The ← and → keys flip it too, unless a field, a slider or another control that uses
+them has the keyboard; with several carousels on a screen, they go to the one last used.
+
+It stops at the ends, or goes round with `"loop": true`. `start` picks the first slide (from 1),
+and `autoplay` moves on by itself, this many milliseconds after each slide has revealed, until
+the player flips a slide. It remembers which slide was showing when you come back; with a
+`variable`, that number variable holds it (from 1), so the story can use it, and setting it
+flips the carousel. It keeps the height of the tallest slide shown so far, so flipping back
+doesn't move the rest of the screen.
 ### Rules
 ```json
 { "type": "rule", "char": "═", "label": "CREW MANIFEST", "labelAlign": "left" }

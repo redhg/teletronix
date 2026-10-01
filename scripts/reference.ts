@@ -40,7 +40,12 @@ import {
     ConfirmSchema,
 } from "../src/engine/schema/dialog.ts";
 import { EffectsSchema } from "../src/engine/schema/effects.ts";
-import { ColumnsSchema, ContentSchema, SectionSchema } from "../src/engine/schema/elements.ts";
+import {
+    CarouselSchema,
+    ColumnsSchema,
+    ContentSchema,
+    SectionSchema,
+} from "../src/engine/schema/elements.ts";
 import { RuleSchema } from "../src/engine/schema/next.ts";
 import {
     BootPresetSchema,
@@ -316,6 +321,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Section", SectionSchema, '"type": "section"'],
             ["Section markers", SectionMarkersSchema],
             ["Columns", ColumnsSchema, '"type": "columns"'],
+            ["Carousel", CarouselSchema, '"type": "carousel"'],
             ["Pause", PauseSchema, '"type": "pause"'],
             ["Rule", HorizontalRuleSchema, '"type": "rule"'],
             ["Breadcrumb", BreadcrumbSchema, '"type": "breadcrumb"'],

@@ -442,8 +442,9 @@ function normalize(
 }
 
 /**
- * Gives every element an id (`<screen>#<index>`, and `<section id>.<index>` inside a
- * section) and turns bare strings into text elements.
+ * Gives every element an id (`<screen>#<index>`, `<section id>.<index>` inside a section,
+ * and `<carousel id>.<slide>.<index>` on a carousel's slide) and turns bare strings into text
+ * elements.
  */
 function normalizeContent(items: readonly unknown[], prefix: string): Element[] {
     return items.map((item, index): Element => {
@@ -452,6 +453,10 @@ function normalizeContent(items: readonly unknown[], prefix: string): Element[] 
         const element = { ...(item as Element), id };
         if (element.type === "section" || element.type === "columns") {
             element.content = normalizeContent(element.content, `${id}.`);
+        } else if (element.type === "carousel") {
+            element.slides = element.slides.map((slide, index) =>
+                normalizeContent(slide, `${id}.${index}.`),
+            );
         }
         return element;
     });

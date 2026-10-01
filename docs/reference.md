@@ -10,7 +10,7 @@ Every property a Teletronix JSON file can use. For a guided tour with examples, 
 - **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem), [Inbox](#inbox), [Inbox message](#inbox-message), [Inbox labels](#inbox-labels), [Directory](#directory), [Directory entry](#directory-entry), [Shell](#shell)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link), [Bar breadcrumb](#bar-breadcrumb), [Bar sound toggle](#bar-sound-toggle)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Random](#random), [Pick](#pick), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Log](#log), [Map](#map), [Map marker](#map-marker), [Map point](#map-point), [Conversation](#conversation), [Conversation part](#conversation-part), [Conversation reply](#conversation-reply), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Visual level](#visual-level), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Pause](#pause), [Rule](#rule), [Breadcrumb](#breadcrumb), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Log](#log), [Map](#map), [Map marker](#map-marker), [Map point](#map-point), [Conversation](#conversation), [Conversation part](#conversation-part), [Conversation reply](#conversation-reply), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Visual level](#visual-level), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Carousel](#carousel), [Pause](#pause), [Rule](#rule), [Breadcrumb](#breadcrumb), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -697,6 +697,7 @@ One of:
 - [Log](#log)
 - [Conversation](#conversation)
 - [Map](#map)
+- [Carousel](#carousel)
 
 <a id="text"></a>
 
@@ -1677,6 +1678,27 @@ Lays elements out in columns on the character grid, e.g. a long list of links. E
 | `gap` | whole number, ≥ 0 | `2` | Characters between the columns |
 | `order` | `"down"` \| `"across"` | `"down"` | How the elements fill the columns: "down" each column in turn, like a directory listing, or "across" each row |
 | `content` | [Content](#content)[] | **required** | The elements, revealed in order and laid out in the columns |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="carousel"></a>
+
+### Carousel (`"type": "carousel"`)
+
+Slides shown one at a time, like records on a terminal: flipped with its ◄ PREV and NEXT ► links or the ← and → keys. It remembers which slide was showing when you come back.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `slides` | [Content](#content)[][] | **required** | The slides, each a list of elements like a screen's content: images, text, tables, links… Each reveals as it comes into view. |
+| `start` | whole number, ≥ 1 | `1` | The slide to show first, from 1 |
+| `loop` | boolean | `false` | Go from the last slide round to the first, and back |
+| `autoplay` | whole number, ≥ 500 |  | Moves on by itself, this many milliseconds after each slide has revealed, until the player flips a slide themselves |
+| `prev` | string | `"◄ PREV"` | The link to the slide before |
+| `next` | string | `"NEXT ►"` | The link to the slide after |
+| `counter` | string \| `false` | `"{slide}/{slides}"` | Between the links: which slide this is, "{slide}" of "{slides}" (default: "{slide}/{slides}"), or false for none |
+| `variable` | id |  | A number variable that holds the slide showing, from 1, e.g. to show a link once the last has been seen. Setting it flips the carousel. |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |

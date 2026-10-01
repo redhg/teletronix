@@ -1,0 +1,19 @@
+/* The controls under the slide: ◄ PREV at the left, the counter, NEXT ► at the right */
+.carousel-controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 2ch;
+    min-height: 1lh;
+    /* a blank line between the slide and its controls */
+    margin-top: 1lh;
+}
+
+.carousel-controls .control {
+    width: auto;
+}
+
+/* at an end (without a loop), the link there is dim */
+.carousel-controls .control:disabled {
+    cursor: default;
+    opacity: 0.35;
+}

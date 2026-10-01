@@ -7,7 +7,7 @@
         "start": "startup",
         "waitForReveal": true,
         "header": [{ "left": { "breadcrumb": true }, "right": { "soundToggle": true } }],
-        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false, "target": "NONE", "shipX": 5, "shipY": 2 },
+        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false, "target": "NONE", "shipX": 5, "shipY": 2, "dossier": 1 },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
     "screens": {
@@ -57,6 +57,8 @@
                 { "type": "text", "text": "  Headers that expand and collapse.", "className": "dim" },
                 { "type": "link", "text": "> COLUMNS", "action": { "screen": "columns" } },
                 { "type": "text", "text": "  Elements laid out in columns.", "className": "dim" },
+                { "type": "link", "text": "> CAROUSELS", "action": { "screen": "carousels" } },
+                { "type": "text", "text": "  Slides, one at a time: records, photos, pages.", "className": "dim" },
                 { "type": "link", "text": "> BARS", "action": { "screen": "bars" } },
                 { "type": "text", "text": "  Header and status bars, pinned to the window.", "className": "dim" },
                 { "type": "link", "text": "> PAUSES", "action": { "screen": "pauses" } },
@@ -188,6 +190,67 @@
                 { "type": "text", "text": "  Values that actions set, controls change and text shows.", "className": "dim" },
                 { "type": "link", "text": "> RANDOMNESS", "action": { "screen": "random" } },
                 { "type": "text", "text": "  Dice, picks, and doors chosen at random.", "className": "dim" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "carousels": {
+            "title": "CAROUSELS",
+            "parent": "cat-text",
+            "content": [
+                "CAROUSELS",
+                "=========",
+                "",
+                "A \"carousel\" shows slides one at a time. Flip them with ◄ PREV and NEXT ►, or the ← and → keys. Each slide is a list of elements, like a screen, and reveals as it comes into view.",
+                "",
+                { "type": "carousel", "variable": "dossier", "slides": [
+                    [
+                        "CREW DOSSIER // DALLAS, A.",
+                        { "type": "rule", "char": "─" },
+                        { "type": "table", "border": "none", "rows": [["RANK", "CAPTAIN"], ["ROLE", "COMMAND"], ["STATUS", "ACTIVE"]] },
+                        "",
+                        "Twelve years with the company. Prefers to delegate the dull jobs."
+                    ],
+                    [
+                        "CREW DOSSIER // RIPLEY, E.",
+                        { "type": "rule", "char": "─" },
+                        { "type": "table", "border": "none", "rows": [["RANK", "WARRANT OFFICER"], ["ROLE", "THIRD IN COMMAND"], ["STATUS", "ACTIVE"]] },
+                        "",
+                        "Strict on quarantine procedure. Owns a cat."
+                    ],
+                    [
+                        "CREW DOSSIER // KANE, G.",
+                        { "type": "rule", "char": "─" },
+                        { "type": "table", "border": "none", "rows": [["RANK", "EXECUTIVE OFFICER"], ["ROLE", "SECOND IN COMMAND"], ["STATUS", "[alert]MEDICAL HOLD[/]"]] },
+                        "",
+                        "Found unconscious after the surface expedition. Do not disturb."
+                    ],
+                    [
+                        "CREW DOSSIER // ASH",
+                        { "type": "rule", "char": "─" },
+                        { "type": "table", "border": "none", "rows": [["RANK", "SCIENCE OFFICER"], ["ROLE", "SCIENCE"], ["STATUS", "[alert]UNDER REVIEW[/]"]] },
+                        "",
+                        "Replaced the regular science officer two days before departure."
+                    ]
+                ] },
+                "",
+                "It's bound to a variable, so the story knows where you are: last read, dossier {dossier}. It's remembered if you leave and come back.",
+                "",
+                "This one plays by itself, round and round, until you flip it:",
+                "",
+                { "type": "carousel", "loop": true, "autoplay": 4000, "counter": "FRAME {slide} OF {slides}", "slides": [
+                    [
+                        { "type": "bitmap", "src": "data/images/gulf-of-mexico-at-night.jpg", "alt": "The Gulf of Mexico at night, from orbit", "cols": 40, "reveal": { "type": "raster", "duration": 1500 } }
+                    ],
+                    [
+                        { "type": "text", "src": "data/art/puma.txt", "wrap": false, "reveal": { "type": "teletype", "speed": 2 } }
+                    ],
+                    [
+                        "ORBITAL SURVEY COMPLETE.",
+                        "",
+                        "3 FRAMES CAPTURED. 0 ANOMALIES."
+                    ]
+                ] },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
