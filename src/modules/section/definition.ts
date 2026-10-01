@@ -29,6 +29,15 @@ export const createSectionSchema = (content: () => z.ZodType<RawContent[], RawCo
         .strictObject({
             type: z.literal("section"),
             title: z.string().min(1).meta({ description: "The header's text" }),
+            seenTitle: z
+                .string()
+                .min(1)
+                .optional()
+                .meta({
+                    description:
+                        "The header's text once the section has been opened, remembered when " +
+                        "you come back: e.g. without an unread mark",
+                }),
             open: z
                 .boolean()
                 .default(false)
@@ -66,9 +75,20 @@ export type SectionElement = Omit<z.output<ReturnType<typeof createSectionSchema
 export type SectionMemory = boolean;
 
 export const sectionModule: ModuleDefinition<SectionElement, SectionMemory> = {
-    text: (section, memory) =>
-        `${sectionOpen(section, memory) ? section.markers.open : section.markers.closed} ${section.title}`,
+    text: (section, memory) => {
+        const marker = sectionOpen(section, memory) ? section.markers.open : section.markers.closed;
+        return `${marker} ${sectionTitle(section, memory)}`;
+    },
 };
+
+/**
+ * Its title: its seenTitle once it has been opened. (Its memory is only set by opening or
+ * closing it, and one that starts open has been seen.)
+ */
+export function sectionTitle(section: SectionElement, memory: SectionMemory | undefined): string {
+    const seen = section.open || memory !== undefined;
+    return seen && section.seenTitle !== undefined ? section.seenTitle : section.title;
+}
 
 export function sectionOpen(section: SectionElement, memory: SectionMemory | undefined): boolean {
     return memory ?? section.open;

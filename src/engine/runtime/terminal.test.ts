@@ -165,3 +165,34 @@ describe("the screen before", () => {
         expect(terminal.previousText).toBe("FIRST\nLINES");
     });
 });
+
+describe("the restart action", () => {
+    it("starts over: the start screen, variables and memory as they began", () => {
+        const { terminal } = createTestTerminal({
+            config: { name: "Test", reveal: "instant", variables: { score: 0 } },
+            screens: { one: { content: ["ONE"] }, two: { content: ["TWO"] } },
+        });
+        terminal.start();
+        terminal.dispatch([{ set: [{ variable: "score", add: 5 }], screen: "two" }]);
+        terminal.remember("one#0", "remembered");
+        expect(terminal.variable("score")).toBe(5);
+        terminal.dispatch([{ restart: true }]);
+        expect(terminal.getSnapshot().screen?.run.screen.id).toBe("one");
+        expect(terminal.variable("score")).toBe(0);
+        expect(terminal.recall("one#0")).toBeUndefined();
+    });
+
+    it("can't also go somewhere", () => {
+        const result = parseProgram({
+            config: { name: "Test" },
+            screens: {
+                one: {
+                    content: [
+                        { type: "link", text: "x", action: { restart: true, screen: "one" } },
+                    ],
+                },
+            },
+        });
+        expect(result.ok).toBe(false);
+    });
+});

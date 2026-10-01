@@ -168,6 +168,12 @@ export class Terminal {
     dispatch(action: Action): ActionCase | undefined {
         const chosen = action.find((choice) => !choice.if || this.holds(choice.if));
         if (!chosen) return undefined;
+        if (chosen.restart) {
+            if (chosen.sound) this.cue({ type: "sound", name: chosen.sound });
+            this.restart();
+            this.flush();
+            return chosen;
+        }
         if (chosen.set) {
             for (const assignment of chosen.set) {
                 const current = this.variables.get(assignment.variable);

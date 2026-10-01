@@ -881,7 +881,7 @@
                 { "type": "link", "text": "> CRASH", "action": { "screen": "crash" } },
                 "  Garbage that never stops. Press a key to restart.",
                 { "type": "link", "text": "> LOGIN", "action": { "screen": "login" } },
-                "  Log in as RIPLEY, password JONESY. Three wrong tries lock it, until you reload.",
+                "  Log in as RIPLEY, password JONESY. Three wrong tries lock it, until you restart.",
                 { "type": "link", "text": "> DECRYPT", "action": { "screen": "decrypt" } },
                 "  A message resolving out of scrambled characters.",
                 { "type": "link", "text": "> DECRYPT, FAILING", "action": { "screen": "decrypt-fail" } },
@@ -1110,8 +1110,9 @@
             "content": [
                 { "type": "text", "text": "SECURITY LOCKOUT", "className": "alert" },
                 "",
-                "Too many wrong tries: the login stays locked until you reload the page.",
+                "Too many wrong tries: the login stays locked, even if you go back to it, until the program restarts. A { \"restart\": true } action starts it over, as if just loaded: every variable, timer and element's memory goes back to the start.",
                 "",
+                { "type": "link", "text": "> RESTART THE PROGRAM", "action": { "restart": true } },
                 { "type": "link", "text": "> BACK", "action": { "screen": "presets" } }
             ]
         },

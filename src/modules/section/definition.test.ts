@@ -192,3 +192,29 @@ describe("sections", () => {
         expect(run.contents("home#1")).toBeNull();
     });
 });
+
+describe("a section's seen title", () => {
+    it("takes the title's place once it has been opened, and stays", () => {
+        const { terminal } = createTestTerminal({
+            config: { name: "Test", reveal: "instant" },
+            screens: {
+                home: {
+                    content: [
+                        { type: "section", title: "* NEW", seenTitle: "  OLD", content: ["body"] },
+                    ],
+                },
+                away: { content: [] },
+            },
+        });
+        terminal.start();
+        const run = () => terminal.getSnapshot().screen?.run as ScreenRun;
+        expect(text(run(), 0)).toBe("[+] * NEW");
+        terminal.remember("home#0", true);
+        expect(text(run(), 0)).toBe("[-]   OLD");
+        terminal.remember("home#0", false);
+        expect(text(run(), 0)).toBe("[+]   OLD");
+        terminal.navigate("away");
+        terminal.navigate("home");
+        expect(text(run(), 0)).toBe("[+]   OLD");
+    });
+});

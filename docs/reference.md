@@ -1362,6 +1362,7 @@ A header that expands and collapses the elements under it. Expanding reveals the
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `title` | string | **required** | The header's text |
+| `seenTitle` | string |  | The header's text once the section has been opened, remembered when you come back: e.g. without an unread mark |
 | `open` | boolean | `false` | Start expanded |
 | `markers` | [Section markers](#section-markers) | `{"closed":"[+]","open":"[-]"}` | What the header shows before its title, e.g. ▶ and ▼ |
 | `indent` | whole number, ≥ 0 | `0` | Columns to indent the contents by, to show they belong to the header. They wrap to the narrower width |
@@ -1849,6 +1850,7 @@ Go to a screen or open a dialog, changing variables and playing a sound on the w
 | `stopTimer` | id |  | A timer to stop where it is |
 | `resetTimer` | id |  | A timer to stop and put back to its start |
 | `sound` | id |  | A sound from the program's sounds, played as the action happens |
+| `restart` | `true` |  | Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began |
 
 <a id="reveal"></a>
 

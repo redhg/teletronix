@@ -440,6 +440,7 @@ describe("the inbox preset", () => {
             {
                 type: "section",
                 title: "* MOTHER  SPECIAL ORDER 937  06-03",
+                seenTitle: "  MOTHER  SPECIAL ORDER 937  06-03",
                 markers: { closed: "►", open: "▼" },
                 content: [{ text: "" }, { text: "CREW EXPENDABLE." }, { text: "" }],
             },

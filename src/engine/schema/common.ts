@@ -184,20 +184,36 @@ export const ActionCaseSchema = z
             description: "A timer to stop and put back to its start",
         }),
         sound: actionSound,
+        restart: z
+            .literal(true)
+            .optional()
+            .meta({
+                description:
+                    "Start the program over, as if just loaded: the start screen, with every " +
+                    "variable, timer and element's memory (e.g. a locked login) back where it began",
+            }),
     })
     .refine((action) => !(action.screen && action.dialog), {
         message: 'Set "screen" or "dialog", not both',
+    })
+    .refine((action) => !(action.restart && (action.screen || action.dialog || action.set)), {
+        message:
+            'A restart goes to the start screen afresh: leave out "screen", "dialog" and "set"',
     })
     .refine(
         (action) =>
             action.screen !== undefined ||
             action.dialog !== undefined ||
+            action.restart !== undefined ||
             action.set !== undefined ||
             action.sound !== undefined ||
             action.startTimer !== undefined ||
             action.stopTimer !== undefined ||
             action.resetTimer !== undefined,
-        { message: 'Set "screen", "dialog", "set", "sound" or a timer to start, stop or reset' },
+        {
+            message:
+                'Set "screen", "dialog", "set", "sound", "restart" or a timer to start, stop or reset',
+        },
     )
     .meta({
         description:

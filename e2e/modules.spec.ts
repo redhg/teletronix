@@ -1631,3 +1631,30 @@ test.describe("directory preset", () => {
         await expect(player.screen).toContainText("HELLO");
     });
 });
+
+test.describe("restart", () => {
+    test("starts over, unlocking a locked login", async ({ page, player }) => {
+        await player.open({
+            config: { name: "Restart", start: "home", reveal: "instant" },
+            screens: {
+                home: {
+                    content: [
+                        {
+                            type: "login",
+                            username: false,
+                            accounts: [{ password: "x" }],
+                            action: { screen: "home" },
+                            attempts: 1,
+                        },
+                        { type: "link", text: "> RESTART", action: { restart: true } },
+                    ],
+                },
+            },
+        } as Program);
+        await page.keyboard.type("wrong");
+        await page.keyboard.press("Enter");
+        await expect(player.screen.locator(".login")).toContainText("TERMINAL LOCKED");
+        await player.screen.getByRole("button", { name: "> RESTART" }).click();
+        await expect(player.screen.locator(".login input")).toBeVisible();
+    });
+});

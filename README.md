@@ -83,7 +83,9 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"timer"` | A clock on the screen, counting down or up. See [Timers](#timers). |
 
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also change variables
-(see [Variables and conditions](#variables-and-conditions)). Every element takes an optional
+(see [Variables and conditions](#variables-and-conditions)). `{ "restart": true }` starts the
+program over, as if just loaded: the start screen, with every variable, timer and element's
+memory (a locked login, an opened section) back where it began. Every element takes an optional
 `className` (e.g. `"alert"`), `reveal`, and `if`.
 
 ### ASCII art
@@ -343,6 +345,8 @@ starts collapsed unless it sets `"open": true`, in which case its contents revea
 rest of the screen. It remembers whether it's open when you come back. `markers` changes what
 the header shows before the title: `{ "closed": "▶", "open": "▼" }`. `indent` moves the contents
 that many columns in, to show they belong to the header; they wrap to the narrower width.
+`seenTitle` replaces the title once the section has been opened, and stays when you come back:
+an inbox's messages use it to lose their unread mark.
 
 ### Numbers
 ```json
@@ -469,7 +473,7 @@ also be written out by hand. See [the reference](docs/reference.md#presets) for 
 | `"countdown"` | A self-destruct sequence: a blinking warning `title` and a `message`, then the time counting down from `seconds` in big digits (unless `"big": false`), going to `next` at zero. With a `code`, the player can type it at a `prompt` to abort, going to `aborted`; a wrong one shows `wrong`. |
 | `"transmission"` | A message coming in: a `title`, a spinner while the signal locks on (`acquire`, or `false`), an optional `from` line, then the `text` typing in slowly (`speed`, in milliseconds per character) through static and flicker (unless `"noise": false`), and a `signoff`. Like boot, it can `pause` and go on to `next`. |
 | `"modem"` | Dialling in: the `init` command answered `ok`, the `dial` command, a `dialing` spinner, a `carrier` line that glitches in with a crackle (over `handshake` milliseconds), and `connect`, then the screen's own `content`, e.g. a bulletin board's welcome. Each step can be changed or left out with `false`. Like boot, it can `pause` and go on to `next`. |
-| `"inbox"` | An inbox: a `title`, column headings (`labels`, or `false`), then the `messages` (`from`, `subject`, `date`, `body`, and `unread`, marked with `*`), each a [section](#sections) that opens to show its body. The screen's own `content` (e.g. a link back) goes after it. |
+| `"inbox"` | An inbox: a `title`, column headings (`labels`, or `false`), then the `messages` (`from`, `subject`, `date`, `body`, and `unread`, marked with `*`), each a [section](#sections) that opens to show its body, and loses its unread mark once read. The screen's own `content` (e.g. a link back) goes after it. |
 | `"directory"` | A directory listing of `entries` (`name`, `size`, `date`, `dir` for folders), DOS style (`"style": "dos"`, the default: the `volume` and `path`, `<DIR>`, and a `total` of files and bytes) or Unix style (`"unix"`: `ls -l`, with permissions). Entries with an `action` are links, e.g. to a text file's screen or a hex editor. |
 | `"hexeditor"` | A read-only hex editor: a [hex dump](#hex-dumps) filling the screen, with a cursor to move through it, a status bar (in place of the program's), and a header bar with the editor's `title` and the `file` name. Give it bytes as a hex dump (`text`, `size`, `src`, `highlight`…), and `autoscroll` (with `stopAt`) to have it scroll through them by itself. <esc>, or the `exit` link in the header bar, goes to `next` (default: the start screen). |
 | `"crash"` | The whole window fills with garbage that never stops changing: the screen before breaks apart, and a `message` surfaces through the noise now and then. With `next`, a key press (or a tap) restarts there. With reduced motion, it's a still picture. |

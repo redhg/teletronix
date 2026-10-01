@@ -295,6 +295,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,
@@ -374,6 +379,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "restart": {
+                                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         }
                                                                     },
                                                                     "additionalProperties": false,
@@ -485,6 +495,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,
@@ -564,6 +579,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "restart": {
+                                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         }
                                                                     },
                                                                     "additionalProperties": false,
@@ -675,6 +695,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,
@@ -754,6 +779,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "restart": {
+                                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         }
                                                                     },
                                                                     "additionalProperties": false,
@@ -889,6 +919,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,
@@ -968,6 +1003,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "restart": {
+                                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         }
                                                                     },
                                                                     "additionalProperties": false,
@@ -1079,6 +1119,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,
@@ -1158,6 +1203,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "restart": {
+                                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         }
                                                                     },
                                                                     "additionalProperties": false,
@@ -1269,6 +1319,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,
@@ -1348,6 +1403,11 @@
                                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                                             "type": "string",
                                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                                        },
+                                                                        "restart": {
+                                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                            "type": "boolean",
+                                                                            "const": true
                                                                         }
                                                                     },
                                                                     "additionalProperties": false,
@@ -1539,6 +1599,11 @@
                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                 "type": "string",
                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                            },
+                                            "restart": {
+                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                "type": "boolean",
+                                                "const": true
                                             }
                                         },
                                         "additionalProperties": false,
@@ -1618,6 +1683,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "restart": {
+                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 }
                                             },
                                             "additionalProperties": false,
@@ -2760,6 +2830,11 @@
                                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
+                                                                                "restart": {
+                                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
                                                                                 }
                                                                             },
                                                                             "additionalProperties": false,
@@ -2839,6 +2914,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "restart": {
+                                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     }
                                                                                 },
                                                                                 "additionalProperties": false,
@@ -2950,6 +3030,11 @@
                                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
+                                                                                "restart": {
+                                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
                                                                                 }
                                                                             },
                                                                             "additionalProperties": false,
@@ -3029,6 +3114,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "restart": {
+                                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     }
                                                                                 },
                                                                                 "additionalProperties": false,
@@ -3140,6 +3230,11 @@
                                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
+                                                                                "restart": {
+                                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
                                                                                 }
                                                                             },
                                                                             "additionalProperties": false,
@@ -3219,6 +3314,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "restart": {
+                                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     }
                                                                                 },
                                                                                 "additionalProperties": false,
@@ -3363,6 +3463,11 @@
                                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
+                                                                                "restart": {
+                                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
                                                                                 }
                                                                             },
                                                                             "additionalProperties": false,
@@ -3442,6 +3547,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "restart": {
+                                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     }
                                                                                 },
                                                                                 "additionalProperties": false,
@@ -3553,6 +3663,11 @@
                                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
+                                                                                "restart": {
+                                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
                                                                                 }
                                                                             },
                                                                             "additionalProperties": false,
@@ -3632,6 +3747,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "restart": {
+                                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     }
                                                                                 },
                                                                                 "additionalProperties": false,
@@ -3743,6 +3863,11 @@
                                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                                     "type": "string",
                                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                },
+                                                                                "restart": {
+                                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                    "type": "boolean",
+                                                                                    "const": true
                                                                                 }
                                                                             },
                                                                             "additionalProperties": false,
@@ -3822,6 +3947,11 @@
                                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                                         "type": "string",
                                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                                    },
+                                                                                    "restart": {
+                                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                                        "type": "boolean",
+                                                                                        "const": true
                                                                                     }
                                                                                 },
                                                                                 "additionalProperties": false,
@@ -3968,6 +4098,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -4047,6 +4182,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "restart": {
+                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         }
                                                     },
                                                     "additionalProperties": false,
@@ -4168,6 +4308,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "restart": {
+                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         }
                                                     },
                                                     "additionalProperties": false,
@@ -4247,6 +4392,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -4953,6 +5103,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -5032,6 +5187,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,
@@ -5786,6 +5946,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -5865,6 +6030,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,
@@ -6070,6 +6240,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -6149,6 +6324,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "restart": {
+                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         }
                                                     },
                                                     "additionalProperties": false,
@@ -6247,6 +6427,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -6326,6 +6511,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "restart": {
+                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         }
                                                     },
                                                     "additionalProperties": false,
@@ -6858,6 +7048,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "restart": {
+                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 }
                                             },
                                             "additionalProperties": false,
@@ -6937,6 +7132,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -7019,6 +7219,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "restart": {
+                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 }
                                             },
                                             "additionalProperties": false,
@@ -7098,6 +7303,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -7446,6 +7656,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -7525,6 +7740,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -7616,6 +7836,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "restart": {
+                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 }
                                             },
                                             "additionalProperties": false,
@@ -7695,6 +7920,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -8089,6 +8319,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "restart": {
+                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         }
                                                     },
                                                     "additionalProperties": false,
@@ -8168,6 +8403,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -8258,6 +8498,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -8337,6 +8582,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,
@@ -8461,6 +8711,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "restart": {
+                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         }
                                                     },
                                                     "additionalProperties": false,
@@ -8540,6 +8795,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -8798,6 +9058,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -8877,6 +9142,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -8968,6 +9238,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "restart": {
+                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 }
                                             },
                                             "additionalProperties": false,
@@ -9047,6 +9322,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -9160,6 +9440,11 @@
                                     "type": "string",
                                     "minLength": 1,
                                     "description": "The header's text"
+                                },
+                                "seenTitle": {
+                                    "description": "The header's text once the section has been opened, remembered when you come back: e.g. without an unread mark",
+                                    "type": "string",
+                                    "minLength": 1
                                 },
                                 "open": {
                                     "default": false,
@@ -9494,6 +9779,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -9573,6 +9863,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -9655,6 +9950,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -9734,6 +10034,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -10003,6 +10308,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -10082,6 +10392,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -10172,6 +10487,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "restart": {
+                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 }
                                             },
                                             "additionalProperties": false,
@@ -10251,6 +10571,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -10471,6 +10796,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "restart": {
+                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 }
                                             },
                                             "additionalProperties": false,
@@ -10550,6 +10880,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -11284,6 +11619,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "restart": {
+                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 }
                                             },
                                             "additionalProperties": false,
@@ -11363,6 +11703,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -11584,6 +11929,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -11663,6 +12013,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -11745,6 +12100,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -11824,6 +12184,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -12982,6 +13347,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "restart": {
+                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         }
                                                     },
                                                     "additionalProperties": false,
@@ -13061,6 +13431,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -13151,6 +13526,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -13230,6 +13610,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,
@@ -13348,6 +13733,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "restart": {
+                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         }
                                                     },
                                                     "additionalProperties": false,
@@ -13427,6 +13817,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -13786,6 +14181,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "restart": {
+                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         }
                                                     },
                                                     "additionalProperties": false,
@@ -13865,6 +14265,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -14093,6 +14498,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -14172,6 +14582,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -14263,6 +14678,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "restart": {
+                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 }
                                             },
                                             "additionalProperties": false,
@@ -14342,6 +14762,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -14460,6 +14885,11 @@
                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                     "type": "string",
                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                },
+                                                "restart": {
+                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                    "type": "boolean",
+                                                    "const": true
                                                 }
                                             },
                                             "additionalProperties": false,
@@ -14539,6 +14969,11 @@
                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                         "type": "string",
                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                    },
+                                                    "restart": {
+                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                        "type": "boolean",
+                                                        "const": true
                                                     }
                                                 },
                                                 "additionalProperties": false,
@@ -14791,6 +15226,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "restart": {
+                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         }
                                                     },
                                                     "additionalProperties": false,
@@ -14870,6 +15310,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -14960,6 +15405,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -15039,6 +15489,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,
@@ -15133,6 +15588,11 @@
                                                             "description": "A sound from the program's sounds, played as the action happens",
                                                             "type": "string",
                                                             "pattern": "^[A-Za-z0-9_-]+$"
+                                                        },
+                                                        "restart": {
+                                                            "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                            "type": "boolean",
+                                                            "const": true
                                                         }
                                                     },
                                                     "additionalProperties": false,
@@ -15212,6 +15672,11 @@
                                                                 "description": "A sound from the program's sounds, played as the action happens",
                                                                 "type": "string",
                                                                 "pattern": "^[A-Za-z0-9_-]+$"
+                                                            },
+                                                            "restart": {
+                                                                "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                "type": "boolean",
+                                                                "const": true
                                                             }
                                                         },
                                                         "additionalProperties": false,
@@ -15302,6 +15767,11 @@
                                                                     "description": "A sound from the program's sounds, played as the action happens",
                                                                     "type": "string",
                                                                     "pattern": "^[A-Za-z0-9_-]+$"
+                                                                },
+                                                                "restart": {
+                                                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                    "type": "boolean",
+                                                                    "const": true
                                                                 }
                                                             },
                                                             "additionalProperties": false,
@@ -15381,6 +15851,11 @@
                                                                         "description": "A sound from the program's sounds, played as the action happens",
                                                                         "type": "string",
                                                                         "pattern": "^[A-Za-z0-9_-]+$"
+                                                                    },
+                                                                    "restart": {
+                                                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                                                        "type": "boolean",
+                                                                        "const": true
                                                                     }
                                                                 },
                                                                 "additionalProperties": false,

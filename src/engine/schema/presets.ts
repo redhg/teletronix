@@ -1133,6 +1133,10 @@ export function expandPreset(preset: Preset, start: string): Expanded {
                             message.subject,
                             message.date,
                         ),
+                        // once read, it's unread no longer
+                        ...(message.unread
+                            ? { seenTitle: row(flag, message.from, message.subject, message.date) }
+                            : {}),
                         markers,
                         indent: 2,
                         content: [
