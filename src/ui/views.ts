@@ -11,6 +11,7 @@ import { ConversationView } from "../modules/conversation/View.tsx";
 import { CounterView } from "../modules/counter/View.tsx";
 import { CrashView } from "../modules/crash/View.tsx";
 import { DecryptView } from "../modules/decrypt/View.tsx";
+import { FramesView, FrameView } from "../modules/frames/View.tsx";
 import { HexdumpView } from "../modules/hexdump/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
 import { LogView } from "../modules/log/View.tsx";
@@ -68,6 +69,8 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     rule: RuleView,
     breadcrumb: BreadcrumbView,
     carousel: CarouselView,
+    frames: FramesView,
+    frame: FrameView,
     log: LogView,
     conversation: ConversationView,
     map: MapView,

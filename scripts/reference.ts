@@ -44,6 +44,8 @@ import {
     CarouselSchema,
     ColumnsSchema,
     ContentSchema,
+    FrameSchema,
+    FramesSchema,
     SectionSchema,
 } from "../src/engine/schema/elements.ts";
 import { RuleSchema } from "../src/engine/schema/next.ts";
@@ -322,6 +324,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Section markers", SectionMarkersSchema],
             ["Columns", ColumnsSchema, '"type": "columns"'],
             ["Carousel", CarouselSchema, '"type": "carousel"'],
+            ["Frames", FramesSchema, '"type": "frames"'],
+            ["Frame", FrameSchema],
             ["Pause", PauseSchema, '"type": "pause"'],
             ["Rule", HorizontalRuleSchema, '"type": "rule"'],
             ["Breadcrumb", BreadcrumbSchema, '"type": "breadcrumb"'],

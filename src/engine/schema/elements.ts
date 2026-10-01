@@ -44,6 +44,14 @@ import {
     decryptModule,
 } from "../../modules/decrypt/definition.ts";
 import {
+    createFrameSchema,
+    createFramesSchema,
+    type FrameElement,
+    type FramesElement,
+    frameModule,
+    framesModule,
+} from "../../modules/frames/definition.ts";
+import {
     type HexdumpElement,
     HexdumpSchema,
     hexdumpModule,
@@ -102,6 +110,9 @@ export const SectionSchema = createSectionSchema(() => z.array(ContentSchema));
 export const ColumnsSchema = createColumnsSchema(() => z.array(ContentSchema));
 /** And for a carousel's slides. */
 export const CarouselSchema = createCarouselSchema(() => z.array(ContentSchema));
+/** And for frames. */
+export const FrameSchema = createFrameSchema(() => z.array(ContentSchema));
+export const FramesSchema = createFramesSchema(FrameSchema);
 
 // The registry of element modules. Adding a module means adding it here.
 export const ElementSchema = z.discriminatedUnion("type", [
@@ -139,6 +150,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     ConversationSchema,
     MapSchema,
     CarouselSchema,
+    FramesSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -165,6 +177,9 @@ export type Element =
     | TimerElement
     | ColumnsElement
     | CarouselElement
+    | FramesElement
+    // (made from a frames element as the program loads, not written)
+    | FrameElement
     | MeterElement
     | TableElement
     | ChoiceElement
@@ -203,6 +218,8 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     timer: timerModule,
     columns: columnsModule,
     carousel: carouselModule,
+    frames: framesModule,
+    frame: frameModule,
     meter: meterModule,
     table: tableModule,
     choice: choiceModule,
@@ -296,5 +313,7 @@ export function contentsOf(element: Element): { path: PropertyKey[]; content: El
     if (element.type === "carousel") {
         return element.slides.map((content, slide) => ({ path: ["slides", slide], content }));
     }
+    if (element.type === "frames") return [{ path: ["frames"], content: element.frames }];
+    if (element.type === "frame") return [{ path: ["content"], content: element.content }];
     return [];
 }

@@ -59,6 +59,8 @@
                 { "type": "text", "text": "  Elements laid out in columns.", "className": "dim" },
                 { "type": "link", "text": "> CAROUSELS", "action": { "screen": "carousels" } },
                 { "type": "text", "text": "  Slides, one at a time: records, photos, pages.", "className": "dim" },
+                { "type": "link", "text": "> FRAMES", "action": { "screen": "frames" } },
+                { "type": "text", "text": "  Panels side by side, typing at once and scrolling by themselves.", "className": "dim" },
                 { "type": "link", "text": "> BARS", "action": { "screen": "bars" } },
                 { "type": "text", "text": "  Header and status bars, pinned to the window.", "className": "dim" },
                 { "type": "link", "text": "> PAUSES", "action": { "screen": "pauses" } },
@@ -253,6 +255,46 @@
                         "3 FRAMES CAPTURED. 0 ANOMALIES."
                     ]
                 ] },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "frames": {
+            "title": "FRAMES",
+            "parent": "cat-text",
+            "content": [
+                "FRAMES",
+                "======",
+                "",
+                "\"frames\" puts panels side by side. Each reveals its own content, at the same time as the others, with its own cursor, and scrolls by itself, following its text until you scroll it. ▲ and ▼ in the border show there's more. Click a frame (or tab to it) to scroll it with the keys.",
+                "",
+                { "type": "frames", "frames": [
+                    { "title": "SYSTEM LOG", "rows": 9, "content": [
+                        "STATION LOG, DAY 38.",
+                        "Routine maintenance on the lower deck. Mbeki reports the sensors are clean.",
+                        "",
+                        "STATION LOG, DAY 39.",
+                        "Night shift heard knocking in the service ducts. Probably thermal contraction.",
+                        "",
+                        "STATION LOG, DAY 40.",
+                        "The knocking has a pattern. Three, then two, then three.",
+                        "",
+                        "[alert]STATION LOG, DAY 41.[/]",
+                        "[alert][ENTRY CORRUPTED][/]",
+                        "",
+                        { "type": "log", "lines": ["DUCT 7: PRESSURE NOMINAL", "DUCT 7: MOVEMENT DETECTED", "LIGHTS: DECK B FLICKER", "DOOR 4: CYCLED", "DUCT 7: MOVEMENT DETECTED", "[alert]DUCT 7: SEAL BREACHED[/]", "MOTION: DECK B", "COMMS: NO RESPONSE FROM DECK B"], "time": "23:40", "loop": true, "interval": 2500 }
+                    ] },
+                    { "title": "CREW", "rows": 9, "width": 26, "content": [
+                        { "type": "table", "rows": [["MBEKI", "ENG"], ["HOLT", "MED"], ["[alert]VASQUEZ[/]", "[alert]???[/]"]] },
+                        "",
+                        { "type": "meter", "label": "HULL ", "variable": "hull", "unit": "%", "width": 10 },
+                        { "type": "meter", "label": "FUEL ", "variable": "fuel", "unit": "%", "width": 10 },
+                        "",
+                        "DECK B: NO CONTACT SINCE 23:41. SEND A TEAM?"
+                    ] }
+                ] },
+                "",
+                "On a narrow screen, frames stack, each the whole width. A frame can't hold a pause: put one after the frames.",
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]

@@ -1,5 +1,11 @@
 import { type CarouselElement, currentSlide } from "../../modules/carousel/definition.ts";
 import { type ColumnsElement, columnLayout } from "../../modules/columns/definition.ts";
+import {
+    type FrameElement,
+    type FramesElement,
+    frameInner,
+    frameLayout,
+} from "../../modules/frames/definition.ts";
 import { type SectionElement, sectionOpen } from "../../modules/section/definition.ts";
 import { LOAD_FAILED } from "../module.ts";
 import type { Random } from "../random.ts";
@@ -133,6 +139,8 @@ export class ScreenRun {
      * the index of the element that holds them.
      */
     private readonly children = new Map<number, ScreenRun>();
+    /** Whether the reveal has reached its end, and waits for its frames to finish. */
+    private awaitingFrames = false;
     /** The slide each carousel's run is of. */
     private readonly slides = new Map<number, number>();
     /** A section whose contents the run is holding for while they reveal, or -1. */
@@ -506,6 +514,14 @@ export class ScreenRun {
         return run;
     }
 
+    /** Whether every frame here has finished revealing its contents. */
+    private framesFinished(): boolean {
+        return this.runs.every(
+            (run, index) =>
+                run.element.type !== "frame" || this.children.get(index)?.finishedAt != null,
+        );
+    }
+
     /** Marks the run finished revealing, once. */
     private done(now: number): void {
         if (this.finished !== null) return;
@@ -517,7 +533,8 @@ export class ScreenRun {
 
     /** Whether an element's contents are showing: an open section's, columns' or a carousel's. */
     private hasContents(element: Element): boolean {
-        if (element.type === "columns" || element.type === "carousel") return true;
+        const always = ["columns", "carousel", "frames", "frame"];
+        if (always.includes(element.type)) return true;
         return (
             element.type === "section" &&
             sectionOpen(element, this.options.recall?.(element.id) as boolean | undefined)
@@ -531,6 +548,11 @@ export class ScreenRun {
     private contentColumns(index: number): number {
         const element = this.runs[index]?.element;
         if (element?.type === "columns") return columnLayout(element, this.columns).width;
+        if (element?.type === "frame") {
+            const frames = this.content.filter((e): e is FrameElement => e.type === "frame");
+            const width = frameLayout(frames, this.columns).widths[frames.indexOf(element)];
+            return frameInner(element, width ?? this.columns);
+        }
         const indent = element?.type === "section" ? element.indent : 0;
         return Math.max(1, this.columns - indent);
     }
@@ -545,9 +567,13 @@ export class ScreenRun {
         const holder = this.runs[index]?.element as
             | SectionElement
             | ColumnsElement
-            | CarouselElement;
+            | CarouselElement
+            | FramesElement
+            | FrameElement;
         let content: Element[];
-        if (holder.type === "carousel") {
+        if (holder.type === "frames") {
+            content = holder.frames;
+        } else if (holder.type === "carousel") {
             const slide = this.slideOf(holder);
             this.slides.set(index, slide);
             content = holder.slides[slide] ?? [];
@@ -568,6 +594,11 @@ export class ScreenRun {
                 ...this.options,
                 columns: this.contentColumns(index),
                 onDone: (done) => {
+                    // frames finish together: the last to finish finishes the reveal
+                    if (holder.type === "frame") {
+                        if (this.awaitingFrames && this.framesFinished()) this.done(done);
+                        return;
+                    }
                     if (this.waitingOn !== index || this.children.get(index) !== child) return;
                     this.waitingOn = -1;
                     this.resume(done);
@@ -669,6 +700,8 @@ export class ScreenRun {
                 element.type !== "section" &&
                 element.type !== "columns" &&
                 element.type !== "carousel" &&
+                element.type !== "frames" &&
+                element.type !== "frame" &&
                 element.type !== "pause";
             const last = groups.at(-1);
             if (block && last?.block) {
@@ -722,7 +755,11 @@ export class ScreenRun {
         const unit = this.units[unitIndex];
         this.waiting = -1;
         if (!unit) {
-            // past the last unit: the screen has finished revealing
+            // past the last unit: the screen has finished revealing, once its frames have
+            if (!this.framesFinished()) {
+                this.awaitingFrames = true;
+                return;
+            }
             this.done(now);
             return;
         }
@@ -787,10 +824,11 @@ export class ScreenRun {
                 this.pausedAt = index;
                 hold = true;
             }
-            // an open section reveals its contents before the screen carries on
+            // an open section reveals its contents before the screen carries on; a frame's
+            // reveal alongside the others'
             if (element && this.hasContents(element) && !this.children.has(index)) {
                 const child = this.openContents(index, time);
-                if (child.finishedAt === null) {
+                if (child.finishedAt === null && element.type !== "frame") {
                     this.waitingOn = index;
                     hold = true;
                 }

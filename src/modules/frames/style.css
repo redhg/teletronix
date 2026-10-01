@@ -1,0 +1,53 @@
+/* Frames side by side, on the character grid */
+.frames {
+    display: flex;
+    align-items: flex-start;
+}
+
+.frames-stacked {
+    flex-direction: column;
+}
+
+.frame {
+    flex: none;
+    max-width: 100%;
+}
+
+.frame-edge,
+.frame-side {
+    white-space: pre;
+}
+
+.frame-body {
+    display: flex;
+}
+
+.frame-scroll {
+    flex: 1;
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* the border's ▲ and ▼ show there's more, in place of a scrollbar */
+    scrollbar-width: none;
+}
+
+.frame-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.frame-scroll:focus-visible {
+    outline: none;
+}
+
+/* while it has the keyboard, its title (or its border) lights up */
+.frame:has(.frame-scroll:focus-visible) .frame-title {
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: var(--inverse-glow);
+}
+
+.frame:not(.frame-bordered):has(.frame-scroll:focus-visible),
+.frame-bordered:not(:has(.frame-title)):has(.frame-scroll:focus-visible) .frame-edge {
+    text-shadow: var(--glow), var(--glow);
+}

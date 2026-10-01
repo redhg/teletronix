@@ -28342,6 +28342,248 @@
                             ],
                             "additionalProperties": false,
                             "description": "Slides shown one at a time, like records on a terminal: flipped with its ◄ PREV and NEXT ► links or the ← and → keys. It remembers which slide was showing when you come back."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "frames"
+                                },
+                                "frames": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "title": {
+                                                "description": "Set into the top of its border, e.g. \"SYSTEM LOG\"",
+                                                "type": "string"
+                                            },
+                                            "rows": {
+                                                "default": 10,
+                                                "description": "How many lines tall it is; more scroll (default: 10)",
+                                                "type": "integer",
+                                                "minimum": 1,
+                                                "maximum": 9007199254740991
+                                            },
+                                            "width": {
+                                                "description": "Its width in characters, border included (default: an equal share of what the frames with a width leave)",
+                                                "type": "integer",
+                                                "minimum": 5,
+                                                "maximum": 9007199254740991
+                                            },
+                                            "border": {
+                                                "default": true,
+                                                "description": "Whether it has a box-drawn border (default: true)",
+                                                "type": "boolean"
+                                            },
+                                            "autoscroll": {
+                                                "default": true,
+                                                "description": "Whether it scrolls to follow its text as it types in, until the player scrolls it themselves (default: true)",
+                                                "type": "boolean"
+                                            },
+                                            "content": {
+                                                "description": "Its elements, revealed in order, like a screen's",
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/$defs/Content"
+                                                }
+                                            },
+                                            "className": {
+                                                "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                                "type": "string"
+                                            },
+                                            "reveal": {
+                                                "description": "How this element's text appears (default: the screen's reveal)",
+                                                "anyOf": [
+                                                    {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "teletype",
+                                                            "glitch",
+                                                            "instant"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "oneOf": [
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "speed": {
+                                                                        "description": "Milliseconds per character (default: 10)",
+                                                                        "type": "number",
+                                                                        "exclusiveMinimum": 0
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string",
+                                                                        "const": "teletype"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "type"
+                                                                ],
+                                                                "additionalProperties": false,
+                                                                "description": "Types the text one character at a time"
+                                                            },
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string",
+                                                                        "const": "glitch"
+                                                                    },
+                                                                    "duration": {
+                                                                        "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                                        "type": "number",
+                                                                        "exclusiveMinimum": 0
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "type"
+                                                                ],
+                                                                "additionalProperties": false,
+                                                                "description": "Resolves the text out of random glyphs, left to right"
+                                                            },
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string",
+                                                                        "const": "instant"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "type"
+                                                                ],
+                                                                "additionalProperties": false,
+                                                                "description": "Shows the text all at once"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "sound": {
+                                                "description": "A sound from the program's sounds, played as the element starts to appear",
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9_-]+$"
+                                            },
+                                            "if": {
+                                                "description": "Show the element only if this holds when the screen starts",
+                                                "$ref": "#/$defs/Condition"
+                                            }
+                                        },
+                                        "required": [
+                                            "content"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "A frame: a panel of its own, which scrolls by itself"
+                                    },
+                                    "description": "The frames, left to right"
+                                },
+                                "gap": {
+                                    "default": 1,
+                                    "description": "Characters between the frames (default: 1)",
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991
+                                },
+                                "minWidth": {
+                                    "default": 20,
+                                    "description": "The narrowest a frame can be, in characters: on a narrower screen, the frames stack, each the whole width (default: 20)",
+                                    "type": "integer",
+                                    "minimum": 5,
+                                    "maximum": 9007199254740991
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "frames"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Panels side by side, each revealing its own content at the same time as the others, with its own cursor, and scrolling by itself. The screen carries on once they've all finished. They can't hold pauses."
                         }
                     ]
                 }

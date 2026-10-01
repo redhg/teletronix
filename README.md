@@ -85,6 +85,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"section"` | A header that expands and collapses the elements under it. See below. |
 | `"columns"` | Lays elements out in columns, e.g. a long list of links. See below. |
 | `"carousel"` | Slides shown one at a time, flipped with ◄ PREV and NEXT ► or the arrow keys: records, photos, pages. See below. |
+| `"frames"` | Panels side by side, each typing its own content at the same time, and scrolling by itself. See below. |
 | `"rule"` | A horizontal rule, of any character or pattern, with an optional label set into it. See below. |
 | `"breadcrumb"` | Where the player is, following screens' parents: HOME › READOUTS › SPINNERS, each step a link back. See [Breadcrumbs](#breadcrumbs). |
 | `"pause"` | Stops the reveal with "-- PRESS ANY KEY TO CONTINUE --" until a key or tap. See below. |
@@ -589,6 +590,28 @@ the player flips a slide. It remembers which slide was showing when you come bac
 `variable`, that number variable holds it (from 1), so the story can use it, and setting it
 flips the carousel. It keeps the height of the tallest slide shown so far, so flipping back
 doesn't move the rest of the screen.
+
+### Frames
+```json
+{ "type": "frames", "frames": [
+    { "title": "SYSTEM LOG", "rows": 9, "content": ["STATION LOG, DAY 38.", "..."] },
+    { "title": "CREW", "rows": 9, "width": 26, "content": [ ... ] }
+] }
+```
+Panels side by side, each `rows` lines tall (default 10), in a box-drawn border with its `title`
+set into the top (or `"border": false`). They all reveal at once, each with its own cursor, and
+the screen carries on once they've all finished; skipping finishes them all. A frame can hold
+anything a screen can (links, tables, meters, a log feed…) except a pause, since that would hold
+only one of them: put it after the frames.
+
+Each scrolls by itself: it follows its text as it types in (unless `"autoscroll": false`) until
+the player scrolls it back, and follows again from the bottom. ▲ and ▼ in its border show
+there's more above or below. The mouse wheel or a finger scrolls it, and so do the keys once
+it has the keyboard (click it, or tab to it).
+
+A frame's `width` is in characters, border included; frames without one share what's left,
+`gap` characters apart (default 1). On a screen where a frame would be narrower than `minWidth`
+(default 20), they stack, each the whole width.
 ### Rules
 ```json
 { "type": "rule", "char": "═", "label": "CREW MANIFEST", "labelAlign": "left" }

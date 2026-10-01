@@ -454,6 +454,15 @@ function normalizeContent(items: readonly unknown[], prefix: string): Element[] 
         const element = { ...(item as Element), id };
         if (element.type === "section" || element.type === "columns") {
             element.content = normalizeContent(element.content, `${id}.`);
+        } else if (element.type === "frames") {
+            const { gap, minWidth } = element;
+            element.frames = element.frames.map((frame, index) => ({
+                ...frame,
+                type: "frame",
+                id: `${id}.${index}`,
+                layout: { gap, minWidth },
+                content: normalizeContent(frame.content, `${id}.${index}.`),
+            }));
         } else if (element.type === "carousel") {
             element.slides = element.slides.map((slide, index) =>
                 normalizeContent(slide, `${id}.${index}.`),
@@ -567,6 +576,13 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
             const module = moduleFor(element);
             report([...path, "sound"], unknownSound(element.sound));
             report([...path, "if"], conditionProblems(element.if));
+            if (element.type === "pause" && at.includes("frames")) {
+                report(
+                    path,
+                    "A pause can't go in a frame: the frames all reveal at once, so it would hold " +
+                        "only one of them. Put it after the frames.",
+                );
+            }
             for (const condition of module.conditions?.(element) ?? []) {
                 report(path, conditionProblems(condition));
             }
