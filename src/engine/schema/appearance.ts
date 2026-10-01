@@ -54,6 +54,19 @@ export const FontScaleSchema = z
             "snaps to whole multiples of its pixels, so it grows in steps (default: 1)",
     });
 
+/** How far apart lines are, as a multiple of the text's size. */
+export const DEFAULT_LINE_SPACING = 1.25;
+
+export const LineSpacingSchema = z
+    .number()
+    .min(1)
+    .max(2)
+    .meta({
+        description:
+            "How far apart lines are, as a multiple of the text's size, from 1 (touching, so " +
+            "block art and box drawing join up, as on the original machines) to 2 (default: 1.25)",
+    });
+
 // ─── Themes ──────────────────────────────────────────────────────────────────
 
 export interface Palette {

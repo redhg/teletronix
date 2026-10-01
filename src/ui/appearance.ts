@@ -41,7 +41,12 @@ export function loadFont(font: FontId): Promise<void> {
 const family = (font: FontId) => `Teletronix ${font}`;
 
 /** Applies colors and a font to the page. */
-export function applyAppearance(palette: Palette, font: FontId, fontScale = 1): void {
+export function applyAppearance(
+    palette: Palette,
+    font: FontId,
+    fontScale = 1,
+    lineSpacing = 1.25,
+): void {
     const root = document.documentElement.style;
     root.setProperty("--fg", palette.fg);
     root.setProperty("--bg", palette.bg);
@@ -53,6 +58,7 @@ export function applyAppearance(palette: Palette, font: FontId, fontScale = 1): 
     );
     root.setProperty("--font-px", `${info.pixelHeight}px`);
     root.setProperty("--font-scale", String(fontScale));
+    root.setProperty("--line-spacing", String(lineSpacing));
     // pixel fonts stay sharp without smoothing; installed (outline) fonts need it
     root.setProperty("--font-smoothing", isSystemFont(font) ? "auto" : "none");
 }

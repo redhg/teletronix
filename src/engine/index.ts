@@ -18,6 +18,7 @@ export {
 export {
     DEFAULT_FONT,
     DEFAULT_FONT_SCALE,
+    DEFAULT_LINE_SPACING,
     DEFAULT_THEME,
     FONTS,
     type FontId,

@@ -16,7 +16,12 @@ import { TerminalContext } from "./terminal-context.ts";
 
 interface Props {
     terminal: Terminal;
-    initial: { theme: ThemeSetting | undefined; font: FontId; fontScale: number };
+    initial: {
+        theme: ThemeSetting | undefined;
+        font: FontId;
+        fontScale: number;
+        lineSpacing: number;
+    };
     /** Take appearance settings from the parent page (the settings panel). */
     preview: boolean;
     /** Run as a kiosk: full screen, awake, and hard to leave (see useKiosk). */
@@ -28,6 +33,7 @@ export function Player({ terminal, initial, preview, kiosk = false }: Props) {
     const [theme, setTheme] = useState(initial.theme);
     const [font, setFont] = useState(initial.font);
     const [fontScale, setFontScale] = useState(initial.fontScale);
+    const [lineSpacing, setLineSpacing] = useState(initial.lineSpacing);
     const [sound, setSound] = useState(terminal.program.sound);
     // changes once the font has loaded, so the line length is measured again
     const [loadedFont, setLoadedFont] = useState<FontId | null>(null);
@@ -38,7 +44,10 @@ export function Player({ terminal, initial, preview, kiosk = false }: Props) {
     useKiosk(terminal, kiosk && started);
 
     const palette = useMemo(() => resolveTheme(theme), [theme]);
-    useLayoutEffect(() => applyAppearance(palette, font, fontScale), [palette, font, fontScale]);
+    useLayoutEffect(
+        () => applyAppearance(palette, font, fontScale, lineSpacing),
+        [palette, font, fontScale, lineSpacing],
+    );
 
     useEffect(() => {
         let current = true;
@@ -72,6 +81,7 @@ export function Player({ terminal, initial, preview, kiosk = false }: Props) {
             setTheme(settings.theme);
             setFont(settings.font);
             setFontScale(settings.fontScale);
+            setLineSpacing(settings.lineSpacing);
             terminal.setEffects(settings.effects);
             setSound(resolveSound(settings.sound));
         };
@@ -86,7 +96,9 @@ export function Player({ terminal, initial, preview, kiosk = false }: Props) {
             <PaletteContext value={palette}>
                 <SoundLayer terminal={terminal} sound={sound}>
                     {started ? (
-                        <TerminalView layoutKey={`${font}:${loadedFont}:${fontScale}`} />
+                        <TerminalView
+                            layoutKey={`${font}:${loadedFont}:${fontScale}:${lineSpacing}`}
+                        />
                     ) : (
                         <KioskGate title={terminal.program.config.name} onStart={start} />
                     )}

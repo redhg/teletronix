@@ -83,6 +83,18 @@ test.describe("the player", () => {
         expect((await styles(page)).fontSize).toBe(40);
     });
 
+    test("spaces lines by lineSpacing", async ({ page, player }) => {
+        const spacing = () =>
+            page.evaluate(() => {
+                const body = getComputedStyle(document.body);
+                return Number.parseFloat(body.lineHeight) / Number.parseFloat(body.fontSize);
+            });
+        await player.open(withConfig({ font: "ibm-vga" }));
+        expect(await spacing()).toBeCloseTo(1.25, 1);
+        await player.open(withConfig({ font: "ibm-vga", lineSpacing: 1 }));
+        expect(await spacing()).toBe(1);
+    });
+
     test("sets the page title", async ({ page, player }) => {
         await player.open(program);
         await expect(page).toHaveTitle("Appearance");
@@ -142,6 +154,20 @@ test.describe("the settings page", () => {
         await expect(page.locator(".hint", { hasText: "Text is" })).toContainText(
             "px in the preview",
         );
+    });
+
+    test("previews line spacing, and writes its JSON", async ({ page, player }) => {
+        await open(page, player);
+        await page.getByLabel("Line spacing").fill("1");
+        await expect
+            .poll(() =>
+                previewFrame(page).evaluate(() => {
+                    const body = getComputedStyle(document.body);
+                    return Number.parseFloat(body.lineHeight) / Number.parseFloat(body.fontSize);
+                }),
+            )
+            .toBe(1);
+        expect(JSON.parse(await output(page).innerText())).toMatchObject({ lineSpacing: 1 });
     });
 
     test("previews effects", async ({ page, player }) => {

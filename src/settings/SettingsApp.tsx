@@ -4,6 +4,7 @@ import {
     compactSound,
     DEFAULT_FONT,
     DEFAULT_FONT_SCALE,
+    DEFAULT_LINE_SPACING,
     DEFAULT_THEME,
     type EffectsState,
     expandEffects,
@@ -44,6 +45,7 @@ export function SettingsApp({ name, file, program }: Props) {
             theme: program.theme,
             font: program.font,
             fontScale: program.fontScale,
+            lineSpacing: program.lineSpacing,
             effects: expandEffects(program.effects),
             sound: program.sound,
         }),
@@ -52,6 +54,7 @@ export function SettingsApp({ name, file, program }: Props) {
     const [theme, setTheme] = useState<ThemeSetting | undefined>(initial.theme);
     const [font, setFont] = useState<FontId>(initial.font);
     const [fontScale, setFontScale] = useState(initial.fontScale);
+    const [lineSpacing, setLineSpacing] = useState(initial.lineSpacing);
     // the size text comes out at in the preview, which depends on its width and the font
     const [shownSize, setShownSize] = useState<number | null>(null);
     const [effects, setEffects] = useState<EffectsState>(initial.effects);
@@ -64,10 +67,11 @@ export function SettingsApp({ name, file, program }: Props) {
             theme,
             font,
             fontScale,
+            lineSpacing,
             effects: compactEffects(effects),
             sound: compactSound(sound),
         }),
-        [theme, font, fontScale, effects, sound],
+        [theme, font, fontScale, lineSpacing, effects, sound],
     );
 
     // the config properties to write: only what differs from the defaults
@@ -76,10 +80,11 @@ export function SettingsApp({ name, file, program }: Props) {
         if (theme !== undefined && theme !== DEFAULT_THEME) out.theme = theme;
         if (font !== DEFAULT_FONT) out.font = font;
         if (fontScale !== DEFAULT_FONT_SCALE) out.fontScale = fontScale;
+        if (lineSpacing !== DEFAULT_LINE_SPACING) out.lineSpacing = lineSpacing;
         if (settings.effects) out.effects = settings.effects;
         if (settings.sound !== undefined) out.sound = settings.sound;
         return out;
-    }, [theme, font, fontScale, settings.effects, settings.sound]);
+    }, [theme, font, fontScale, lineSpacing, settings.effects, settings.sound]);
     const json = JSON.stringify(config, null, 4);
 
     // keep the preview in step, including when it (re)loads and says it's ready
@@ -129,7 +134,7 @@ export function SettingsApp({ name, file, program }: Props) {
 
     const download = () => {
         const merged: ProgramFile = { ...file, config: { ...file.config } };
-        for (const key of ["theme", "font", "fontScale", "effects", "sound"]) {
+        for (const key of ["theme", "font", "fontScale", "lineSpacing", "effects", "sound"]) {
             if (key in config) merged.config[key] = config[key];
             else delete merged.config[key];
         }
@@ -147,6 +152,7 @@ export function SettingsApp({ name, file, program }: Props) {
         setTheme(initial.theme);
         setFont(initial.font);
         setFontScale(initial.fontScale);
+        setLineSpacing(initial.lineSpacing);
         setEffects(initial.effects);
         setSound(initial.sound);
     };
@@ -211,6 +217,22 @@ export function SettingsApp({ name, file, program }: Props) {
                         />
                         <output>{fontScale.toFixed(2)}×</output>
                     </label>
+                    <label className="row">
+                        <span>Line spacing</span>
+                        <input
+                            type="range"
+                            min={1}
+                            max={2}
+                            step={0.05}
+                            value={lineSpacing}
+                            onChange={(e) => setLineSpacing(Number(e.target.value))}
+                        />
+                        <output>{lineSpacing.toFixed(2)}×</output>
+                    </label>
+                    <p className="hint">
+                        At 1×, lines touch, so block art and box drawing join up, as on the original
+                        machines.
+                    </p>
                     <p className="hint">
                         {shownSize !== null && `Text is ${shownSize}px in the preview. `}
                         {FONTS[font].pixelHeight > 1

@@ -4,9 +4,11 @@ import type { Align } from "../text/layout.ts";
 import {
     DEFAULT_FONT,
     DEFAULT_FONT_SCALE,
+    DEFAULT_LINE_SPACING,
     type FontId,
     FontScaleSchema,
     FontSchema,
+    LineSpacingSchema,
     type Palette,
     resolveTheme,
     ThemeSchema,
@@ -174,6 +176,7 @@ export const ConfigSchema = z
         theme: ThemeSchema.optional(),
         font: FontSchema.optional(),
         fontScale: FontScaleSchema.optional(),
+        lineSpacing: LineSpacingSchema.optional(),
         effects: EffectsSchema.optional(),
         sound: SoundSchema.optional(),
         save: z
@@ -285,6 +288,8 @@ export interface Program {
     font: FontId;
     /** How much bigger (or smaller) than usual text is */
     fontScale: number;
+    /** How far apart lines are, as a multiple of the text's size */
+    lineSpacing: number;
     screens: ReadonlyMap<string, Screen>;
     dialogs: ReadonlyMap<string, Dialog>;
     /** Sound effects by name, each filled in */
@@ -323,6 +328,7 @@ function normalize(
         theme,
         font,
         fontScale,
+        lineSpacing,
         variables,
         timers,
         skipKeys,
@@ -406,6 +412,7 @@ function normalize(
         palette: resolveTheme(theme),
         font: font ?? DEFAULT_FONT,
         fontScale: fontScale ?? DEFAULT_FONT_SCALE,
+        lineSpacing: lineSpacing ?? DEFAULT_LINE_SPACING,
         screens,
         dialogs,
         sounds: new Map(

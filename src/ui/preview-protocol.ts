@@ -8,6 +8,7 @@ export interface AppearanceSettings {
     theme: ThemeSetting | undefined;
     font: FontId;
     fontScale: number;
+    lineSpacing: number;
     effects: EffectsSetting | undefined;
     sound: SoundSetting | undefined;
 }

@@ -57,6 +57,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `theme` | [Theme](#theme) | `"default"` | The color scheme: "default" (pale blue on black), "amber", "green" or "white", or your own colors |
 | `font` | `"ast-premiumexec"` \| `"ibm-vga"` \| `"ibm-ega"` \| `"ibm-cga"` \| `"ibm-cga-thin"` \| `"ibm-mda"` \| `"toshiba-satellite"` \| `"departure-mono"` \| `"courier-new"` \| `"consolas"` \| `"menlo"` | `"ast-premiumexec"` | The typeface: a period PC font, or one installed on the player's computer ("courier-new", "consolas" on Windows, "menlo" on macOS; the browser's own monospace font where it isn't) |
 | `fontScale` | number, 0.5–2 | `1` | How big text is, from 0.5 (half the usual size) to 2 (twice). A pixel font still snaps to whole multiples of its pixels, so it grows in steps |
+| `lineSpacing` | number, 1–2 | `1.25` | How far apart lines are, as a multiple of the text's size, from 1 (touching, so block art and box drawing join up, as on the original machines) to 2 |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |
 | `sound` | [Sound](#sound) |  | Generated retro sound effects: true, false, or an object of options. On by default; players can mute them with the sound toggle. |
 | `save` | boolean | `false` | Save the player's progress in the browser as they go (the screen, variables, timers, and what every element remembers), and carry on from it when the page is opened again. A "restart" action starts over |

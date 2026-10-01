@@ -21,7 +21,9 @@
         round(nearest, calc(var(--font-target) * var(--font-scale)), var(--font-px))
     );
     /* whole pixels, so lines of pixel text don't land between screen pixels */
-    --line-height: round(nearest, calc(var(--font-size) * 1.25), 1px);
+    /* a program's lineSpacing */
+    --line-spacing: 1.25;
+    --line-height: round(nearest, calc(var(--font-size) * var(--line-spacing)), 1px);
 }
 
 @media (min-width: 800px) {

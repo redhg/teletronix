@@ -851,6 +851,10 @@ installed, the browser's own monospace font stands in; they can be any size.
 usual size, which already adapts to the window, so text stays in proportion on a phone and a
 big monitor. Pixel fonts still snap to whole multiples of their pixels, so they grow in steps.
 
+`config.lineSpacing` sets how far apart lines are, as a multiple of the text's size, from 1 to 2
+(default 1.25). At 1, lines touch, as on the original machines, so block art (`█▓▒░`) and box
+drawing join up from line to line. (Maps and big timer digits always join up.)
+
 The easiest way to choose is the **settings page**: add `&config` to a program's address, e.g.
 <http://localhost:5173/?data=sample&config>. Change the theme, font and effects and watch the
 program update beside you, then copy the resulting `config` properties or download the program
