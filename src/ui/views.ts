@@ -33,6 +33,7 @@ import { TableView } from "../modules/table/View.tsx";
 import { TextView } from "../modules/text/View.tsx";
 import { TimerView } from "../modules/timer/View.tsx";
 import { ToggleView } from "../modules/toggle/View.tsx";
+import { TreeView } from "../modules/tree/View.tsx";
 import { VisualView } from "../modules/visual/View.tsx";
 import type { ElementView } from "./element-view.ts";
 
@@ -71,6 +72,7 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     carousel: CarouselView,
     frames: FramesView,
     frame: FrameView,
+    tree: TreeView,
     log: LogView,
     conversation: ConversationView,
     map: MapView,

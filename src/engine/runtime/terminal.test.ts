@@ -319,3 +319,20 @@ describe("starting somewhere else", () => {
         expect(terminal.getSnapshot().screen?.run.screen.id).toBe("one");
     });
 });
+
+describe("element memory", () => {
+    it("tells the views when it changes, even when nothing else on screen does", () => {
+        const { terminal } = createTestTerminal({
+            config: { name: "Test", reveal: "instant" },
+            screens: { one: { content: ["ONE"] } },
+        });
+        terminal.start();
+        const before = terminal.getSnapshot();
+        let told = 0;
+        const stop = terminal.subscribe(() => told++);
+        terminal.remember("one#0", { open: ["0"] });
+        stop();
+        expect(told).toBeGreaterThan(0);
+        expect(terminal.getSnapshot()).not.toBe(before);
+    });
+});

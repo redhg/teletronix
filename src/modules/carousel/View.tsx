@@ -14,7 +14,7 @@ import "./style.css";
 
 /** Where the arrow keys are someone else's: fields, dialogs, and controls that use them. */
 const ARROW_TARGETS =
-    'input, textarea, dialog, [role="slider"], [role="menu"], .buttons, .map, .hexdump';
+    'input, textarea, dialog, [role="slider"], [role="menu"], .buttons, .map, .hexdump, .tree';
 
 /** The carousel the player last flipped, which the arrow keys go to on a screen with several. */
 let lastUsed: string | null = null;

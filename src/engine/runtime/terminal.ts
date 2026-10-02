@@ -297,6 +297,17 @@ export class Terminal {
         return found;
     }
 
+    /**
+     * The screen a frame on the current screen is showing, by the frame's name: one a link
+     * put there, or its own to begin with. Undefined if there's no such frame.
+     */
+    frameShowing(name: string): string | undefined {
+        const frameId = this.frameNamed(name);
+        const frame = frameId === undefined ? undefined : this.elements.get(frameId);
+        if (frame?.type !== "frame") return undefined;
+        return this.recall<string>(frame.id) ?? frame.screen;
+    }
+
     /** Shows a screen's content in a frame on the current screen, in place of what was there. */
     private showInFrame(frameId: string, screenId: string): void {
         const screen = this.program.screens.get(screenId);
@@ -501,6 +512,8 @@ export class Terminal {
             } else {
                 this.run?.refresh(elementId);
             }
+            // (views that read it, e.g. a tree's open folders, show the change)
+            this.markDirty();
         }
 
         // the change may trigger an action (e.g. a slider pushed past a threshold)

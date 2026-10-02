@@ -100,6 +100,7 @@ import {
     timerModule,
 } from "../../modules/timer/definition.ts";
 import { type ToggleElement, ToggleSchema, toggleModule } from "../../modules/toggle/definition.ts";
+import { type TreeElement, TreeSchema, treeModule } from "../../modules/tree/definition.ts";
 import { type VisualElement, VisualSchema, visualModule } from "../../modules/visual/definition.ts";
 import type { ModuleDefinition } from "../module.ts";
 import type { Align, LayoutOptions } from "../text/layout.ts";
@@ -151,6 +152,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     MapSchema,
     CarouselSchema,
     FramesSchema,
+    TreeSchema,
 ]);
 
 /** An item of a screen's (or a section's) content: an element, or a string for a line of text. */
@@ -178,6 +180,7 @@ export type Element =
     | ColumnsElement
     | CarouselElement
     | FramesElement
+    | TreeElement
     // (made from a frames element as the program loads, not written)
     | FrameElement
     | MeterElement
@@ -219,6 +222,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     columns: columnsModule,
     carousel: carouselModule,
     frames: framesModule,
+    tree: treeModule,
     frame: frameModule,
     meter: meterModule,
     table: tableModule,

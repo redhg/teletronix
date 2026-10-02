@@ -111,6 +111,8 @@
                 { "type": "text", "text": "  A row of [ BUTTONS ], with hotkeys.", "className": "dim" },
                 { "type": "link", "text": "> MENUS", "action": { "screen": "menus" } },
                 { "type": "text", "text": "  A BIOS-style menu, like the home screen's.", "className": "dim" },
+                { "type": "link", "text": "> TREES", "action": { "screen": "frame-records" } },
+                { "type": "text", "text": "  Folders and items, like a file browser, opening records in a frame.", "className": "dim" },
                 { "type": "link", "text": "> TOGGLES & CHOICES", "action": { "screen": "toggles" } },
                 { "type": "text", "text": "  States that cycle, radio buttons and checkboxes.", "className": "dim" },
                 { "type": "link", "text": "> SLIDERS", "action": { "screen": "sliders" } },
@@ -311,19 +313,26 @@
                 "",
                 "A frame with a \"name\" can show other screens: a link with { \"frame\": \"record\", \"screen\": \"rec-ripley\" } reveals that screen's content in it, without leaving this one. The frame starts with its \"screen\", and remembers what it's showing when you come back.",
                 "",
+                "On the left, a \"tree\" opens its items in the frame (its \"frame\": \"record\") and marks the one showing. Move with the arrow keys: <right> and <left> open and close folders, <enter> opens an item.",
+                "",
                 { "type": "frames", "frames": [
-                    { "title": "CREW", "rows": 10, "width": 22, "content": [
-                        "SELECT A RECORD:",
-                        "",
-                        { "type": "link", "text": "> DALLAS", "action": { "frame": "record", "screen": "rec-dallas" } },
-                        { "type": "link", "text": "> RIPLEY", "action": { "frame": "record", "screen": "rec-ripley" } },
-                        { "type": "link", "text": "> KANE", "action": { "frame": "record", "screen": "rec-kane" } },
-                        { "type": "link", "text": "> ASH", "action": { "frame": "record", "screen": "rec-ash" } }
+                    { "title": "FILES", "rows": 10, "width": 22, "content": [
+                        { "type": "tree", "frame": "record", "items": [
+                            { "text": "CREW", "open": true, "items": [
+                                { "text": "DALLAS", "screen": "rec-dallas" },
+                                { "text": "RIPLEY", "screen": "rec-ripley" },
+                                { "text": "KANE", "screen": "rec-kane" },
+                                { "text": "ASH", "screen": "rec-ash" }
+                            ] },
+                            { "text": "ORDERS", "items": [
+                                { "text": "ORDER 937", "screen": "order-937" }
+                            ] }
+                        ] }
                     ] },
                     { "title": "RECORD", "name": "record", "screen": "rec-dallas", "rows": 10 }
                 ] },
                 "",
-                "Opened by itself, a record is an ordinary screen, and links to the frame just go to their screen.",
+                "Links in a record can show screens in the frame too: ASH's opens Special Order 937, and the tree follows. Opened by itself, a record is an ordinary screen, and links to the frame just go to their screen.",
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]

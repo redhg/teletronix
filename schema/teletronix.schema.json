@@ -29131,11 +29131,535 @@
                             ],
                             "additionalProperties": false,
                             "description": "Panels side by side, each revealing its own content at the same time as the others, with its own cursor, and scrolling by itself. The screen carries on once they've all finished. They can't hold pauses."
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "tree"
+                                },
+                                "items": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/$defs/TreeItem"
+                                    },
+                                    "description": "The items, top to bottom"
+                                },
+                                "frame": {
+                                    "description": "A frame on the screen to open items' screens in, by its name: the tree marks the item showing there. Without it, items go to their screens.",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "markers": {
+                                    "default": {
+                                        "closed": "[+]",
+                                        "open": "[-]"
+                                    },
+                                    "description": "What folders show before their text, e.g. ▶ and ▼",
+                                    "type": "object",
+                                    "properties": {
+                                        "closed": {
+                                            "default": "[+]",
+                                            "description": "Before a closed folder (default: \"[+]\")",
+                                            "type": "string"
+                                        },
+                                        "open": {
+                                            "default": "[-]",
+                                            "description": "Before an open folder (default: \"[-]\")",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                },
+                                "current": {
+                                    "default": " ◄",
+                                    "description": "After the item showing in the frame (default: \" ◄\")",
+                                    "type": "string"
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "items"
+                            ],
+                            "additionalProperties": false,
+                            "description": "A tree of items, like a file browser: folders open and close, and items open their screen, in a frame beside it if it has one. <up> and <down> move, <right> and <left> open and close folders, and <enter> (or a click) opens an item. It remembers which folders are open."
                         }
                     ]
                 }
             ],
             "description": "An element, or a string: shorthand for a line of text"
+        },
+        "TreeItem": {
+            "description": "An item in a tree: a folder of items, or one to open",
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The item's text"
+                },
+                "screen": {
+                    "description": "A screen it opens: in the tree's frame, if it has one",
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]+$"
+                },
+                "action": {
+                    "description": "What happens when it's opened, in place of a screen",
+                    "anyOf": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "if": {
+                                    "description": "Only when this holds; otherwise the next case in the list is tried",
+                                    "$ref": "#/$defs/Condition"
+                                },
+                                "screen": {
+                                    "description": "A screen to go to, or a list of screens to go to one of, at random",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                        },
+                                        {
+                                            "minItems": 1,
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                            }
+                                        }
+                                    ]
+                                },
+                                "dialog": {
+                                    "description": "A dialog to open, or a list of dialogs to open one of, at random",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z0-9_-]+$",
+                                            "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                        },
+                                        {
+                                            "minItems": 1,
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                            }
+                                        }
+                                    ]
+                                },
+                                "frame": {
+                                    "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "set": {
+                                    "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                    "type": "object",
+                                    "propertyNames": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                        "description": "A variable declared in config.variables"
+                                    },
+                                    "additionalProperties": {
+                                        "anyOf": [
+                                            {
+                                                "description": "true or false, a number, or text",
+                                                "type": [
+                                                    "boolean",
+                                                    "number",
+                                                    "string"
+                                                ]
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "add": {
+                                                        "type": "number",
+                                                        "description": "How much to add (negative to subtract)"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "add"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Adds to a number variable"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "random": {
+                                                        "type": "array",
+                                                        "prefixItems": [
+                                                            {
+                                                                "type": "integer",
+                                                                "minimum": -9007199254740991,
+                                                                "maximum": 9007199254740991
+                                                            },
+                                                            {
+                                                                "type": "integer",
+                                                                "minimum": -9007199254740991,
+                                                                "maximum": 9007199254740991
+                                                            }
+                                                        ],
+                                                        "items": false,
+                                                        "minItems": 2,
+                                                        "maxItems": 2,
+                                                        "description": "The lowest and highest it can be, e.g. [1, 20] for a d20"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "random"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Sets a number variable to a whole number at random, like a dice roll"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "pick": {
+                                                        "minItems": 1,
+                                                        "type": "array",
+                                                        "items": {
+                                                            "description": "true or false, a number, or text",
+                                                            "type": [
+                                                                "boolean",
+                                                                "number",
+                                                                "string"
+                                                            ]
+                                                        },
+                                                        "description": "The values to pick from, each as likely"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "pick"
+                                                ],
+                                                "additionalProperties": false,
+                                                "description": "Sets a variable to one of these values, at random"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "startTimer": {
+                                    "description": "A timer to start (or carry on, if it was stopped partway)",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                },
+                                "stopTimer": {
+                                    "description": "A timer to stop where it is",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                },
+                                "resetTimer": {
+                                    "description": "A timer to stop and put back to its start",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the action happens",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "back": {
+                                    "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                    "type": "boolean",
+                                    "const": true
+                                },
+                                "restart": {
+                                    "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                    "type": "boolean",
+                                    "const": true
+                                }
+                            },
+                            "additionalProperties": false,
+                            "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                        },
+                        {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "if": {
+                                        "description": "Only when this holds; otherwise the next case in the list is tried",
+                                        "$ref": "#/$defs/Condition"
+                                    },
+                                    "screen": {
+                                        "description": "A screen to go to, or a list of screens to go to one of, at random",
+                                        "anyOf": [
+                                            {
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                            },
+                                            {
+                                                "minItems": 1,
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "dialog": {
+                                        "description": "A dialog to open, or a list of dialogs to open one of, at random",
+                                        "anyOf": [
+                                            {
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9_-]+$",
+                                                "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                            },
+                                            {
+                                                "minItems": 1,
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9_-]+$",
+                                                    "description": "A screen or dialog id (letters, digits, '_' and '-')"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "frame": {
+                                        "description": "Show the screen in this frame on the current screen (see a frame's name), instead of going to it. Without that frame there, it goes to the screen.",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                    },
+                                    "set": {
+                                        "description": "Variables to change first, e.g. { \"keycard\": true }",
+                                        "type": "object",
+                                        "propertyNames": {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                            "description": "A variable declared in config.variables"
+                                        },
+                                        "additionalProperties": {
+                                            "anyOf": [
+                                                {
+                                                    "description": "true or false, a number, or text",
+                                                    "type": [
+                                                        "boolean",
+                                                        "number",
+                                                        "string"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "add": {
+                                                            "type": "number",
+                                                            "description": "How much to add (negative to subtract)"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "add"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Adds to a number variable"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "random": {
+                                                            "type": "array",
+                                                            "prefixItems": [
+                                                                {
+                                                                    "type": "integer",
+                                                                    "minimum": -9007199254740991,
+                                                                    "maximum": 9007199254740991
+                                                                },
+                                                                {
+                                                                    "type": "integer",
+                                                                    "minimum": -9007199254740991,
+                                                                    "maximum": 9007199254740991
+                                                                }
+                                                            ],
+                                                            "items": false,
+                                                            "minItems": 2,
+                                                            "maxItems": 2,
+                                                            "description": "The lowest and highest it can be, e.g. [1, 20] for a d20"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "random"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Sets a number variable to a whole number at random, like a dice roll"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "pick": {
+                                                            "minItems": 1,
+                                                            "type": "array",
+                                                            "items": {
+                                                                "description": "true or false, a number, or text",
+                                                                "type": [
+                                                                    "boolean",
+                                                                    "number",
+                                                                    "string"
+                                                                ]
+                                                            },
+                                                            "description": "The values to pick from, each as likely"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "pick"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Sets a variable to one of these values, at random"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "startTimer": {
+                                        "description": "A timer to start (or carry on, if it was stopped partway)",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                    },
+                                    "stopTimer": {
+                                        "description": "A timer to stop where it is",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                    },
+                                    "resetTimer": {
+                                        "description": "A timer to stop and put back to its start",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+                                    },
+                                    "sound": {
+                                        "description": "A sound from the program's sounds, played as the action happens",
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9_-]+$"
+                                    },
+                                    "back": {
+                                        "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
+                                        "type": "boolean",
+                                        "const": true
+                                    },
+                                    "restart": {
+                                        "description": "Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began",
+                                        "type": "boolean",
+                                        "const": true
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "description": "Go to a screen or open a dialog, changing variables and playing a sound on the way"
+                            }
+                        }
+                    ]
+                },
+                "open": {
+                    "default": false,
+                    "description": "For a folder: start open (default: false)",
+                    "type": "boolean"
+                },
+                "items": {
+                    "description": "Items inside it, which make it a folder",
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/TreeItem"
+                    }
+                },
+                "className": {
+                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "text"
+            ],
+            "additionalProperties": false
         }
     }
 }

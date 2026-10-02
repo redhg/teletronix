@@ -159,6 +159,7 @@ import { TableColumnSchema, TableSchema } from "../src/modules/table/definition.
 import { TextSchema } from "../src/modules/text/definition.ts";
 import { TimerElementSchema } from "../src/modules/timer/definition.ts";
 import { ToggleSchema } from "../src/modules/toggle/definition.ts";
+import { TreeItemSchema, TreeMarkersSchema, TreeSchema } from "../src/modules/tree/definition.ts";
 import { VisualLevelSchema, VisualSchema } from "../src/modules/visual/definition.ts";
 
 interface JsonSchema {
@@ -326,6 +327,9 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Carousel", CarouselSchema, '"type": "carousel"'],
             ["Frames", FramesSchema, '"type": "frames"'],
             ["Frame", FrameSchema],
+            ["Tree", TreeSchema, '"type": "tree"'],
+            ["Tree item", TreeItemSchema],
+            ["Tree markers", TreeMarkersSchema],
             ["Pause", PauseSchema, '"type": "pause"'],
             ["Rule", HorizontalRuleSchema, '"type": "rule"'],
             ["Breadcrumb", BreadcrumbSchema, '"type": "breadcrumb"'],

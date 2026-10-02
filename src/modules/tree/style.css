@@ -1,0 +1,27 @@
+/* A tree's lines are drawn with box characters, so they keep their spaces */
+.tree {
+    white-space: pre;
+}
+
+.tree-row {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.tree-row:focus {
+    outline: none;
+}
+
+/* the item under the pointer or the keyboard is highlighted, but not its lines */
+.tree-row:hover .tree-text,
+.tree-row:focus-visible .tree-text {
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: var(--inverse-glow);
+    box-shadow: var(--glow);
+}
+
+.tree-row:active .tree-text {
+    opacity: 0.5;
+}

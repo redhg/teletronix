@@ -60,6 +60,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"ascii"` | *Experimental:* an image turned into text, character by character. See [ASCII art](#ascii-art). |
 | `"link"` | Clickable text with an `action`, and optionally a `secondaryAction` for a shift-click, right-click, Shift+Enter or long press. |
 | `"menu"` | A list of `items` navigated with the arrow keys, like a BIOS menu. See below. |
+| `"tree"` | Folders and items, like a file browser, opening screens (in a frame beside it, if it has one). See [Trees](#trees). |
 | `"toggle"` | Text that cycles through its `states` when clicked, remembered across visits. |
 | `"choice"` | One of several `options`, shown side by side like radio buttons. See below. |
 | `"prompt"` | A command line. Each of its `commands` has an `action`; `onEnter` takes anything else. |
@@ -628,6 +629,33 @@ on: a menu on one side and records on the other. Links in the screen shown can d
 e.g. a record linking to the next. A frame's `screen` is what it shows to begin with (in place
 of its `content`), and it remembers what it's showing when you come back. On a screen without
 that frame (e.g. a record opened by itself), the action just goes to the screen.
+
+### Trees
+```json
+{ "type": "tree", "frame": "record", "items": [
+    { "text": "CREW", "open": true, "items": [
+        { "text": "DALLAS", "screen": "rec-dallas" },
+        { "text": "RIPLEY", "screen": "rec-ripley" }
+    ] },
+    { "text": "ORDERS", "items": [{ "text": "ORDER 937", "screen": "order-937" }] }
+] }
+```
+```
+[-] CREW
+ ├─ DALLAS ◄
+ └─ RIPLEY
+[+] ORDERS
+```
+Folders and items, drawn like a file browser. An item with `items` is a folder: it opens and
+closes (`"open": true` starts it open), and the tree remembers which are open. Any other item
+opens its `screen`, or runs its `action`. With `frame` (a frame's name), screens open in that
+frame, and the item showing there is marked (`current`, default `" ◄"`); when a link in the
+frame shows another of its screens, the mark follows, opening its folders. Without `frame`,
+items go to their screens.
+
+Once it's usable it takes the keyboard: <up> and <down> move, <right> opens a folder (or steps
+into it), <left> closes it (or steps out), and <enter> or <space> opens the item. A click does
+the same. `markers` changes the folders' `[+]` and `[-]`, e.g. `{ "closed": "▶", "open": "▼" }`.
 ### Rules
 ```json
 { "type": "rule", "char": "═", "label": "CREW MANIFEST", "labelAlign": "left" }

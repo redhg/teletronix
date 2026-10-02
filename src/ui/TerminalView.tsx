@@ -91,7 +91,7 @@ export function TerminalView({ layoutKey }: Props) {
     const handlePointerDown = (event: PointerEvent) => {
         if (
             event.target instanceof Element &&
-            event.target.closest('button, a, input, label, [role="slider"]')
+            event.target.closest('button, a, input, label, [role="slider"], [role="treeitem"]')
         ) {
             return;
         }
