@@ -1,4 +1,5 @@
-/* The settings page looks like the rest of your system, not like a terminal. */
+/* The sound test page looks like the rest of your system, not like a terminal. (These styles
+   were the old settings page's, which it shared; it moves into the editor later.) */
 :root {
     color-scheme: light dark;
 }

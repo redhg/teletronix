@@ -1,6 +1,5 @@
-import { readFile } from "node:fs/promises";
 import type { Frame, Page } from "@playwright/test";
-import { expect, type Player, type Program, test } from "./fixtures.ts";
+import { expect, type Program, test } from "./fixtures.ts";
 
 const program: Program = {
     config: { name: "Appearance", start: "home" },
@@ -108,106 +107,5 @@ test.describe("the player", () => {
     test("sets the page title", async ({ page, player }) => {
         await player.open(program);
         await expect(page).toHaveTitle("Appearance");
-    });
-});
-
-test.describe("the settings page", () => {
-    test.use({ viewport: { width: 1300, height: 800 } });
-
-    const open = async (page: Page, player: Player) => {
-        await player.page.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
-        await page.goto("./?data=e2e&config");
-        await expect(preview(page).locator(".screen")).toContainText("HOME");
-    };
-    const preview = (page: Page) => page.frameLocator(".settings-preview");
-    const previewFrame = (page: Page) => {
-        const frame = page.frames().find((candidate) => candidate.url().includes("preview"));
-        if (!frame) throw new Error("no preview");
-        return frame;
-    };
-    const output = (page: Page) => page.locator(".output");
-
-    test("starts from the program's settings", async ({ page, player }) => {
-        await open(page, player);
-        await expect(output(page)).toHaveText("{} (all defaults)");
-    });
-
-    test("previews a theme and font, and writes their JSON", async ({ page, player }) => {
-        await open(page, player);
-        await page.getByLabel("Theme").selectOption("amber");
-        await page.getByLabel("Typeface").selectOption("ibm-ega");
-        await expect.poll(async () => (await styles(previewFrame(page))).fg).toBe("#e07d0b");
-        await expect
-            .poll(async () => (await styles(previewFrame(page))).fontFamily)
-            .toContain("ibm-ega");
-        const json = JSON.parse(await output(page).innerText());
-        expect(json).toMatchObject({ theme: "amber", font: "ibm-ega" });
-    });
-
-    test("previews custom colors", async ({ page, player }) => {
-        await open(page, player);
-        await page.getByLabel("Theme").selectOption("custom");
-        await page.locator('input[type="color"]').first().fill("#33ff66");
-        await expect.poll(async () => (await styles(previewFrame(page))).fg).toBe("#33ff66");
-        expect(JSON.parse(await output(page).innerText()).theme.fg).toBe("#33ff66");
-    });
-
-    test("previews a text size, and writes its JSON", async ({ page, player }) => {
-        await open(page, player);
-        await page.getByLabel("Typeface").selectOption("ibm-vga");
-        const slider = page.getByLabel("Text size");
-        await slider.fill("1.5");
-        await expect
-            .poll(async () => (await styles(previewFrame(page))).fontSize)
-            .toBeGreaterThan(40);
-        expect(JSON.parse(await output(page).innerText())).toMatchObject({ fontScale: 1.5 });
-        await expect(page.locator(".hint", { hasText: "Text is" })).toContainText(
-            "px in the preview",
-        );
-    });
-
-    test("previews line spacing, and writes its JSON", async ({ page, player }) => {
-        await open(page, player);
-        await page.getByLabel("Line spacing").fill("1");
-        await expect
-            .poll(() =>
-                previewFrame(page).evaluate(() => {
-                    const body = getComputedStyle(document.body);
-                    return Number.parseFloat(body.lineHeight) / Number.parseFloat(body.fontSize);
-                }),
-            )
-            .toBe(1);
-        expect(JSON.parse(await output(page).innerText())).toMatchObject({ lineSpacing: 1 });
-    });
-
-    test("previews effects", async ({ page, player }) => {
-        await open(page, player);
-        await page
-            .locator("fieldset.effect", { hasText: "Vignette" })
-            .locator("legend input")
-            .check();
-        await expect(preview(page).locator(".effects .vignette")).toHaveCount(1);
-        expect(JSON.parse(await output(page).innerText()).effects).toMatchObject({
-            vignette: true,
-        });
-    });
-
-    test("downloads the program with the settings in place", async ({ page, player }) => {
-        await open(page, player);
-        await page.getByLabel("Theme").selectOption("green");
-        const [download] = await Promise.all([
-            page.waitForEvent("download"),
-            page.getByRole("button", { name: "Download e2e.json" }).click(),
-        ]);
-        const file = JSON.parse(await readFile(await download.path(), "utf8"));
-        expect(file.config).toEqual({ ...program.config, theme: "green" });
-        expect(file.screens).toEqual(program.screens);
-    });
-
-    test("resets to the program's settings", async ({ page, player }) => {
-        await open(page, player);
-        await page.getByLabel("Theme").selectOption("white");
-        await page.getByRole("button", { name: "Reset" }).click();
-        await expect(output(page)).toHaveText("{} (all defaults)");
     });
 });

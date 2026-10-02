@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { encode } from "uqr";
-import { Panel } from "./GmApp.tsx";
+import { Panel } from "../mantine/Panel.tsx";
 import { newCode } from "./link.ts";
 
 /** Hosts that only this computer can reach. */

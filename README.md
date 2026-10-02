@@ -16,6 +16,24 @@ Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `s
 `#<screen>` starts on that screen instead of the start screen, e.g.
 <http://localhost:5173/?data=sample#home>, and changing it jumps there: handy while writing one.
 
+### The editor
+`?edit` opens a program in the editor, e.g. <http://localhost:5173/?edit&data=sample> (or a name
+with no file yet, for a new program). On the left, the program's parts; in the middle, a form for
+the one chosen; on the right, a live preview, which shows appearance changes at once and
+restarts with anything else, on the screen it was showing.
+- **Program:** its name, start screen, bars, variables and timers, and how screens appear. The
+  fields are built from the schema, each with its description and default: leave one empty (or
+  choose ↺) to use the default. Anything more involved than text, a number or a switch is
+  edited as JSON.
+- **Appearance:** colours, font, text size, line spacing, effects and sound.
+
+It checks the program as you go: the problems badge lists each mistake, and goes to it. Undo and
+redo with **Cmd/Ctrl+Z** and **Cmd/Ctrl+Shift+Z**. **Save** (**Cmd/Ctrl+S**) writes
+`public/data/<name>.json` in `npm run dev`; anywhere else (e.g. a build), it downloads the file
+instead. It writes JSON the way it's written by hand: short and flat things on one line, the
+rest spread out. The **File** menu starts a new program, opens a JSON file, and downloads.
+Screens, dialogs and sounds come next.
+
 | Script | |
 |---|---|
 | `npm run dev` | Dev server |
@@ -975,10 +993,8 @@ the screen's own (smaller) pixels, so it's crisp at more sizes.
 (default 1.25). At 1, lines touch, as on the original machines, so block art (`█▓▒░`) and box
 drawing join up from line to line. (Maps and big timer digits always join up.)
 
-The easiest way to choose is the **settings page**: add `&config` to a program's address, e.g.
-<http://localhost:5173/?data=sample&config>. Change the theme, font and effects and watch the
-program update beside you, then copy the resulting `config` properties or download the program
-with them in place.
+The easiest way to choose is the [editor](#the-editor)'s **Appearance** section: change the
+theme, font and effects and watch the program update beside you.
 
 ### Sound
 Teletronix makes its own retro sound effects as it runs, with no audio files: key clicks as text
@@ -1032,7 +1048,7 @@ they're on, the variables, the program's timers, and what every element remember
 sections, choices, a login's tries, a shell's folder). Opening the program again carries on
 from there, so a session survives a reload, or picks up next week on the same computer. A
 `{ "restart": true }` action starts over, e.g. from a "> NEW GAME" link. Each program saves
-under its `name`; the settings page's preview never saves.
+under its `name`; the editor's preview never saves.
 
 ### Right-click menu
 The browser's right-click menu is blocked, so a program feels like a terminal rather than a web
@@ -1157,7 +1173,7 @@ Two suites, both run on every push by GitHub Actions:
 
 - **Unit tests** (`npm test`, Vitest): the engine, schemas, modules' behavior and the
   generated files, with a fake clock. Next to the code, as `*.test.ts`.
-- **Browser tests** (`npm run test:e2e`, Playwright): the player, the settings page and the
+- **Browser tests** (`npm run test:e2e`, Playwright): the player, the editor and the
   sound test page, driven as a user would, in Chromium, Firefox and WebKit. In `e2e/`, one
   file per feature. They build the app and serve it on port 4180, so a running dev server
   (or `npm run table`) doesn't matter.
@@ -1189,6 +1205,9 @@ Every new feature gets tests.
 - `src/modules/<name>/`: one folder per element type. `definition.ts` holds the schema and
   engine behavior; `View.tsx` holds the React view.
 - `src/effects/<name>/`: one folder per visual effect, split the same way as modules.
+- `src/editor/`: the program editor (`?edit`), built with Mantine like the GM's panel; their
+  shared pieces are in `src/mantine/`. The dev server's save endpoint is
+  `scripts/editor-save.ts`.
 - `src/remote/`: the GM's control panel (`&gm`, built with Mantine, which only it loads), and
   the players' side of it. The relay that
   passes their messages between devices is `scripts/remote-relay.ts`, in Vite's servers.

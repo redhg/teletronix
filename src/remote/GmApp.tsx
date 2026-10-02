@@ -21,7 +21,6 @@ import {
     TextInput,
     Title,
     UnstyledButton,
-    useMantineColorScheme,
 } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import {
@@ -34,6 +33,8 @@ import {
     useState,
 } from "react";
 import { EFFECTS, type EffectName, type Program, type VariableValue } from "../engine/index.ts";
+import { ColorScheme } from "../mantine/ColorScheme.tsx";
+import { Panel } from "../mantine/Panel.tsx";
 import { AddDevice } from "./AddDevice.tsx";
 import { GONE_MS, HEARTBEAT_MS } from "./follow.ts";
 import {
@@ -287,38 +288,6 @@ export function GmApp({ name, program }: Props) {
                 </Box>
             </Tabs>
         </Box>
-    );
-}
-
-/** A card with a title: a group of the panel's controls. */
-export function Panel({ title, children }: { title: string; children: React.ReactNode }) {
-    return (
-        <Card withBorder component="section" aria-label={title} padding="lg">
-            <Stack gap="sm">
-                <Title order={5} tt="uppercase" c="dimmed" fz="xs" lts={1}>
-                    {title}
-                </Title>
-                {children}
-            </Stack>
-        </Card>
-    );
-}
-
-/** Light, dark, or as the system says. */
-function ColorScheme() {
-    const { colorScheme, setColorScheme } = useMantineColorScheme();
-    return (
-        <SegmentedControl
-            size="xs"
-            aria-label="Colour scheme"
-            value={colorScheme}
-            onChange={(value) => setColorScheme(value as "light" | "dark" | "auto")}
-            data={[
-                { label: "Light", value: "light" },
-                { label: "Dark", value: "dark" },
-                { label: "Auto", value: "auto" },
-            ]}
-        />
     );
 }
 

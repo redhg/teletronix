@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { THEMES } from "../engine/index.ts";
 import { accentFor } from "./theme.ts";
 
-describe("the GM panel's accent", () => {
+describe("the tools' accent", () => {
     it("matches the program's colours", () => {
         expect(accentFor(THEMES.amber.fg)).toBe("orange");
         expect(accentFor(THEMES.green.fg)).toBe("green");

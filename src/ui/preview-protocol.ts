@@ -1,8 +1,8 @@
 import type { EffectsSetting, FontId, SoundSetting, ThemeSetting } from "../engine/index.ts";
 
 /**
- * Messages between the settings page and the player it previews in an iframe. Both are
- * the same app on the same origin; messages from anywhere else are ignored.
+ * Messages between the editor and the player it previews in an iframe. Both are the same
+ * app on the same origin; messages from anywhere else are ignored.
  */
 export interface AppearanceSettings {
     theme: ThemeSetting | undefined;
@@ -16,8 +16,15 @@ export interface AppearanceSettings {
 export type PreviewMessage =
     /** From the preview: it's ready for settings. */
     | { type: "teletronix:ready" }
-    /** From the settings page: show the program with these settings. */
-    | { type: "teletronix:appearance"; settings: AppearanceSettings };
+    /** From the editor: show the program with these settings. */
+    | { type: "teletronix:appearance"; settings: AppearanceSettings }
+    /**
+     * From the editor: play this program (as written) instead, starting on `screen` (default:
+     * the screen it's showing, if the program still has it).
+     */
+    | { type: "teletronix:program"; file: unknown; screen?: string }
+    /** From the preview: the screen it's showing, as it changes. */
+    | { type: "teletronix:screen"; screen: string | null };
 
 export function isPreviewMessage(event: MessageEvent): event is MessageEvent<PreviewMessage> {
     const data: unknown = event.data;

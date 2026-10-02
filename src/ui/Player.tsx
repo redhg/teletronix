@@ -11,7 +11,7 @@ import { RemoteBadge } from "../remote/RemoteBadge.tsx";
 import { applyAppearance, loadFont } from "./appearance.ts";
 import { KioskGate, useKiosk } from "./kiosk/Kiosk.tsx";
 import { PaletteContext } from "./palette-context.ts";
-import { isPreviewMessage, type PreviewMessage } from "./preview-protocol.ts";
+import { isPreviewMessage } from "./preview-protocol.ts";
 import { SoundLayer } from "./sound/SoundLayer.tsx";
 import { TerminalView } from "./TerminalView.tsx";
 import { TerminalContext } from "./terminal-context.ts";
@@ -90,8 +90,6 @@ export function Player({ terminal, initial, preview, kiosk = false, remote }: Pr
             setSound(resolveSound(settings.sound));
         };
         window.addEventListener("message", handleMessage);
-        const ready: PreviewMessage = { type: "teletronix:ready" };
-        window.parent.postMessage(ready, location.origin);
         return () => window.removeEventListener("message", handleMessage);
     }, [preview, terminal]);
 

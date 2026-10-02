@@ -18,8 +18,9 @@ const HUES: [number, MantineColor][] = [
 ];
 
 /**
- * The Mantine colour nearest a program's text colour, for the panel's accent: an amber
- * terminal gets an orange panel, a green one green. Greys (e.g. a white terminal) get blue.
+ * The Mantine colour nearest a program's text colour, for a tool's accent: an amber
+ * terminal gets an orange editor and panel, a green one green. Greys (e.g. a white terminal)
+ * get blue.
  */
 export function accentFor(color: string): MantineColor {
     const hex = /^#?([0-9a-f]{6})$/i.exec(color.trim())?.[1];
@@ -45,8 +46,8 @@ export function accentFor(color: string): MantineColor {
     return HUES.reduce<MantineColor>((found, [from, name]) => (hue >= from ? name : found), "red");
 }
 
-/** The panel's theme, in the program's colour. */
-export const gmTheme = (fg: string): MantineThemeOverride =>
+/** The theme of Teletronix's tools (the editor, the GM's panel), in the program's colour. */
+export const toolTheme = (fg: string): MantineThemeOverride =>
     createTheme({
         primaryColor: accentFor(fg),
         fontFamilyMonospace: "ui-monospace, Menlo, Consolas, monospace",

@@ -2,14 +2,14 @@ import { localStorageColorSchemeManager, MantineProvider } from "@mantine/core";
 import { StrictMode } from "react";
 import type { Root } from "react-dom/client";
 import { parseProgram } from "../engine/index.ts";
+import { toolTheme } from "../mantine/theme.ts";
 import { fetchProgramJson } from "../ui/load-program.ts";
 import { GmApp } from "./GmApp.tsx";
-import { gmTheme } from "./theme.ts";
 import "@mantine/core/styles.css";
 import "./gm.css";
 
-/** The panel's light, dark or automatic colour scheme, kept between visits. */
-const colorSchemes = localStorageColorSchemeManager({ key: "teletronix:gm-color-scheme" });
+/** The panel's light, dark or automatic colour scheme, kept between visits (with the editor's). */
+const colorSchemes = localStorageColorSchemeManager({ key: "teletronix:tool-color-scheme" });
 
 /** A GM's control panel for `?data=<name>`, played in another window of this browser. */
 export async function startGm(root: Root, params: URLSearchParams): Promise<void> {
@@ -40,7 +40,7 @@ export async function startGm(root: Root, params: URLSearchParams): Promise<void
     root.render(
         <StrictMode>
             <MantineProvider
-                theme={gmTheme(result.program.palette.fg)}
+                theme={toolTheme(result.program.palette.fg)}
                 defaultColorScheme="auto"
                 colorSchemeManager={colorSchemes}
             >

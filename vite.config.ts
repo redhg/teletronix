@@ -2,6 +2,7 @@ import react from "@vitejs/plugin-react";
 import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vitest/config";
+import { createSaver } from "./scripts/editor-save.ts";
 import { createRelay } from "./scripts/remote-relay.ts";
 
 const BACKGROUND = "#000c0c";
@@ -33,6 +34,14 @@ export default defineConfig({
     plugins: [
         react(),
         remoteRelay(),
+        // the editor (`?edit`) saves programs straight into public/data, in the dev server
+        {
+            name: "teletronix-editor-save",
+            configureServer: (server) =>
+                void server.middlewares.use(
+                    createSaver(new URL("./public/data/", import.meta.url)),
+                ),
+        },
         // Works offline, and installs as an app: a service worker caches everything the
         // build contains, including the programs in public/data and their images.
         VitePWA({
