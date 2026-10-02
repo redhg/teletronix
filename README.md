@@ -1110,15 +1110,21 @@ GM's laptop controlling a tablet), with Teletronix served from a computer on tha
 1. On that computer, run `npm run table`. It builds Teletronix and serves it to the network,
    and prints its address there, e.g. `http://192.168.2.139:4173/`. (`npm run dev -- --host`
    works too, while working on Teletronix.)
-2. On the players' device, open the program at that address with `&remote` added, e.g.
-   `http://192.168.2.139:4173/?data=ypsilon14&remote&kiosk`. It shows a pairing code in the
-   corner, e.g. `REMOTE K7QX · WAITING FOR GM`, for a few seconds (and again with
-   **Ctrl+Alt+G**, or whenever the connection changes).
-3. On the GM's device, open the same program with `&gm`, type the code into "Another
-   device's code", and choose **Pair**. The players' screen shows `GM CONNECTED`.
+2. On the GM's device, open the program with `&gm`, e.g. `http://localhost:4173/?data=ypsilon14&gm`
+   on that computer. Under **Players' device**, choose **Show a QR code** (and tick **As a
+   kiosk** for a dedicated screen).
+3. Scan the QR code with the players' device's camera. It opens the program there, already
+   paired with the panel, and shows `REMOTE K7QX · GM CONNECTED` in the corner.
+
+Or the other way round, without a camera: open the program on the players' device with
+`&remote` added, e.g. `http://192.168.2.139:4173/?data=ypsilon14&remote&kiosk`. It shows a
+pairing code in the corner, e.g. `REMOTE K7QX · WAITING FOR GM`, for a few seconds (and again
+with **Ctrl+Alt+G**, or whenever the connection changes); type it into the panel's "Another
+device's code" and choose **Pair**.
 
 Messages go through the server on that computer, so it works without internet, and only a
-panel with the code can control the terminal. The code stays the same on that device, and the
+panel with the code can control the terminal (`&remote=K7QX`, as in the QR code, gives the
+terminal that code). The code stays the same on that device, and the
 panel remembers it, so they pair again by themselves after a reload or a dropped connection.
 Without `&remote`, a terminal can't be reached from other devices at all. A copy hosted
 online (e.g. on GitHub Pages) has no server to pass messages through, so the code shows as

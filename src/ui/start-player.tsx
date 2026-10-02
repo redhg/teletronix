@@ -3,6 +3,7 @@ import type { Root } from "react-dom/client";
 import { Terminal } from "../engine/index.ts";
 import { rememberProgram } from "../last-program.ts";
 import { followRemote } from "../remote/follow.ts";
+import { CODE_LENGTH, cleanCode } from "../remote/link.ts";
 import { AnimationFrameTicker } from "./animation-frame-ticker.ts";
 import { applyAppearance, followPixelRatio, loadFont } from "./appearance.ts";
 import { ErrorView } from "./ErrorView.tsx";
@@ -59,6 +60,8 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
         ? undefined
         : followRemote(terminal, params.get("data") ?? "sample", {
               network: params.has("remote"),
+              // `&remote=K7QX` pairs with the panel that showed it (e.g. in a QR code)
+              code: givenCode(params.get("remote")),
           });
 
     root.render(
@@ -77,6 +80,12 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
             />
         </StrictMode>,
     );
+}
+
+/** A pairing code given in the address, if it's one. */
+function givenCode(value: string | null): string | undefined {
+    const code = cleanCode(value ?? "");
+    return code.length >= CODE_LENGTH ? code : undefined;
 }
 
 /** The screen named in the page's address, as #id, if any. */

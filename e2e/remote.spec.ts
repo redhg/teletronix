@@ -153,3 +153,40 @@ test.describe("over the network", () => {
         await expect(page.locator(".remote-badge")).toHaveCount(0);
     });
 });
+
+test.describe("a QR code for the players' device", () => {
+    test("explains how, when other devices can't reach Teletronix", async ({ page }) => {
+        await page.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        await page.goto("./?data=e2e&gm");
+        await expect(page.getByRole("region", { name: "Players' device" })).toContainText(
+            "npm run table",
+        );
+    });
+
+    test("opens the program on the device, paired with the panel", async ({ page, browser }) => {
+        await page.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        // (as if served to the network, at this address)
+        await page.route("**/remote/addresses", (route) =>
+            route.fulfill({ json: ["http://192.168.0.20:4173/"] }),
+        );
+        await page.goto("./?data=e2e&gm");
+        await page.getByRole("button", { name: "Show a QR code" }).click();
+        await expect(page.getByRole("img", { name: /QR code/ })).toBeVisible();
+        const address = await page.locator(".gm-address").innerText();
+        const code = (await page.locator(".gm-pairing strong").innerText()).trim();
+        expect(address).toBe(`http://192.168.0.20:4173/?data=e2e&remote=${code}`);
+        await page.getByRole("checkbox", { name: /kiosk/ }).check();
+        await expect(page.locator(".gm-address")).toHaveText(`${address}&kiosk`);
+
+        // the device opens it (here, at the test server's own address)
+        const device = await (await browser.newContext()).newPage();
+        await device.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        const { search } = new URL(address);
+        await device.goto(`./${search}`);
+        await expect(device.locator(".remote-badge")).toContainText(
+            `REMOTE ${code} · GM CONNECTED`,
+        );
+        await expect(page.getByRole("status").first()).toContainText("Players on HOME");
+        await device.context().close();
+    });
+});

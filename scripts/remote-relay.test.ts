@@ -75,6 +75,24 @@ describe("the remote relay", () => {
         expect(elsewhere.received).toEqual([]);
     });
 
+    it("tells where other devices can reach it", async () => {
+        const response = await fetch(`${base}/play/remote/addresses`);
+        const urls = (await response.json()) as string[];
+        expect(Array.isArray(urls)).toBe(true);
+        const port = new URL(base).port;
+        for (const url of urls) expect(url).toMatch(new RegExp(`^http://[\\d.]+:${port}/play/$`));
+    });
+
+    it("has no addresses when other devices can't reach it", async () => {
+        const relay = createRelay({ exposed: () => false });
+        const closed = createServer((req, res) => relay(req, res, () => res.end()));
+        await new Promise<void>((resolve) => closed.listen(0, "127.0.0.1", resolve));
+        const port = (closed.address() as AddressInfo).port;
+        const response = await fetch(`http://127.0.0.1:${port}/remote/addresses`);
+        expect(await response.json()).toEqual([]);
+        await new Promise((resolve) => closed.close(resolve));
+    });
+
     it("refuses what isn't a message, and leaves other addresses alone", async () => {
         expect((await send("K7QX", "gm", "not json")).status).toBe(400);
         expect((await send("K7QX", "spy", "{}")).status).toBe(400);

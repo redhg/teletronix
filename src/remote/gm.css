@@ -230,3 +230,29 @@ h2 {
 .gm-network-unavailable {
     color: #c0392b;
 }
+
+.gm-device {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 12px;
+    align-items: start;
+}
+
+.gm-qr {
+    width: 180px;
+    height: 180px;
+    /* (sharp squares, at any size) */
+    image-rendering: pixelated;
+}
+
+.gm-address {
+    overflow-wrap: anywhere;
+    user-select: all;
+    opacity: 0.8;
+}
+
+@media (max-width: 420px) {
+    .gm-device {
+        grid-template-columns: 1fr;
+    }
+}

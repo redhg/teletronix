@@ -52,13 +52,16 @@ export interface Remote {
     stop(): void;
 }
 
-/** A program's pairing code on this device: the same each time, so a panel stays paired. */
-function codeFor(program: string): string {
+/**
+ * A program's pairing code on this device: the same each time, so a panel stays paired.
+ * One given (e.g. in a QR code's address) takes its place.
+ */
+function codeFor(program: string, given?: string): string {
     const key = `teletronix:remote-code:${program}`;
     try {
         const saved = localStorage.getItem(key);
-        if (saved) return saved;
-        const code = newCode();
+        if (saved && !given) return saved;
+        const code = given ?? newCode();
         localStorage.setItem(key, code);
         return code;
     } catch {
@@ -74,12 +77,12 @@ function codeFor(program: string): string {
 export function followRemote(
     terminal: Terminal,
     program: string,
-    { network = false }: { network?: boolean } = {},
+    { network = false, code }: { network?: boolean; code?: string } = {},
 ): Remote {
     const player = crypto.randomUUID();
     const listeners = new Set<() => void>();
     let status: RemoteStatus = {
-        code: network ? codeFor(program) : null,
+        code: network ? codeFor(program, code) : null,
         network: null,
         gm: false,
     };

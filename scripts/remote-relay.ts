@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { networkInterfaces } from "node:os";
 
 // Passes messages between a GM's panel and players' terminals on other devices, for the
 // Vite dev and preview servers (see vite.config.ts). Each pairing code is a room: what a
@@ -6,8 +7,11 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 //
 //   GET  remote/<code>/events?role=gm|player   a stream of messages (server-sent events)
 //   POST remote/<code>/send?role=gm|player     a message (JSON) for the other side
+//   GET  remote/addresses                      where other devices can reach Teletronix, e.g.
+//                                              ["http://192.168.2.139:4173/"], for a QR code
 
 const PATH = /\/remote\/([A-Z0-9]{4,8})\/(events|send)$/;
+const ADDRESSES = /\/remote\/addresses$/;
 /** The largest message accepted. */
 const MAX_BYTES = 64 * 1024;
 /** How often an idle stream gets a comment, so nothing between closes it. */
@@ -16,8 +20,11 @@ const KEEP_ALIVE_MS = 15_000;
 type Role = "gm" | "player";
 type Next = (error?: unknown) => void;
 
-/** A relay: a middleware for Connect (which Vite's servers use). */
-export function createRelay() {
+/**
+ * A relay: a middleware for Connect (which Vite's servers use). `exposed` says whether the
+ * server can be reached from other devices (Vite's --host); if not, it has no addresses.
+ */
+export function createRelay({ exposed = () => true }: { exposed?: () => boolean } = {}) {
     const rooms = new Map<string, Set<{ role: Role; res: ServerResponse }>>();
 
     const listen = (room: string, role: Role, req: IncomingMessage, res: ServerResponse) => {
@@ -66,7 +73,11 @@ export function createRelay() {
         const url = new URL(req.url ?? "", "http://relay");
         const match = PATH.exec(url.pathname);
         const role = url.searchParams.get("role");
-        if (!match) {
+        if (ADDRESSES.test(url.pathname) && req.method === "GET") {
+            const base = url.pathname.replace(ADDRESSES, "/");
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(exposed() ? addresses(req.socket.localPort ?? 80, base) : []));
+        } else if (!match) {
             next();
         } else if (role !== "gm" && role !== "player") {
             finish(res, 400);
@@ -92,4 +103,15 @@ function parseJson(text: string): unknown {
     } catch {
         return undefined;
     }
+}
+
+/**
+ * The addresses this computer has on its networks (not itself), with the server's port and
+ * path: where other devices can open Teletronix. Wired and Wi-Fi first.
+ */
+export function addresses(port: number, base: string): string[] {
+    return Object.values(networkInterfaces())
+        .flat()
+        .filter((info) => info && info.family === "IPv4" && !info.internal)
+        .map((info) => `http://${info?.address}:${port}${base}`);
 }

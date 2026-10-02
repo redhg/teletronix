@@ -11,11 +11,19 @@ const BACKGROUND = "#000c0c";
  * or preview server (see scripts/remote-relay.ts).
  */
 function remoteRelay(): Plugin {
-    const relay = createRelay();
+    // (other devices can reach the server only when it's started with --host)
+    const open = (host: string | boolean | undefined) =>
+        host === true || (typeof host === "string" && !["localhost", "127.0.0.1"].includes(host));
     return {
         name: "teletronix-remote-relay",
-        configureServer: (server) => void server.middlewares.use(relay),
-        configurePreviewServer: (server) => void server.middlewares.use(relay),
+        configureServer: (server) =>
+            void server.middlewares.use(
+                createRelay({ exposed: () => open(server.config.server.host) }),
+            ),
+        configurePreviewServer: (server) =>
+            void server.middlewares.use(
+                createRelay({ exposed: () => open(server.config.preview.host) }),
+            ),
     };
 }
 

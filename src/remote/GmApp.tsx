@@ -1,5 +1,6 @@
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EFFECTS, type EffectName, type Program, type VariableValue } from "../engine/index.ts";
+import { AddDevice } from "./AddDevice.tsx";
 import { GONE_MS, HEARTBEAT_MS } from "./follow.ts";
 import {
     CODE_LENGTH,
@@ -147,6 +148,7 @@ export function GmApp({ name, program }: Props) {
                     />
                 </section>
                 <div className="gm-column">
+                    <AddDevice program={name} code={code} pair={setCode} />
                     <Transmit send={send} />
                     <Dialogs
                         program={program}
