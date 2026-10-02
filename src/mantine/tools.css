@@ -1,0 +1,10 @@
+/* Shared by the editor and the GM's panel */
+
+/* a screen folder's ▸ or ▾ */
+.tool-toggle {
+    flex: none;
+    width: 22px;
+    font-size: 16px;
+    text-align: center;
+    color: var(--mantine-color-dimmed);
+}

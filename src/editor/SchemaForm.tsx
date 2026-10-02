@@ -186,7 +186,7 @@ export function SchemaField({ name, schema, defs, value, onChange, error, childr
 }
 
 /** JSON, for anything a simple field can't hold: set as soon as it's valid. */
-function JsonField({
+export function JsonField({
     value,
     onChange,
     error,
@@ -200,6 +200,7 @@ function JsonField({
     onChange: (value: unknown) => void;
     error?: string;
     placeholder?: string;
+    maxRows?: number;
 }) {
     const written = value === undefined ? "" : JSON.stringify(value, null, 2);
     const [draft, setDraft] = useState(written);
@@ -217,7 +218,7 @@ function JsonField({
             error={invalid ? "Not valid JSON yet" : error}
             autosize
             minRows={2}
-            maxRows={16}
+            maxRows={rest.maxRows ?? 16}
             formatOnBlur
             styles={{ input: { fontFamily: "var(--mantine-font-family-monospace)" } }}
             onChange={(text) => {

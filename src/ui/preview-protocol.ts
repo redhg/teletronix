@@ -23,6 +23,8 @@ export type PreviewMessage =
      * the screen it's showing, if the program still has it).
      */
     | { type: "teletronix:program"; file: unknown; screen?: string }
+    /** From the editor: show this screen (the one being edited). */
+    | { type: "teletronix:go"; screen: string }
     /** From the preview: the screen it's showing, as it changes. */
     | { type: "teletronix:screen"; screen: string | null };
 

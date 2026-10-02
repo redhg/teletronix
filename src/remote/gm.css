@@ -45,15 +45,6 @@
     }
 }
 
-/* a screen folder's ▸ or ▾ */
-.gm-toggle {
-    flex: none;
-    width: 22px;
-    font-size: 16px;
-    text-align: center;
-    color: var(--mantine-color-dimmed);
-}
-
 .gm-qr {
     display: block;
     width: 168px;

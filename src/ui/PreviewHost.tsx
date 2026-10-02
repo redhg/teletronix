@@ -33,6 +33,11 @@ export function PreviewHost({ create }: Props) {
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             if (!isPreviewMessage(event) || event.source !== window.parent) return;
+            if (event.data.type === "teletronix:go") {
+                const { screen } = event.data;
+                if (terminal?.program.screens.has(screen)) terminal.navigate(screen);
+                return;
+            }
             if (event.data.type !== "teletronix:program") return;
             const result = parseProgram(event.data.file);
             // (a program with mistakes in it keeps the last good version showing)

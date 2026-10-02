@@ -26,13 +26,21 @@ restarts with anything else, on the screen it was showing.
   choose ↺) to use the default. Anything more involved than text, a number or a switch is
   edited as JSON.
 - **Appearance:** colours, font, text size, line spacing, effects and sound.
+- **Screens:** every screen, under its `parent`, or found by name; **+** adds one (under the one
+  chosen). A screen's page has its settings (folded away) and its content, an element to a row:
+  open one to edit it, in a form built from its type's schema, or as JSON (for anything a form
+  can't do, e.g. a section's contents). Rows move up and down, duplicate and delete, and **Add an
+  element** picks any type, by its name or what it does. **Rename** renames links and anything
+  else that names the screen; **More** duplicates or deletes it. The preview shows the screen
+  you're on.
 
-It checks the program as you go: the problems badge lists each mistake, and goes to it. Undo and
+It checks the program as you go: the problems badge lists each mistake, and goes to it (to the
+element, open, for one in a screen). Undo and
 redo with **Cmd/Ctrl+Z** and **Cmd/Ctrl+Shift+Z**. **Save** (**Cmd/Ctrl+S**) writes
 `public/data/<name>.json` in `npm run dev`; anywhere else (e.g. a build), it downloads the file
 instead. It writes JSON the way it's written by hand: short and flat things on one line, the
 rest spread out. The **File** menu starts a new program, opens a JSON file, and downloads.
-Screens, dialogs and sounds come next.
+Dialogs, variables and sounds of their own come next.
 
 | Script | |
 |---|---|

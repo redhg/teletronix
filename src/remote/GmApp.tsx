@@ -3,12 +3,9 @@ import {
     Badge,
     Box,
     Button,
-    Card,
     Checkbox,
     Code,
-    Collapse,
     Group,
-    NavLink,
     NumberInput,
     SegmentedControl,
     SimpleGrid,
@@ -20,21 +17,13 @@ import {
     Textarea,
     TextInput,
     Title,
-    UnstyledButton,
 } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
-import {
-    type FormEvent,
-    useCallback,
-    useEffect,
-    useLayoutEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
+import { type FormEvent, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { EFFECTS, type EffectName, type Program, type VariableValue } from "../engine/index.ts";
 import { ColorScheme } from "../mantine/ColorScheme.tsx";
 import { Panel } from "../mantine/Panel.tsx";
+import { ScreenTree } from "../mantine/ScreenTree.tsx";
 import { AddDevice } from "./AddDevice.tsx";
 import { GONE_MS, HEARTBEAT_MS } from "./follow.ts";
 import {
@@ -233,9 +222,9 @@ export function GmApp({ name, program }: Props) {
                 <Box p="lg">
                     <Tabs.Panel value="screens">
                         <ScreenTree
-                            program={program}
+                            screens={[...program.screens.values()]}
                             current={latest?.screen ?? null}
-                            go={(screen) => action({ screen })}
+                            onSelect={(screen) => action({ screen })}
                         />
                     </Tabs.Panel>
                     <Tabs.Panel value="messages">
@@ -434,116 +423,6 @@ function Status({
                 {count > 1 && <> · {count} windows</>}
             </Text>
         </Group>
-    );
-}
-
-/** Every screen, under its parent: a click sends the players there. */
-function ScreenTree({
-    program,
-    current,
-    go,
-}: {
-    program: Program;
-    current: string | null;
-    go: (screen: string) => void;
-}) {
-    const [filter, setFilter] = useState("");
-    const children = useMemo(() => {
-        const map = new Map<string | undefined, string[]>();
-        for (const screen of program.screens.values()) {
-            const parent = screen.parent;
-            map.set(parent, [...(map.get(parent) ?? []), screen.id]);
-        }
-        return map;
-    }, [program]);
-
-    // folders open by hand, and those the players' screen is in
-    const [open, setOpen] = useState(new Set<string>());
-    useEffect(() => {
-        const path: string[] = [];
-        for (
-            let id = current ?? undefined;
-            id !== undefined;
-            id = program.screens.get(id)?.parent
-        ) {
-            path.push(id);
-        }
-        setOpen((was) => new Set([...was, ...path]));
-    }, [current, program]);
-    const toggle = (id: string) =>
-        setOpen((was) => {
-            const next = new Set(was);
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
-            return next;
-        });
-
-    const label = (id: string) => program.screens.get(id)?.title ?? id.toUpperCase();
-    const item = (id: string) => (
-        <NavLink
-            component="button"
-            label={label(id)}
-            rightSection={<Code fz="xs">{id}</Code>}
-            active={id === current}
-            aria-current={id === current ? "true" : undefined}
-            onClick={() => go(id)}
-            py={4}
-            style={{ flex: 1, borderRadius: "var(--mantine-radius-sm)" }}
-        />
-    );
-    const branch = (parent: string | undefined, depth: number): React.ReactNode =>
-        (children.get(parent) ?? []).map((id) => {
-            const kids = children.get(id);
-            return (
-                <div key={id}>
-                    <Group gap={2} wrap="nowrap" pl={depth * 18}>
-                        {kids ? (
-                            <UnstyledButton
-                                className="gm-toggle"
-                                aria-label={`${open.has(id) ? "Hide" : "Show"} the screens under ${label(id)}`}
-                                aria-expanded={open.has(id)}
-                                onClick={() => toggle(id)}
-                            >
-                                {open.has(id) ? "▾" : "▸"}
-                            </UnstyledButton>
-                        ) : (
-                            <span className="gm-toggle" />
-                        )}
-                        {item(id)}
-                    </Group>
-                    {kids && <Collapse expanded={open.has(id)}>{branch(id, depth + 1)}</Collapse>}
-                </div>
-            );
-        });
-
-    const query = filter.trim().toLowerCase();
-    const found = query
-        ? [...program.screens.values()].filter(
-              (screen) =>
-                  screen.id.toLowerCase().includes(query) ||
-                  (screen.title ?? "").toLowerCase().includes(query),
-          )
-        : [];
-    return (
-        <Stack gap="sm">
-            <TextInput
-                type="search"
-                placeholder="Find a screen"
-                aria-label="Find a screen"
-                value={filter}
-                onChange={(event) => setFilter(event.currentTarget.value)}
-            />
-            <Card withBorder padding="xs" component="nav" aria-label="Screens">
-                {query
-                    ? found.map((screen) => <div key={screen.id}>{item(screen.id)}</div>)
-                    : branch(undefined, 0)}
-                {query && found.length === 0 && (
-                    <Text size="sm" c="dimmed" p="xs">
-                        No screen matches.
-                    </Text>
-                )}
-            </Card>
-        </Stack>
     );
 }
 

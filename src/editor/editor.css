@@ -35,3 +35,18 @@
     font-size: 18px;
     line-height: 1;
 }
+
+/* an element's row: what it is (filling the row, cut short if long), then its buttons */
+.editor-element-summary {
+    flex: 1;
+    min-width: 0;
+    border-radius: var(--mantine-radius-sm);
+}
+
+.editor-element-summary:hover {
+    background: var(--mantine-color-default-hover);
+}
+
+.editor-element[data-expanded] {
+    border-color: var(--mantine-primary-color-filled);
+}

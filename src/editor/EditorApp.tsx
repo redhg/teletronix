@@ -21,6 +21,7 @@ import { useHotkeys } from "@mantine/hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type ParseError, parseProgram } from "../engine/index.ts";
 import { ColorScheme } from "../mantine/ColorScheme.tsx";
+import { ScreenTree } from "../mantine/ScreenTree.tsx";
 import {
     type AppearanceSettings,
     isPreviewMessage,
@@ -29,8 +30,10 @@ import {
 import { formatJson } from "./format.ts";
 import { useHistory } from "./history.ts";
 import { type Path, parsePath, setIn } from "./paths.ts";
+import { freeId, insertScreen, renameScreen, type ScreenFile, screensOf } from "./screens.ts";
 import { APPEARANCE_KEYS, AppearanceSection, appearanceOf } from "./sections/AppearanceSection.tsx";
 import { ProgramSection } from "./sections/ProgramSection.tsx";
+import { type ScreenErrors, ScreenSection } from "./sections/ScreenSection.tsx";
 import "./editor.css";
 
 /** A program file as written. */
@@ -42,16 +45,39 @@ export const NEW_PROGRAM: ProgramFile = {
     screens: { home: { content: ["HELLO, WORLD."] } },
 };
 
-type Section = "program" | "appearance";
+/** What's being edited: the program's settings, its appearance, or a screen (`screen:<id>`). */
+type Section = string;
 const SECTIONS: { id: Section; label: string; description: string }[] = [
     { id: "program", label: "Program", description: "Name, start screen, bars, variables…" },
     { id: "appearance", label: "Appearance", description: "Colours, font, effects, sound" },
 ];
+const screenSection = (id: string): Section => `screen:${id}`;
 
 /** Which section a mistake belongs in, by its path. */
 function sectionOf(path: Path): Section | null {
+    if (path[0] === "screens" && path[1] !== undefined) return screenSection(String(path[1]));
     if (path[0] !== "config") return null;
     return APPEARANCE_KEYS.includes(String(path[1])) ? "appearance" : "program";
+}
+
+/** A screen's mistakes, sorted into its settings' and each element's. */
+function screenErrors(errors: ParseError[], id: string): ScreenErrors {
+    const settings = new Map<string, string>();
+    const elements = new Map<number, Map<string, string>>();
+    for (const error of errors) {
+        const path = parsePath(error.path);
+        if (path[0] !== "screens" || path[1] !== id) continue;
+        if (path[2] === "content" && typeof path[3] === "number") {
+            const element = elements.get(path[3]) ?? new Map<string, string>();
+            const key = path[4] === undefined ? "" : String(path[4]);
+            if (!element.has(key)) element.set(key, error.message);
+            elements.set(path[3], element);
+        } else {
+            const key = String(path[2] ?? "");
+            if (!settings.has(key)) settings.set(key, error.message);
+        }
+    }
+    return { settings, elements };
 }
 
 /** How long after an edit the preview restarts with it (appearance changes show at once). */
@@ -81,6 +107,13 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
     const [saved, setSaved] = useState<ProgramFile | null>(notice ? null : initialFile);
     const dirty = file !== saved;
     const [section, setSection] = useState<Section>("program");
+    // the screen being edited, and its open element
+    const screenId = section.startsWith("screen:") ? section.slice("screen:".length) : null;
+    const [openElement, setOpenElement] = useState<number | null>(null);
+    const select = (next: Section, element: number | null = null) => {
+        setSection(next);
+        setOpenElement(element);
+    };
     const [showPreview, setShowPreview] = useState(true);
     const [status, setStatus] = useState<string | null>(notice ?? null);
 
@@ -97,7 +130,18 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
         }
         return map;
     }, [errors]);
-    const screens = Object.keys((file.screens as Record<string, unknown> | undefined) ?? {});
+    const screenFiles = screensOf(file);
+    const screenProblems = errors.filter((error) => error.path.startsWith("screens.")).length;
+    const screens = Object.keys(screenFiles);
+    const treeScreens = useMemo(
+        () =>
+            Object.entries(screensOf(file)).map(([id, screen]) => ({
+                id,
+                ...(typeof screen.title === "string" ? { title: screen.title } : {}),
+                ...(typeof screen.parent === "string" ? { parent: screen.parent } : {}),
+            })),
+        [file],
+    );
 
     const edit = useCallback(
         (path: Path, value: unknown) =>
@@ -183,6 +227,9 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
     const preview = useRef<HTMLIFrameElement>(null);
     const fileRef = useRef(file);
     fileRef.current = file;
+    // the screen being edited, which the preview shows
+    const screenRef = useRef(screenId);
+    screenRef.current = screenId;
     const post = useCallback((message: PreviewMessage) => {
         preview.current?.contentWindow?.postMessage(message, location.origin);
     }, []);
@@ -198,7 +245,11 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
         const handleMessage = (event: MessageEvent) => {
             if (event.source !== preview.current?.contentWindow || !isPreviewMessage(event)) return;
             if (event.data.type === "teletronix:ready") {
-                post({ type: "teletronix:program", file: fileRef.current });
+                post({
+                    type: "teletronix:program",
+                    file: fileRef.current,
+                    ...(screenRef.current ? { screen: screenRef.current } : {}),
+                });
             }
         };
         window.addEventListener("message", handleMessage);
@@ -221,11 +272,54 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
         if (rest === firstRest.current) return;
         firstRest.current = rest;
         const timer = setTimeout(
-            () => post({ type: "teletronix:program", file: fileRef.current }),
+            () =>
+                post({
+                    type: "teletronix:program",
+                    file: fileRef.current,
+                    ...(screenRef.current ? { screen: screenRef.current } : {}),
+                }),
             PREVIEW_DELAY_MS,
         );
         return () => clearTimeout(timer);
     }, [rest, post]);
+
+    // choosing a screen shows it in the preview
+    useEffect(() => {
+        if (screenId) post({ type: "teletronix:go", screen: screenId });
+    }, [screenId, post]);
+
+    // ─── Screens ─────────────────────────────────────────────────────────────
+
+    const setScreen = (id: string, screen: ScreenFile) =>
+        history.set(setIn(file, ["screens", id], screen) as ProgramFile, `screens.${id}`);
+    const addScreen = () => {
+        const id = freeId(screens, "new-screen");
+        history.set(
+            insertScreen(
+                file,
+                id,
+                { ...(screenId ? { parent: screenId } : {}), content: ["NEW SCREEN"] },
+                screenId ?? undefined,
+            ),
+        );
+        select(screenSection(id));
+    };
+    const renameTo = (from: string, to: string): string | null => {
+        if (!/^[\w-]+$/.test(to)) return "Letters, digits, _ and - only";
+        if (screens.includes(to)) return `There's already a screen "${to}"`;
+        history.set(renameScreen(file, from, to));
+        select(screenSection(to), openElement);
+        return null;
+    };
+    const duplicateScreen = (id: string) => {
+        const copy = freeId(screens, `${id}-copy`);
+        history.set(insertScreen(file, copy, structuredClone(screenFiles[id] ?? {}), id));
+        select(screenSection(copy));
+    };
+    const deleteScreen = (id: string) => {
+        history.set(setIn(file, ["screens", id], undefined) as ProgramFile);
+        select("program");
+    };
 
     // ─── Layout ──────────────────────────────────────────────────────────────
 
@@ -280,7 +374,11 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                             errors={errors}
                             go={(path) => {
                                 const target = sectionOf(path);
-                                if (target) setSection(target);
+                                const element =
+                                    path[2] === "content" && typeof path[3] === "number"
+                                        ? path[3]
+                                        : null;
+                                if (target) select(target, element);
                             }}
                         />
                         <Tooltip label="Undo (Cmd/Ctrl+Z)">
@@ -360,37 +458,86 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
             </AppShell.Header>
 
             <AppShell.Navbar p="xs" aria-label="Parts of the program">
-                {SECTIONS.map((item) => {
-                    const count = errors.filter(
-                        (error) => sectionOf(parsePath(error.path)) === item.id,
-                    ).length;
-                    return (
-                        <NavLink
-                            key={item.id}
-                            component="button"
-                            label={item.label}
-                            description={item.description}
-                            active={section === item.id}
-                            aria-current={section === item.id ? "page" : undefined}
-                            onClick={() => setSection(item.id)}
-                            rightSection={
-                                count > 0 && (
-                                    <Badge size="xs" color="red" circle>
-                                        {count}
-                                    </Badge>
-                                )
-                            }
-                        />
-                    );
-                })}
-                <Text size="xs" c="dimmed" p="sm" mt="auto">
-                    Screens, dialogs and sounds come next.
-                </Text>
+                <AppShell.Section grow component={ScrollArea} type="auto">
+                    {SECTIONS.map((item) => {
+                        const count = errors.filter(
+                            (error) => sectionOf(parsePath(error.path)) === item.id,
+                        ).length;
+                        return (
+                            <NavLink
+                                key={item.id}
+                                component="button"
+                                label={item.label}
+                                description={item.description}
+                                active={section === item.id}
+                                aria-current={section === item.id ? "page" : undefined}
+                                onClick={() => select(item.id)}
+                                rightSection={
+                                    count > 0 && (
+                                        <Badge size="xs" color="red" circle>
+                                            {count}
+                                        </Badge>
+                                    )
+                                }
+                            />
+                        );
+                    })}
+                    <Group justify="space-between" px="xs" pt="md" pb={6} wrap="nowrap">
+                        <Text size="xs" fw={700} tt="uppercase" c="dimmed">
+                            Screens
+                            {screenProblems > 0 && (
+                                <Text span c="red">
+                                    {" "}
+                                    · {screenProblems} problem{screenProblems > 1 && "s"}
+                                </Text>
+                            )}
+                        </Text>
+                        <Tooltip label="Add a screen (under the one chosen)">
+                            <ActionIcon
+                                size="sm"
+                                variant="light"
+                                aria-label="Add a screen"
+                                onClick={addScreen}
+                            >
+                                +
+                            </ActionIcon>
+                        </Tooltip>
+                    </Group>
+                    <ScreenTree
+                        screens={treeScreens}
+                        current={screenId}
+                        onSelect={(id) => select(screenSection(id))}
+                        compact
+                    />
+                </AppShell.Section>
             </AppShell.Navbar>
 
             <AppShell.Main>
                 <Stack gap="lg">
-                    <Title order={2}>{SECTIONS.find((item) => item.id === section)?.label}</Title>
+                    {!screenId && (
+                        <Title order={2}>
+                            {SECTIONS.find((item) => item.id === section)?.label}
+                        </Title>
+                    )}
+                    {screenId && screenFiles[screenId] && (
+                        <ScreenSection
+                            key={screenId}
+                            id={screenId}
+                            screen={screenFiles[screenId]}
+                            screens={screens}
+                            onChange={(screen) => setScreen(screenId, screen)}
+                            onRename={(to) => renameTo(screenId, to)}
+                            onDuplicate={() => duplicateScreen(screenId)}
+                            onDelete={() => deleteScreen(screenId)}
+                            onPreview={() => post({ type: "teletronix:go", screen: screenId })}
+                            errors={screenErrors(errors, screenId)}
+                            open={openElement}
+                            onOpen={setOpenElement}
+                        />
+                    )}
+                    {screenId && !screenFiles[screenId] && (
+                        <Text c="dimmed">There's no screen "{screenId}" any more.</Text>
+                    )}
                     {section === "program" && (
                         <ProgramSection
                             config={config}

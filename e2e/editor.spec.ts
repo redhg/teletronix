@@ -3,7 +3,15 @@ import { expect, type Page, type Program, test } from "./fixtures.ts";
 
 const program: Program = {
     config: { name: "Editor", start: "home", header: [{ left: "SHIP" }] },
-    screens: { home: { content: ["HOME SCREEN"] }, other: { content: ["OTHER"] } },
+    screens: {
+        home: {
+            content: [
+                "HOME SCREEN",
+                { type: "link", text: "> OTHER", action: { screen: "other" } },
+            ],
+        },
+        other: { parent: "home", content: ["OTHER SCREEN"] },
+    },
 };
 
 /** The editor, open on the test program. */
@@ -101,7 +109,7 @@ test.describe("the editor", () => {
             ...program,
             config: { ...program.config, theme: "green" },
         });
-        expect(text).toContain('"home": { "content": ["HOME SCREEN"] }');
+        expect(text).toContain('"other": { "parent": "home", "content": ["OTHER SCREEN"] }');
     });
 
     test("opens a file, and starts a new program", async ({ page }) => {
@@ -135,5 +143,85 @@ test.describe("the editor", () => {
         await page.goto("./?edit&data=brand-new");
         await expect(page.getByRole("status").first()).toContainText("No brand-new.json yet");
         await expect(preview(page).locator(".screen")).toContainText("HELLO, WORLD.");
+    });
+
+    test.describe("screens", () => {
+        const screenList = (page: Page) => page.getByRole("navigation", { name: "Screens" });
+        const openScreen = async (page: Page, title: RegExp) => {
+            await screenList(page).getByRole("button", { name: title }).click();
+        };
+        const element = (page: Page, number: number) =>
+            page.getByRole("button", { name: new RegExp(`^Element ${number}:`) });
+
+        test("edits a screen's elements, with the preview showing it", async ({ page }) => {
+            await openEditor(page);
+            await screenList(page)
+                .getByRole("button", { name: /^Show the screens under HOME/ })
+                .click();
+            await openScreen(page, /^OTHER/);
+            await expect(preview(page).locator(".screen")).toContainText("OTHER SCREEN");
+
+            await element(page, 1).click();
+            await page.getByRole("textbox", { name: "Text" }).fill("EDITED SCREEN");
+            await expect(preview(page).locator(".screen")).toContainText("EDITED SCREEN");
+            await expect(page.getByText("Unsaved")).toBeVisible();
+        });
+
+        test("adds, moves, duplicates and deletes elements", async ({ page }) => {
+            await openEditor(page);
+            await openScreen(page, /^HOME/);
+            await page.getByRole("combobox", { name: "Add an element" }).click();
+            await page.keyboard.type("rule");
+            await page.getByRole("option", { name: /^rule/ }).click();
+            await expect(element(page, 3)).toHaveAccessibleName(/rule/);
+            await page.getByLabel("label", { exact: true }).fill("NEW RULE");
+            await expect(preview(page).locator(".screen")).toContainText("NEW RULE");
+
+            // the rule moves up, between the text and the link
+            await element(page, 3).locator("..").getByRole("button", { name: "Move up" }).click();
+            await expect(element(page, 2)).toHaveAccessibleName(/rule, NEW RULE/);
+            await element(page, 2).locator("..").getByRole("button", { name: "Duplicate" }).click();
+            await expect(element(page, 3)).toHaveAccessibleName(/rule, NEW RULE/);
+            await element(page, 3).locator("..").getByRole("button", { name: "Delete" }).click();
+            await element(page, 2).locator("..").getByRole("button", { name: "Delete" }).click();
+            await expect(element(page, 2)).toHaveAccessibleName(/link, > OTHER/);
+            await expect(page.getByText("No problems")).toBeVisible();
+        });
+
+        test("adds, renames and deletes screens, renaming what links to them", async ({ page }) => {
+            await openEditor(page);
+            await openScreen(page, /^HOME/);
+            await page.getByRole("button", { name: "Add a screen" }).click();
+            await expect(page.getByText("new-screen", { exact: true })).toBeVisible();
+            await expect(preview(page).locator(".screen")).toContainText("NEW SCREEN");
+
+            await screenList(page)
+                .getByRole("button", { name: /^OTHER/ })
+                .click();
+            await page.getByRole("button", { name: "Rename" }).click();
+            await page.getByRole("textbox", { name: "Screen id" }).fill("deck");
+            await page.getByRole("button", { name: "Rename" }).click();
+            await expect(page.getByText("deck", { exact: true })).toBeVisible();
+            await expect(page.getByText("No problems")).toBeVisible();
+            // HOME's link goes to it by its new name
+            await openScreen(page, /^HOME/);
+            await element(page, 2).click();
+            await page.getByRole("tab", { name: "JSON" }).click();
+            await expect(page.getByRole("textbox", { name: "As JSON" })).toHaveValue(
+                /"screen": "deck"/,
+            );
+
+            await screenList(page).getByRole("button", { name: /^DECK/ }).click();
+            page.once("dialog", (dialog) => dialog.accept());
+            await page.getByRole("button", { name: "More" }).click();
+            await page.getByRole("menuitem", { name: "Delete the screen" }).click();
+            // the link to it is now a mistake, which leads back to it: HOME, with the link open
+            await page.getByRole("button", { name: "1 problem" }).click();
+            await page.getByText('Unknown screen "deck"').click();
+            await expect(element(page, 2)).toHaveAttribute("aria-expanded", "true");
+            await expect(element(page, 2)).toHaveAccessibleName(/link, > OTHER/);
+            await page.getByRole("button", { name: "Undo" }).click();
+            await expect(page.getByText("No problems")).toBeVisible();
+        });
     });
 });
