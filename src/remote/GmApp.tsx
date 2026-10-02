@@ -8,6 +8,7 @@ import {
     cleanCode,
     type Link,
     type LinkStatus,
+    randomId,
     relayLink,
 } from "./link.ts";
 import type { GmEnvelope, GmMessage, PlayerMessage, PlayerState } from "./protocol.ts";
@@ -32,7 +33,7 @@ export function GmApp({ name, program }: Props) {
     // the links are made and closed by the same effects (React may run them more than once)
     const links = useRef(new Map<string, Link>());
     const send = useCallback((message: GmMessage) => {
-        const envelope: GmEnvelope = { ...message, id: crypto.randomUUID() };
+        const envelope: GmEnvelope = { ...message, id: randomId() };
         for (const link of links.current.values()) link.send(envelope);
     }, []);
 
@@ -74,7 +75,7 @@ export function GmApp({ name, program }: Props) {
     useEffect(() => {
         const link = channelLink(name, receive);
         links.current.set("channel", link);
-        link.send({ type: "hello", id: crypto.randomUUID() } satisfies GmEnvelope);
+        link.send({ type: "hello", id: randomId() } satisfies GmEnvelope);
         return () => {
             link.close();
             if (links.current.get("channel") === link) links.current.delete("channel");
@@ -93,7 +94,7 @@ export function GmApp({ name, program }: Props) {
         const link = relayLink(code, "gm", receive, (status) => {
             setNetwork(status);
             if (status === "connected") {
-                link.send({ type: "hello", id: crypto.randomUUID() } satisfies GmEnvelope);
+                link.send({ type: "hello", id: randomId() } satisfies GmEnvelope);
             }
         });
         links.current.set("relay", link);

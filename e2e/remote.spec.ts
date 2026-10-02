@@ -190,3 +190,37 @@ test.describe("a QR code for the players' device", () => {
         await device.context().close();
     });
 });
+
+test.describe("served to the network over plain http", () => {
+    test("works without the features browsers keep for secure pages", async ({ page, player }) => {
+        // (localhost counts as secure; an address like http://192.168.2.139 doesn't, and
+        // browsers leave these out there)
+        await page.context().addInitScript(() => {
+            const prototype = (object: object) => Object.getPrototypeOf(object) as object;
+            Reflect.deleteProperty(prototype(crypto), "randomUUID");
+            for (const name of ["clipboard", "wakeLock", "serviceWorker"]) {
+                Reflect.deleteProperty(prototype(navigator), name);
+            }
+        });
+        const errors: string[] = [];
+        await page.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        await page.goto("./?data=e2e&remote&kiosk");
+        expect(await page.evaluate(() => "randomUUID" in crypto)).toBe(false);
+        // (kiosk mode starts, and asks for the wake lock, at a key press)
+        await page.getByText("PRESS ANY KEY").waitFor();
+        await page.keyboard.press("Space");
+        await expect(player.screen).toContainText("HOME SCREEN");
+        const badge = page.locator(".remote-badge");
+        await expect(badge).toContainText("WAITING FOR GM");
+        const code = (await badge.innerText()).match(/REMOTE (\w+)/)?.[1] ?? "";
+
+        const gm = await openGm(page);
+        gm.on("pageerror", (error) => errors.push(error.message));
+        await gm.getByRole("textbox", { name: "Another device's code" }).fill(code);
+        await gm.getByRole("button", { name: "Pair" }).click();
+        await expect(badge).toContainText("GM CONNECTED");
+        await gm.getByRole("button", { name: /BRIDGE/ }).click();
+        await expect(player.screen).toContainText("BRIDGE SCREEN");
+        expect(errors).toEqual([]);
+    });
+});

@@ -1,5 +1,5 @@
 import { ActionSchema, type EffectsSetting, type Terminal } from "../engine/index.ts";
-import { channelLink, type Link, type LinkStatus, newCode, relayLink } from "./link.ts";
+import { channelLink, type Link, type LinkStatus, newCode, randomId, relayLink } from "./link.ts";
 import type { GmEnvelope, PlayerMessage, PlayerState } from "./protocol.ts";
 
 /** How often a players' window reports in, and a panel pings, so each knows the other's there. */
@@ -79,7 +79,7 @@ export function followRemote(
     program: string,
     { network = false, code }: { network?: boolean; code?: string } = {},
 ): Remote {
-    const player = crypto.randomUUID();
+    const player = randomId();
     const listeners = new Set<() => void>();
     let status: RemoteStatus = {
         code: network ? codeFor(program, code) : null,

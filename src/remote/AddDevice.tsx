@@ -131,18 +131,21 @@ export function AddDevice({
                         As a kiosk (full screen)
                     </label>
                     <code className="gm-address">{address}</code>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            navigator.clipboard
-                                ?.writeText(address)
-                                .then(() => setCopied(true))
-                                .catch(() => {});
-                        }}
-                        onBlur={() => setCopied(false)}
-                    >
-                        {copied ? "Copied" : "Copy the address"}
-                    </button>
+                    {/* (browsers only let secure pages copy: not plain http on a network) */}
+                    {navigator.clipboard && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                navigator.clipboard
+                                    .writeText(address)
+                                    .then(() => setCopied(true))
+                                    .catch(() => {});
+                            }}
+                            onBlur={() => setCopied(false)}
+                        >
+                            {copied ? "Copied" : "Copy the address"}
+                        </button>
+                    )}
                 </div>
             </div>
         );

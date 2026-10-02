@@ -21,6 +21,13 @@ export function channelLink(program: string, receive: (message: { type: string }
     return { send: (message) => channel.postMessage(message), close: () => channel.close() };
 }
 
+/**
+ * A random id, e.g. for a message. (Not crypto.randomUUID, which browsers only have on secure
+ * pages: Teletronix served to a network is plain http, e.g. http://192.168.2.139:4173.)
+ */
+export const randomId = (): string =>
+    Array.from(crypto.getRandomValues(new Uint32Array(4)), (n) => n.toString(36)).join("-");
+
 /** Letters and digits for pairing codes, without ones easy to mix up (0 and O, 1 and I). */
 const CODE_LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 export const CODE_LENGTH = 4;

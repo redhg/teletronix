@@ -1150,8 +1150,8 @@ Two suites, both run on every push by GitHub Actions:
   generated files, with a fake clock. Next to the code, as `*.test.ts`.
 - **Browser tests** (`npm run test:e2e`, Playwright): the player, the settings page and the
   sound test page, driven as a user would, in Chromium, Firefox and WebKit. In `e2e/`, one
-  file per feature. They build the app and serve it on port 4173, so a running dev server
-  doesn't matter.
+  file per feature. They build the app and serve it on port 4180, so a running dev server
+  (or `npm run table`) doesn't matter.
 
 The first time, install the browsers with `npx playwright install`. Then:
 

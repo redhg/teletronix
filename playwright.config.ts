@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
-const PORT = 4173;
+// (not 4173, vite preview's own, which `npm run table` uses: the tests can run during a game)
+const PORT = 4180;
 const CI = Boolean(process.env.CI);
 
 /**
