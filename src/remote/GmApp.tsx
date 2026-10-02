@@ -28,9 +28,9 @@ interface Props {
  * effects on and off, and send messages.
  */
 export function GmApp({ name, program }: Props) {
-    const channel = useMemo(() => new BroadcastChannel(channelName(name)), [name]);
-    useEffect(() => () => channel.close(), [channel]);
-    const send = useCallback((message: GmMessage) => channel.postMessage(message), [channel]);
+    // the channel is made and closed by the same effect (React may run it more than once)
+    const channel = useRef<BroadcastChannel | null>(null);
+    const send = useCallback((message: GmMessage) => channel.current?.postMessage(message), []);
 
     // the players' windows, by id, with when each last reported in
     const [players, setPlayers] = useState(new Map<string, { state: PlayerState; at: number }>());
@@ -53,7 +53,9 @@ export function GmApp({ name, program }: Props) {
 
     const known = useRef(new Set<string>());
     useEffect(() => {
-        channel.onmessage = (event: MessageEvent) => {
+        const opened = new BroadcastChannel(channelName(name));
+        channel.current = opened;
+        opened.onmessage = (event: MessageEvent) => {
             if (!isMessage(event.data) || event.data.type !== "state") return;
             const { player, state } = event.data as PlayerMessage;
             // a new window gets the effects the panel has on
@@ -63,10 +65,14 @@ export function GmApp({ name, program }: Props) {
             }
             setPlayers((was) => new Map(was).set(player, { state, at: Date.now() }));
         };
-        channel.postMessage({ type: "hello" } satisfies GmMessage);
+        opened.postMessage({ type: "hello" } satisfies GmMessage);
         const timer = setInterval(() => setNow(Date.now()), HEARTBEAT_MS);
-        return () => clearInterval(timer);
-    }, [channel, sendEffects]);
+        return () => {
+            clearInterval(timer);
+            opened.close();
+            if (channel.current === opened) channel.current = null;
+        };
+    }, [name, sendEffects]);
 
     const live = [...players.values()].filter((player) => now - player.at < GONE_MS);
     const latest = live.sort((a, b) => b.at - a.at)[0]?.state ?? null;
