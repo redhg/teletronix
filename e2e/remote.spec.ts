@@ -11,6 +11,7 @@ const program: Program = {
     screens: {
         home: { title: "HOME", content: ["HOME SCREEN", "CREDITS: {credits}"] },
         bridge: { title: "BRIDGE", parent: "home", content: ["BRIDGE SCREEN"] },
+        engine: { title: "ENGINE ROOM", parent: "bridge", content: ["ENGINE SCREEN"] },
     },
     dialogs: { warning: { type: "alert", content: "WARNING DIALOG" } },
 };
@@ -82,5 +83,73 @@ test.describe("a GM's panel", () => {
         await expect(page.locator("canvas.static")).toBeAttached();
         await gm.getByRole("combobox", { name: "static" }).selectOption("program");
         await expect(page.locator("canvas.static")).toHaveCount(0);
+    });
+});
+
+test.describe("over the network", () => {
+    test("pairs a panel with a terminal by its code, and controls it", async ({
+        page,
+        player,
+        browser,
+    }) => {
+        await player.open(program, "&remote");
+        const badge = page.locator(".remote-badge");
+        await expect(badge).toContainText("WAITING FOR GM");
+        const code = (await badge.innerText()).match(/REMOTE (\w+)/)?.[1] ?? "";
+
+        // another device: a browser context of its own, which shares no channel with the first
+        const device = await browser.newContext();
+        const gm = await device.newPage();
+        await gm.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        await gm.goto("./?data=e2e&gm");
+        await expect(gm.getByRole("status")).toContainText("No players' window");
+        await gm.getByRole("textbox", { name: "Another device's code" }).fill(code.toLowerCase());
+        await gm.getByRole("button", { name: "Pair" }).click();
+
+        await expect(gm.locator(".gm-pairing")).toContainText(`Paired with ${code} · Connected`);
+        await expect(gm.getByRole("status").first()).toContainText("Players on HOME");
+        await expect(badge).toContainText("GM CONNECTED");
+
+        await gm.getByRole("button", { name: /BRIDGE/ }).click();
+        await expect(player.screen).toContainText("BRIDGE SCREEN");
+        await gm.getByRole("textbox", { name: "Message" }).fill("FROM ACROSS THE ROOM");
+        await gm.getByRole("button", { name: "Send" }).click();
+        await expect(player.dialog).toContainText("FROM ACROSS THE ROOM");
+
+        // it stays paired after a reload
+        await gm.reload();
+        await expect(gm.locator(".gm-pairing")).toContainText(`Paired with ${code}`);
+        await expect(gm.getByRole("status").first()).toContainText("Players on BRIDGE");
+        await device.close();
+    });
+
+    test("does each command once, from the same browser and the network both", async ({
+        page,
+        player,
+    }) => {
+        await player.open(program, "&remote");
+        const badge = page.locator(".remote-badge");
+        await expect(badge).toContainText("WAITING FOR GM");
+        const code = (await badge.innerText()).match(/REMOTE (\w+)/)?.[1] ?? "";
+        const gm = await openGm(page);
+        await gm.getByRole("textbox", { name: "Another device's code" }).fill(code);
+        await gm.getByRole("button", { name: "Pair" }).click();
+        await expect(gm.locator(".gm-pairing")).toContainText("Connected");
+
+        await gm.getByRole("button", { name: /BRIDGE/ }).click();
+        await expect(player.screen).toContainText("BRIDGE SCREEN");
+        await gm.getByRole("button", { name: /ENGINE ROOM/ }).click();
+        await expect(player.screen).toContainText("ENGINE SCREEN");
+        // going back once goes to the BRIDGE, not on past it to HOME
+        await gm.getByRole("button", { name: "← Back" }).click();
+        await expect(player.screen).toContainText("BRIDGE SCREEN");
+        await page.waitForTimeout(500);
+        await expect(player.screen).toContainText("BRIDGE SCREEN");
+    });
+
+    test("keeps its code to itself without &remote", async ({ page, player }) => {
+        await player.open(program);
+        await page.waitForTimeout(300);
+        await expect(page.locator(".remote-badge")).toHaveCount(0);
     });
 });

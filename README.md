@@ -20,6 +20,7 @@ Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `s
 |---|---|
 | `npm run dev` | Dev server |
 | `npm run build` | Typecheck and build to `dist/` |
+| `npm run table` | Build, and serve it to your network, for play at the table (see [GM remote control](#gm-remote-control)) |
 | `npm test` | Unit tests |
 | `npm run test:e2e` | Browser tests, in Chromium, Firefox and WebKit (see [Tests](#tests)) |
 | `npm run test:e2e:quick` | Browser tests in Chromium only: about a third of the time |
@@ -1102,7 +1103,26 @@ players): play the program in one window, and open its address with `&gm` added 
 
 The two windows talk directly, within the browser, so it needs no setup or network, and the
 game carries on if the panel closes. Every players' window of that program follows the panel.
-Controlling a terminal on another device isn't possible yet.
+
+#### From another device
+The GM's panel can also be on another device on the same network as the players' (e.g. the
+GM's laptop controlling a tablet), with Teletronix served from a computer on that network:
+1. On that computer, run `npm run table`. It builds Teletronix and serves it to the network,
+   and prints its address there, e.g. `http://192.168.2.139:4173/`. (`npm run dev -- --host`
+   works too, while working on Teletronix.)
+2. On the players' device, open the program at that address with `&remote` added, e.g.
+   `http://192.168.2.139:4173/?data=ypsilon14&remote&kiosk`. It shows a pairing code in the
+   corner, e.g. `REMOTE K7QX · WAITING FOR GM`, for a few seconds (and again with
+   **Ctrl+Alt+G**, or whenever the connection changes).
+3. On the GM's device, open the same program with `&gm`, type the code into "Another
+   device's code", and choose **Pair**. The players' screen shows `GM CONNECTED`.
+
+Messages go through the server on that computer, so it works without internet, and only a
+panel with the code can control the terminal. The code stays the same on that device, and the
+panel remembers it, so they pair again by themselves after a reload or a dropped connection.
+Without `&remote`, a terminal can't be reached from other devices at all. A copy hosted
+online (e.g. on GitHub Pages) has no server to pass messages through, so the code shows as
+unavailable there.
 
 ### Offline
 Once Teletronix has been opened, it works without a network: the app, its fonts, and every
@@ -1154,6 +1174,7 @@ Every new feature gets tests.
 - `src/modules/<name>/`: one folder per element type. `definition.ts` holds the schema and
   engine behavior; `View.tsx` holds the React view.
 - `src/effects/<name>/`: one folder per visual effect, split the same way as modules.
-- `src/remote/`: the GM's control panel (`&gm`), and the players' side of it.
+- `src/remote/`: the GM's control panel (`&gm`), and the players' side of it. The relay that
+  passes their messages between devices is `scripts/remote-relay.ts`, in Vite's servers.
 - `src/ui/`: the React layer. Per-frame text is written straight to the DOM, so React only
   re-renders on structural changes.

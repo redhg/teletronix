@@ -1,14 +1,30 @@
 import react from "@vitejs/plugin-react";
+import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vitest/config";
+import { createRelay } from "./scripts/remote-relay.ts";
 
 const BACKGROUND = "#000c0c";
+
+/**
+ * Lets a GM's panel on one device control a players' terminal on another, through the dev
+ * or preview server (see scripts/remote-relay.ts).
+ */
+function remoteRelay(): Plugin {
+    const relay = createRelay();
+    return {
+        name: "teletronix-remote-relay",
+        configureServer: (server) => void server.middlewares.use(relay),
+        configurePreviewServer: (server) => void server.middlewares.use(relay),
+    };
+}
 
 export default defineConfig({
     // relative asset paths so a build can be hosted from any subdirectory
     base: "./",
     plugins: [
         react(),
+        remoteRelay(),
         // Works offline, and installs as an app: a service worker caches everything the
         // build contains, including the programs in public/data and their images.
         VitePWA({

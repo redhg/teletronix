@@ -53,8 +53,13 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
     });
     // carry on from saved progress, and keep saving (not while previewing settings)
     if (!params.has("preview")) keepSaved(terminal);
-    // a GM's panel (`&gm`) in another window can control it (not while previewing settings)
-    if (!params.has("preview")) followRemote(terminal, params.get("data") ?? "sample");
+    // a GM's panel (`&gm`) in another window can control it, and with `&remote`, one on
+    // another device too (not while previewing settings)
+    const remote = params.has("preview")
+        ? undefined
+        : followRemote(terminal, params.get("data") ?? "sample", {
+              network: params.has("remote"),
+          });
 
     root.render(
         <StrictMode>
@@ -68,6 +73,7 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
                 }}
                 preview={params.has("preview")}
                 kiosk={params.has("kiosk") && !params.has("preview")}
+                remote={remote}
             />
         </StrictMode>,
     );

@@ -6,6 +6,8 @@ import {
     type Terminal,
     type ThemeSetting,
 } from "../engine/index.ts";
+import type { Remote } from "../remote/follow.ts";
+import { RemoteBadge } from "../remote/RemoteBadge.tsx";
 import { applyAppearance, loadFont } from "./appearance.ts";
 import { KioskGate, useKiosk } from "./kiosk/Kiosk.tsx";
 import { PaletteContext } from "./palette-context.ts";
@@ -26,10 +28,12 @@ interface Props {
     preview: boolean;
     /** Run as a kiosk: full screen, awake, and hard to leave (see useKiosk). */
     kiosk?: boolean;
+    /** A GM's remote control, whose pairing code it shows */
+    remote?: Remote;
 }
 
 /** Runs a program, applying its colors and font. */
-export function Player({ terminal, initial, preview, kiosk = false }: Props) {
+export function Player({ terminal, initial, preview, kiosk = false, remote }: Props) {
     const [theme, setTheme] = useState(initial.theme);
     const [font, setFont] = useState(initial.font);
     const [fontScale, setFontScale] = useState(initial.fontScale);
@@ -96,9 +100,12 @@ export function Player({ terminal, initial, preview, kiosk = false }: Props) {
             <PaletteContext value={palette}>
                 <SoundLayer terminal={terminal} sound={sound}>
                     {started ? (
-                        <TerminalView
-                            layoutKey={`${font}:${loadedFont}:${fontScale}:${lineSpacing}`}
-                        />
+                        <>
+                            <TerminalView
+                                layoutKey={`${font}:${loadedFont}:${fontScale}:${lineSpacing}`}
+                            />
+                            {remote && <RemoteBadge remote={remote} />}
+                        </>
                     ) : (
                         <KioskGate title={terminal.program.config.name} onStart={start} />
                     )}

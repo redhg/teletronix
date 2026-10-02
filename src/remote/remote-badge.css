@@ -1,0 +1,16 @@
+/* A terminal's pairing code, in the corner over the status bar (if there is one) */
+.remote-badge {
+    position: fixed;
+    bottom: calc(var(--footer-lines, 0) * var(--line-height) + 0.25lh);
+    left: 1ch;
+    z-index: 1;
+    padding: 0 0.5ch;
+    color: var(--fg);
+    background: var(--bg);
+    font: inherit;
+    line-height: var(--line-height);
+    text-shadow: var(--glow);
+    /* (readable across a table: the GM types in its code) */
+    opacity: 0.9;
+    pointer-events: none;
+}

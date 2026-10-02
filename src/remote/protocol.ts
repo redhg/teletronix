@@ -1,8 +1,10 @@
 import type { EffectsSetting, VariableValue } from "../engine/index.ts";
 
-// Messages between a GM's control panel (`&gm`) and the players' terminal, in two windows of
-// the same browser. They go through a BroadcastChannel named after the program, so a panel
-// controls every players' window of its program, and nothing else can reach them.
+// Messages between a GM's control panel (`&gm`) and the players' terminal. In two windows of
+// the same browser, they go through a BroadcastChannel named after the program, so a panel
+// controls every players' window of its program. A terminal with `&remote` can also be
+// reached from other devices, through the server it's served from, by its pairing code
+// (see link.ts and scripts/remote-relay.ts).
 
 /** The channel for a program, by its name in the address (`?data=<name>`). */
 export const channelName = (program: string) => `teletronix:remote:${program}`;
@@ -20,6 +22,8 @@ export interface PlayerState {
 export type GmMessage =
     /** Asks every players' window to send its state. */
     | { type: "hello" }
+    /** The panel is still there (sent every so often). */
+    | { type: "ping" }
     /** An action, as written in a program: go to a screen, open a dialog, set variables… */
     | { type: "action"; action: unknown }
     /** Effects laid over the program's, or null for none. */
@@ -30,6 +34,12 @@ export type GmMessage =
     | { type: "transmit"; text: string; dismiss?: string; alert?: boolean }
     /** Closes the open dialog, as if answered "no". */
     | { type: "close-dialog" };
+
+/**
+ * A message from the panel as sent: with an id, so a terminal that gets it twice (from the
+ * same browser and over the network) carries it out once.
+ */
+export type GmEnvelope = GmMessage & { id: string };
 
 /** From a players' terminal to the panel. */
 export interface PlayerMessage {

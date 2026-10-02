@@ -1,16 +1,16 @@
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EFFECTS, type EffectName, type Program, type VariableValue } from "../engine/index.ts";
-import { HEARTBEAT_MS } from "./follow.ts";
+import { GONE_MS, HEARTBEAT_MS } from "./follow.ts";
 import {
-    channelName,
-    type GmMessage,
-    isMessage,
-    type PlayerMessage,
-    type PlayerState,
-} from "./protocol.ts";
+    CODE_LENGTH,
+    channelLink,
+    cleanCode,
+    type Link,
+    type LinkStatus,
+    relayLink,
+} from "./link.ts";
+import type { GmEnvelope, GmMessage, PlayerMessage, PlayerState } from "./protocol.ts";
 
-/** A players' window that hasn't reported in for this long has gone. */
-const GONE_MS = HEARTBEAT_MS * 3;
 /** How long a burst of static lasts. */
 const BURST_MS = 1500;
 
@@ -28,9 +28,12 @@ interface Props {
  * effects on and off, and send messages.
  */
 export function GmApp({ name, program }: Props) {
-    // the channel is made and closed by the same effect (React may run it more than once)
-    const channel = useRef<BroadcastChannel | null>(null);
-    const send = useCallback((message: GmMessage) => channel.current?.postMessage(message), []);
+    // the links are made and closed by the same effects (React may run them more than once)
+    const links = useRef(new Map<string, Link>());
+    const send = useCallback((message: GmMessage) => {
+        const envelope: GmEnvelope = { ...message, id: crypto.randomUUID() };
+        for (const link of links.current.values()) link.send(envelope);
+    }, []);
 
     // the players' windows, by id, with when each last reported in
     const [players, setPlayers] = useState(new Map<string, { state: PlayerState; at: number }>());
@@ -52,27 +55,61 @@ export function GmApp({ name, program }: Props) {
     );
 
     const known = useRef(new Set<string>());
-    useEffect(() => {
-        const opened = new BroadcastChannel(channelName(name));
-        channel.current = opened;
-        opened.onmessage = (event: MessageEvent) => {
-            if (!isMessage(event.data) || event.data.type !== "state") return;
-            const { player, state } = event.data as PlayerMessage;
+    const receive = useCallback(
+        (message: { type: string }) => {
+            if (message.type !== "state") return;
+            const { player, state } = message as PlayerMessage;
             // a new window gets the effects the panel has on
             if (!known.current.has(player)) {
                 known.current.add(player);
                 sendEffects(effectsRef.current);
             }
             setPlayers((was) => new Map(was).set(player, { state, at: Date.now() }));
-        };
-        opened.postMessage({ type: "hello" } satisfies GmMessage);
-        const timer = setInterval(() => setNow(Date.now()), HEARTBEAT_MS);
+        },
+        [sendEffects],
+    );
+
+    // players' windows in this browser
+    useEffect(() => {
+        const link = channelLink(name, receive);
+        links.current.set("channel", link);
+        link.send({ type: "hello", id: crypto.randomUUID() } satisfies GmEnvelope);
         return () => {
-            clearInterval(timer);
-            opened.close();
-            if (channel.current === opened) channel.current = null;
+            link.close();
+            if (links.current.get("channel") === link) links.current.delete("channel");
         };
-    }, [name, sendEffects]);
+    }, [name, receive]);
+
+    // and on other devices, by their pairing code
+    const [code, setCode] = useState(() => savedCode(name));
+    const [network, setNetwork] = useState<LinkStatus | null>(null);
+    useEffect(() => {
+        rememberCode(name, code);
+        if (!code) {
+            setNetwork(null);
+            return;
+        }
+        const link = relayLink(code, "gm", receive, (status) => {
+            setNetwork(status);
+            if (status === "connected") {
+                link.send({ type: "hello", id: crypto.randomUUID() } satisfies GmEnvelope);
+            }
+        });
+        links.current.set("relay", link);
+        return () => {
+            link.close();
+            if (links.current.get("relay") === link) links.current.delete("relay");
+        };
+    }, [name, code, receive]);
+
+    // the players know the panel's there; it knows when they've gone
+    useEffect(() => {
+        const timer = setInterval(() => {
+            send({ type: "ping" });
+            setNow(Date.now());
+        }, HEARTBEAT_MS);
+        return () => clearInterval(timer);
+    }, [send]);
 
     const live = [...players.values()].filter((player) => now - player.at < GONE_MS);
     const latest = live.sort((a, b) => b.at - a.at)[0]?.state ?? null;
@@ -83,6 +120,7 @@ export function GmApp({ name, program }: Props) {
             <header className="gm-header">
                 <h1>{program.config.name}</h1>
                 <Status count={live.length} state={latest} program={program} name={name} />
+                <Pairing code={code} network={network} pair={setCode} />
             </header>
             <main className="gm-panels">
                 <section className="gm-panel gm-screens">
@@ -129,6 +167,87 @@ export function GmApp({ name, program }: Props) {
                 </div>
             </main>
         </div>
+    );
+}
+
+/** The pairing code last used for a program, so the panel reconnects after a reload. */
+function savedCode(program: string): string {
+    try {
+        return localStorage.getItem(`teletronix:gm-code:${program}`) ?? "";
+    } catch {
+        return "";
+    }
+}
+
+function rememberCode(program: string, code: string): void {
+    try {
+        if (code) localStorage.setItem(`teletronix:gm-code:${program}`, code);
+        else localStorage.removeItem(`teletronix:gm-code:${program}`);
+    } catch {
+        // not remembered
+    }
+}
+
+const NETWORK_TEXT: Record<LinkStatus, string> = {
+    connecting: "Connecting…",
+    connected: "Connected",
+    unavailable: "Can't connect: serve Teletronix with npm run table (or npm run dev -- --host)",
+};
+
+/** Pairing with a terminal on another device, by the code it shows. */
+function Pairing({
+    code,
+    network,
+    pair,
+}: {
+    code: string;
+    network: LinkStatus | null;
+    pair: (code: string) => void;
+}) {
+    const [typed, setTyped] = useState(code);
+    const submit = (event: FormEvent) => {
+        event.preventDefault();
+        pair(cleanCode(typed));
+    };
+    if (code) {
+        return (
+            <p className="gm-pairing">
+                Paired with <strong>{code}</strong>
+                {network && (
+                    <span className={`gm-network gm-network-${network}`}>
+                        {" "}
+                        · {NETWORK_TEXT[network]}
+                    </span>
+                )}{" "}
+                <button
+                    type="button"
+                    onClick={() => {
+                        setTyped("");
+                        pair("");
+                    }}
+                >
+                    Unpair
+                </button>
+            </p>
+        );
+    }
+    return (
+        <form className="gm-pairing" onSubmit={submit}>
+            <label>
+                Another device's code{" "}
+                <input
+                    value={typed}
+                    onChange={(event) => setTyped(cleanCode(event.target.value))}
+                    placeholder="K7QX"
+                    size={6}
+                    autoComplete="off"
+                    spellCheck={false}
+                />
+            </label>{" "}
+            <button type="submit" disabled={typed.length < CODE_LENGTH}>
+                Pair
+            </button>
+        </form>
     );
 }
 

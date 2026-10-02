@@ -204,3 +204,29 @@ h2 {
         grid-template-columns: 1fr;
     }
 }
+
+.gm-pairing {
+    margin: 0 0 0 auto;
+}
+
+.gm-pairing input {
+    font:
+        13px / 1 ui-monospace,
+        Menlo,
+        Consolas,
+        monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.gm-network-connected {
+    color: #2a9d4a;
+}
+
+.gm-network-connecting {
+    opacity: 0.7;
+}
+
+.gm-network-unavailable {
+    color: #c0392b;
+}
