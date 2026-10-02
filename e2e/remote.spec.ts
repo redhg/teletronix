@@ -33,7 +33,7 @@ test.describe("a GM's panel", () => {
         const gm = await openGm(page);
         await expect(gm.getByRole("status")).toContainText("Players on HOME");
 
-        await gm.getByRole("button", { name: /BRIDGE/ }).click();
+        await gm.getByRole("button", { name: /^BRIDGE/ }).click();
         await expect(player.screen).toContainText("BRIDGE SCREEN");
         await expect(gm.getByRole("status")).toContainText("Players on BRIDGE");
         await gm.getByRole("button", { name: "← Back" }).click();
@@ -52,7 +52,7 @@ test.describe("a GM's panel", () => {
         // <right> and <left> move between them
         await gm.getByRole("tab", { name: "Messages" }).press("ArrowRight");
         await expect(gm.getByRole("tab", { name: "Variables" })).toBeFocused();
-        await expect(gm.getByRole("spinbutton", { name: "credits" })).toBeVisible();
+        await expect(gm.getByRole("textbox", { name: "credits" })).toBeVisible();
         await expect(gm.getByRole("textbox", { name: "Message" })).toBeHidden();
         await gm.getByRole("tab", { name: "Variables" }).press("ArrowLeft");
         await expect(gm.getByRole("textbox", { name: "Message" })).toHaveValue("HALF A MESSAGE");
@@ -65,6 +65,23 @@ test.describe("a GM's panel", () => {
         );
     });
 
+    test("is light, dark, or as the system says, and remembers which", async ({ page }) => {
+        await page.emulateMedia({ colorScheme: "dark" });
+        await page.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        await page.goto("./?data=e2e&gm");
+        const scheme = () => page.locator("html").getAttribute("data-mantine-color-scheme");
+        // (as the system says, to begin with)
+        await expect.poll(scheme).toBe("dark");
+        const choose = (name: string) =>
+            page.getByRole("radiogroup", { name: "Colour scheme" }).getByText(name).click();
+        await choose("Light");
+        await expect.poll(scheme).toBe("light");
+        await page.reload();
+        await expect.poll(scheme).toBe("light");
+        await choose("Auto");
+        await expect.poll(scheme).toBe("dark");
+    });
+
     test("says when no players' window is open", async ({ page }) => {
         await page.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
         await page.goto("./?data=e2e&gm");
@@ -75,11 +92,11 @@ test.describe("a GM's panel", () => {
         await player.open(program);
         const gm = await openGm(page);
         await tab(gm, "Variables");
-        const credits = gm.getByRole("spinbutton", { name: "credits" });
+        const credits = gm.getByRole("textbox", { name: "credits" });
         await credits.fill("250");
         await credits.press("Enter");
-        await gm.getByRole("checkbox", { name: "alarm" }).click();
-        await expect(gm.getByRole("checkbox", { name: "alarm" })).toBeChecked();
+        await gm.getByRole("switch", { name: "alarm" }).click();
+        await expect(gm.getByRole("switch", { name: "alarm" })).toBeChecked();
         await expect(player.screen).toContainText("CREDITS: 250");
     });
 
@@ -111,9 +128,15 @@ test.describe("a GM's panel", () => {
         await expect(gm.locator(".gm-timer")).toContainText("■");
 
         await tab(gm, "Effects");
-        await gm.getByRole("combobox", { name: "static" }).selectOption("on");
+        await gm
+            .getByRole("radiogroup", { name: "static" })
+            .getByText("On", { exact: true })
+            .click();
         await expect(page.locator("canvas.static")).toBeAttached();
-        await gm.getByRole("combobox", { name: "static" }).selectOption("program");
+        await gm
+            .getByRole("radiogroup", { name: "static" })
+            .getByText("As the program says")
+            .click();
         await expect(page.locator("canvas.static")).toHaveCount(0);
     });
 });
@@ -138,11 +161,12 @@ test.describe("over the network", () => {
         await gm.getByRole("textbox", { name: "Another device's code" }).fill(code.toLowerCase());
         await gm.getByRole("button", { name: "Pair" }).click();
 
-        await expect(gm.locator(".gm-pairing")).toContainText(`Paired with ${code} · Connected`);
+        await expect(gm.locator(".gm-pairing")).toContainText(`Paired with ${code}`);
+        await expect(gm.locator(".gm-pairing")).toContainText("Connected");
         await expect(gm.getByRole("status").first()).toContainText("Players on HOME");
         await expect(badge).toContainText("GM CONNECTED");
 
-        await gm.getByRole("button", { name: /BRIDGE/ }).click();
+        await gm.getByRole("button", { name: /^BRIDGE/ }).click();
         await expect(player.screen).toContainText("BRIDGE SCREEN");
         await tab(gm, "Messages");
         await gm.getByRole("textbox", { name: "Message" }).fill("FROM ACROSS THE ROOM");
@@ -169,9 +193,9 @@ test.describe("over the network", () => {
         await gm.getByRole("button", { name: "Pair" }).click();
         await expect(gm.locator(".gm-pairing")).toContainText("Connected");
 
-        await gm.getByRole("button", { name: /BRIDGE/ }).click();
+        await gm.getByRole("button", { name: /^BRIDGE/ }).click();
         await expect(player.screen).toContainText("BRIDGE SCREEN");
-        await gm.getByRole("button", { name: /ENGINE ROOM/ }).click();
+        await gm.getByRole("button", { name: /^ENGINE ROOM/ }).click();
         await expect(player.screen).toContainText("ENGINE SCREEN");
         // going back once goes to the BRIDGE, not on past it to HOME
         await gm.getByRole("button", { name: "← Back" }).click();
@@ -254,7 +278,7 @@ test.describe("served to the network over plain http", () => {
         await gm.getByRole("textbox", { name: "Another device's code" }).fill(code);
         await gm.getByRole("button", { name: "Pair" }).click();
         await expect(badge).toContainText("GM CONNECTED");
-        await gm.getByRole("button", { name: /BRIDGE/ }).click();
+        await gm.getByRole("button", { name: /^BRIDGE/ }).click();
         await expect(player.screen).toContainText("BRIDGE SCREEN");
         expect(errors).toEqual([]);
     });

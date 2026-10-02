@@ -22,6 +22,8 @@
         "gen": "node scripts/gen.ts"
     },
     "dependencies": {
+        "@mantine/core": "^9.6.3",
+        "@mantine/hooks": "^9.6.3",
         "react": "^19.3.0",
         "react-dom": "^19.3.0",
         "uqr": "^0.1.3",

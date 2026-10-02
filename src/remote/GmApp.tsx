@@ -1,4 +1,38 @@
-import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+    Alert,
+    Badge,
+    Box,
+    Button,
+    Card,
+    Checkbox,
+    Code,
+    Collapse,
+    Group,
+    NavLink,
+    NumberInput,
+    SegmentedControl,
+    SimpleGrid,
+    Stack,
+    Switch,
+    Table,
+    Tabs,
+    Text,
+    Textarea,
+    TextInput,
+    Title,
+    UnstyledButton,
+    useMantineColorScheme,
+} from "@mantine/core";
+import { useLocalStorage } from "@mantine/hooks";
+import {
+    type FormEvent,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import { EFFECTS, type EffectName, type Program, type VariableValue } from "../engine/index.ts";
 import { AddDevice } from "./AddDevice.tsx";
 import { GONE_MS, HEARTBEAT_MS } from "./follow.ts";
@@ -12,7 +46,6 @@ import {
     relayLink,
 } from "./link.ts";
 import type { GmEnvelope, GmMessage, PlayerMessage, PlayerState } from "./protocol.ts";
-import { Tabs } from "./Tabs.tsx";
 import { useWaitingUpdate } from "./update.ts";
 
 /** How long a burst of static lasts. */
@@ -120,102 +153,172 @@ export function GmApp({ name, program }: Props) {
     const action = (action: object) => send({ type: "action", action });
 
     const update = useWaitingUpdate();
-    const screens = (
-        <ScreenTree
-            program={program}
-            current={latest?.screen ?? null}
-            go={(screen) => action({ screen })}
-        />
-    );
-    const messages = (
-        <div className="gm-columns">
-            <Transmit send={send} />
-            <Dialogs
-                program={program}
-                open={latest?.dialog ?? null}
-                go={(dialog) => action({ dialog })}
-                close={() => send({ type: "close-dialog" })}
-            />
-        </div>
-    );
-    const variables = (
-        <div className="gm-columns">
-            <Variables program={program} state={latest} set={(set) => action({ set })} />
-            <Timers program={program} state={latest} action={action} />
-        </div>
-    );
-    const effectControls = (
-        <Effects
-            effects={effects}
-            change={(next) => {
-                setEffects(next);
-                sendEffects(next);
-            }}
-            burst={() => send({ type: "burst", ms: BURST_MS })}
-        />
-    );
-    const devices = (
-        <div className="gm-columns">
-            <AddDevice program={name} code={code} pair={setCode} />
-            <section className="gm-panel" aria-label="This computer">
-                <h2>This computer</h2>
-                <p className="gm-none">
-                    A players' window on this computer (e.g. on a second display) follows the panel
-                    by itself.
-                </p>
-                <button type="button" onClick={() => openPlayers(name)}>
-                    Open a players' window
-                </button>
-            </section>
-        </div>
-    );
+    const [tab, setTab] = useLocalStorage({ key: "teletronix:gm-tab", defaultValue: "screens" });
+    // (the tabs stick just under the header, however tall it wraps)
+    const header = useRef<HTMLElement>(null);
+    const [headerHeight, setHeaderHeight] = useState(0);
+    useLayoutEffect(() => {
+        const element = header.current;
+        if (!element) return;
+        const measure = () => setHeaderHeight(element.offsetHeight);
+        measure();
+        const observer = new ResizeObserver(measure);
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, []);
 
     return (
-        <div className="gm">
-            <header className="gm-header">
-                <h1>{program.config.name}</h1>
-                <Status count={live.length} state={latest} program={program} name={name} />
-                <div className="gm-row">
-                    <button type="button" onClick={() => action({ back: true })}>
-                        ← Back
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            if (confirm("Restart the program from the start screen?")) {
-                                action({ restart: true });
-                            }
-                        }}
-                    >
-                        Restart
-                    </button>
-                </div>
-                <Pairing code={code} network={network} pair={setCode} />
-            </header>
+        <Box
+            className="gm"
+            style={{ "--gm-header-height": `${headerHeight}px` } as React.CSSProperties}
+        >
+            <Box ref={header} component="header" className="gm-header" px="lg" py="sm">
+                <Group justify="space-between" gap="sm">
+                    <Group gap="md">
+                        <Title order={3}>{program.config.name}</Title>
+                        <Status count={live.length} state={latest} program={program} name={name} />
+                    </Group>
+                    <Group gap="sm">
+                        <Button.Group>
+                            <Button
+                                variant="default"
+                                size="xs"
+                                onClick={() => action({ back: true })}
+                            >
+                                ← Back
+                            </Button>
+                            <Button
+                                variant="default"
+                                size="xs"
+                                onClick={() => {
+                                    if (confirm("Restart the program from the start screen?")) {
+                                        action({ restart: true });
+                                    }
+                                }}
+                            >
+                                Restart
+                            </Button>
+                        </Button.Group>
+                        <Pairing code={code} network={network} pair={setCode} />
+                        <ColorScheme />
+                    </Group>
+                </Group>
+            </Box>
             {update && (
-                <p className="gm-update" role="status">
-                    A new version of Teletronix is ready.{" "}
-                    <button type="button" onClick={update}>
-                        Reload
-                    </button>{" "}
-                    <span className="gm-none">
-                        Players' windows get it the next time they're opened or reloaded.
-                    </span>
-                </p>
+                <Alert
+                    variant="light"
+                    radius={0}
+                    title="A new version of Teletronix is ready."
+                    role="status"
+                >
+                    <Group gap="sm">
+                        <Button size="xs" onClick={update}>
+                            Reload
+                        </Button>
+                        <Text size="sm" c="dimmed">
+                            Players' windows get it the next time they're opened or reloaded.
+                        </Text>
+                    </Group>
+                </Alert>
             )}
-            <main className="gm-main">
-                <Tabs
-                    storageKey="teletronix:gm-tab"
-                    tabs={[
-                        { id: "screens", label: "Screens", content: screens },
-                        { id: "messages", label: "Messages", content: messages },
-                        { id: "variables", label: "Variables", content: variables },
-                        { id: "effects", label: "Effects", content: effectControls },
-                        { id: "devices", label: "Devices", content: devices },
-                    ]}
-                />
-            </main>
-        </div>
+            <Tabs value={tab} onChange={(value) => value && setTab(value)} keepMounted>
+                <Tabs.List className="gm-tabs" px="lg">
+                    <Tabs.Tab value="screens">Screens</Tabs.Tab>
+                    <Tabs.Tab value="messages">Messages</Tabs.Tab>
+                    <Tabs.Tab value="variables">Variables</Tabs.Tab>
+                    <Tabs.Tab value="effects">Effects</Tabs.Tab>
+                    <Tabs.Tab value="devices">Devices</Tabs.Tab>
+                </Tabs.List>
+                <Box p="lg">
+                    <Tabs.Panel value="screens">
+                        <ScreenTree
+                            program={program}
+                            current={latest?.screen ?? null}
+                            go={(screen) => action({ screen })}
+                        />
+                    </Tabs.Panel>
+                    <Tabs.Panel value="messages">
+                        <SimpleGrid cols={{ base: 1, md: 2 }}>
+                            <Transmit send={send} />
+                            <Dialogs
+                                program={program}
+                                open={latest?.dialog ?? null}
+                                go={(dialog) => action({ dialog })}
+                                close={() => send({ type: "close-dialog" })}
+                            />
+                        </SimpleGrid>
+                    </Tabs.Panel>
+                    <Tabs.Panel value="variables">
+                        <SimpleGrid cols={{ base: 1, md: 2 }}>
+                            <Variables
+                                program={program}
+                                state={latest}
+                                set={(set) => action({ set })}
+                            />
+                            <Timers program={program} state={latest} action={action} />
+                        </SimpleGrid>
+                    </Tabs.Panel>
+                    <Tabs.Panel value="effects">
+                        <Effects
+                            effects={effects}
+                            change={(next) => {
+                                setEffects(next);
+                                sendEffects(next);
+                            }}
+                            burst={() => send({ type: "burst", ms: BURST_MS })}
+                        />
+                    </Tabs.Panel>
+                    <Tabs.Panel value="devices">
+                        <SimpleGrid cols={{ base: 1, md: 2 }}>
+                            <AddDevice program={name} code={code} pair={setCode} />
+                            <Panel title="This computer">
+                                <Text size="sm" c="dimmed">
+                                    A players' window on this computer (e.g. on a second display)
+                                    follows the panel by itself.
+                                </Text>
+                                <Group>
+                                    <Button variant="light" onClick={() => openPlayers(name)}>
+                                        Open a players' window
+                                    </Button>
+                                </Group>
+                            </Panel>
+                        </SimpleGrid>
+                    </Tabs.Panel>
+                </Box>
+            </Tabs>
+        </Box>
+    );
+}
+
+/** A card with a title: a group of the panel's controls. */
+export function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+    return (
+        <Card withBorder component="section" aria-label={title} padding="lg">
+            <Stack gap="sm">
+                <Title order={5} tt="uppercase" c="dimmed" fz="xs" lts={1}>
+                    {title}
+                </Title>
+                {children}
+            </Stack>
+        </Card>
+    );
+}
+
+/** Light, dark, or as the system says. */
+function ColorScheme() {
+    const { colorScheme, setColorScheme } = useMantineColorScheme();
+    return (
+        <SegmentedControl
+            size="xs"
+            aria-label="Colour scheme"
+            value={colorScheme}
+            onChange={(value) => setColorScheme(value as "light" | "dark" | "auto")}
+            data={[
+                { label: "Light", value: "light" },
+                { label: "Dark", value: "dark" },
+                { label: "Auto", value: "auto" },
+            ]}
+        />
     );
 }
 
@@ -242,10 +345,13 @@ function rememberCode(program: string, code: string): void {
     }
 }
 
-const NETWORK_TEXT: Record<LinkStatus, string> = {
-    connecting: "Connecting…",
-    connected: "Connected",
-    unavailable: "Can't connect: serve Teletronix with npm run table (or npm run dev -- --host)",
+const NETWORK: Record<LinkStatus, { text: string; color: string }> = {
+    connecting: { text: "Connecting…", color: "yellow" },
+    connected: { text: "Connected", color: "green" },
+    unavailable: {
+        text: "Can't connect: serve Teletronix with npm run table (or npm run dev -- --host)",
+        color: "red",
+    },
 };
 
 /** Pairing with a terminal on another device, by the code it shows. */
@@ -265,42 +371,51 @@ function Pairing({
     };
     if (code) {
         return (
-            <p className="gm-pairing">
-                Paired with <strong>{code}</strong>
+            <Group gap="xs" className="gm-pairing">
+                <Text size="sm">
+                    Paired with <strong>{code}</strong>
+                </Text>
                 {network && (
-                    <span className={`gm-network gm-network-${network}`}>
-                        {" "}
-                        · {NETWORK_TEXT[network]}
-                    </span>
-                )}{" "}
-                <button
-                    type="button"
+                    <Badge color={NETWORK[network].color} variant="light">
+                        {NETWORK[network].text}
+                    </Badge>
+                )}
+                <Button
+                    variant="subtle"
+                    size="xs"
                     onClick={() => {
                         setTyped("");
                         pair("");
                     }}
                 >
                     Unpair
-                </button>
-            </p>
+                </Button>
+            </Group>
         );
     }
     return (
         <form className="gm-pairing" onSubmit={submit}>
-            <label>
-                Another device's code{" "}
-                <input
+            <Group gap={6}>
+                <TextInput
+                    size="xs"
+                    aria-label="Another device's code"
+                    placeholder="Device code"
                     value={typed}
-                    onChange={(event) => setTyped(cleanCode(event.target.value))}
-                    placeholder="K7QX"
-                    size={6}
+                    onChange={(event) => setTyped(cleanCode(event.currentTarget.value))}
                     autoComplete="off"
                     spellCheck={false}
+                    w={110}
+                    styles={{ input: { fontFamily: "var(--mantine-font-family-monospace)" } }}
                 />
-            </label>{" "}
-            <button type="submit" disabled={typed.length < CODE_LENGTH}>
-                Pair
-            </button>
+                <Button
+                    type="submit"
+                    size="xs"
+                    variant="light"
+                    disabled={typed.length < CODE_LENGTH}
+                >
+                    Pair
+                </Button>
+            </Group>
         </form>
     );
 }
@@ -318,32 +433,42 @@ function Status({
 }) {
     if (count === 0 || !state) {
         return (
-            <p className="gm-status gm-status-off" role="status">
-                <span aria-hidden="true">○</span> No players' window is open.{" "}
-                <button type="button" onClick={() => openPlayers(name)}>
+            <Group gap="xs" role="status">
+                <Badge color="gray" variant="dot">
+                    No players
+                </Badge>
+                <Text size="sm" c="dimmed">
+                    No players' window is open.
+                </Text>
+                <Button size="compact-xs" variant="light" onClick={() => openPlayers(name)}>
                     Open one
-                </button>
-            </p>
+                </Button>
+            </Group>
         );
     }
     const screen = state.screen === null ? null : program.screens.get(state.screen);
     return (
-        <p className="gm-status gm-status-on" role="status">
-            <span aria-hidden="true">●</span> Players on{" "}
-            <strong>{screen ? (screen.title ?? screen.id.toUpperCase()) : "—"}</strong>
-            {screen && <code>{screen.id}</code>}
-            {state.dialog && (
-                <>
-                    {" "}
-                    · dialog <code>{state.dialog}</code>
-                </>
-            )}
-            {count > 1 && <> · {count} windows</>}
-        </p>
+        <Group gap="xs" role="status">
+            <Badge color="green" variant="dot" className="gm-live">
+                Live
+            </Badge>
+            <Text size="sm">
+                Players on{" "}
+                <strong>{screen ? (screen.title ?? screen.id.toUpperCase()) : "—"}</strong>{" "}
+                {screen && <Code>{screen.id}</Code>}
+                {state.dialog && (
+                    <>
+                        {" "}
+                        · dialog <Code>{state.dialog}</Code>
+                    </>
+                )}
+                {count > 1 && <> · {count} windows</>}
+            </Text>
+        </Group>
     );
 }
 
-/** Every screen, under its parent, each a button that sends the players there. */
+/** Every screen, under its parent: a click sends the players there. */
 function ScreenTree({
     program,
     current,
@@ -362,42 +487,65 @@ function ScreenTree({
         }
         return map;
     }, [program]);
-    // the folders to open: those the current screen is in
-    const path = new Set<string>();
-    for (let id = current ?? undefined; id !== undefined; id = program.screens.get(id)?.parent) {
-        path.add(id);
-    }
+
+    // folders open by hand, and those the players' screen is in
+    const [open, setOpen] = useState(new Set<string>());
+    useEffect(() => {
+        const path: string[] = [];
+        for (
+            let id = current ?? undefined;
+            id !== undefined;
+            id = program.screens.get(id)?.parent
+        ) {
+            path.push(id);
+        }
+        setOpen((was) => new Set([...was, ...path]));
+    }, [current, program]);
+    const toggle = (id: string) =>
+        setOpen((was) => {
+            const next = new Set(was);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+
     const label = (id: string) => program.screens.get(id)?.title ?? id.toUpperCase();
-    const button = (id: string) => (
-        <button
-            type="button"
-            className="gm-screen"
+    const item = (id: string) => (
+        <NavLink
+            component="button"
+            label={label(id)}
+            rightSection={<Code fz="xs">{id}</Code>}
+            active={id === current}
             aria-current={id === current ? "true" : undefined}
             onClick={() => go(id)}
-        >
-            {label(id)} <code>{id}</code>
-        </button>
+            py={4}
+            style={{ flex: 1, borderRadius: "var(--mantine-radius-sm)" }}
+        />
     );
-
-    const branch = (parent: string | undefined): React.ReactNode => (
-        <ul>
-            {(children.get(parent) ?? []).map((id) => {
-                const kids = children.get(id);
-                return (
-                    <li key={id}>
+    const branch = (parent: string | undefined, depth: number): React.ReactNode =>
+        (children.get(parent) ?? []).map((id) => {
+            const kids = children.get(id);
+            return (
+                <div key={id}>
+                    <Group gap={2} wrap="nowrap" pl={depth * 18}>
                         {kids ? (
-                            <details open={path.has(id) || undefined}>
-                                <summary>{button(id)}</summary>
-                                {branch(id)}
-                            </details>
+                            <UnstyledButton
+                                className="gm-toggle"
+                                aria-label={`${open.has(id) ? "Hide" : "Show"} the screens under ${label(id)}`}
+                                aria-expanded={open.has(id)}
+                                onClick={() => toggle(id)}
+                            >
+                                {open.has(id) ? "▾" : "▸"}
+                            </UnstyledButton>
                         ) : (
-                            button(id)
+                            <span className="gm-toggle" />
                         )}
-                    </li>
-                );
-            })}
-        </ul>
-    );
+                        {item(id)}
+                    </Group>
+                    {kids && <Collapse expanded={open.has(id)}>{branch(id, depth + 1)}</Collapse>}
+                </div>
+            );
+        });
 
     const query = filter.trim().toLowerCase();
     const found = query
@@ -408,27 +556,25 @@ function ScreenTree({
           )
         : [];
     return (
-        <>
-            <input
+        <Stack gap="sm">
+            <TextInput
                 type="search"
-                className="gm-filter"
                 placeholder="Find a screen"
                 aria-label="Find a screen"
                 value={filter}
-                onChange={(event) => setFilter(event.target.value)}
+                onChange={(event) => setFilter(event.currentTarget.value)}
             />
-            <nav className="gm-tree" aria-label="Screens">
-                {query ? (
-                    <ul>
-                        {found.map((screen) => (
-                            <li key={screen.id}>{button(screen.id)}</li>
-                        ))}
-                    </ul>
-                ) : (
-                    branch(undefined)
+            <Card withBorder padding="xs" component="nav" aria-label="Screens">
+                {query
+                    ? found.map((screen) => <div key={screen.id}>{item(screen.id)}</div>)
+                    : branch(undefined, 0)}
+                {query && found.length === 0 && (
+                    <Text size="sm" c="dimmed" p="xs">
+                        No screen matches.
+                    </Text>
                 )}
-            </nav>
-        </>
+            </Card>
+        </Stack>
     );
 }
 
@@ -443,43 +589,48 @@ function Transmit({ send }: { send: (message: GmMessage) => void }) {
         setText("");
     };
     return (
-        <section className="gm-panel">
-            <h2>Transmit</h2>
-            <form onSubmit={submit} className="gm-form">
-                <textarea
-                    aria-label="Message"
-                    placeholder="MOTHER: CREW EXPENDABLE."
-                    rows={3}
-                    value={text}
-                    onChange={(event) => setText(event.target.value)}
-                    onKeyDown={(event) => {
-                        // Cmd/Ctrl+Enter sends
-                        if (event.key === "Enter" && (event.metaKey || event.ctrlKey))
-                            submit(event);
-                    }}
-                />
-                <div className="gm-row">
-                    <input
-                        aria-label="Button"
-                        placeholder="OK"
-                        value={dismiss}
-                        onChange={(event) => setDismiss(event.target.value)}
-                        size={8}
+        <Panel title="Transmit">
+            <form onSubmit={submit}>
+                <Stack gap="sm">
+                    <Textarea
+                        label="Message"
+                        placeholder="MOTHER: CREW EXPENDABLE."
+                        autosize
+                        minRows={3}
+                        value={text}
+                        onChange={(event) => setText(event.currentTarget.value)}
+                        onKeyDown={(event) => {
+                            // Cmd/Ctrl+Enter sends
+                            if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+                                submit(event);
+                            }
+                        }}
+                        styles={{ input: { fontFamily: "var(--mantine-font-family-monospace)" } }}
                     />
-                    <label>
-                        <input
-                            type="checkbox"
-                            checked={alert}
-                            onChange={(event) => setAlert(event.target.checked)}
-                        />{" "}
-                        Alert colour
-                    </label>
-                    <button type="submit" disabled={!text.trim()}>
-                        Send
-                    </button>
-                </div>
+                    <Group align="end" justify="space-between">
+                        <Group align="end">
+                            <TextInput
+                                label="Button"
+                                placeholder="OK"
+                                value={dismiss}
+                                onChange={(event) => setDismiss(event.currentTarget.value)}
+                                w={120}
+                            />
+                            <Checkbox
+                                label="Alert colour"
+                                color="red"
+                                checked={alert}
+                                onChange={(event) => setAlert(event.currentTarget.checked)}
+                                mb={8}
+                            />
+                        </Group>
+                        <Button type="submit" disabled={!text.trim()}>
+                            Send
+                        </Button>
+                    </Group>
+                </Stack>
             </form>
-        </section>
+        </Panel>
     );
 }
 
@@ -495,25 +646,32 @@ function Dialogs({
     close: () => void;
 }) {
     return (
-        <section className="gm-panel">
-            <h2>Dialogs</h2>
-            <div className="gm-row gm-wrap">
-                {[...program.dialogs.keys()].map((id) => (
-                    <button
-                        key={id}
-                        type="button"
-                        aria-current={id === open ? "true" : undefined}
-                        onClick={() => go(id)}
-                    >
-                        {id}
-                    </button>
-                ))}
-                {program.dialogs.size === 0 && <p className="gm-none">This program has none.</p>}
-            </div>
-            <button type="button" disabled={open === null} onClick={close}>
-                Close the open dialog
-            </button>
-        </section>
+        <Panel title="Dialogs">
+            {program.dialogs.size === 0 ? (
+                <Text size="sm" c="dimmed">
+                    This program has none.
+                </Text>
+            ) : (
+                <Group gap="xs">
+                    {[...program.dialogs.keys()].map((id) => (
+                        <Button
+                            key={id}
+                            size="xs"
+                            variant={id === open ? "filled" : "light"}
+                            aria-current={id === open ? "true" : undefined}
+                            onClick={() => go(id)}
+                        >
+                            {id}
+                        </Button>
+                    ))}
+                </Group>
+            )}
+            <Group>
+                <Button variant="default" size="xs" disabled={open === null} onClick={close}>
+                    Close the open dialog
+                </Button>
+            </Group>
+        </Panel>
     );
 }
 
@@ -528,40 +686,41 @@ function Variables({
 }) {
     const names = [...program.variables.keys()];
     return (
-        <section className="gm-panel">
-            <h2>Variables</h2>
+        <Panel title="Variables">
             {names.length === 0 ? (
-                <p className="gm-none">This program has none.</p>
+                <Text size="sm" c="dimmed">
+                    This program has none.
+                </Text>
             ) : (
-                <table className="gm-table">
-                    <tbody>
+                <Table verticalSpacing={4} highlightOnHover>
+                    <Table.Tbody>
                         {names.map((name) => {
                             const initial = program.variables.get(name) as VariableValue;
                             const value = state?.variables[name] ?? initial;
                             return (
-                                <tr key={name}>
-                                    <th scope="row">
-                                        <code>{name}</code>
-                                    </th>
-                                    <td>
+                                <Table.Tr key={name}>
+                                    <Table.Th fw="normal" w="40%">
+                                        <Code>{name}</Code>
+                                    </Table.Th>
+                                    <Table.Td>
                                         <VariableInput
                                             name={name}
                                             value={value}
                                             disabled={!state}
                                             set={(next) => set({ [name]: next })}
                                         />
-                                    </td>
-                                </tr>
+                                    </Table.Td>
+                                </Table.Tr>
                             );
                         })}
-                    </tbody>
-                </table>
+                    </Table.Tbody>
+                </Table>
             )}
-        </section>
+        </Panel>
     );
 }
 
-/** An editor for a variable's value: a checkbox, a number, or text, set on Enter. */
+/** An editor for a variable's value: a switch, a number, or text, set on Enter. */
 function VariableInput({
     name,
     value,
@@ -573,15 +732,14 @@ function VariableInput({
     disabled: boolean;
     set: (value: VariableValue) => void;
 }) {
-    const [draft, setDraft] = useState<string | null>(null);
+    const [draft, setDraft] = useState<string | number | null>(null);
     if (typeof value === "boolean") {
         return (
-            <input
-                type="checkbox"
+            <Switch
                 aria-label={name}
                 checked={value}
                 disabled={disabled}
-                onChange={(event) => set(event.target.checked)}
+                onChange={(event) => set(event.currentTarget.checked)}
             />
         );
     }
@@ -589,24 +747,38 @@ function VariableInput({
         if (draft === null) return;
         if (typeof value === "number") {
             const number = Number(draft);
-            if (draft.trim() !== "" && Number.isFinite(number)) set(number);
+            if (String(draft).trim() !== "" && Number.isFinite(number)) set(number);
         } else {
-            set(draft);
+            set(String(draft));
         }
         setDraft(null);
     };
+    const keys = (event: React.KeyboardEvent) => {
+        if (event.key === "Enter") commit();
+        if (event.key === "Escape") setDraft(null);
+    };
+    if (typeof value === "number") {
+        return (
+            <NumberInput
+                size="xs"
+                aria-label={name}
+                value={draft ?? value}
+                disabled={disabled}
+                onChange={setDraft}
+                onBlur={commit}
+                onKeyDown={keys}
+            />
+        );
+    }
     return (
-        <input
-            type={typeof value === "number" ? "number" : "text"}
+        <TextInput
+            size="xs"
             aria-label={name}
-            value={draft ?? String(value)}
+            value={draft ?? value}
             disabled={disabled}
-            onChange={(event) => setDraft(event.target.value)}
+            onChange={(event) => setDraft(event.currentTarget.value)}
             onBlur={commit}
-            onKeyDown={(event) => {
-                if (event.key === "Enter") commit();
-                if (event.key === "Escape") setDraft(null);
-            }}
+            onKeyDown={keys}
         />
     );
 }
@@ -623,49 +795,57 @@ function Timers({
     const names = [...program.timers.keys()];
     if (names.length === 0) return null;
     return (
-        <section className="gm-panel">
-            <h2>Timers</h2>
-            <table className="gm-table">
-                <tbody>
+        <Panel title="Timers">
+            <Table verticalSpacing="xs">
+                <Table.Tbody>
                     {names.map((name) => {
                         const timer = state?.timers[name];
                         return (
-                            <tr key={name}>
-                                <th scope="row">
-                                    <code>{name}</code>
-                                </th>
-                                <td className="gm-timer">
-                                    {timer?.seconds ?? "—"}s {timer?.running ? "▶" : "■"}
-                                </td>
-                                <td className="gm-row">
-                                    <button
-                                        type="button"
-                                        disabled={!state}
-                                        onClick={() => action({ startTimer: name })}
-                                    >
-                                        Start
-                                    </button>
-                                    <button
-                                        type="button"
-                                        disabled={!state}
-                                        onClick={() => action({ stopTimer: name })}
-                                    >
-                                        Stop
-                                    </button>
-                                    <button
-                                        type="button"
-                                        disabled={!state}
-                                        onClick={() => action({ resetTimer: name })}
-                                    >
-                                        Reset
-                                    </button>
-                                </td>
-                            </tr>
+                            <Table.Tr key={name}>
+                                <Table.Th fw="normal">
+                                    <Code>{name}</Code>
+                                </Table.Th>
+                                <Table.Td className="gm-timer">
+                                    <Group gap="xs" wrap="nowrap">
+                                        <Text ff="monospace" fz="xl" fw={700}>
+                                            {timer?.seconds ?? "—"}s
+                                        </Text>
+                                        <Badge
+                                            size="sm"
+                                            variant="light"
+                                            color={timer?.running ? "green" : "gray"}
+                                        >
+                                            {timer?.running ? "▶ running" : "■ stopped"}
+                                        </Badge>
+                                    </Group>
+                                </Table.Td>
+                                <Table.Td>
+                                    <Button.Group>
+                                        {(
+                                            [
+                                                ["Start", "startTimer"],
+                                                ["Stop", "stopTimer"],
+                                                ["Reset", "resetTimer"],
+                                            ] as const
+                                        ).map(([label, key]) => (
+                                            <Button
+                                                key={key}
+                                                size="xs"
+                                                variant="default"
+                                                disabled={!state}
+                                                onClick={() => action({ [key]: name })}
+                                            >
+                                                {label}
+                                            </Button>
+                                        ))}
+                                    </Button.Group>
+                                </Table.Td>
+                            </Table.Tr>
                         );
                     })}
-                </tbody>
-            </table>
-        </section>
+                </Table.Tbody>
+            </Table>
+        </Panel>
     );
 }
 
@@ -679,36 +859,43 @@ function Effects({
     burst: () => void;
 }) {
     return (
-        <section className="gm-panel">
-            <h2>Effects</h2>
-            <table className="gm-table">
-                <tbody>
-                    {(Object.keys(EFFECTS) as EffectName[]).map((effect) => (
-                        <tr key={effect}>
-                            <th scope="row">{effect}</th>
-                            <td>
-                                <select
-                                    aria-label={effect}
-                                    value={effects[effect] ?? "program"}
-                                    onChange={(event) =>
-                                        change({
-                                            ...effects,
-                                            [effect]: event.target.value as Override,
-                                        })
-                                    }
-                                >
-                                    <option value="program">As the program says</option>
-                                    <option value="on">On</option>
-                                    <option value="off">Off</option>
-                                </select>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <button type="button" onClick={burst}>
-                Burst of static
-            </button>
-        </section>
+        <SimpleGrid cols={{ base: 1, md: 2 }}>
+            <Panel title="Effects">
+                <Table verticalSpacing="xs">
+                    <Table.Tbody>
+                        {(Object.keys(EFFECTS) as EffectName[]).map((effect) => (
+                            <Table.Tr key={effect}>
+                                <Table.Th fw="normal" tt="capitalize">
+                                    {effect}
+                                </Table.Th>
+                                <Table.Td>
+                                    <SegmentedControl
+                                        size="xs"
+                                        aria-label={effect}
+                                        value={effects[effect] ?? "program"}
+                                        onChange={(value) =>
+                                            change({ ...effects, [effect]: value as Override })
+                                        }
+                                        data={[
+                                            { label: "As the program says", value: "program" },
+                                            { label: "On", value: "on" },
+                                            { label: "Off", value: "off" },
+                                        ]}
+                                    />
+                                </Table.Td>
+                            </Table.Tr>
+                        ))}
+                    </Table.Tbody>
+                </Table>
+            </Panel>
+            <Panel title="Static">
+                <Text size="sm" c="dimmed">
+                    A moment of heavy static on the players' screen, with its hiss.
+                </Text>
+                <Button color="red" size="lg" onClick={burst}>
+                    Burst of static
+                </Button>
+            </Panel>
+        </SimpleGrid>
     );
 }

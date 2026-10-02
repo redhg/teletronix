@@ -1,5 +1,17 @@
+import {
+    Button,
+    Checkbox,
+    Code,
+    CopyButton,
+    Group,
+    Paper,
+    Select,
+    Stack,
+    Text,
+} from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { encode } from "uqr";
+import { Panel } from "./GmApp.tsx";
 import { newCode } from "./link.ts";
 
 /** Hosts that only this computer can reach. */
@@ -80,80 +92,81 @@ export function AddDevice({
     const addresses = useAddresses();
     const [chosen, setChosen] = useState(0);
     const [kiosk, setKiosk] = useState(false);
-    const [copied, setCopied] = useState(false);
     const base = addresses?.[Math.min(chosen, addresses.length - 1)];
 
     let body: React.ReactNode;
     if (addresses === null) {
-        body = <p className="gm-none">Finding this computer's address…</p>;
+        body = (
+            <Text size="sm" c="dimmed">
+                Finding this computer's address…
+            </Text>
+        );
     } else if (!base) {
         body = (
-            <p className="gm-none">
+            <Text size="sm" c="dimmed">
                 Other devices can't reach Teletronix here. Serve it to your network with{" "}
-                <code>npm run table</code> (or <code>npm run dev -- --host</code>).
-            </p>
+                <Code>npm run table</Code> (or <Code>npm run dev -- --host</Code>).
+            </Text>
         );
     } else if (!code) {
         body = (
-            <button type="button" onClick={() => pair(newCode())}>
-                Show a QR code
-            </button>
+            <Group>
+                <Button onClick={() => pair(newCode())}>Show a QR code</Button>
+            </Group>
         );
     } else {
         const address = deviceAddress(base, program, code, kiosk);
         body = (
-            <div className="gm-device">
-                <QrCode text={address} label={`QR code for ${address}`} />
-                <div className="gm-form">
-                    <p className="gm-none">
+            <Group align="start" wrap="nowrap" gap="lg" className="gm-device">
+                <Paper p={6} bg="white" radius="sm" withBorder>
+                    <QrCode text={address} label={`QR code for ${address}`} />
+                </Paper>
+                <Stack gap="xs">
+                    <Text size="sm" c="dimmed">
                         Scan it on the players' device, on the same network. It opens the program
                         there, paired with this panel.
-                    </p>
+                    </Text>
                     {addresses.length > 1 && (
-                        <select
+                        <Select
+                            size="xs"
                             aria-label="Network address"
-                            value={chosen}
-                            onChange={(event) => setChosen(Number(event.target.value))}
-                        >
-                            {addresses.map((url, index) => (
-                                <option key={url} value={index}>
-                                    {new URL(url).host}
-                                </option>
-                            ))}
-                        </select>
+                            value={String(chosen)}
+                            onChange={(value) => setChosen(Number(value ?? 0))}
+                            data={addresses.map((url, index) => ({
+                                value: String(index),
+                                label: new URL(url).host,
+                            }))}
+                            allowDeselect={false}
+                        />
                     )}
-                    <label>
-                        <input
-                            type="checkbox"
-                            checked={kiosk}
-                            onChange={(event) => setKiosk(event.target.checked)}
-                        />{" "}
-                        As a kiosk (full screen)
-                    </label>
-                    <code className="gm-address">{address}</code>
+                    <Checkbox
+                        label="As a kiosk (full screen)"
+                        checked={kiosk}
+                        onChange={(event) => setKiosk(event.currentTarget.checked)}
+                    />
+                    <Code block className="gm-address">
+                        {address}
+                    </Code>
                     {/* (browsers only let secure pages copy: not plain http on a network) */}
                     {navigator.clipboard && (
-                        <button
-                            type="button"
-                            onClick={() => {
-                                navigator.clipboard
-                                    .writeText(address)
-                                    .then(() => setCopied(true))
-                                    .catch(() => {});
-                            }}
-                            onBlur={() => setCopied(false)}
-                        >
-                            {copied ? "Copied" : "Copy the address"}
-                        </button>
+                        <Group>
+                            <CopyButton value={address}>
+                                {({ copied, copy }) => (
+                                    <Button
+                                        size="xs"
+                                        variant="light"
+                                        color={copied ? "green" : undefined}
+                                        onClick={copy}
+                                    >
+                                        {copied ? "Copied" : "Copy the address"}
+                                    </Button>
+                                )}
+                            </CopyButton>
+                        </Group>
                     )}
-                </div>
-            </div>
+                </Stack>
+            </Group>
         );
     }
-    return (
-        <section className="gm-panel" aria-label="Players' device">
-            <h2>Players' device</h2>
-            {body}
-        </section>
-    );
+    return <Panel title="Players' device">{body}</Panel>;
 }

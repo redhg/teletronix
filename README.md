@@ -1087,9 +1087,12 @@ screen:
 ### GM remote control
 For one computer with two displays (e.g. a laptop for the GM and a monitor or projector for the
 players): play the program in one window, and open its address with `&gm` added in another
-(e.g. `?data=ypsilon14&gm`). That's a control panel for the GM, in ordinary browser controls.
-Along the top, always: the screen the players are on (and any open dialog), **Back** and
-**Restart** (which do what the actions of those names do), and pairing with another device.
+(e.g. `?data=ypsilon14&gm`). That's a control panel for the GM, built with
+[Mantine](https://mantine.dev) components, in the program's accent colour (amber for an amber
+terminal, and so on), and light, dark or as your system is set (the switch in the top corner).
+Along the top, always: whether the players are connected (**LIVE**) and the screen they're on
+(and any open dialog), **Back** and **Restart** (which do what the actions of those names do),
+and pairing with another device.
 The rest is in tabs (<left> and <right> move between them, and the panel opens at the last):
 - **Screens:** every screen, under its `parent`, or found by name. A click sends the players
   there.
@@ -1186,7 +1189,8 @@ Every new feature gets tests.
 - `src/modules/<name>/`: one folder per element type. `definition.ts` holds the schema and
   engine behavior; `View.tsx` holds the React view.
 - `src/effects/<name>/`: one folder per visual effect, split the same way as modules.
-- `src/remote/`: the GM's control panel (`&gm`), and the players' side of it. The relay that
+- `src/remote/`: the GM's control panel (`&gm`, built with Mantine, which only it loads), and
+  the players' side of it. The relay that
   passes their messages between devices is `scripts/remote-relay.ts`, in Vite's servers.
 - `src/ui/`: the React layer. Per-frame text is written straight to the DOM, so React only
   re-renders on structural changes.

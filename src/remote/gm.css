@@ -1,299 +1,73 @@
-/* The GM's panel looks like the rest of your system, not like a terminal. */
-:root {
-    color-scheme: light dark;
-}
-
-html,
-body {
-    margin: 0;
-}
-
-body {
-    background: Canvas;
-    color: CanvasText;
-    font:
-        13px / 1.45 system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
-}
-
-code {
-    font:
-        11px / 1 ui-monospace,
-        Menlo,
-        Consolas,
-        monospace;
-    opacity: 0.6;
-}
-
-h1 {
-    margin: 0;
-    font-size: 18px;
-}
-
-h2 {
-    margin: 0 0 8px;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity: 0.7;
-}
-
-.gm-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 4px 16px;
-    padding: 12px 20px;
-    background: Canvas;
-    border-bottom: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
-}
-
-.gm-status {
-    margin: 0;
-}
-
-.gm-status code {
-    margin-inline-start: 4px;
-}
-
-.gm-status-on > span:first-child {
-    color: #2a9d4a;
-}
-
-.gm-status-off > span:first-child {
-    opacity: 0.6;
-}
-
-.gm-panel {
-    padding: 12px 14px;
-    border: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
-    border-radius: 8px;
-}
-
-.gm-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.gm-wrap {
-    flex-wrap: wrap;
-    margin-bottom: 8px;
-}
-
-.gm-form {
-    display: grid;
-    gap: 6px;
-}
-
-.gm-form textarea {
-    font:
-        12px / 1.4 ui-monospace,
-        Menlo,
-        Consolas,
-        monospace;
-    resize: vertical;
-}
-
-.gm-form button[type="submit"] {
-    margin-inline-start: auto;
-}
-
-.gm-none {
-    margin: 0;
-    opacity: 0.6;
-}
-
-.gm-table {
-    border-collapse: collapse;
-    width: 100%;
-}
-
-.gm-table th {
-    padding: 3px 8px 3px 0;
-    text-align: start;
-    font-weight: normal;
-    white-space: nowrap;
-}
-
-.gm-table td {
-    padding: 3px 0;
-}
-
-.gm-table input:not([type="checkbox"]) {
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.gm-timer {
-    padding-inline-end: 8px;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
-
-.gm-filter {
-    width: 100%;
-    box-sizing: border-box;
-    margin: 8px 0;
-}
-
-.gm-tree ul {
-    margin: 0;
-    padding-inline-start: 14px;
-    list-style: none;
-}
-
-.gm-tree > ul {
-    padding: 0;
-}
-
-.gm-tree summary {
-    cursor: default;
-}
-
-.gm-screen {
-    margin: 1px 0;
-    padding: 1px 6px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    background: none;
-    color: inherit;
-    font: inherit;
-    text-align: start;
-    cursor: pointer;
-}
-
-.gm-screen:hover {
-    border-color: color-mix(in srgb, CanvasText 25%, transparent);
-}
-
-.gm-screen[aria-current="true"],
-.gm-panel button[aria-current="true"] {
-    background: Highlight;
-    color: HighlightText;
-}
-
-.gm-screen[aria-current="true"] code {
-    opacity: 0.8;
-}
+/* The GM's panel is built with Mantine (see start.tsx); these are the few things it doesn't
+   cover. */
 
 .gm-error {
     padding: 20px;
+    font-family: system-ui, sans-serif;
 }
 
-.gm-pairing {
-    margin: 0 0 0 auto;
-}
-
-.gm-pairing input {
-    font:
-        13px / 1 ui-monospace,
-        Menlo,
-        Consolas,
-        monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.gm-network-connected {
-    color: #2a9d4a;
-}
-
-.gm-network-connecting {
-    opacity: 0.7;
-}
-
-.gm-network-unavailable {
-    color: #c0392b;
-}
-
-.gm-device {
-    display: grid;
-    grid-template-columns: 180px 1fr;
-    gap: 12px;
-    align-items: start;
-}
-
-.gm-qr {
-    width: 180px;
-    height: 180px;
-    /* (sharp squares, at any size) */
-    image-rendering: pixelated;
-}
-
-.gm-address {
-    overflow-wrap: anywhere;
-    user-select: all;
-    opacity: 0.8;
-}
-
-@media (max-width: 420px) {
-    .gm-device {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* the tabs, under the header; each tab's controls below */
-.gm-main {
-    padding: 0 20px 32px;
+/* the header stays put, with the tabs under it */
+.gm-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--mantine-color-body);
+    border-bottom: 1px solid var(--mantine-color-default-border);
 }
 
 .gm-tabs {
     position: sticky;
     top: var(--gm-header-height, 0);
     z-index: 1;
-    display: flex;
-    gap: 2px;
+    background: var(--mantine-color-body);
     /* (on a narrow screen, they scroll sideways rather than wrap) */
+    flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
-    margin: 0 -20px 16px;
-    padding: 0 20px;
-    background: Canvas;
-    border-bottom: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
 }
 
-.gm-tabs [role="tab"] {
+/* the players are connected: a gentle pulse */
+.gm-live .mantine-Badge-section::before,
+.gm-live::before {
+    animation: gm-pulse 2s ease-in-out infinite;
+}
+
+@keyframes gm-pulse {
+    50% {
+        opacity: 0.35;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gm-live .mantine-Badge-section::before,
+    .gm-live::before {
+        animation: none;
+    }
+}
+
+/* a screen folder's ▸ or ▾ */
+.gm-toggle {
     flex: none;
-    margin-bottom: -1px;
-    padding: 8px 14px;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    background: none;
-    color: inherit;
-    font: inherit;
-    opacity: 0.7;
-    cursor: pointer;
+    width: 22px;
+    font-size: 16px;
+    text-align: center;
+    color: var(--mantine-color-dimmed);
 }
 
-.gm-tabs [role="tab"]:hover {
-    opacity: 1;
+.gm-qr {
+    display: block;
+    width: 168px;
+    height: 168px;
 }
 
-.gm-tabs [role="tab"][aria-selected="true"] {
-    border-bottom-color: CanvasText;
-    font-weight: 600;
-    opacity: 1;
+.gm-address {
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    user-select: all;
 }
 
-.gm-tabs [role="tab"]:focus-visible {
-    outline: 2px solid Highlight;
-    outline-offset: -2px;
-}
-
-/* side by side where there's room */
-.gm-columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 16px;
-    align-items: start;
-}
-
-.gm-update {
-    margin: 0;
-    padding: 8px 20px;
-    background: color-mix(in srgb, Highlight 18%, Canvas);
-    border-bottom: 1px solid color-mix(in srgb, Highlight 40%, transparent);
+@media (max-width: 480px) {
+    .gm-device {
+        flex-wrap: wrap;
+    }
 }
