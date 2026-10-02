@@ -37,6 +37,7 @@ export {
     layoutBarLine,
 } from "./schema/bars.ts";
 export type { Action } from "./schema/common.ts";
+export { ActionSchema } from "./schema/common.ts";
 export { dialogAction } from "./schema/dialog.ts";
 export {
     compactEffects,
@@ -72,5 +73,6 @@ export {
     type SoundKind,
     type SoundSetting,
 } from "./schema/sound.ts";
+export type { VariableValue } from "./schema/variables.ts";
 export { applyStyles, classesAt, parseMarkup, type StyleRange } from "./text/markup.ts";
 export { ManualTicker, type Ticker, type TickListener } from "./time/ticker.ts";

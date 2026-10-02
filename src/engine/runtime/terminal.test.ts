@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Frame } from "../reveal/types.ts";
+import { ActionSchema } from "../schema/common.ts";
 import { parseProgram, type TeletronixFile } from "../schema/program.ts";
 import { ManualTicker } from "../time/ticker.ts";
 import { Terminal } from "./terminal.ts";
@@ -334,5 +335,51 @@ describe("element memory", () => {
         stop();
         expect(told).toBeGreaterThan(0);
         expect(terminal.getSnapshot()).not.toBe(before);
+    });
+});
+
+describe("remote control", () => {
+    const file = {
+        config: {
+            name: "Test",
+            reveal: "instant" as const,
+            effects: { flicker: true },
+            timers: { clock: { from: 60 } },
+        },
+        screens: { one: { content: ["ONE"] } },
+    };
+
+    it("lays effects over the program's and the screen's, until cleared", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.start();
+        expect(terminal.getSnapshot().effects.flicker).toBeDefined();
+        terminal.setRemoteEffects({ flicker: false, static: true });
+        expect(terminal.getSnapshot().effects.flicker).toBeUndefined();
+        expect(terminal.getSnapshot().effects.static).toBeDefined();
+        terminal.setRemoteEffects(undefined);
+        expect(terminal.getSnapshot().effects.flicker).toBeDefined();
+        expect(terminal.getSnapshot().effects.static).toBeUndefined();
+    });
+
+    it("shows a transmission in a dialog of its own", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.start();
+        terminal.transmit("MOTHER: CREW EXPENDABLE.\nEND OF LINE.", { dismiss: "ACK" });
+        expect(terminal.getSnapshot().dialog).toMatchObject({
+            id: "@transmission",
+            type: "alert",
+            content: ["MOTHER: CREW EXPENDABLE.", "END OF LINE."],
+            dismiss: "ACK",
+        });
+        terminal.answerDialog(true);
+        expect(terminal.getSnapshot().dialog).toBeNull();
+    });
+
+    it("tells whether a timer is running", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.start();
+        expect(terminal.timerRunning("clock")).toBe(false);
+        terminal.dispatch(ActionSchema.parse({ startTimer: "clock" }));
+        expect(terminal.timerRunning("clock")).toBe(true);
     });
 });

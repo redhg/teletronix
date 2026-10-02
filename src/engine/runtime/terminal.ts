@@ -3,7 +3,7 @@ import type { Random } from "../random.ts";
 import type { Reveal } from "../reveal/index.ts";
 import { resolveTransition, type TransitionSpec } from "../reveal/index.ts";
 import type { Action, ActionCase } from "../schema/common.ts";
-import { type Dialog, dialogAction } from "../schema/dialog.ts";
+import { type Dialog, DialogSchema, dialogAction } from "../schema/dialog.ts";
 import { type EffectsSetting, type ResolvedEffects, resolveEffects } from "../schema/effects.ts";
 import type { Element } from "../schema/elements.ts";
 import { boundVariable, forEachElement, moduleFor } from "../schema/elements.ts";
@@ -121,6 +121,8 @@ export class Terminal {
     private dialog: Dialog | null = null;
     /** Resolved once per screen, so effect views see the same object on every visit. */
     private readonly effects = new Map<string, ResolvedEffects>();
+    /** Effects laid over the program's and screen's (see setRemoteEffects). */
+    private remoteEffects: EffectsSetting | undefined;
     /** The program-wide effects: the config's, unless replaced with setEffects(). */
     private configEffects: EffectsSetting | undefined;
     private snapshot: TerminalSnapshot = {
@@ -449,6 +451,36 @@ export class Terminal {
         this.flush();
     }
 
+    /**
+     * Effects laid over everything else's, e.g. from a GM's remote control: on or off
+     * whatever the program and screen say. Undefined clears them.
+     */
+    setRemoteEffects(effects: EffectsSetting | undefined): void {
+        this.remoteEffects = effects;
+        this.effects.clear();
+        this.markDirty();
+        this.flush();
+    }
+
+    /**
+     * Shows a message in a dialog that isn't in the program, e.g. one a GM types: like an
+     * alert, with an OK button.
+     */
+    transmit(content: string, options: { dismiss?: string; className?: string } = {}): void {
+        this.dialog = {
+            ...DialogSchema.parse({ type: "alert", content: content.split("\n"), ...options }),
+            id: "@transmission",
+        };
+        this.cue({ type: "dialog", alert: (options.className ?? "").includes("alert") });
+        this.markDirty();
+        this.flush();
+    }
+
+    /** Whether a timer is running (rather than stopped, or never started). */
+    timerRunning(name: string): boolean {
+        return this.timers.get(name)?.running ?? false;
+    }
+
     /** Replaces the program-wide effects, e.g. while trying out settings in a preview. */
     setEffects(effects: EffectsSetting | undefined): void {
         this.configEffects = effects;
@@ -750,7 +782,7 @@ export class Terminal {
         let effects = this.effects.get(screenId);
         if (!effects) {
             const screen = this.program.screens.get(screenId);
-            effects = resolveEffects(this.configEffects, screen?.effects);
+            effects = resolveEffects(this.configEffects, screen?.effects, this.remoteEffects);
             this.effects.set(screenId, effects);
         }
         return effects;

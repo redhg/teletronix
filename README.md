@@ -1083,6 +1083,27 @@ screen:
   it; kiosk mode goes back to full screen at the next key or tap. For a smoother kiosk, set
   `"skipKeys": ["Space"]` so players skip with Space instead.
 
+### GM remote control
+For one computer with two displays (e.g. a laptop for the GM and a monitor or projector for the
+players): play the program in one window, and open its address with `&gm` added in another
+(e.g. `?data=ypsilon14&gm`). That's a control panel for the GM, in ordinary browser controls:
+- **Status:** the screen the players are on, and any open dialog. "Open one" opens the players'
+  window, if it isn't open yet.
+- **Screens:** every screen, under its `parent`, or found by name. A click sends the players
+  there. **Back** and **Restart** do what the actions of those names do.
+- **Transmit:** a message typed into a dialog on the players' screen, with its own button
+  text, and in the alert colour if you like. Cmd/Ctrl+Enter sends it.
+- **Dialogs:** opens any of the program's dialogs, or closes the open one.
+- **Variables:** every variable, live. Change one (Enter sets it) and the players' screen
+  follows, as if an action had set it.
+- **Timers:** each timer's time, and Start, Stop and Reset.
+- **Effects:** turns any effect on or off over what the program and screen say, or back to
+  what they say, and sends a **burst of static**.
+
+The two windows talk directly, within the browser, so it needs no setup or network, and the
+game carries on if the panel closes. Every players' window of that program follows the panel.
+Controlling a terminal on another device isn't possible yet.
+
 ### Offline
 Once Teletronix has been opened, it works without a network: the app, its fonts, and every
 program in `public/data` (with its images) are kept on the device. It can also be installed as
@@ -1133,5 +1154,6 @@ Every new feature gets tests.
 - `src/modules/<name>/`: one folder per element type. `definition.ts` holds the schema and
   engine behavior; `View.tsx` holds the React view.
 - `src/effects/<name>/`: one folder per visual effect, split the same way as modules.
+- `src/remote/`: the GM's control panel (`&gm`), and the players' side of it.
 - `src/ui/`: the React layer. Per-frame text is written straight to the DOM, so React only
   re-renders on structural changes.

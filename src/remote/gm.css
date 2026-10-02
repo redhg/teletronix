@@ -1,0 +1,206 @@
+/* The GM's panel looks like the rest of your system, not like a terminal. */
+:root {
+    color-scheme: light dark;
+}
+
+html,
+body {
+    margin: 0;
+}
+
+body {
+    background: Canvas;
+    color: CanvasText;
+    font:
+        13px / 1.45 system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+}
+
+code {
+    font:
+        11px / 1 ui-monospace,
+        Menlo,
+        Consolas,
+        monospace;
+    opacity: 0.6;
+}
+
+h1 {
+    margin: 0;
+    font-size: 18px;
+}
+
+h2 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+}
+
+.gm-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 16px;
+    padding: 12px 20px;
+    background: Canvas;
+    border-bottom: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
+}
+
+.gm-status {
+    margin: 0;
+}
+
+.gm-status code {
+    margin-inline-start: 4px;
+}
+
+.gm-status-on > span:first-child {
+    color: #2a9d4a;
+}
+
+.gm-status-off > span:first-child {
+    opacity: 0.6;
+}
+
+.gm-panels {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) minmax(300px, 1fr);
+    gap: 16px;
+    padding: 16px 20px 32px;
+    align-items: start;
+}
+
+.gm-column {
+    display: grid;
+    gap: 16px;
+}
+
+.gm-panel {
+    padding: 12px 14px;
+    border: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
+    border-radius: 8px;
+}
+
+.gm-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gm-wrap {
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.gm-form {
+    display: grid;
+    gap: 6px;
+}
+
+.gm-form textarea {
+    font:
+        12px / 1.4 ui-monospace,
+        Menlo,
+        Consolas,
+        monospace;
+    resize: vertical;
+}
+
+.gm-form button[type="submit"] {
+    margin-inline-start: auto;
+}
+
+.gm-none {
+    margin: 0;
+    opacity: 0.6;
+}
+
+.gm-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.gm-table th {
+    padding: 3px 8px 3px 0;
+    text-align: start;
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+.gm-table td {
+    padding: 3px 0;
+}
+
+.gm-table input:not([type="checkbox"]) {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.gm-timer {
+    padding-inline-end: 8px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.gm-filter {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 8px 0;
+}
+
+.gm-tree ul {
+    margin: 0;
+    padding-inline-start: 14px;
+    list-style: none;
+}
+
+.gm-tree > ul {
+    padding: 0;
+}
+
+.gm-tree summary {
+    cursor: default;
+}
+
+.gm-screen {
+    margin: 1px 0;
+    padding: 1px 6px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+
+.gm-screen:hover {
+    border-color: color-mix(in srgb, CanvasText 25%, transparent);
+}
+
+.gm-screen[aria-current="true"],
+.gm-panel button[aria-current="true"] {
+    background: Highlight;
+    color: HighlightText;
+}
+
+.gm-screen[aria-current="true"] code {
+    opacity: 0.8;
+}
+
+.gm-error {
+    padding: 20px;
+}
+
+@media (max-width: 700px) {
+    .gm-panels {
+        grid-template-columns: 1fr;
+    }
+}
