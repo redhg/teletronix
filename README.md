@@ -1087,19 +1087,25 @@ screen:
 ### GM remote control
 For one computer with two displays (e.g. a laptop for the GM and a monitor or projector for the
 players): play the program in one window, and open its address with `&gm` added in another
-(e.g. `?data=ypsilon14&gm`). That's a control panel for the GM, in ordinary browser controls:
-- **Status:** the screen the players are on, and any open dialog. "Open one" opens the players'
-  window, if it isn't open yet.
+(e.g. `?data=ypsilon14&gm`). That's a control panel for the GM, in ordinary browser controls.
+Along the top, always: the screen the players are on (and any open dialog), **Back** and
+**Restart** (which do what the actions of those names do), and pairing with another device.
+The rest is in tabs (<left> and <right> move between them, and the panel opens at the last):
 - **Screens:** every screen, under its `parent`, or found by name. A click sends the players
-  there. **Back** and **Restart** do what the actions of those names do.
-- **Transmit:** a message typed into a dialog on the players' screen, with its own button
-  text, and in the alert colour if you like. Cmd/Ctrl+Enter sends it.
-- **Dialogs:** opens any of the program's dialogs, or closes the open one.
+  there.
+- **Messages:** **transmit** a message, typed into a dialog on the players' screen, with its
+  own button text, and in the alert colour if you like (Cmd/Ctrl+Enter sends it). And open
+  any of the program's dialogs, or close the open one.
 - **Variables:** every variable, live. Change one (Enter sets it) and the players' screen
-  follows, as if an action had set it.
-- **Timers:** each timer's time, and Start, Stop and Reset.
+  follows, as if an action had set it. And each timer's time, with Start, Stop and Reset.
 - **Effects:** turns any effect on or off over what the program and screen say, or back to
   what they say, and sends a **burst of static**.
+- **Devices:** a QR code for a players' device (see below), and a button to open a players'
+  window on this computer.
+
+When a new version of Teletronix is waiting (see [Offline](#offline)), the panel says so, and
+**Reload** switches to it there and then, rather than once every Teletronix window has closed.
+Players' windows get it the next time they're opened or reloaded.
 
 The two windows talk directly, within the browser, so it needs no setup or network, and the
 game carries on if the panel closes. Every players' window of that program follows the panel.
@@ -1111,7 +1117,7 @@ GM's laptop controlling a tablet), with Teletronix served from a computer on tha
    and prints its address there, e.g. `http://192.168.2.139:4173/`. (`npm run dev -- --host`
    works too, while working on Teletronix.)
 2. On the GM's device, open the program with `&gm`, e.g. `http://localhost:4173/?data=ypsilon14&gm`
-   on that computer. Under **Players' device**, choose **Show a QR code** (and tick **As a
+   on that computer. In the **Devices** tab, choose **Show a QR code** (and tick **As a
    kiosk** for a dedicated screen).
 3. Scan the QR code with the players' device's camera. It opens the program there, already
    paired with the panel, and shows `REMOTE K7QX · GM CONNECTED` in the corner.

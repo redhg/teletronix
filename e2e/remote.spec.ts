@@ -16,6 +16,9 @@ const program: Program = {
     dialogs: { warning: { type: "alert", content: "WARNING DIALOG" } },
 };
 
+/** Opens one of the panel's tabs. */
+const tab = (gm: Page, name: string) => gm.getByRole("tab", { name }).click();
+
 /** A GM's panel for the test program, in another window of the same browser. */
 async function openGm(page: Page): Promise<Page> {
     const gm = await page.context().newPage();
@@ -37,6 +40,31 @@ test.describe("a GM's panel", () => {
         await expect(player.screen).toContainText("HOME SCREEN");
     });
 
+    test("puts its controls in tabs, kept as they are while away", async ({ page, player }) => {
+        await player.open(program);
+        const gm = await openGm(page);
+        await expect(gm.getByRole("tab", { name: "Screens" })).toHaveAttribute(
+            "aria-selected",
+            "true",
+        );
+        await tab(gm, "Messages");
+        await gm.getByRole("textbox", { name: "Message" }).fill("HALF A MESSAGE");
+        // <right> and <left> move between them
+        await gm.getByRole("tab", { name: "Messages" }).press("ArrowRight");
+        await expect(gm.getByRole("tab", { name: "Variables" })).toBeFocused();
+        await expect(gm.getByRole("spinbutton", { name: "credits" })).toBeVisible();
+        await expect(gm.getByRole("textbox", { name: "Message" })).toBeHidden();
+        await gm.getByRole("tab", { name: "Variables" }).press("ArrowLeft");
+        await expect(gm.getByRole("textbox", { name: "Message" })).toHaveValue("HALF A MESSAGE");
+
+        // and the panel opens at the last one
+        await gm.reload();
+        await expect(gm.getByRole("tab", { name: "Messages" })).toHaveAttribute(
+            "aria-selected",
+            "true",
+        );
+    });
+
     test("says when no players' window is open", async ({ page }) => {
         await page.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
         await page.goto("./?data=e2e&gm");
@@ -46,6 +74,7 @@ test.describe("a GM's panel", () => {
     test("changes variables, and sees them change", async ({ page, player }) => {
         await player.open(program);
         const gm = await openGm(page);
+        await tab(gm, "Variables");
         const credits = gm.getByRole("spinbutton", { name: "credits" });
         await credits.fill("250");
         await credits.press("Enter");
@@ -57,6 +86,7 @@ test.describe("a GM's panel", () => {
     test("opens and closes dialogs, and transmits messages", async ({ page, player }) => {
         await player.open(program);
         const gm = await openGm(page);
+        await tab(gm, "Messages");
         await gm.getByRole("button", { name: "warning" }).click();
         await expect(player.dialog).toContainText("WARNING DIALOG");
         await gm.getByRole("button", { name: "Close the open dialog" }).click();
@@ -74,11 +104,13 @@ test.describe("a GM's panel", () => {
     test("runs timers and turns effects on", async ({ page, player }) => {
         await player.open(program);
         const gm = await openGm(page);
+        await tab(gm, "Variables");
         await gm.getByRole("button", { name: "Start", exact: true }).click();
         await expect(gm.locator(".gm-timer")).toContainText("▶");
         await gm.getByRole("button", { name: "Stop", exact: true }).click();
         await expect(gm.locator(".gm-timer")).toContainText("■");
 
+        await tab(gm, "Effects");
         await gm.getByRole("combobox", { name: "static" }).selectOption("on");
         await expect(page.locator("canvas.static")).toBeAttached();
         await gm.getByRole("combobox", { name: "static" }).selectOption("program");
@@ -112,6 +144,7 @@ test.describe("over the network", () => {
 
         await gm.getByRole("button", { name: /BRIDGE/ }).click();
         await expect(player.screen).toContainText("BRIDGE SCREEN");
+        await tab(gm, "Messages");
         await gm.getByRole("textbox", { name: "Message" }).fill("FROM ACROSS THE ROOM");
         await gm.getByRole("button", { name: "Send" }).click();
         await expect(player.dialog).toContainText("FROM ACROSS THE ROOM");
@@ -158,6 +191,7 @@ test.describe("a QR code for the players' device", () => {
     test("explains how, when other devices can't reach Teletronix", async ({ page }) => {
         await page.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
         await page.goto("./?data=e2e&gm");
+        await tab(page, "Devices");
         await expect(page.getByRole("region", { name: "Players' device" })).toContainText(
             "npm run table",
         );
@@ -170,6 +204,7 @@ test.describe("a QR code for the players' device", () => {
             route.fulfill({ json: ["http://192.168.0.20:4173/"] }),
         );
         await page.goto("./?data=e2e&gm");
+        await tab(page, "Devices");
         await page.getByRole("button", { name: "Show a QR code" }).click();
         await expect(page.getByRole("img", { name: /QR code/ })).toBeVisible();
         const address = await page.locator(".gm-address").innerText();

@@ -12,6 +12,8 @@ import {
     relayLink,
 } from "./link.ts";
 import type { GmEnvelope, GmMessage, PlayerMessage, PlayerState } from "./protocol.ts";
+import { Tabs } from "./Tabs.tsx";
+import { useWaitingUpdate } from "./update.ts";
 
 /** How long a burst of static lasts. */
 const BURST_MS = 1500;
@@ -117,60 +119,109 @@ export function GmApp({ name, program }: Props) {
     const latest = live.sort((a, b) => b.at - a.at)[0]?.state ?? null;
     const action = (action: object) => send({ type: "action", action });
 
+    const update = useWaitingUpdate();
+    const screens = (
+        <ScreenTree
+            program={program}
+            current={latest?.screen ?? null}
+            go={(screen) => action({ screen })}
+        />
+    );
+    const messages = (
+        <div className="gm-columns">
+            <Transmit send={send} />
+            <Dialogs
+                program={program}
+                open={latest?.dialog ?? null}
+                go={(dialog) => action({ dialog })}
+                close={() => send({ type: "close-dialog" })}
+            />
+        </div>
+    );
+    const variables = (
+        <div className="gm-columns">
+            <Variables program={program} state={latest} set={(set) => action({ set })} />
+            <Timers program={program} state={latest} action={action} />
+        </div>
+    );
+    const effectControls = (
+        <Effects
+            effects={effects}
+            change={(next) => {
+                setEffects(next);
+                sendEffects(next);
+            }}
+            burst={() => send({ type: "burst", ms: BURST_MS })}
+        />
+    );
+    const devices = (
+        <div className="gm-columns">
+            <AddDevice program={name} code={code} pair={setCode} />
+            <section className="gm-panel" aria-label="This computer">
+                <h2>This computer</h2>
+                <p className="gm-none">
+                    A players' window on this computer (e.g. on a second display) follows the panel
+                    by itself.
+                </p>
+                <button type="button" onClick={() => openPlayers(name)}>
+                    Open a players' window
+                </button>
+            </section>
+        </div>
+    );
+
     return (
         <div className="gm">
             <header className="gm-header">
                 <h1>{program.config.name}</h1>
                 <Status count={live.length} state={latest} program={program} name={name} />
+                <div className="gm-row">
+                    <button type="button" onClick={() => action({ back: true })}>
+                        ← Back
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (confirm("Restart the program from the start screen?")) {
+                                action({ restart: true });
+                            }
+                        }}
+                    >
+                        Restart
+                    </button>
+                </div>
                 <Pairing code={code} network={network} pair={setCode} />
             </header>
-            <main className="gm-panels">
-                <section className="gm-panel gm-screens">
-                    <h2>Screens</h2>
-                    <div className="gm-row">
-                        <button type="button" onClick={() => action({ back: true })}>
-                            ← Back
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (confirm("Restart the program from the start screen?")) {
-                                    action({ restart: true });
-                                }
-                            }}
-                        >
-                            Restart
-                        </button>
-                    </div>
-                    <ScreenTree
-                        program={program}
-                        current={latest?.screen ?? null}
-                        go={(screen) => action({ screen })}
-                    />
-                </section>
-                <div className="gm-column">
-                    <AddDevice program={name} code={code} pair={setCode} />
-                    <Transmit send={send} />
-                    <Dialogs
-                        program={program}
-                        open={latest?.dialog ?? null}
-                        go={(dialog) => action({ dialog })}
-                        close={() => send({ type: "close-dialog" })}
-                    />
-                    <Variables program={program} state={latest} set={(set) => action({ set })} />
-                    <Timers program={program} state={latest} action={action} />
-                    <Effects
-                        effects={effects}
-                        change={(next) => {
-                            setEffects(next);
-                            sendEffects(next);
-                        }}
-                        burst={() => send({ type: "burst", ms: BURST_MS })}
-                    />
-                </div>
+            {update && (
+                <p className="gm-update" role="status">
+                    A new version of Teletronix is ready.{" "}
+                    <button type="button" onClick={update}>
+                        Reload
+                    </button>{" "}
+                    <span className="gm-none">
+                        Players' windows get it the next time they're opened or reloaded.
+                    </span>
+                </p>
+            )}
+            <main className="gm-main">
+                <Tabs
+                    storageKey="teletronix:gm-tab"
+                    tabs={[
+                        { id: "screens", label: "Screens", content: screens },
+                        { id: "messages", label: "Messages", content: messages },
+                        { id: "variables", label: "Variables", content: variables },
+                        { id: "effects", label: "Effects", content: effectControls },
+                        { id: "devices", label: "Devices", content: devices },
+                    ]}
+                />
             </main>
         </div>
     );
+}
+
+/** Opens a players' window on this computer (or brings the open one forward). */
+function openPlayers(program: string): void {
+    window.open(`?data=${encodeURIComponent(program)}`, `teletronix-${program}`);
 }
 
 /** The pairing code last used for a program, so the panel reconnects after a reload. */
@@ -265,12 +316,11 @@ function Status({
     program: Program;
     name: string;
 }) {
-    const open = () => window.open(`?data=${encodeURIComponent(name)}`, `teletronix-${name}`);
     if (count === 0 || !state) {
         return (
             <p className="gm-status gm-status-off" role="status">
                 <span aria-hidden="true">○</span> No players' window is open.{" "}
-                <button type="button" onClick={open}>
+                <button type="button" onClick={() => openPlayers(name)}>
                     Open one
                 </button>
             </p>

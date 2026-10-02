@@ -41,9 +41,6 @@ h2 {
 }
 
 .gm-header {
-    position: sticky;
-    top: 0;
-    z-index: 1;
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -67,19 +64,6 @@ h2 {
 
 .gm-status-off > span:first-child {
     opacity: 0.6;
-}
-
-.gm-panels {
-    display: grid;
-    grid-template-columns: minmax(260px, 1fr) minmax(300px, 1fr);
-    gap: 16px;
-    padding: 16px 20px 32px;
-    align-items: start;
-}
-
-.gm-column {
-    display: grid;
-    gap: 16px;
 }
 
 .gm-panel {
@@ -199,12 +183,6 @@ h2 {
     padding: 20px;
 }
 
-@media (max-width: 700px) {
-    .gm-panels {
-        grid-template-columns: 1fr;
-    }
-}
-
 .gm-pairing {
     margin: 0 0 0 auto;
 }
@@ -255,4 +233,67 @@ h2 {
     .gm-device {
         grid-template-columns: 1fr;
     }
+}
+
+/* the tabs, under the header; each tab's controls below */
+.gm-main {
+    padding: 0 20px 32px;
+}
+
+.gm-tabs {
+    position: sticky;
+    top: var(--gm-header-height, 0);
+    z-index: 1;
+    display: flex;
+    gap: 2px;
+    /* (on a narrow screen, they scroll sideways rather than wrap) */
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -20px 16px;
+    padding: 0 20px;
+    background: Canvas;
+    border-bottom: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
+}
+
+.gm-tabs [role="tab"] {
+    flex: none;
+    margin-bottom: -1px;
+    padding: 8px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: inherit;
+    font: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.gm-tabs [role="tab"]:hover {
+    opacity: 1;
+}
+
+.gm-tabs [role="tab"][aria-selected="true"] {
+    border-bottom-color: CanvasText;
+    font-weight: 600;
+    opacity: 1;
+}
+
+.gm-tabs [role="tab"]:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+}
+
+/* side by side where there's room */
+.gm-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+
+.gm-update {
+    margin: 0;
+    padding: 8px 20px;
+    background: color-mix(in srgb, Highlight 18%, Canvas);
+    border-bottom: 1px solid color-mix(in srgb, Highlight 40%, transparent);
 }
