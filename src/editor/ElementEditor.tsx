@@ -43,8 +43,8 @@ interface Props {
 }
 
 /**
- * An element in a screen's content: a row saying what it is, which opens to edit it, in a
- * form built from its type's schema, or as JSON.
+ * An element in a screen's content: a row saying what it is, which opens to edit it: its
+ * settings, in a form built from its type's schema, or as JSON.
  */
 export function ElementEditor({
     element,
@@ -204,12 +204,12 @@ export function ElementEditor({
             </Group>
             <Collapse expanded={expanded}>
                 {expanded && (
-                    <Tabs defaultValue="form" px="md" pb="md" keepMounted={false}>
+                    <Tabs defaultValue="settings" px="md" pb="md" keepMounted={false}>
                         <Tabs.List mb="sm">
-                            <Tabs.Tab value="form">Form</Tabs.Tab>
+                            <Tabs.Tab value="settings">Settings</Tabs.Tab>
                             <Tabs.Tab value="json">JSON</Tabs.Tab>
                         </Tabs.List>
-                        <Tabs.Panel value="form">
+                        <Tabs.Panel value="settings">
                             {schema && typeof element !== "string" && (
                                 <Text size="xs" c="dimmed" mb="sm">
                                     {describe(schema).text}

@@ -28,8 +28,8 @@ restarts with anything else, on the screen it was showing.
 - **Appearance:** colours, font, text size, line spacing, effects and sound.
 - **Screens:** every screen, under its `parent`, or found by name; **+** adds one (under the one
   chosen). A screen's page has its settings (folded away) and its content, an element to a row:
-  open one to edit it, in a form built from its type's schema, or as JSON (for anything a form
-  can't do, e.g. a section's contents). Rows move up and down, duplicate and delete, and **Add an
+  open one to edit it: **Settings**, a form built from its type's schema, or **JSON** (for
+  anything a form can't do, e.g. a section's contents). Rows move up and down, duplicate and delete, and **Add an
   element** picks any type, by its name or what it does. **Rename** renames links and anything
   else that names the screen; **More** duplicates or deletes it. The preview shows the screen
   you're on.
