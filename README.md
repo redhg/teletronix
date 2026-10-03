@@ -23,8 +23,10 @@ the one chosen; on the right, a live preview, which shows appearance changes at 
 restarts with anything else, on the screen it was showing.
 - **Program:** its name, start screen, bars, variables and timers, and how screens appear. The
   fields are built from the schema, each with its description and default: leave one empty (or
-  choose ↺) to use the default. Anything more involved than text, a number or a switch is
-  edited as JSON.
+  choose ↺) to use the default. A setting that's one of several kinds (a reveal, a transition,
+  a screen's preset) is a list to pick from, with the chosen kind's own options under it (e.g. a
+  teletype reveal's `speed`); it's written as just the name until an option is set. Anything
+  else more involved than text, a number or a switch is edited as JSON.
 - **Appearance:** colours, font, text size, line spacing, effects and sound.
 - **Screens:** every screen, under its `parent`, or found by name; **+** adds one (under the one
   chosen). A screen's page has its settings (folded away) and its content, an element to a row:

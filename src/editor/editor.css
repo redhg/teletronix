@@ -50,3 +50,8 @@
 .editor-element[data-expanded] {
     border-color: var(--mantine-primary-color-filled);
 }
+
+/* the options of the kind chosen (e.g. a teletype reveal's speed), under its dropdown */
+.editor-choice-options {
+    border-inline-start: 2px solid var(--mantine-color-default-border);
+}

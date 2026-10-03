@@ -55,6 +55,67 @@ function choicesOf(schema: JsonSchema): string[] | null {
     return null;
 }
 
+/**
+ * A setting that's one of several named kinds, written either as just the name or as an
+ * object with a `type` and options of its own: e.g. a reveal, `"teletype"` or
+ * `{ "type": "teletype", "speed": 20 }`. Its names, and each one's object form (if it has one).
+ */
+export interface NamedChoices {
+    names: string[];
+    /** Names that can be written on their own (others need the object form) */
+    plain: Set<string>;
+    /** Each name's object form */
+    objects: Map<string, JsonSchema>;
+}
+
+/** A schema's named kinds, if it's that kind of setting (see NamedChoices). */
+export function namedChoices(
+    schema: JsonSchema,
+    defs: Record<string, JsonSchema>,
+): NamedChoices | null {
+    const plain = new Set<string>();
+    const objects = new Map<string, JsonSchema>();
+    const visit = (option: JsonSchema) => {
+        const at = resolve(option, defs);
+        if (at.anyOf || at.oneOf) {
+            for (const inner of at.anyOf ?? at.oneOf ?? []) visit(inner);
+        } else if (at.type === "string" && at.enum?.every((name) => typeof name === "string")) {
+            for (const name of at.enum as string[]) plain.add(name);
+        } else if (at.type === "string" && typeof at.const === "string") {
+            plain.add(at.const);
+        } else if (at.type === "object" && at.properties?.type) {
+            // an object form for one name (its type a constant), or for several (one of a list)
+            const type = resolve(at.properties.type, defs);
+            const names = typeof type.const === "string" ? [type.const] : (type.enum ?? []);
+            if (names.length === 0 || !names.every((name) => typeof name === "string")) {
+                plain.add("\u0000");
+            }
+            for (const name of names as string[]) if (!objects.has(name)) objects.set(name, at);
+        } else {
+            // something else entirely: not this kind of setting
+            plain.add("\u0000");
+        }
+    };
+    const root = resolve(schema, defs);
+    for (const option of root.anyOf ?? root.oneOf ?? []) visit(option);
+    if (objects.size === 0 || plain.has("\u0000")) return null;
+    const names = [...new Set([...plain, ...objects.keys()])];
+    return { names, plain, objects };
+}
+
+/** A named kind's value as written: just the name, unless it has options set (or needs them). */
+export function choiceValue(
+    choices: NamedChoices,
+    name: string,
+    options: Record<string, unknown>,
+): unknown {
+    const set = Object.fromEntries(
+        Object.entries(options).filter(([, value]) => value !== undefined),
+    );
+    if (Object.keys(set).length === 0 && choices.plain.has(name)) return name;
+    return { type: name, ...set };
+}
+
 /** A schema's description without its "(default: …)", and the default it gives. */
 export function describe(schema: JsonSchema): { text: string; default?: string } {
     const text = schema.description ?? "";
@@ -132,6 +193,21 @@ export function SchemaField({ name, schema, defs, value, onChange, error, childr
         );
     }
 
+    const named = namedChoices(resolved, defs);
+    const shape = value === undefined || typeof value === "string" || isObject(value);
+    if (named && shape) {
+        return (
+            <ChoiceField
+                {...common}
+                choices={named}
+                defs={defs}
+                value={value}
+                onChange={onChange}
+                placeholder={shown}
+            />
+        );
+    }
+
     const choices = choicesOf(resolved);
     if (choices) {
         return (
@@ -183,6 +259,75 @@ export function SchemaField({ name, schema, defs, value, onChange, error, childr
         );
     }
     return <JsonField {...common} value={value} onChange={onChange} placeholder={fallback} />;
+}
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+    value !== null && typeof value === "object" && !Array.isArray(value);
+
+/**
+ * One of several named kinds (see NamedChoices): a dropdown of the names, and under it the
+ * chosen one's own options, if it has any. It writes just the name until an option is set.
+ */
+function ChoiceField({
+    label,
+    description,
+    error,
+    choices,
+    defs,
+    value,
+    onChange,
+    placeholder,
+    ...rest
+}: {
+    label: ReactNode;
+    description: ReactNode;
+    error?: string;
+    "aria-label": string;
+    choices: NamedChoices;
+    defs: Record<string, JsonSchema>;
+    value: unknown;
+    onChange: (value: unknown) => void;
+    placeholder?: string;
+}) {
+    const name =
+        typeof value === "string" ? value : isObject(value) ? String(value.type ?? "") : null;
+    const options = isObject(value) ? value : {};
+    const object = name === null ? undefined : choices.objects.get(name);
+    const optionKeys = Object.keys(object?.properties ?? {}).filter((key) => key !== "type");
+    return (
+        <Stack gap={6}>
+            <Select
+                {...rest}
+                label={label}
+                description={description}
+                error={error}
+                data={choices.names}
+                value={name}
+                placeholder={placeholder ?? "—"}
+                clearable
+                onChange={(next) =>
+                    onChange(next === null ? undefined : choiceValue(choices, next, {}))
+                }
+            />
+            {name !== null && optionKeys.length > 0 && (
+                <Stack gap="sm" pl="md" className="editor-choice-options">
+                    {optionKeys.map((key) => (
+                        <SchemaField
+                            key={key}
+                            name={key}
+                            schema={object?.properties?.[key] ?? {}}
+                            defs={defs}
+                            value={options[key]}
+                            onChange={(option) => {
+                                const { type: _, ...current } = options;
+                                onChange(choiceValue(choices, name, { ...current, [key]: option }));
+                            }}
+                        />
+                    ))}
+                </Stack>
+            )}
+        </Stack>
+    );
 }
 
 /** JSON, for anything a simple field can't hold: set as soon as it's valid. */

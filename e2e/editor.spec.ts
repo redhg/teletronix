@@ -78,6 +78,28 @@ test.describe("the editor", () => {
         await expect(preview(page).locator(".screen")).toContainText("HOME SCREEN");
     });
 
+    test("picks a kind of reveal from a list, with its own options", async ({ page }) => {
+        await openEditor(page);
+        const written = async () => {
+            const [download] = await Promise.all([
+                page.waitForEvent("download"),
+                page.getByRole("button", { name: /^Download/ }).click(),
+            ]);
+            return JSON.parse(await readFile(await download.path(), "utf8")).config.reveal;
+        };
+        await choose(page, "reveal", "teletype");
+        // just the name, until an option is set
+        expect(await written()).toBe("teletype");
+        await page.getByRole("textbox", { name: "speed" }).fill("30");
+        expect(await written()).toEqual({ type: "teletype", speed: 30 });
+        await page.getByRole("textbox", { name: "speed" }).fill("");
+        expect(await written()).toBe("teletype");
+        // another kind has options of its own
+        await choose(page, "reveal", "glitch");
+        await expect(page.getByRole("textbox", { name: "speed" })).toHaveCount(0);
+        await expect(page.getByRole("textbox", { name: "duration" })).toBeVisible();
+    });
+
     test("finds mistakes, and undoes and redoes", async ({ page }) => {
         await openEditor(page);
         await page.getByLabel("name", { exact: true }).fill("");
