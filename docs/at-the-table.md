@@ -89,3 +89,21 @@ only runs in a build (`npm run build`, `npm run preview`), not the dev server.
 
 The icon is drawn in `public/icons/icon.svg`; after changing it, run `node scripts/icons.ts`
 to render the PNG sizes.
+
+## Online
+Teletronix is published at <https://redhg.github.io/teletronix/> (e.g.
+<https://redhg.github.io/teletronix/?data=ypsilon14>), so any device can play it without a
+computer serving it: open it once, and it works [offline](#offline) from then on, or install it
+as an app. Every push to `main` publishes the new version, once the checks and browser tests
+have passed (the `deploy` job in `.github/workflows/ci.yml`); a device picks it up the next time
+Teletronix opens there.
+
+The online copy is only files, with no server behind it, so two things need
+`npm run table` (or `npm run dev`) instead:
+- The GM's [remote control](#gm-remote-control) from **another device**: pairing goes through the
+  server. A panel in another window of the same browser works online too.
+- **Saving** in the [editor](editor.md#the-editor): online, Save downloads the file, to put
+  into `public/data/` and push.
+
+To publish from a fork: make the repository public (GitHub Pages is free for public
+repositories), and under **Settings → Pages**, set **Source** to **GitHub Actions**.

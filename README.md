@@ -7,6 +7,8 @@ little computers to explore, dialogs, timers and variables, all on a CRT with it
 and sound. Write one by hand or in the built-in editor, then play it full screen at the table,
 with the GM steering it from another window or device.
 
+Play it at <https://redhg.github.io/teletronix/> (see [Online](docs/at-the-table.md#online)).
+
 ## Getting started
 Requires Node 24+.
 
