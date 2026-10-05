@@ -25,7 +25,9 @@ theme, font and effects and watch the program update beside you.
 ## Sound
 Teletronix makes its own retro sound effects as it runs, with no audio files: key clicks as text
 types, digital crackle for glitches, hiss for static, and beeps for links, toggles, sliders, prompts
-and dialogs. An optional CRT hum (`"hum": true`) adds a mains hum and a faint high whine.
+and dialogs. An optional CRT hum (`"hum": true`) adds a mains hum and a faint high whine. A
+program can add [audio files](#audio-files-and-ambience) of its own, e.g. a drone looping in the
+background (`"ambience": false` turns that off).
 
 Sound is on by default, quietly. `config.sound` turns it off (`false`) or adjusts it:
 `{ "volume": 0.5, "typing": false, "hum": true }`. Browsers only play sound once the player has
@@ -64,8 +66,42 @@ A program can define sound effects in a top-level `sounds` library, and play the
 `"sound"` works on actions (so on links, prompt commands, `next` rules, slider rules, progress
 bar outcomes and dialog buttons), on elements (as they start to appear), on screens (as they
 appear) and on dialogs (instead of the usual beep). A sound named `key`, `select`, `tick`, `error`,
-`dialog` or `alert` replaces Teletronix's own sound of that kind. Design sounds on the sound test
-page's **Custom** tab. Every sound name is checked when the program loads.
+`dialog` or `alert` replaces Teletronix's own sound of that kind. Design sounds in the editor
+(**Sounds**). Every sound name is checked when the program loads.
+
+## Audio files and ambience
+A sound can be an audio file instead (MP3, OGG, WAV or M4A): put it in `public/data/audio/`, and
+name it in `sounds` with `src`, relative to the page, and how loud it plays (`volume`, from 0 to 1,
+under the overall volume; 1 by default):
+
+```json
+"config": { "name": "Nostromo", "ambience": "engines" },
+"sounds": {
+    "engines": { "src": "data/audio/engines.mp3", "volume": 0.6 },
+    "klaxon": { "src": "data/audio/klaxon.mp3" }
+},
+"screens": {
+    "bridge": { "content": ["…"] },
+    "airlock": { "ambience": false, "content": ["…"] },
+    "reactor": { "ambience": "klaxon", "content": ["…"] }
+}
+```
+
+It plays wherever a sound can, once, like any other. As **ambience**, it loops in the background:
+`config.ambience` under every screen, unless a screen has its own `ambience`, or `false` for
+silence there. One fades into the next as screens change (over a second and a half), and a screen
+with the same ambience carries on without a break. The GM can change it, or silence it, from the
+[remote control](at-the-table.md#gm-remote-control). Players' sound settings apply: the volume,
+muting, and `"ambience": false` in `config.sound` to turn ambience off.
+
+Files are loaded as the program needs them and kept, and the [offline](at-the-table.md#offline)
+copy includes them. A file loops seamlessly if it was made to: WAV and OGG loop exactly; an MP3
+can have a few milliseconds of silence at each end, from how it's encoded.
+
+The sample's drone is ["DSGNDron_Mysterious Resonant Industrial Sci-fi Drone 3_EM" by
+newlocknew](https://freesound.org/s/749636/), under
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): free to share and adapt with
+credit, but not for commercial use (see `public/licenses/sci-fi-drone.txt`).
 
 ## Effects
 `config.effects` turns visual effects on or off and sets their options. A screen's `effects`

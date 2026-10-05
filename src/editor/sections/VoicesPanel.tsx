@@ -38,6 +38,7 @@ export function VoicesPanel({ setting, onChange }: Props) {
     // (a new setting only when it's edited: each version of the program stays as it was)
     const sound = useMemo(() => resolveSound(setting), [setting]);
     const [synth] = useState(() => new Synth());
+    useEffect(() => () => synth.close(), [synth]);
     const [hum, setHum] = useState(false);
     const [hiss, setHiss] = useState(0);
     // every kind of sound on, so each can be heard, with the voices as edited

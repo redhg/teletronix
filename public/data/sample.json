@@ -7,6 +7,7 @@
         "start": "startup",
         "waitForReveal": true,
         "header": [{ "left": { "breadcrumb": true }, "right": { "soundToggle": true } }],
+        "ambience": "drone",
         "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false, "target": "NONE", "shipX": 5, "shipY": 2, "dossier": 1 },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
@@ -880,7 +881,27 @@
                 { "type": "link", "text": "> FIRE THE LASER", "action": { "screen": "sounds", "sound": "laser" } },
                 { "type": "link", "text": "> FORCE THE DOOR", "action": { "dialog": "door", "sound": "door" } },
                 "",
-                "Design your own on the sound test page (?sound, Custom tab).",
+                "Design your own in the editor (?edit, Sounds).",
+                "",
+                "AMBIENCE",
+                "",
+                "A sound can be an audio file, too, and loop in the background: this program's drone hums under every screen (\"ambience\" in the config), fading from one screen's into the next. A screen can have its own, or silence:",
+                { "type": "link", "text": "> SILENCE", "action": { "screen": "sounds-silence" } },
+                "",
+                "The drone is \"DSGNDron_Mysterious Resonant Industrial Sci-fi Drone 3_EM\" by newlocknew (freesound.org/s/749636), under CC BY-NC 4.0.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "sounds-silence": {
+            "title": "SILENCE",
+            "parent": "sounds",
+            "ambience": false,
+            "content": [
+                "SILENCE",
+                "=======",
+                "",
+                "This screen's \"ambience\" is false, so the drone fades away while it shows, and back in once you leave.",
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
@@ -2316,6 +2337,7 @@
         }
     },
     "sounds": {
+        "drone": { "src": "data/audio/sci-fi-drone.mp3", "volume": 0.6 },
         "powerup": { "sustain": 0.1865, "decay": 0.196, "frequency": 0.4931, "slide": 0.3086, "duty": 0.0372, "repeatSpeed": 0.5622 },
         "laser": { "wave": "sine", "sustain": 0.2105, "decay": 0.078, "frequency": 0.5375, "minFrequency": 0.2, "slide": -0.2462, "duty": 0.4809, "dutySweep": -0.1843, "highpass": 0.143 },
         "door": { "wave": "noise", "sustain": 0.2614, "punch": 0.488, "decay": 0.04, "frequency": 0.0973, "slide": 0.1432, "vibratoDepth": 0.294, "vibratoSpeed": 0.4021, "flangerOffset": 0.247, "flangerSweep": -0.1351 },

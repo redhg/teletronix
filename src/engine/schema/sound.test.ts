@@ -13,6 +13,7 @@ describe("sound setting", () => {
             static: true,
             interface: true,
             hum: false,
+            ambience: true,
             voices: DEFAULT_VOICES,
         });
         expect(resolveSound(false)).toBeNull();

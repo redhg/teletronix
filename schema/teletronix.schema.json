@@ -1068,6 +1068,10 @@
                                     "description": "A CRT's mains hum and high-pitched whine, all the time (default: false)",
                                     "type": "boolean"
                                 },
+                                "ambience": {
+                                    "description": "Background sound from an audio file: config.ambience, and screens' own (default: true)",
+                                    "type": "boolean"
+                                },
                                 "button": {
                                     "description": "Whether the sound toggle shows in the corner of the screen (default: true). Without it, players mute with Ctrl+M, or a { \"soundToggle\": true } in a bar.",
                                     "type": "boolean"
@@ -1463,6 +1467,11 @@
                         }
                     ],
                     "description": "Generated retro sound effects: true, false, or an object of options. On by default; players can mute them with the sound toggle."
+                },
+                "ambience": {
+                    "description": "An audio file from the program's sounds to loop in the background, e.g. a drone or a ship's engines, unless a screen says otherwise. It fades from one to the next as screens change.",
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]+$"
                 },
                 "save": {
                     "description": "Save the player's progress in the browser as they go (the screen, variables, timers, and what every element remembers), and carry on from it when the page is opened again. A \"restart\" action starts over (default: false)",
@@ -2454,6 +2463,20 @@
                         "description": "A sound from the program's sounds, played as the screen appears",
                         "type": "string",
                         "pattern": "^[A-Za-z0-9_-]+$"
+                    },
+                    "ambience": {
+                        "description": "An audio file from the program's sounds to loop in the background while this screen shows, instead of config.ambience, or false for silence",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9_-]+$",
+                                "description": "The name of a sound in the program's sounds"
+                            },
+                            {
+                                "type": "boolean",
+                                "const": false
+                            }
+                        ]
                     },
                     "preset": {
                         "description": "A ready-made screen, e.g. { \"type\": \"boot\" }, shown before any content of its own",
@@ -4045,7 +4068,7 @@
             }
         },
         "sounds": {
-            "description": "Sound effects, by name, for \"sound\" on actions, elements, screens and dialogs. Design them in the editor (?edit, Sounds). Named \"key\", \"select\", \"tick\", \"error\", \"dialog\" or \"alert\", one replaces Teletronix's own sound of that kind.",
+            "description": "Sound effects, by name, for \"sound\" on actions, elements, screens and dialogs: generated ones, designed in the editor (?edit, Sounds), or audio files, { \"src\": \"data/audio/alarm.mp3\" }, which can also play as ambience. Named \"key\", \"select\", \"tick\", \"error\", \"dialog\" or \"alert\", a generated one replaces Teletronix's own sound of that kind.",
             "type": "object",
             "propertyNames": {
                 "type": "string",
@@ -4053,159 +4076,184 @@
                 "description": "A screen or dialog id (letters, digits, '_' and '-')"
             },
             "additionalProperties": {
-                "type": "object",
-                "properties": {
-                    "wave": {
-                        "description": "The waveform (default: \"square\")",
-                        "type": "string",
-                        "enum": [
-                            "square",
-                            "sawtooth",
-                            "sine",
-                            "noise"
-                        ]
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "src": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "An audio file (MP3, OGG, WAV…), relative to the page, e.g. \"data/audio/drone.mp3\""
+                            },
+                            "volume": {
+                                "description": "How loud it plays, from 0 to 1, under the overall volume (default: 1)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            }
+                        },
+                        "required": [
+                            "src"
+                        ],
+                        "additionalProperties": false,
+                        "description": "A sound from an audio file: a recording, a clip, or a background drone to play as ambience"
                     },
-                    "attack": {
-                        "description": "Envelope: Attack (default: 0)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "sustain": {
-                        "description": "Envelope: Sustain (default: 0.3)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "punch": {
-                        "description": "Envelope: Punch (default: 0)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "decay": {
-                        "description": "Envelope: Decay (default: 0.4)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "frequency": {
-                        "description": "Pitch: Start pitch (default: 0.3)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "minFrequency": {
-                        "description": "Pitch: Cut-off pitch (default: 0)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "slide": {
-                        "description": "Pitch: Slide (default: 0)",
-                        "type": "number",
-                        "minimum": -1,
-                        "maximum": 1
-                    },
-                    "deltaSlide": {
-                        "description": "Pitch: Slide change (default: 0)",
-                        "type": "number",
-                        "minimum": -1,
-                        "maximum": 1
-                    },
-                    "vibratoDepth": {
-                        "description": "Vibrato: Depth (default: 0)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "vibratoSpeed": {
-                        "description": "Vibrato: Speed (default: 0)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "arpeggio": {
-                        "description": "Arpeggio: Pitch jump (default: 0)",
-                        "type": "number",
-                        "minimum": -1,
-                        "maximum": 1
-                    },
-                    "arpeggioSpeed": {
-                        "description": "Arpeggio: When (default: 0)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "duty": {
-                        "description": "Square wave: Duty (default: 0)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "dutySweep": {
-                        "description": "Square wave: Duty sweep (default: 0)",
-                        "type": "number",
-                        "minimum": -1,
-                        "maximum": 1
-                    },
-                    "repeatSpeed": {
-                        "description": "Repeat: Repeat speed (default: 0)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "flangerOffset": {
-                        "description": "Flanger: Offset (default: 0)",
-                        "type": "number",
-                        "minimum": -1,
-                        "maximum": 1
-                    },
-                    "flangerSweep": {
-                        "description": "Flanger: Sweep (default: 0)",
-                        "type": "number",
-                        "minimum": -1,
-                        "maximum": 1
-                    },
-                    "lowpass": {
-                        "description": "Filters: Low-pass cut-off (default: 1)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "lowpassSweep": {
-                        "description": "Filters: Low-pass sweep (default: 0)",
-                        "type": "number",
-                        "minimum": -1,
-                        "maximum": 1
-                    },
-                    "lowpassResonance": {
-                        "description": "Filters: Low-pass resonance (default: 0)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "highpass": {
-                        "description": "Filters: High-pass cut-off (default: 0)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "highpassSweep": {
-                        "description": "Filters: High-pass sweep (default: 0)",
-                        "type": "number",
-                        "minimum": -1,
-                        "maximum": 1
-                    },
-                    "volume": {
-                        "description": "Volume: Volume (default: 0.5)",
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
+                    {
+                        "type": "object",
+                        "properties": {
+                            "wave": {
+                                "description": "The waveform (default: \"square\")",
+                                "type": "string",
+                                "enum": [
+                                    "square",
+                                    "sawtooth",
+                                    "sine",
+                                    "noise"
+                                ]
+                            },
+                            "attack": {
+                                "description": "Envelope: Attack (default: 0)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "sustain": {
+                                "description": "Envelope: Sustain (default: 0.3)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "punch": {
+                                "description": "Envelope: Punch (default: 0)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "decay": {
+                                "description": "Envelope: Decay (default: 0.4)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "frequency": {
+                                "description": "Pitch: Start pitch (default: 0.3)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "minFrequency": {
+                                "description": "Pitch: Cut-off pitch (default: 0)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "slide": {
+                                "description": "Pitch: Slide (default: 0)",
+                                "type": "number",
+                                "minimum": -1,
+                                "maximum": 1
+                            },
+                            "deltaSlide": {
+                                "description": "Pitch: Slide change (default: 0)",
+                                "type": "number",
+                                "minimum": -1,
+                                "maximum": 1
+                            },
+                            "vibratoDepth": {
+                                "description": "Vibrato: Depth (default: 0)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "vibratoSpeed": {
+                                "description": "Vibrato: Speed (default: 0)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "arpeggio": {
+                                "description": "Arpeggio: Pitch jump (default: 0)",
+                                "type": "number",
+                                "minimum": -1,
+                                "maximum": 1
+                            },
+                            "arpeggioSpeed": {
+                                "description": "Arpeggio: When (default: 0)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "duty": {
+                                "description": "Square wave: Duty (default: 0)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "dutySweep": {
+                                "description": "Square wave: Duty sweep (default: 0)",
+                                "type": "number",
+                                "minimum": -1,
+                                "maximum": 1
+                            },
+                            "repeatSpeed": {
+                                "description": "Repeat: Repeat speed (default: 0)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "flangerOffset": {
+                                "description": "Flanger: Offset (default: 0)",
+                                "type": "number",
+                                "minimum": -1,
+                                "maximum": 1
+                            },
+                            "flangerSweep": {
+                                "description": "Flanger: Sweep (default: 0)",
+                                "type": "number",
+                                "minimum": -1,
+                                "maximum": 1
+                            },
+                            "lowpass": {
+                                "description": "Filters: Low-pass cut-off (default: 1)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "lowpassSweep": {
+                                "description": "Filters: Low-pass sweep (default: 0)",
+                                "type": "number",
+                                "minimum": -1,
+                                "maximum": 1
+                            },
+                            "lowpassResonance": {
+                                "description": "Filters: Low-pass resonance (default: 0)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "highpass": {
+                                "description": "Filters: High-pass cut-off (default: 0)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "highpassSweep": {
+                                "description": "Filters: High-pass sweep (default: 0)",
+                                "type": "number",
+                                "minimum": -1,
+                                "maximum": 1
+                            },
+                            "volume": {
+                                "description": "Volume: Volume (default: 0.5)",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            }
+                        },
+                        "additionalProperties": false,
+                        "description": "A generated sound effect, made from sfxr-style settings. Design one on the sound in the editor (?edit, Sounds)."
                     }
-                },
-                "additionalProperties": false,
-                "description": "A generated sound effect, made from sfxr-style settings. Design one on the sound in the editor (?edit, Sounds)."
+                ]
             }
         }
     },

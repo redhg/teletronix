@@ -175,6 +175,11 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
             screens: treeScreens,
             dialogs: Object.keys(dialogsOf(file)),
             sounds: Object.keys((file.sounds ?? {}) as object),
+            audio: Object.entries((file.sounds ?? {}) as Record<string, unknown>)
+                .filter(
+                    ([, sound]) => typeof sound === "object" && sound !== null && "src" in sound,
+                )
+                .map(([name]) => name),
         }),
         [treeScreens, file],
     );

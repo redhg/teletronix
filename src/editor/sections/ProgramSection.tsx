@@ -2,6 +2,7 @@ import { Select, SimpleGrid, Stack } from "@mantine/core";
 import { useMemo } from "react";
 import { ConfigSchema } from "../../engine/schema/program.ts";
 import { Panel } from "../../mantine/Panel.tsx";
+import { AmbienceField } from "../forms/AmbienceField.tsx";
 import type { Path } from "../paths.ts";
 import { describe, jsonSchemaOf, SchemaField } from "../SchemaForm.tsx";
 import { APPEARANCE_KEYS } from "./AppearanceSection.tsx";
@@ -15,6 +16,7 @@ const GROUPS: { title: string; keys: string[] }[] = [
     },
     { title: "Bars", keys: ["header", "footer"] },
     { title: "Players", keys: ["skipKeys", "save", "blockContextMenu"] },
+    { title: "Sound", keys: ["ambience"] },
 ];
 
 interface Props {
@@ -44,6 +46,18 @@ export function ProgramSection({ config, screens, set, errors }: Props) {
     const field = (key: string) => {
         const property = properties[key];
         if (!property) return null;
+        if (key === "ambience") {
+            return (
+                <AmbienceField
+                    key={key}
+                    label="ambience"
+                    description={describe(property).text}
+                    value={config.ambience}
+                    error={errors.get(key)}
+                    onChange={(ambience) => set(["ambience"], ambience)}
+                />
+            );
+        }
         if (key === "start") {
             const { text } = describe(property);
             return (

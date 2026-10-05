@@ -8,6 +8,7 @@ import {
     Group,
     NumberInput,
     SegmentedControl,
+    Select,
     SimpleGrid,
     Stack,
     Switch,
@@ -69,6 +70,10 @@ export function GmApp({ name, program }: Props) {
     const [effects, setEffects] = useState<Partial<Record<EffectName, Override>>>({});
     const effectsRef = useRef(effects);
     effectsRef.current = effects;
+    // ambience over the program's: an audio file, false for silence, null for the program's
+    const [ambience, setAmbience] = useState<string | false | null>(null);
+    const ambienceRef = useRef(ambience);
+    ambienceRef.current = ambience;
 
     const sendEffects = useCallback(
         (overrides: Partial<Record<EffectName, Override>>) => {
@@ -87,14 +92,17 @@ export function GmApp({ name, program }: Props) {
         (message: { type: string }) => {
             if (message.type !== "state") return;
             const { player, state } = message as PlayerMessage;
-            // a new window gets the effects the panel has on
+            // a new window gets the effects (and ambience) the panel has on
             if (!known.current.has(player)) {
                 known.current.add(player);
                 sendEffects(effectsRef.current);
+                if (ambienceRef.current !== null) {
+                    send({ type: "ambience", ambience: ambienceRef.current });
+                }
             }
             setPlayers((was) => new Map(was).set(player, { state, at: Date.now() }));
         },
-        [sendEffects],
+        [sendEffects, send],
     );
 
     // players' windows in this browser
@@ -169,6 +177,10 @@ export function GmApp({ name, program }: Props) {
         const next = { ...effects, [effect]: value };
         setEffects(next);
         sendEffects(next);
+    };
+    const changeAmbience = (next: string | false | null) => {
+        setAmbience(next);
+        send({ type: "ambience", ambience: next });
     };
     const restart = () => {
         if (confirm("Restart the program from the start screen?")) action({ restart: true });
@@ -283,6 +295,32 @@ export function GmApp({ name, program }: Props) {
             ),
         },
         {
+            group: "Ambience",
+            commands:
+                program.audio.size === 0
+                    ? []
+                    : [
+                          ...[...program.audio.keys()].map((name) => ({
+                              id: name,
+                              label: `Ambience: ${name}`,
+                              keywords: ["sound", "background", "loop"],
+                              run: () => changeAmbience(name),
+                          })),
+                          {
+                              id: "@silence",
+                              label: "Ambience: silence",
+                              keywords: ["sound", "quiet", "off"],
+                              run: () => changeAmbience(false),
+                          },
+                          {
+                              id: "@program",
+                              label: "Ambience as the program says",
+                              keywords: ["sound"],
+                              run: () => changeAmbience(null),
+                          },
+                      ],
+        },
+        {
             group: "Tabs",
             commands: TABS.map(([value, label]) => ({
                 id: value,
@@ -389,7 +427,14 @@ export function GmApp({ name, program }: Props) {
                                 sendEffects(next);
                             }}
                             burst={() => send({ type: "burst", ms: BURST_MS })}
-                        />
+                        >
+                            <Ambience
+                                program={program}
+                                playing={latest?.ambience ?? null}
+                                value={ambience}
+                                change={changeAmbience}
+                            />
+                        </Effects>
                     </Tabs.Panel>
                     <Tabs.Panel value="devices">
                         <SimpleGrid cols={{ base: 1, md: 2 }}>
@@ -844,10 +889,13 @@ function Effects({
     effects,
     change,
     burst,
+    children,
 }: {
     effects: Partial<Record<EffectName, Override>>;
     change: (effects: Partial<Record<EffectName, Override>>) => void;
     burst: () => void;
+    /** More panels, after these */
+    children?: React.ReactNode;
 }) {
     return (
         <SimpleGrid cols={{ base: 1, md: 2 }}>
@@ -887,6 +935,49 @@ function Effects({
                     Burst of static
                 </Button>
             </Panel>
+            {children}
         </SimpleGrid>
+    );
+}
+
+const PROGRAM = "@program";
+const SILENCE = "@silence";
+
+/** The background sound: as the program and screen say, an audio file of its own, or silence. */
+function Ambience({
+    program,
+    playing,
+    value,
+    change,
+}: {
+    program: Program;
+    /** What the players hear now */
+    playing: string | null;
+    value: string | false | null;
+    change: (ambience: string | false | null) => void;
+}) {
+    if (program.audio.size === 0) return null;
+    return (
+        <Panel title="Ambience">
+            <Text size="sm" c="dimmed">
+                The sound looping in the background: {playing ? <Code>{playing}</Code> : "none"}{" "}
+                now.
+            </Text>
+            <Select
+                aria-label="Ambience"
+                allowDeselect={false}
+                value={value === null ? PROGRAM : value === false ? SILENCE : value}
+                onChange={(next) =>
+                    change(
+                        next === PROGRAM || next === null ? null : next === SILENCE ? false : next,
+                    )
+                }
+                data={[
+                    { value: PROGRAM, label: "As the program and screen say" },
+                    ...[...program.audio.keys()].map((name) => ({ value: name, label: name })),
+                    { value: SILENCE, label: "Silence" },
+                ]}
+            />
+        </Panel>
     );
 }

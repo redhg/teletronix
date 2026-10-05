@@ -82,6 +82,47 @@ test.describe("a program's own sounds", () => {
     });
 });
 
+test.describe("audio files", () => {
+    const DRONE = "data/audio/sci-fi-drone.mp3";
+    const files: Program = {
+        config: { name: "Audio", start: "home", ambience: "drone" },
+        screens: {
+            home: {
+                content: ["HOME", link("> QUIET", "quiet"), link("> CLIP", "home", "clip")],
+            },
+            quiet: { ambience: false, content: ["QUIET", link("> BACK", "home")] },
+        },
+        sounds: { drone: { src: DRONE, volume: 0.5 }, clip: { src: DRONE } },
+    };
+    const loops = (audio: { counts: () => Promise<{ loops: number }> }) =>
+        expect.poll(async () => (await audio.counts()).loops, { timeout: 10_000 });
+
+    test("loop as ambience, fading out on a screen without", async ({ player, audio }) => {
+        await player.open(files);
+        await player.tap();
+        await loops(audio).toBe(1);
+        await player.link("> QUIET").click();
+        await expect.poll(async () => (await audio.counts()).stops).toBe(1);
+        await player.link("> BACK").click();
+        await loops(audio).toBe(2);
+    });
+
+    test("play as sounds", async ({ player, audio }) => {
+        await player.open(files);
+        await player.tap();
+        await loops(audio).toBe(1);
+        const played = await audio.during(() => player.link("> CLIP").click(), 1000);
+        expect(played.recipes).toBe(1);
+    });
+
+    test("stay quiet with ambience turned off", async ({ page, player, audio }) => {
+        await player.open({ ...files, config: { ...files.config, sound: { ambience: false } } });
+        await player.tap();
+        await page.waitForTimeout(1500);
+        expect((await audio.counts()).loops).toBe(0);
+    });
+});
+
 test("hisses under static", async ({ player, audio }) => {
     await player.open(program);
     await player.tap();

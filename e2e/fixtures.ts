@@ -97,7 +97,7 @@ export class AudioSpy {
     }
 
     static install = () => {
-        const counts = { contexts: 0, oscillators: 0, noise: 0, loops: 0, recipes: 0 };
+        const counts = { contexts: 0, oscillators: 0, noise: 0, loops: 0, recipes: 0, stops: 0 };
         const state = { counts, context: null as AudioContext | null };
         (window as unknown as { __audio: typeof state }).__audio = state;
         const Real = window.AudioContext;
@@ -120,8 +120,14 @@ export class AudioSpy {
             override createBufferSource() {
                 const node = super.createBufferSource();
                 const start = node.start.bind(node);
+                const stop = node.stop.bind(node);
+                node.stop = (...args) => {
+                    if (node.loop) counts.stops++;
+                    stop(...args);
+                };
                 node.start = (...args) => {
                     // the synth's shared noise buffer is 2s long; any other is a rendered recipe
+                    // or an audio file
                     if (node.loop) counts.loops++;
                     else if (node.buffer && Math.abs(node.buffer.duration - 2) > 0.001)
                         counts.recipes++;
@@ -140,6 +146,8 @@ export class AudioSpy {
         noise: number;
         loops: number;
         recipes: number;
+        /** Loops stopped, e.g. an ambience fading out */
+        stops: number;
         state: AudioContextState | null;
         /** The audio clock, in seconds. */
         time: number;
@@ -156,6 +164,7 @@ export class AudioSpy {
                 noise: counts.noise ?? 0,
                 loops: counts.loops ?? 0,
                 recipes: counts.recipes ?? 0,
+                stops: counts.stops ?? 0,
                 state: context?.state ?? null,
                 time: context?.currentTime ?? 0,
             };

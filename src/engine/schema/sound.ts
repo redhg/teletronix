@@ -19,6 +19,10 @@ export const SOUND_KINDS = {
         description: "Beeps for links, toggles, sliders, prompts and dialogs",
     },
     hum: { default: false, description: "A CRT's mains hum and high-pitched whine, all the time" },
+    ambience: {
+        default: true,
+        description: "Background sound from an audio file: config.ambience, and screens' own",
+    },
 } as const;
 
 export type SoundKind = keyof typeof SOUND_KINDS;
@@ -95,6 +99,30 @@ export function compactSound(sound: ResolvedSound | null): SoundSetting | undefi
     const voices = voiceOverrides(sound.voices);
     if (voices) (setting as Record<string, unknown>).voices = voices;
     return Object.keys(setting).length > 0 ? (setting as SoundSetting) : undefined;
+}
+
+// ─── Audio files ─────────────────────────────────────────────────────────────
+
+export const AudioFileSchema = z
+    .strictObject({
+        src: z.string().min(1).meta({
+            description:
+                'An audio file (MP3, OGG, WAV…), relative to the page, e.g. "data/audio/drone.mp3"',
+        }),
+        volume: z.number().min(0).max(1).optional().meta({
+            description: "How loud it plays, from 0 to 1, under the overall volume (default: 1)",
+        }),
+    })
+    .meta({
+        description:
+            "A sound from an audio file: a recording, a clip, or a background drone to play " +
+            "as ambience",
+    });
+
+/** A sound from an audio file, filled in. */
+export interface AudioFile {
+    src: string;
+    volume: number;
 }
 
 // ─── Cues ────────────────────────────────────────────────────────────────────

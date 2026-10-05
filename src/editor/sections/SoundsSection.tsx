@@ -32,6 +32,9 @@ import { Panel } from "../../mantine/Panel.tsx";
 import { Synth } from "../../ui/sound/synth.ts";
 import { VoicesPanel } from "./VoicesPanel.tsx";
 
+/** Whether a sound as written is an audio file, rather than a generated sound. */
+const isFile = (sound: unknown) => typeof sound === "object" && sound !== null && "src" in sound;
+
 /** How long a slider must rest before the sound plays, so a drag doesn't stutter. */
 const AUTOPLAY_DELAY = 200;
 const NAME = /^[\w-]+$/;
@@ -105,9 +108,10 @@ function ProgramSounds({
             <Stack gap="sm">
                 <Text size="xs" c="dimmed">
                     Play one with <Code>"sound": "its-name"</Code> on an action, an element, a
-                    screen or a dialog. Name it <Code>key</Code>, <Code>select</Code>,{" "}
+                    screen or a dialog. Name a generated one <Code>key</Code>, <Code>select</Code>,{" "}
                     <Code>tick</Code>, <Code>error</Code>, <Code>dialog</Code> or <Code>alert</Code>{" "}
-                    to replace Teletronix's own sound of that kind.
+                    to replace Teletronix's own sound of that kind. An audio file can also loop in
+                    the background, as ambience.
                 </Text>
                 <nav aria-label="Sounds">
                     {names.map((name) => (
@@ -115,6 +119,7 @@ function ProgramSounds({
                             key={name}
                             component="button"
                             label={name}
+                            description={isFile(sounds[name]) ? "Audio file" : undefined}
                             active={name === current}
                             onClick={() => setChosen(name)}
                         />
@@ -151,11 +156,37 @@ function ProgramSounds({
                         >
                             Add a sound
                         </Button>
+                        <Button
+                            size="xs"
+                            variant="default"
+                            disabled={!adding || Boolean(addProblem)}
+                            onClick={() => {
+                                onChange(adding, { src: `data/audio/${adding}.mp3` });
+                                setChosen(adding);
+                                setAdding("");
+                            }}
+                        >
+                            Add an audio file
+                        </Button>
                     </Stack>
                 </form>
             </Stack>
             <div style={{ gridColumn: "span 3" }}>
-                {current !== null && (
+                {current !== null && isFile(sounds[current]) && (
+                    <AudioFileEditor
+                        key={current}
+                        name={current}
+                        written={sounds[current] as Record<string, unknown>}
+                        onChange={(sound) => onChange(current, sound)}
+                        onRename={(to) => {
+                            const why = onRename(current, to);
+                            if (!why) setChosen(to);
+                            return why;
+                        }}
+                        onDelete={() => onChange(current, undefined)}
+                    />
+                )}
+                {current !== null && !isFile(sounds[current]) && (
                     <Designer
                         key={current}
                         name={current}
@@ -171,6 +202,129 @@ function ProgramSounds({
                 )}
             </div>
         </SimpleGrid>
+    );
+}
+
+/** A sound's name, to rename, and a button to delete it. */
+function SoundName({
+    name,
+    onRename,
+    onDelete,
+}: {
+    name: string;
+    onRename: (to: string) => string | null;
+    onDelete: () => void;
+}) {
+    const [renaming, setRenaming] = useState(name);
+    const [problem, setProblem] = useState<string | null>(null);
+    return (
+        <form
+            onSubmit={(event) => {
+                event.preventDefault();
+                const why = renaming === name ? null : onRename(renaming);
+                setProblem(why);
+            }}
+        >
+            <Group align="start" gap="xs">
+                <TextInput
+                    aria-label="Sound name"
+                    value={renaming}
+                    error={problem}
+                    onChange={(event) =>
+                        setRenaming(event.currentTarget.value.replace(/[^\w-]/g, "-"))
+                    }
+                    styles={{ input: { fontFamily: "var(--mantine-font-family-monospace)" } }}
+                />
+                <Button type="submit" variant="default" disabled={renaming === name}>
+                    Rename
+                </Button>
+                <Button
+                    variant="subtle"
+                    color="red"
+                    onClick={() => {
+                        if (confirm(`Delete the sound "${name}"? (Undo brings it back.)`))
+                            onDelete();
+                    }}
+                >
+                    Delete
+                </Button>
+            </Group>
+        </form>
+    );
+}
+
+/** An audio file: its name, where it is, how loud, and a button to hear it loop. */
+function AudioFileEditor({
+    name,
+    written,
+    onChange,
+    onRename,
+    onDelete,
+}: {
+    name: string;
+    written: Record<string, unknown>;
+    onChange: (sound: unknown) => void;
+    onRename: (to: string) => string | null;
+    onDelete: () => void;
+}) {
+    const src = typeof written.src === "string" ? written.src : "";
+    const volume = typeof written.volume === "number" ? written.volume : 1;
+    const [synth] = useState(() => new Synth());
+    useEffect(() => () => synth.close(), [synth]);
+    useEffect(() => synth.configure(resolveSound(undefined), false), [synth]);
+    const [playing, setPlaying] = useState(false);
+    // (what's heard follows the settings as they change)
+    useEffect(() => {
+        synth.setFiles(new Map([[name, { src, volume }]]));
+        synth.setAmbience(playing ? name : null);
+    }, [synth, name, src, volume, playing]);
+
+    return (
+        <Stack gap="md">
+            <SoundName name={name} onRename={onRename} onDelete={onDelete} />
+            <TextInput
+                label="File"
+                description="Where it is, from the page: put it in public/data/audio/ and write data/audio/its-name.mp3. MP3, OGG, WAV or M4A."
+                value={src}
+                onChange={(event) => onChange({ ...written, src: event.currentTarget.value })}
+                styles={{ input: { fontFamily: "var(--mantine-font-family-monospace)" } }}
+            />
+            <Stack gap={4}>
+                <Text size="sm" fw={500}>
+                    Volume
+                </Text>
+                <Text size="xs" c="dimmed">
+                    How loud it plays, under the overall volume
+                </Text>
+                <Slider
+                    thumbLabel="Volume"
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    value={volume}
+                    label={(value) => value.toFixed(2)}
+                    onChange={(value) => {
+                        const { volume: _, ...rest } = written;
+                        onChange(value === 1 ? rest : { ...rest, volume: value });
+                    }}
+                />
+            </Stack>
+            <Group gap="xs">
+                <Button
+                    onClick={() => {
+                        synth.unlock();
+                        setPlaying((was) => !was);
+                    }}
+                    aria-pressed={playing}
+                >
+                    {playing ? "Stop" : "Play"}
+                </Button>
+                <Text size="xs" c="dimmed">
+                    It loops, as it would as ambience (config.ambience, or a screen's). As a{" "}
+                    <Code>"sound"</Code>, it plays once.
+                </Text>
+            </Group>
+        </Stack>
     );
 }
 
@@ -191,6 +345,7 @@ function Designer({
     const parsed = RecipeSchema.safeParse(written);
     const recipe = parsed.success ? fillRecipe(parsed.data) : defaultRecipe();
     const [synth] = useState(() => new Synth());
+    useEffect(() => () => synth.close(), [synth]);
     useEffect(() => synth.configure(resolveSound(undefined), false), [synth]);
     const [autoplay, setAutoplay] = useState(true);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -200,9 +355,6 @@ function Designer({
         },
         [],
     );
-    const [renaming, setRenaming] = useState(name);
-    const [problem, setProblem] = useState<string | null>(null);
-
     const play = (sound: Recipe) => {
         synth.unlock();
         synth.playRecipe(sound);
@@ -218,38 +370,7 @@ function Designer({
 
     return (
         <Stack gap="md">
-            <form
-                onSubmit={(event) => {
-                    event.preventDefault();
-                    const why = renaming === name ? null : onRename(renaming);
-                    setProblem(why);
-                }}
-            >
-                <Group align="start" gap="xs">
-                    <TextInput
-                        aria-label="Sound name"
-                        value={renaming}
-                        error={problem}
-                        onChange={(event) =>
-                            setRenaming(event.currentTarget.value.replace(/[^\w-]/g, "-"))
-                        }
-                        styles={{ input: { fontFamily: "var(--mantine-font-family-monospace)" } }}
-                    />
-                    <Button type="submit" variant="default" disabled={renaming === name}>
-                        Rename
-                    </Button>
-                    <Button
-                        variant="subtle"
-                        color="red"
-                        onClick={() => {
-                            if (confirm(`Delete the sound "${name}"? (Undo brings it back.)`))
-                                onDelete();
-                        }}
-                    >
-                        Delete
-                    </Button>
-                </Group>
-            </form>
+            <SoundName name={name} onRename={onRename} onDelete={onDelete} />
             {!parsed.success && (
                 <Text size="sm" c="red">
                     This sound has a mistake in it; the controls start from the default sound.

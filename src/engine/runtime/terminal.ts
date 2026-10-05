@@ -14,7 +14,7 @@ import {
     ruleForKey,
     ruleForTap,
 } from "../schema/next.ts";
-import type { Program } from "../schema/program.ts";
+import { ambienceOf, type Program } from "../schema/program.ts";
 import type { Cue } from "../schema/sound.ts";
 import { type Clock, countsDown, formatTime, shownSeconds } from "../schema/timers.ts";
 import { assign, type Condition, format, holds, type VariableValue } from "../schema/variables.ts";
@@ -70,6 +70,8 @@ export interface TerminalSnapshot {
     effects: ResolvedEffects;
     /** Changes whenever a variable does, for views that show them (e.g. the bars). */
     variables: number;
+    /** The audio file to loop in the background now, by its name in the program's sounds. */
+    ambience: string | null;
 }
 
 const DEFAULT_COLUMNS = 80;
@@ -123,6 +125,8 @@ export class Terminal {
     private readonly effects = new Map<string, ResolvedEffects>();
     /** Effects laid over the program's and screen's (see setRemoteEffects). */
     private remoteEffects: EffectsSetting | undefined;
+    /** Ambience laid over the program's and screen's (see setRemoteAmbience). */
+    private remoteAmbience: string | false | undefined;
     /** The program-wide effects: the config's, unless replaced with setEffects(). */
     private configEffects: EffectsSetting | undefined;
     private snapshot: TerminalSnapshot = {
@@ -132,6 +136,7 @@ export class Terminal {
         dialog: null,
         effects: {},
         variables: 0,
+        ambience: null,
     };
     private variablesVersion = 0;
     private dirty = false;
@@ -458,6 +463,17 @@ export class Terminal {
     setRemoteEffects(effects: EffectsSetting | undefined): void {
         this.remoteEffects = effects;
         this.effects.clear();
+        this.markDirty();
+        this.flush();
+    }
+
+    /**
+     * Ambience over what the program and screen say, e.g. from a GM's remote control: an audio
+     * file from the program's sounds, or false for silence. Undefined clears it.
+     */
+    setRemoteAmbience(ambience: string | false | undefined): void {
+        if (typeof ambience === "string" && !this.program.audio.has(ambience)) return;
+        this.remoteAmbience = ambience;
         this.markDirty();
         this.flush();
     }
@@ -900,6 +916,10 @@ export class Terminal {
             dialog: this.dialog,
             effects: this.run ? this.effectsFor(this.run.screen.id) : resolveEffects(),
             variables: this.variablesVersion,
+            ambience:
+                this.remoteAmbience === undefined
+                    ? ambienceOf(this.program, this.run?.screen)
+                    : this.remoteAmbience || null,
         };
         for (const listener of this.listeners) listener();
     }

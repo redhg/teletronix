@@ -361,6 +361,36 @@ describe("remote control", () => {
         expect(terminal.getSnapshot().effects.static).toBeUndefined();
     });
 
+    it("says which ambience plays, the screen's or a remote's", () => {
+        const { terminal } = createTestTerminal({
+            config: { name: "T", ambience: "drone" },
+            sounds: { drone: { src: "drone.mp3" }, engines: { src: "engines.mp3" } },
+            screens: {
+                home: { content: ["HOME"] },
+                engine: { ambience: "engines", content: ["ENGINE"] },
+                quiet: { ambience: false, content: ["QUIET"] },
+            },
+        });
+        terminal.start();
+        expect(terminal.getSnapshot().ambience).toBe("drone");
+        terminal.navigate("engine");
+        expect(terminal.getSnapshot().ambience).toBe("engines");
+        terminal.navigate("quiet");
+        expect(terminal.getSnapshot().ambience).toBe(null);
+
+        terminal.setRemoteAmbience("drone");
+        expect(terminal.getSnapshot().ambience).toBe("drone");
+        terminal.navigate("engine");
+        expect(terminal.getSnapshot().ambience).toBe("drone");
+        terminal.setRemoteAmbience(false);
+        expect(terminal.getSnapshot().ambience).toBe(null);
+        // (not an audio file of the program's: no change)
+        terminal.setRemoteAmbience("nothing");
+        expect(terminal.getSnapshot().ambience).toBe(null);
+        terminal.setRemoteAmbience(undefined);
+        expect(terminal.getSnapshot().ambience).toBe("engines");
+    });
+
     it("shows a transmission in a dialog of its own", () => {
         const { terminal } = createTestTerminal(file);
         terminal.start();

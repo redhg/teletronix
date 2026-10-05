@@ -71,8 +71,10 @@ export default defineConfig({
                 ],
             },
             workbox: {
-                globPatterns: ["**/*.{html,js,css,woff,woff2,png,jpg,gif,svg,json,txt}"],
-                // programs' images can be large
+                globPatterns: [
+                    "**/*.{html,js,css,woff,woff2,png,jpg,gif,svg,json,txt,mp3,ogg,wav,m4a,webm}",
+                ],
+                // programs' images and audio can be large
                 maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
                 // every address (e.g. ?data=ypsilon14) is the same page
                 navigateFallback: "index.html",

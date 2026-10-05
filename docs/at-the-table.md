@@ -33,7 +33,9 @@ The rest is in tabs (<left> and <right> move between them, and the panel opens a
 - **Variables:** every variable, live. Change one (Enter sets it) and the players' screen
   follows, as if an action had set it. And each timer's time, with Start, Stop and Reset.
 - **Effects:** turns any effect on or off over what the program and screen say, or back to
-  what they say, and sends a **burst of static**.
+  what they say, and sends a **burst of static**. And, for a program with
+  [audio files](look-and-sound.md#audio-files-and-ambience), the **ambience**: what's playing,
+  and another file of the program's, silence, or back to what the program and screen say.
 - **Devices:** a QR code for a players' device (see below), and a button to open a players'
   window on this computer.
 

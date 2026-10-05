@@ -13,7 +13,7 @@ autocomplete in your editor, point `$schema` at
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Random](#random), [Pick](#pick), [Timers](#timers), [Timer](#timer)
 - **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Log](#log), [Map](#map), [Map marker](#map-marker), [Map point](#map-point), [Conversation](#conversation), [Conversation part](#conversation-part), [Conversation reply](#conversation-reply), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Visual level](#visual-level), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Carousel](#carousel), [Frames](#frames), [Frame](#frame), [Tree](#tree), [Tree item](#tree-item), [Tree markers](#tree-markers), [Pause](#pause), [Rule](#rule), [Breadcrumb](#breadcrumb), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
-- **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
+- **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Audio file](#audio-file), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
 - **Shared types:** [Action](#action), [Action case](#action-case), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
 
@@ -31,7 +31,7 @@ A Teletronix program: its settings, screens, dialogs and sounds
 | `config` | [Config](#config) | **required** | Settings for the whole program |
 | `screens` | map of id → [Screen](#screen) | **required** | The screens, by id. Links, commands and `next` refer to them by id. |
 | `dialogs` | map of id → [Alert](#alert) \| [Confirm](#confirm) |  | The dialogs, by id. Actions open them by id. |
-| `sounds` | map of id → [Sound recipe](#sound-recipe) |  | Sound effects, by name, for "sound" on actions, elements, screens and dialogs. Design them in the editor (?edit, Sounds). Named "key", "select", "tick", "error", "dialog" or "alert", one replaces Teletronix's own sound of that kind. |
+| `sounds` | map of id → [Audio file](#audio-file) \| [Sound recipe](#sound-recipe) |  | Sound effects, by name, for "sound" on actions, elements, screens and dialogs: generated ones, designed in the editor (?edit, Sounds), or audio files, { "src": "data/audio/alarm.mp3" }, which can also play as ambience. Named "key", "select", "tick", "error", "dialog" or "alert", a generated one replaces Teletronix's own sound of that kind. |
 
 <a id="config"></a>
 
@@ -61,6 +61,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `lineSpacing` | number, 1–2 | `1.25` | How far apart lines are, as a multiple of the text's size, from 1 (touching, so block art and box drawing join up, as on the original machines) to 2 |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |
 | `sound` | [Sound](#sound) |  | Generated retro sound effects: true, false, or an object of options. On by default; players can mute them with the sound toggle. |
+| `ambience` | id |  | An audio file from the program's sounds to loop in the background, e.g. a drone or a ship's engines, unless a screen says otherwise. It fades from one to the next as screens change. |
 | `save` | boolean | `false` | Save the player's progress in the browser as they go (the screen, variables, timers, and what every element remembers), and carry on from it when the page is opened again. A "restart" action starts over |
 | `blockContextMenu` | boolean | `true` | Block the browser's right-click menu, so the program feels like a terminal rather than a web page. Text fields keep theirs |
 | `autoscroll` | boolean | `true` | Scroll to keep new content in view as it appears, unless the reader has scrolled up |
@@ -116,6 +117,7 @@ A screen of content. Its elements are revealed one after another.
 | `footer` | [Bar](#bar) \| `false` |  | A status bar for this screen instead of the config's, or false for none |
 | `next` | [Next rule](#next-rule) \| [Next rule](#next-rule)[] |  | Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens. |
 | `sound` | id |  | A sound from the program's sounds, played as the screen appears |
+| `ambience` | id \| `false` |  | An audio file from the program's sounds to loop in the background while this screen shows, instead of config.ambience, or false for silence |
 | `preset` | [Preset](#preset) |  | A ready-made screen, e.g. { "type": "boot" }, shown before any content of its own |
 | `content` | [Content](#content)[] |  | The elements, revealed in order. Can be empty; can be left out with a preset. |
 
@@ -1970,6 +1972,7 @@ Sound options: the volume, and each kind of sound on or off
 | `static` | boolean | `true` | Hiss under static, and the static transition |
 | `interface` | boolean | `true` | Beeps for links, toggles, sliders, prompts and dialogs |
 | `hum` | boolean | `false` | A CRT's mains hum and high-pitched whine, all the time |
+| `ambience` | boolean | `true` | Background sound from an audio file: config.ambience, and screens' own |
 | `button` | boolean |  | Whether the sound toggle shows in the corner of the screen (default: true). Without it, players mute with Ctrl+M, or a { "soundToggle": true } in a bar. |
 | `voices` | [Sound voices](#sound-voices) |  | Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the editor (?edit, Sounds, Built-in tab) and paste the result here. |
 
@@ -2005,6 +2008,17 @@ A generated sound effect, made from sfxr-style settings. Design one on the sound
 | `highpass` | number, 0–1 | `0` | Filters: High-pass cut-off |
 | `highpassSweep` | number, -1–1 | `0` | Filters: High-pass sweep |
 | `volume` | number, 0–1 | `0.5` | Volume: Volume |
+
+<a id="audio-file"></a>
+
+### Audio file
+
+A sound from an audio file: a recording, a clip, or a background drone to play as ambience
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `src` | string | **required** | An audio file (MP3, OGG, WAV…), relative to the page, e.g. "data/audio/drone.mp3" |
+| `volume` | number, 0–1 | `1` | How loud it plays, from 0 to 1, under the overall volume |
 
 <a id="sound-voices"></a>
 

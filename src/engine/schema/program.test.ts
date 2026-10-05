@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ActionSchema } from "./common.ts";
-import { breadcrumb, parseProgram, type TeletronixFile, trailTo } from "./program.ts";
+import { ambienceOf, breadcrumb, parseProgram, type TeletronixFile, trailTo } from "./program.ts";
 
 const file = (overrides: Partial<TeletronixFile> = {}): TeletronixFile => ({
     config: { name: "Test" },
@@ -227,5 +227,82 @@ describe("breadcrumbs", () => {
                 message: "Its parents go round in a circle: one of them needs no parent",
             },
         ]);
+    });
+});
+
+describe("audio files and ambience", () => {
+    const sounds = {
+        drone: { src: "data/audio/drone.mp3", volume: 0.5 },
+        alarm: { src: "data/audio/alarm.mp3" },
+        blip: { wave: "square" as const },
+    };
+
+    it("keeps audio files apart from generated sounds", () => {
+        const result = parseProgram(file({ sounds }));
+        if (!result.ok) throw new Error(JSON.stringify(result.errors));
+        expect([...result.program.sounds.keys()]).toEqual(["blip"]);
+        expect(result.program.audio).toEqual(
+            new Map([
+                ["drone", { src: "data/audio/drone.mp3", volume: 0.5 }],
+                ["alarm", { src: "data/audio/alarm.mp3", volume: 1 }],
+            ]),
+        );
+    });
+
+    it("plays an audio file as any sound", () => {
+        const result = parseProgram(
+            file({
+                sounds,
+                screens: {
+                    home: {
+                        sound: "alarm",
+                        content: [
+                            { type: "link", text: "> GO", action: { back: true, sound: "drone" } },
+                        ],
+                    },
+                },
+            }),
+        );
+        expect(result.ok).toBe(true);
+    });
+
+    it("loops the program's ambience, unless a screen has its own or none", () => {
+        const result = parseProgram(
+            file({
+                config: { name: "Test", ambience: "drone" },
+                sounds,
+                screens: {
+                    home: { content: [] },
+                    engine: { ambience: "alarm", content: [] },
+                    quiet: { ambience: false, content: [] },
+                },
+            }),
+        );
+        if (!result.ok) throw new Error(JSON.stringify(result.errors));
+        const { program } = result;
+        const on = (id: string) => ambienceOf(program, program.screens.get(id));
+        expect([on("home"), on("engine"), on("quiet")]).toEqual(["drone", "alarm", null]);
+        expect(ambienceOf({ ...program, ambience: undefined }, program.screens.get("home"))).toBe(
+            null,
+        );
+    });
+
+    it("loops only audio files", () => {
+        expect(
+            errors(
+                file({
+                    config: { name: "Test", ambience: "blip" },
+                    sounds,
+                    screens: { home: { ambience: "hum", content: [] } },
+                }),
+            ),
+        ).toEqual([
+            {
+                path: "config.ambience",
+                message: '"blip" is a generated sound: ambience plays an audio file ({ "src": … })',
+            },
+            { path: "screens.home.ambience", message: 'Unknown sound "hum"' },
+        ]);
+        expect(errors(file({ sounds: { drone: { src: "" } } }))[0]?.path).toBe("sounds.drone.src");
     });
 });

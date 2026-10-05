@@ -505,6 +505,43 @@ test.describe("the editor", () => {
         expect(file.sounds.laser.wave).toBe("noise");
     });
 
+    test("adds an audio file, to loop as ambience", async ({ page }) => {
+        await openEditor(page);
+        await section(page, "Sounds");
+        await page.getByRole("textbox", { name: "Add a sound" }).fill("drone");
+        await page.getByRole("button", { name: "Add an audio file" }).click();
+        await expect(page.getByRole("navigation", { name: "Sounds" })).toContainText("Audio file");
+        await page
+            .getByRole("textbox", { name: "File", exact: true })
+            .fill("data/audio/sci-fi-drone.mp3");
+        const volume = page.getByRole("slider", { name: "Volume" });
+        await volume.focus();
+        for (let step = 0; step < 4; step++) await volume.press("ArrowLeft");
+        await page.getByRole("button", { name: "Play", exact: true }).click();
+        await expect(page.getByRole("button", { name: "Stop", exact: true })).toBeVisible();
+
+        await section(page, "Program");
+        await choose(page, "ambience", "drone");
+        await page
+            .getByRole("navigation", { name: "Screens" })
+            .getByRole("button", { name: /^HOME/ })
+            .click();
+        await page.getByText("Screen settings").click();
+        // (once the settings have opened, and the field stays put)
+        await page.getByRole("combobox", { name: "ambience" }).scrollIntoViewIfNeeded();
+        await choose(page, "ambience", "Silence");
+        await expect(page.getByText("No problems")).toBeVisible();
+
+        const [download] = await Promise.all([
+            page.waitForEvent("download"),
+            page.getByRole("button", { name: /^Download/ }).click(),
+        ]);
+        const file = JSON.parse(await readFile(await download.path(), "utf8"));
+        expect(file.sounds).toEqual({ drone: { src: "data/audio/sci-fi-drone.mp3", volume: 0.8 } });
+        expect(file.config.ambience).toBe("drone");
+        expect(file.screens.home.ambience).toBe(false);
+    });
+
     test("tunes Teletronix's own sounds, writing only what changes", async ({ page }) => {
         await openEditor(page);
         await section(page, "Sounds");

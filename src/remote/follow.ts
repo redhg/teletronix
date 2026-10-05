@@ -33,6 +33,7 @@ export function playerState(terminal: Terminal): PlayerState {
                 },
             ]),
         ),
+        ambience: snapshot.ambience,
     };
 }
 
@@ -144,6 +145,9 @@ export function followRemote(
             case "effects":
                 effects = message.effects ?? undefined;
                 if (!burst) terminal.setRemoteEffects(effects);
+                break;
+            case "ambience":
+                terminal.setRemoteAmbience(message.ambience ?? undefined);
                 break;
             case "burst":
                 clearTimeout(burst);

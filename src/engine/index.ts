@@ -52,6 +52,7 @@ export {
 } from "./schema/effects.ts";
 export type { Element, ElementOf, ElementType } from "./schema/elements.ts";
 export {
+    ambienceOf,
     barsOf,
     breadcrumb,
     type Crumb,
@@ -64,6 +65,7 @@ export {
     trailTo,
 } from "./schema/program.ts";
 export {
+    type AudioFile,
     type Cue,
     compactSound,
     DEFAULT_VOLUME,

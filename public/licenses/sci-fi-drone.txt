@@ -1,0 +1,12 @@
+data/audio/sci-fi-drone.mp3
+
+"DSGNDron_Mysterious Resonant Industrial Sci-fi Drone 3_EM" by newlocknew, on Freesound:
+https://freesound.org/s/749636/
+
+DSGNDron_Mysterious Resonant Industrial Sci-fi Drone 3_EM by newlocknew -- https://freesound.org/s/749636/ -- License: Attribution NonCommercial 4.0
+
+Used under the Creative Commons Attribution-NonCommercial 4.0 International License
+(https://creativecommons.org/licenses/by-nc/4.0/): it can be shared and adapted, with this
+credit, but not used for commercial purposes. A program (or a copy of Teletronix) that's
+sold or used commercially needs another sound in its place. Renamed from Freesound's preview,
+749636_5828667-lq.mp3; otherwise unchanged.

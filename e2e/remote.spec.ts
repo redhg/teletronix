@@ -20,9 +20,9 @@ const program: Program = {
 const tab = (gm: Page, name: string) => gm.getByRole("tab", { name }).click();
 
 /** A GM's panel for the test program, in another window of the same browser. */
-async function openGm(page: Page): Promise<Page> {
+async function openGm(page: Page, file: Program = program): Promise<Page> {
     const gm = await page.context().newPage();
-    await gm.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+    await gm.route("**/data/e2e.json", (route) => route.fulfill({ json: file }));
     await gm.goto("./?data=e2e&gm");
     return gm;
 }
@@ -138,6 +138,42 @@ test.describe("a GM's panel", () => {
             .getByText("As the program says")
             .click();
         await expect(page.locator("canvas.static")).toHaveCount(0);
+    });
+});
+
+test.describe("the GM's ambience", () => {
+    test("changes the sound in the background, or silences it", async ({ page, player }) => {
+        const withAmbience: Program = {
+            ...program,
+            config: { ...program.config, ambience: "drone" },
+            screens: { ...program.screens, engine: { ...program.screens.engine, ambience: false } },
+            sounds: {
+                drone: { src: "data/audio/sci-fi-drone.mp3" },
+                engines: { src: "data/audio/sci-fi-drone.mp3", volume: 0.4 },
+            },
+        };
+        await player.open(withAmbience);
+        const gm = await openGm(page, withAmbience);
+        await tab(gm, "Effects");
+        const panel = gm.getByText(/The sound looping in the background/);
+        await expect(panel).toContainText("drone now");
+
+        await gm.getByRole("combobox", { name: "Ambience" }).click();
+        await gm.getByRole("option", { name: "engines" }).click();
+        await expect(panel).toContainText("engines now");
+        await gm.getByRole("combobox", { name: "Ambience" }).click();
+        await gm.getByRole("option", { name: "Silence" }).click();
+        await expect(panel).toContainText("none now");
+
+        await gm.keyboard.press("ControlOrMeta+k");
+        await gm.getByRole("textbox", { name: "Command" }).fill("ambience as the program");
+        await gm.keyboard.press("Enter");
+        await expect(panel).toContainText("drone now");
+        // a screen without stays without
+        await gm.keyboard.press("ControlOrMeta+k");
+        await gm.getByRole("textbox", { name: "Command" }).fill("engine room");
+        await gm.keyboard.press("Enter");
+        await expect(panel).toContainText("none now");
     });
 });
 

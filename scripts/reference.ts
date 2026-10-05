@@ -75,7 +75,7 @@ import {
     FileSchema,
     ScreenSchema,
 } from "../src/engine/schema/program.ts";
-import { SoundOptionsSchema, SoundSchema } from "../src/engine/schema/sound.ts";
+import { AudioFileSchema, SoundOptionsSchema, SoundSchema } from "../src/engine/schema/sound.ts";
 import { TimerSchema, TimersSchema } from "../src/engine/schema/timers.ts";
 import {
     AddSchema,
@@ -354,6 +354,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Sound", SoundSchema],
             ["Sound options", SoundOptionsSchema],
             ["Sound recipe", RecipeSchema],
+            ["Audio file", AudioFileSchema],
             ["Sound voices", VoicesSchema],
             ...(Object.keys(VOICE_PARAMS) as VoiceName[]).map((name): [string, z.ZodType] => [
                 `${VOICE_PARAMS[name].label} voice`,

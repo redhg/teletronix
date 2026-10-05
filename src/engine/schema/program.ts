@@ -39,7 +39,14 @@ import {
 } from "./elements.ts";
 import { DEFAULT_SKIP_KEYS, type NextRule, NextSchema, SkipKeysSchema } from "./next.ts";
 import { expandPreset, PresetSchema, parseContent } from "./presets.ts";
-import { type ResolvedSound, resolveSound, SoundSchema, type SoundSetting } from "./sound.ts";
+import {
+    type AudioFile,
+    AudioFileSchema,
+    type ResolvedSound,
+    resolveSound,
+    SoundSchema,
+    type SoundSetting,
+} from "./sound.ts";
 import { type Timer, TimersSchema } from "./timers.ts";
 import {
     type Condition,
@@ -110,6 +117,14 @@ export const ScreenSchema = z
         sound: SoundNameSchema.optional().meta({
             description: "A sound from the program's sounds, played as the screen appears",
         }),
+        ambience: z
+            .union([SoundNameSchema, z.literal(false)])
+            .optional()
+            .meta({
+                description:
+                    "An audio file from the program's sounds to loop in the background while this " +
+                    "screen shows, instead of config.ambience, or false for silence",
+            }),
         preset: PresetSchema.optional().meta({
             description:
                 'A ready-made screen, e.g. { "type": "boot" }, shown before any content of its own',
@@ -189,6 +204,12 @@ export const ConfigSchema = z
         lineSpacing: LineSpacingSchema.optional(),
         effects: EffectsSchema.optional(),
         sound: SoundSchema.optional(),
+        ambience: SoundNameSchema.optional().meta({
+            description:
+                "An audio file from the program's sounds to loop in the background, e.g. a " +
+                "drone or a ship's engines, unless a screen says otherwise. It fades from one to " +
+                "the next as screens change.",
+        }),
         save: z
             .boolean()
             .optional()
@@ -236,14 +257,15 @@ export const FileSchema = z
             .optional()
             .meta({ description: "The dialogs, by id. Actions open them by id." }),
         sounds: z
-            .record(IdSchema, RecipeSchema)
+            .record(IdSchema, z.union([AudioFileSchema, RecipeSchema]))
             .optional()
             .meta({
                 description:
                     'Sound effects, by name, for "sound" on actions, elements, screens and ' +
-                    "dialogs. Design them in the editor (?edit, Sounds). Named " +
-                    '"key", "select", "tick", "error", "dialog" or "alert", one replaces ' +
-                    "Teletronix's own sound of that kind.",
+                    "dialogs: generated ones, designed in the editor (?edit, Sounds), or audio " +
+                    'files, { "src": "data/audio/alarm.mp3" }, which can also play as ' +
+                    'ambience. Named "key", "select", "tick", "error", "dialog" or "alert", a ' +
+                    "generated one replaces Teletronix's own sound of that kind.",
             }),
     })
     .meta({
@@ -281,6 +303,8 @@ export interface Screen {
     footer?: BarLine[] | false;
     next?: NextRule[];
     sound?: string;
+    /** An audio file to loop while it shows, or false for silence (default: the program's) */
+    ambience?: string | false;
     content: Element[];
 }
 
@@ -306,8 +330,12 @@ export interface Program {
     lineSpacing: number;
     screens: ReadonlyMap<string, Screen>;
     dialogs: ReadonlyMap<string, Dialog>;
-    /** Sound effects by name, each filled in */
+    /** Generated sound effects by name, each filled in */
     sounds: ReadonlyMap<string, Recipe>;
+    /** Sounds from audio files, by name */
+    audio: ReadonlyMap<string, AudioFile>;
+    /** An audio file to loop in the background, unless a screen says otherwise */
+    ambience?: string;
     /** Bars pinned to the top and bottom of the window, unless a screen has its own */
     header?: BarLine[];
     footer?: BarLine[];
@@ -317,6 +345,15 @@ export interface Program {
     timers: ReadonlyMap<string, Timer>;
     /** Variables by name, with their starting values */
     variables: ReadonlyMap<string, VariableValue>;
+}
+
+/**
+ * The audio file to loop in the background on a screen: its own ambience, or the program's,
+ * or none (a screen's false is silence).
+ */
+export function ambienceOf(program: Program, screen: Screen | undefined): string | null {
+    if (screen?.ambience === false) return null;
+    return screen?.ambience ?? program.ambience ?? null;
 }
 
 /** The program as the engine runs it, from the file as parsed and (for presets) as written. */
@@ -339,6 +376,7 @@ function normalize(
         blockContextMenu,
         save,
         sound,
+        ambience,
         theme,
         font,
         fontScale,
@@ -381,7 +419,7 @@ function normalize(
         const content = normalizeContent(items, `${id}#`);
         const { reveal, transition, autoscroll, align, waitForReveal } = screen;
         const effects = screen.effects ?? preset?.effects;
-        const { sound, title, parent } = screen;
+        const { sound, title, parent, ambience: screenAmbience } = screen;
         const header = screen.header ?? preset?.header;
         const footer = screen.footer ?? preset?.footer;
         const rules = [...(screen.next ?? []), ...(preset?.next ? [preset.next] : [])];
@@ -400,6 +438,7 @@ function normalize(
             footer,
             next,
             sound,
+            ...(screenAmbience === undefined ? {} : { ambience: screenAmbience }),
             content,
         });
     }
@@ -434,8 +473,18 @@ function normalize(
         screens,
         dialogs,
         sounds: new Map(
-            Object.entries(file.sounds ?? {}).map(([name, recipe]) => [name, fillRecipe(recipe)]),
+            Object.entries(file.sounds ?? {}).flatMap(([name, sound]) =>
+                "src" in sound ? [] : [[name, fillRecipe(sound)] as const],
+            ),
         ),
+        audio: new Map(
+            Object.entries(file.sounds ?? {}).flatMap(([name, sound]) =>
+                "src" in sound
+                    ? [[name, { src: sound.src, volume: sound.volume ?? 1 }] as const]
+                    : [],
+            ),
+        ),
+        ...(ambience === undefined ? {} : { ambience }),
         variables: new Map(Object.entries(variables ?? {})),
         timers: new Map(Object.entries(timers ?? {})),
         skipKeys: skipKeys ?? DEFAULT_SKIP_KEYS,
@@ -490,7 +539,30 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
     }
 
     const unknownSound = (name: string | undefined) =>
-        name !== undefined && !program.sounds.has(name) ? `Unknown sound "${name}"` : null;
+        name !== undefined && !program.sounds.has(name) && !program.audio.has(name)
+            ? `Unknown sound "${name}"`
+            : null;
+    // ambience loops an audio file
+    const ambienceProblem = (name: string | false | undefined) => {
+        if (name === undefined || name === false || program.audio.has(name)) return null;
+        return program.sounds.has(name)
+            ? `"${name}" is a generated sound: ambience plays an audio file ({ "src": … })`
+            : `Unknown sound "${name}"`;
+    };
+    const configAmbience = ambienceProblem(program.ambience);
+    if (configAmbience) {
+        ctx.addIssue({ code: "custom", path: ["config", "ambience"], message: configAmbience });
+    }
+    for (const screen of program.screens.values()) {
+        const problem = ambienceProblem(screen.ambience);
+        if (problem) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["screens", screen.id, "ambience"],
+                message: problem,
+            });
+        }
+    }
     // conditions can test timers too, as their seconds
     const testable = new Map<string, VariableValue>(program.variables);
     for (const name of program.timers.keys()) testable.set(name, 0);

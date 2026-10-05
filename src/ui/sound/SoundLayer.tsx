@@ -44,6 +44,8 @@ export function SoundLayer({ terminal, sound, children }: Props) {
     const [muted, setMuted] = useState(readMuted);
 
     useEffect(() => synth.configure(sound, muted), [synth, sound, muted]);
+    // (the ambience and the hum go on until the audio is let go)
+    useEffect(() => () => synth.close(), [synth]);
 
     useEffect(() => {
         const unlock = () => synth.unlock();
@@ -54,7 +56,10 @@ export function SoundLayer({ terminal, sound, children }: Props) {
         };
     }, [synth]);
 
-    useEffect(() => synth.setLibrary(terminal.program.sounds), [synth, terminal]);
+    useEffect(() => {
+        synth.setLibrary(terminal.program.sounds);
+        synth.setFiles(terminal.program.audio);
+    }, [synth, terminal]);
     useEffect(() => terminal.subscribeCues((cue) => synth.play(cue)), [terminal, synth]);
 
     const play = useCallback((cue: SoundCue) => synth.play(cue), [synth]);
@@ -94,6 +99,7 @@ export function SoundLayer({ terminal, sound, children }: Props) {
             <SoundToggleContext value={toggleState}>
                 {children}
                 <StaticHiss synth={synth} />
+                <Ambience synth={synth} />
                 {sound?.button && !inBar && (
                     <button
                         type="button"
@@ -115,5 +121,12 @@ export function SoundLayer({ terminal, sound, children }: Props) {
 function StaticHiss({ synth }: { synth: Synth }) {
     const level = useTerminalSnapshot().effects.static?.opacity ?? 0;
     useEffect(() => synth.setHiss(level), [synth, level]);
+    return null;
+}
+
+/** The audio file looping in the background, as the screen (or a GM) says. */
+function Ambience({ synth }: { synth: Synth }) {
+    const ambience = useTerminalSnapshot().ambience;
+    useEffect(() => synth.setAmbience(ambience), [synth, ambience]);
     return null;
 }
