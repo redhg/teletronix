@@ -33,6 +33,12 @@ export function PreviewHost({ create }: Props) {
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             if (!isPreviewMessage(event) || event.source !== window.parent) return;
+            if (event.data.type === "teletronix:dialog") {
+                if (terminal?.program.dialogs.has(event.data.dialog)) {
+                    terminal.openDialog(event.data.dialog);
+                }
+                return;
+            }
             if (event.data.type === "teletronix:go") {
                 const { screen } = event.data;
                 if (terminal?.program.screens.has(screen)) terminal.navigate(screen);

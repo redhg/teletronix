@@ -42,7 +42,11 @@ redo with **Cmd/Ctrl+Z** and **Cmd/Ctrl+Shift+Z**. **Save** (**Cmd/Ctrl+S**) wri
 `public/data/<name>.json` in `npm run dev`; anywhere else (e.g. a build), it downloads the file
 instead. It writes JSON the way it's written by hand: short and flat things on one line, the
 rest spread out. The **File** menu starts a new program, opens a JSON file, and downloads.
-Dialogs, variables and sounds of their own come next.
+- **Dialogs:** listed under the screens; **+** adds one. Its kind (alert or confirm) is a
+  list, with that kind's settings under it (switching keeps the settings both have, e.g. its
+  text). **Rename** renames the actions that open it; **Open in the preview** opens it there.
+
+Variables, timers and sounds of their own come next.
 
 | Script | |
 |---|---|

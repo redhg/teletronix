@@ -305,9 +305,21 @@ function ChoiceField({
                 value={name}
                 placeholder={placeholder ?? "—"}
                 clearable
-                onChange={(next) =>
-                    onChange(next === null ? undefined : choiceValue(choices, next, {}))
-                }
+                onChange={(next) => {
+                    if (next === null) return onChange(undefined);
+                    // (the options both kinds have stay, e.g. a dialog's text)
+                    const kept = Object.keys(choices.objects.get(next)?.properties ?? {});
+                    const { type: _, ...current } = options;
+                    onChange(
+                        choiceValue(
+                            choices,
+                            next,
+                            Object.fromEntries(
+                                Object.entries(current).filter(([key]) => kept.includes(key)),
+                            ),
+                        ),
+                    );
+                }}
             />
             {name !== null && optionKeys.length > 0 && (
                 <Stack gap="sm" pl="md" className="editor-choice-options">

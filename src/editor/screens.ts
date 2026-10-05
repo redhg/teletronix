@@ -109,3 +109,36 @@ export function summarize(element: ElementFile): string {
 export function newElement(type: string): ElementFile {
     return type === "text" ? "" : { type };
 }
+
+// ─── Dialogs ─────────────────────────────────────────────────────────────────
+
+/** A program's dialogs, as written. */
+export const dialogsOf = (file: ProgramFile) =>
+    (file.dialogs ?? {}) as Record<string, Record<string, unknown>>;
+
+/** The program with a dialog renamed, and every action that opens it (its `dialog`). */
+export function renameDialog(file: ProgramFile, from: string, to: string): ProgramFile {
+    const rename = (value: unknown): unknown => (value === from ? to : value);
+    const walk = (value: unknown): unknown => {
+        if (Array.isArray(value)) return value.map(walk);
+        if (value === null || typeof value !== "object") return value;
+        return Object.fromEntries(
+            Object.entries(value).map(([key, item]) => [
+                key,
+                key === "dialog"
+                    ? Array.isArray(item)
+                        ? item.map(rename)
+                        : rename(item)
+                    : walk(item),
+            ]),
+        );
+    };
+    const { dialogs: _, ...rest } = walk(file) as ProgramFile;
+    const dialogs = Object.fromEntries(
+        Object.entries(dialogsOf(file)).map(([id, dialog]) => [
+            id === from ? to : id,
+            walk(dialog),
+        ]),
+    );
+    return { ...rest, dialogs };
+}

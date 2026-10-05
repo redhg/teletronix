@@ -10,8 +10,15 @@ const program: Program = {
                 { type: "link", text: "> OTHER", action: { screen: "other" } },
             ],
         },
-        other: { parent: "home", content: ["OTHER SCREEN"] },
+        other: {
+            parent: "home",
+            content: [
+                "OTHER SCREEN",
+                { type: "link", text: "> WARN", action: { dialog: "warning" } },
+            ],
+        },
     },
+    dialogs: { warning: { type: "alert", content: "DANGER AHEAD" } },
 };
 
 /** The editor, open on the test program. */
@@ -131,7 +138,7 @@ test.describe("the editor", () => {
             ...program,
             config: { ...program.config, theme: "green" },
         });
-        expect(text).toContain('"other": { "parent": "home", "content": ["OTHER SCREEN"] }');
+        expect(text).toContain('"warning": { "type": "alert", "content": "DANGER AHEAD" }');
     });
 
     test("opens a file, and starts a new program", async ({ page }) => {
@@ -250,5 +257,27 @@ test.describe("the editor", () => {
             await page.getByRole("button", { name: "Undo" }).click();
             await expect(page.getByText("No problems")).toBeVisible();
         });
+    });
+
+    test("edits dialogs, renaming what opens them", async ({ page }) => {
+        await openEditor(page);
+        const dialogList = page.getByRole("navigation", { name: "Dialogs" });
+        await dialogList.getByRole("button", { name: "warning" }).click();
+        await page.getByRole("button", { name: "Open in the preview" }).click();
+        await expect(preview(page).locator("dialog[open]")).toContainText("DANGER AHEAD");
+
+        // another kind keeps its text
+        await choose(page, "type", "confirm");
+        await expect(page.getByRole("textbox", { name: "content" })).toHaveValue(/DANGER AHEAD/);
+        await choose(page, "type", "alert");
+
+        await page.getByRole("button", { name: "Rename" }).click();
+        await page.getByRole("textbox", { name: "Dialog id" }).fill("alarm");
+        await page.getByRole("button", { name: "Rename" }).click();
+        await expect(dialogList.getByRole("button", { name: "alarm" })).toBeVisible();
+        await expect(page.getByText("No problems")).toBeVisible();
+
+        await page.getByRole("button", { name: "Add a dialog" }).click();
+        await expect(dialogList.getByRole("button", { name: "new-dialog" })).toBeVisible();
     });
 });

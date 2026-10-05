@@ -30,8 +30,17 @@ import {
 import { formatJson } from "./format.ts";
 import { useHistory } from "./history.ts";
 import { type Path, parsePath, setIn } from "./paths.ts";
-import { freeId, insertScreen, renameScreen, type ScreenFile, screensOf } from "./screens.ts";
+import {
+    dialogsOf,
+    freeId,
+    insertScreen,
+    renameDialog,
+    renameScreen,
+    type ScreenFile,
+    screensOf,
+} from "./screens.ts";
 import { APPEARANCE_KEYS, AppearanceSection, appearanceOf } from "./sections/AppearanceSection.tsx";
+import { DialogSection } from "./sections/DialogSection.tsx";
 import { ProgramSection } from "./sections/ProgramSection.tsx";
 import { type ScreenErrors, ScreenSection } from "./sections/ScreenSection.tsx";
 import "./editor.css";
@@ -56,6 +65,7 @@ const screenSection = (id: string): Section => `screen:${id}`;
 /** Which section a mistake belongs in, by its path. */
 function sectionOf(path: Path): Section | null {
     if (path[0] === "screens" && path[1] !== undefined) return screenSection(String(path[1]));
+    if (path[0] === "dialogs" && path[1] !== undefined) return `dialog:${String(path[1])}`;
     if (path[0] !== "config") return null;
     return APPEARANCE_KEYS.includes(String(path[1])) ? "appearance" : "program";
 }
@@ -312,13 +322,42 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
         select(screenSection(to), openElement);
         return null;
     };
+    // ─── Dialogs ─────────────────────────────────────────────────────────────
+
+    const dialogFiles = dialogsOf(file);
+    const dialogs = Object.keys(dialogFiles);
+    const dialogId = section.startsWith("dialog:") ? section.slice("dialog:".length) : null;
+    const addDialog = () => {
+        const id = freeId(dialogs, "new-dialog");
+        history.set(
+            setIn(file, ["dialogs", id], {
+                type: "alert",
+                content: "A NEW DIALOG.",
+            }) as ProgramFile,
+        );
+        select(`dialog:${id}`);
+    };
+    const renameDialogTo = (from: string, to: string): string | null => {
+        if (!/^[\w-]+$/.test(to)) return "Letters, digits, _ and - only";
+        if (dialogs.includes(to)) return `There's already a dialog "${to}"`;
+        history.set(renameDialog(file, from, to));
+        renames.current.set(`dialog:${to}`, `dialog:${from}`).set(`dialog:${from}`, `dialog:${to}`);
+        select(`dialog:${to}`);
+        return null;
+    };
+
     // undoing (or redoing) a rename takes the editor along to the screen's other name
     const renames = useRef(new Map<string, string>());
     useEffect(() => {
+        if (dialogId && !dialogFiles[dialogId]) {
+            const other = renames.current.get(`dialog:${dialogId}`);
+            if (other && dialogFiles[other.slice("dialog:".length)]) setSection(other);
+            return;
+        }
         if (!screenId || screenFiles[screenId]) return;
         const other = renames.current.get(screenId);
         if (other && screenFiles[other]) setSection(screenSection(other));
-    }, [screenId, screenFiles]);
+    }, [screenId, screenFiles, dialogId, dialogFiles]);
     const duplicateScreen = (id: string) => {
         const copy = freeId(screens, `${id}-copy`);
         history.set(insertScreen(file, copy, structuredClone(screenFiles[id] ?? {}), id));
@@ -517,12 +556,93 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                         onSelect={(id) => select(screenSection(id))}
                         compact
                     />
+                    <Group justify="space-between" px="xs" pt="md" pb={6} wrap="nowrap">
+                        <Text size="xs" fw={700} tt="uppercase" c="dimmed">
+                            Dialogs
+                        </Text>
+                        <Tooltip label="Add a dialog">
+                            <ActionIcon
+                                size="sm"
+                                variant="light"
+                                aria-label="Add a dialog"
+                                onClick={addDialog}
+                            >
+                                +
+                            </ActionIcon>
+                        </Tooltip>
+                    </Group>
+                    <nav aria-label="Dialogs">
+                        {dialogs.map((id) => {
+                            const problems = errors.filter((error) =>
+                                error.path.startsWith(`dialogs.${id}`),
+                            ).length;
+                            return (
+                                <NavLink
+                                    key={id}
+                                    component="button"
+                                    label={id}
+                                    active={dialogId === id}
+                                    aria-current={dialogId === id ? "page" : undefined}
+                                    onClick={() => select(`dialog:${id}`)}
+                                    py={2}
+                                    rightSection={
+                                        problems > 0 && (
+                                            <Badge size="xs" color="red" circle>
+                                                {problems}
+                                            </Badge>
+                                        )
+                                    }
+                                />
+                            );
+                        })}
+                        {dialogs.length === 0 && (
+                            <Text size="xs" c="dimmed" px="xs">
+                                None yet.
+                            </Text>
+                        )}
+                    </nav>
                 </AppShell.Section>
             </AppShell.Navbar>
 
             <AppShell.Main>
                 <Stack gap="lg">
-                    {!screenId && (
+                    {dialogId && dialogFiles[dialogId] && (
+                        <DialogSection
+                            key={dialogId}
+                            id={dialogId}
+                            dialog={dialogFiles[dialogId]}
+                            onChange={(dialog) =>
+                                history.set(
+                                    setIn(file, ["dialogs", dialogId], dialog) as ProgramFile,
+                                    `dialogs.${dialogId}`,
+                                )
+                            }
+                            onRename={(to) => renameDialogTo(dialogId, to)}
+                            onDuplicate={() => {
+                                const copy = freeId(dialogs, `${dialogId}-copy`);
+                                history.set(
+                                    setIn(
+                                        file,
+                                        ["dialogs", copy],
+                                        structuredClone(dialogFiles[dialogId]),
+                                    ) as ProgramFile,
+                                );
+                                select(`dialog:${copy}`);
+                            }}
+                            onDelete={() => {
+                                history.set(
+                                    setIn(file, ["dialogs", dialogId], undefined) as ProgramFile,
+                                );
+                                select("program");
+                            }}
+                            onPreview={() => post({ type: "teletronix:dialog", dialog: dialogId })}
+                            error={
+                                errors.find((error) => error.path.startsWith(`dialogs.${dialogId}`))
+                                    ?.message
+                            }
+                        />
+                    )}
+                    {!screenId && !dialogId && (
                         <Title order={2}>
                             {SECTIONS.find((item) => item.id === section)?.label}
                         </Title>
