@@ -141,6 +141,43 @@ test.describe("a GM's panel", () => {
     });
 });
 
+test.describe("the GM's command palette", () => {
+    test("does what the panel does, by name, from the keyboard", async ({ page, player }) => {
+        await player.open(program);
+        const gm = await openGm(page);
+        await expect(gm.getByRole("status")).toContainText("Players on HOME");
+        const command = async (words: string) => {
+            await gm.keyboard.press("ControlOrMeta+k");
+            await gm.getByRole("textbox", { name: "Command" }).fill(words);
+            await gm.keyboard.press("Enter");
+        };
+
+        await command("engine");
+        await expect(player.screen).toContainText("ENGINE SCREEN");
+        await command("open warning");
+        await expect(player.dialog).toContainText("WARNING DIALOG");
+        await command("close the open");
+        await expect(player.dialog).toHaveCount(0);
+
+        // true/false at once; anything else in its field
+        await command("alarm");
+        await tab(gm, "Variables");
+        await expect(gm.getByRole("switch", { name: "alarm" })).toBeChecked();
+        await tab(gm, "Screens");
+        await command("credits");
+        await expect(gm.getByRole("textbox", { name: "credits" })).toBeFocused();
+        await gm.keyboard.type("7");
+        await gm.keyboard.press("Enter");
+        await command("home");
+        await expect(player.screen).toContainText("CREDITS: 7");
+
+        await gm.getByRole("button", { name: "Commands" }).click();
+        await gm.getByRole("textbox", { name: "Command" }).fill("start clock");
+        await gm.keyboard.press("Enter");
+        await expect(gm.locator(".gm-timer")).toContainText("▶");
+    });
+});
+
 test.describe("over the network", () => {
     test("pairs a panel with a terminal by its code, and controls it", async ({
         page,

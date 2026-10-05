@@ -22,6 +22,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type ParseError, parseProgram, type SoundSetting } from "../engine/index.ts";
 import { ColorScheme } from "../mantine/ColorScheme.tsx";
 import { MenuCaret } from "../mantine/MenuCaret.tsx";
+import { type CommandGroup, Palette, PaletteButton } from "../mantine/Palette.tsx";
 import { ScreenTree } from "../mantine/ScreenTree.tsx";
 import {
     type AppearanceSettings,
@@ -33,9 +34,11 @@ import { useHistory } from "./history.ts";
 import { type Path, parsePath, setIn } from "./paths.ts";
 import {
     dialogsOf,
+    ELEMENT_TYPES,
     type ElementFile,
     freeId,
     insertScreen,
+    newElement,
     renameDialog,
     renameScreen,
     renameSound,
@@ -386,6 +389,129 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
         select("program");
     };
 
+    // ─── Commands (Cmd/Ctrl+K) ───────────────────────────────────────────────
+
+    const goToProblem = (path: Path) => {
+        const target = sectionOf(path);
+        const element = path[2] === "content" && typeof path[3] === "number" ? path[3] : null;
+        if (target) select(target, element);
+    };
+    const restartPreview = () =>
+        post({
+            type: "teletronix:program",
+            file: fileRef.current,
+            ...(previewScreen.current ? { screen: previewScreen.current } : {}),
+        });
+    const screenFile = screenId ? screenFiles[screenId] : undefined;
+    const addToScreen = (element: ElementFile) => {
+        if (!screenId || !screenFile) return;
+        const content = (screenFile.content ?? []) as ElementFile[];
+        setScreen(screenId, { ...screenFile, content: [...content, element] });
+        setOpenElement(content.length);
+    };
+    const commands: CommandGroup[] = [
+        {
+            group: "Go to",
+            commands: [
+                ...SECTIONS.map((item) => ({
+                    id: item.id,
+                    label: item.label,
+                    description: item.description,
+                    run: () => select(item.id),
+                })),
+                ...treeScreens.map((screen) => ({
+                    id: screenSection(screen.id),
+                    label: screen.title ?? screen.id,
+                    description: `Screen ${screen.id}`,
+                    keywords: ["screen", screen.id],
+                    run: () => select(screenSection(screen.id)),
+                })),
+                ...dialogs.map((id) => ({
+                    id: `dialog:${id}`,
+                    label: id,
+                    description: "Dialog",
+                    keywords: ["dialog"],
+                    run: () => select(`dialog:${id}`),
+                })),
+            ],
+        },
+        {
+            group: "Problems",
+            commands: errors.map((error, index) => ({
+                id: String(index),
+                label: error.message,
+                description: error.path || "(the file)",
+                keywords: ["problem", "error", "mistake"],
+                run: () => goToProblem(parsePath(error.path)),
+            })),
+        },
+        {
+            group: "Commands",
+            commands: [
+                {
+                    id: "save",
+                    label: canSave ? `Save ${name}.json` : `Download ${name}.json`,
+                    keywords: ["save", "download", "write"],
+                    run: () => void save(),
+                },
+                ...(history.canUndo ? [{ id: "undo", label: "Undo", run: history.undo }] : []),
+                ...(history.canRedo ? [{ id: "redo", label: "Redo", run: history.redo }] : []),
+                {
+                    id: "add-screen",
+                    label: "Add a screen",
+                    description: screenId ? `Under ${screenId}` : undefined,
+                    keywords: ["new"],
+                    run: addScreen,
+                },
+                { id: "add-dialog", label: "Add a dialog", keywords: ["new"], run: addDialog },
+                ...(screenId && screenFile
+                    ? [
+                          {
+                              id: "show-screen",
+                              label: "Show this screen in the preview",
+                              run: () => post({ type: "teletronix:go", screen: screenId }),
+                          },
+                          {
+                              id: "duplicate-screen",
+                              label: "Duplicate this screen",
+                              keywords: ["copy"],
+                              run: () => duplicateScreen(screenId),
+                          },
+                          ...(copied !== null
+                              ? [
+                                    {
+                                        id: "paste",
+                                        label: "Paste into this screen",
+                                        run: () => addToScreen(structuredClone(copied)),
+                                    },
+                                ]
+                              : []),
+                      ]
+                    : []),
+                {
+                    id: "preview",
+                    label: showPreview ? "Hide the preview" : "Show the preview",
+                    run: () => setShowPreview((was) => !was),
+                },
+                { id: "restart", label: "Restart the preview", run: restartPreview },
+                { id: "new", label: "New program", run: startNew },
+            ],
+        },
+        {
+            group: "Add to this screen",
+            commands:
+                screenId && screenFile
+                    ? ELEMENT_TYPES.map((entry) => ({
+                          id: entry.type,
+                          label: `Add ${entry.type}`,
+                          description: entry.description.split(/[.:(]/)[0],
+                          keywords: ["element", "new"],
+                          run: () => addToScreen(newElement(entry.type)),
+                      }))
+                    : [],
+        },
+    ];
+
     // ─── Layout ──────────────────────────────────────────────────────────────
 
     return (
@@ -399,6 +525,7 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
             }}
             padding="lg"
         >
+            <Palette groups={commands} placeholder="Go to a screen, add an element, save…" />
             <AppShell.Header px="md">
                 <Group h="100%" justify="space-between" wrap="nowrap" gap="sm">
                     <Group gap="sm" wrap="nowrap">
@@ -435,17 +562,8 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                         )}
                     </Group>
                     <Group gap="xs" wrap="nowrap">
-                        <Problems
-                            errors={errors}
-                            go={(path) => {
-                                const target = sectionOf(path);
-                                const element =
-                                    path[2] === "content" && typeof path[3] === "number"
-                                        ? path[3]
-                                        : null;
-                                if (target) select(target, element);
-                            }}
-                        />
+                        <PaletteButton />
+                        <Problems errors={errors} go={goToProblem} />
                         <Tooltip label="Undo (Cmd/Ctrl+Z)">
                             <ActionIcon
                                 variant="default"
@@ -523,15 +641,7 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                                 aria-label="Restart the preview"
                                 disabled={!showPreview}
                                 className="editor-history"
-                                onClick={() =>
-                                    post({
-                                        type: "teletronix:program",
-                                        file: fileRef.current,
-                                        ...(previewScreen.current
-                                            ? { screen: previewScreen.current }
-                                            : {}),
-                                    })
-                                }
+                                onClick={restartPreview}
                             >
                                 ⟲
                             </ActionIcon>

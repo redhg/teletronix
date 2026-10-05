@@ -6,6 +6,7 @@ import { toolTheme } from "../mantine/theme.ts";
 import { fetchProgramJson } from "../ui/load-program.ts";
 import { EditorApp, NEW_PROGRAM, type ProgramFile } from "./EditorApp.tsx";
 import "@mantine/core/styles.css";
+import "@mantine/spotlight/styles.css";
 
 /** The editor's light, dark or automatic colour scheme, kept between visits (with the GM's). */
 const colorSchemes = localStorageColorSchemeManager({ key: "teletronix:tool-color-scheme" });

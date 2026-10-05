@@ -38,3 +38,7 @@ element, open, for one in a screen). Undo and redo with **Cmd/Ctrl+Z** and
 `npm run dev`; anywhere else (e.g. a build), it downloads the file instead. It writes JSON the
 way it's written by hand: short and flat things on one line, the rest spread out. The **File**
 menu starts a new program, opens a JSON file, and downloads.
+
+**Cmd/Ctrl+K** (or **Commands…**) opens a command palette, in text fields too: type a few
+letters to go to any part, screen (by its title or id), dialog or problem, to add any element to
+the screen you're on, or to save, undo, add a screen or dialog, paste, or restart the preview.

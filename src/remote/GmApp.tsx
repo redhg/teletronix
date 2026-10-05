@@ -22,6 +22,7 @@ import { useLocalStorage } from "@mantine/hooks";
 import { type FormEvent, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { EFFECTS, type EffectName, type Program, type VariableValue } from "../engine/index.ts";
 import { ColorScheme } from "../mantine/ColorScheme.tsx";
+import { type CommandGroup, Palette, PaletteButton } from "../mantine/Palette.tsx";
 import { Panel } from "../mantine/Panel.tsx";
 import { ScreenTree } from "../mantine/ScreenTree.tsx";
 import { AddDevice } from "./AddDevice.tsx";
@@ -157,11 +158,150 @@ export function GmApp({ name, program }: Props) {
         return () => observer.disconnect();
     }, []);
 
+    // ─── Commands (Cmd/Ctrl+K) ───────────────────────────────────────────────
+
+    /** Shows a tab, and puts the cursor in one of its fields. */
+    const focusField = (inTab: string, selector: string) => {
+        setTab(inTab);
+        requestAnimationFrame(() => document.querySelector<HTMLElement>(selector)?.focus());
+    };
+    const setEffect = (effect: EffectName, value: Override) => {
+        const next = { ...effects, [effect]: value };
+        setEffects(next);
+        sendEffects(next);
+    };
+    const restart = () => {
+        if (confirm("Restart the program from the start screen?")) action({ restart: true });
+    };
+    const commands: CommandGroup[] = [
+        {
+            group: "Players",
+            commands: [
+                {
+                    id: "back",
+                    label: "Back",
+                    description: "To the screen before",
+                    run: () => action({ back: true }),
+                },
+                { id: "restart", label: "Restart the program", run: restart },
+                {
+                    id: "transmit",
+                    label: "Transmit a message…",
+                    keywords: ["send", "message"],
+                    run: () => focusField("messages", "#gm-message"),
+                },
+                ...(latest?.dialog
+                    ? [
+                          {
+                              id: "close",
+                              label: "Close the open dialog",
+                              run: () => send({ type: "close-dialog" }),
+                          },
+                      ]
+                    : []),
+                {
+                    id: "burst",
+                    label: "Burst of static",
+                    keywords: ["effect"],
+                    run: () => send({ type: "burst", ms: BURST_MS }),
+                },
+                { id: "window", label: "Open a players' window", run: () => openPlayers(name) },
+            ],
+        },
+        {
+            group: "Go to",
+            commands: [...program.screens.values()].map((screen) => ({
+                id: screen.id,
+                label: screen.title ?? screen.id.toUpperCase(),
+                description: `Screen ${screen.id}`,
+                keywords: ["screen", screen.id],
+                run: () => action({ screen: screen.id }),
+            })),
+        },
+        {
+            group: "Dialogs",
+            commands: [...program.dialogs.keys()].map((id) => ({
+                id,
+                label: `Open ${id}`,
+                keywords: ["dialog"],
+                run: () => action({ dialog: id }),
+            })),
+        },
+        {
+            group: "Variables",
+            commands: [...program.variables.entries()].map(([variable, initial]) => {
+                const value = latest?.variables[variable] ?? initial;
+                return typeof value === "boolean"
+                    ? {
+                          id: variable,
+                          label: `Set ${variable} to ${!value}`,
+                          keywords: ["variable", "toggle"],
+                          run: () => action({ set: { [variable]: !value } }),
+                      }
+                    : {
+                          id: variable,
+                          label: `Change ${variable}…`,
+                          description: `Now ${JSON.stringify(value)}`,
+                          keywords: ["variable", "set"],
+                          run: () =>
+                              focusField("variables", `[aria-label="${CSS.escape(variable)}"]`),
+                      };
+            }),
+        },
+        {
+            group: "Timers",
+            commands: [...program.timers.keys()].flatMap((timer) =>
+                (
+                    [
+                        ["Start", "startTimer"],
+                        ["Stop", "stopTimer"],
+                        ["Reset", "resetTimer"],
+                    ] as const
+                ).map(([verb, key]) => ({
+                    id: `${key}:${timer}`,
+                    label: `${verb} ${timer}`,
+                    keywords: ["timer", "clock"],
+                    run: () => action({ [key]: timer }),
+                })),
+            ),
+        },
+        {
+            group: "Effects",
+            commands: (Object.keys(EFFECTS) as EffectName[]).flatMap((effect) =>
+                (
+                    [
+                        ["on", "on"],
+                        ["off", "off"],
+                        ["program", "as the program says"],
+                    ] as const
+                ).map(([value, words]) => ({
+                    id: `${effect}:${value}`,
+                    label: `${effect[0]?.toUpperCase()}${effect.slice(1)} ${words}`,
+                    keywords: ["effect"],
+                    run: () => setEffect(effect, value),
+                })),
+            ),
+        },
+        {
+            group: "Tabs",
+            commands: TABS.map(([value, label]) => ({
+                id: value,
+                label: `Show ${label}`,
+                keywords: ["tab"],
+                run: () => setTab(value),
+            })),
+        },
+    ];
+
     return (
         <Box
             className="gm"
             style={{ "--gm-header-height": `${headerHeight}px` } as React.CSSProperties}
         >
+            <Palette
+                groups={commands}
+                placeholder="Go to a screen, open a dialog, start a timer…"
+            />
             <Box ref={header} component="header" className="gm-header" px="lg" py="sm">
                 <Group justify="space-between" gap="sm">
                     <Group gap="md">
@@ -169,6 +309,7 @@ export function GmApp({ name, program }: Props) {
                         <Status count={live.length} state={latest} program={program} name={name} />
                     </Group>
                     <Group gap="sm">
+                        <PaletteButton />
                         <Button.Group>
                             <Button
                                 variant="default"
@@ -177,15 +318,7 @@ export function GmApp({ name, program }: Props) {
                             >
                                 ← Back
                             </Button>
-                            <Button
-                                variant="default"
-                                size="xs"
-                                onClick={() => {
-                                    if (confirm("Restart the program from the start screen?")) {
-                                        action({ restart: true });
-                                    }
-                                }}
-                            >
+                            <Button variant="default" size="xs" onClick={restart}>
                                 Restart
                             </Button>
                         </Button.Group>
@@ -213,11 +346,11 @@ export function GmApp({ name, program }: Props) {
             )}
             <Tabs value={tab} onChange={(value) => value && setTab(value)} keepMounted>
                 <Tabs.List className="gm-tabs" px="lg">
-                    <Tabs.Tab value="screens">Screens</Tabs.Tab>
-                    <Tabs.Tab value="messages">Messages</Tabs.Tab>
-                    <Tabs.Tab value="variables">Variables</Tabs.Tab>
-                    <Tabs.Tab value="effects">Effects</Tabs.Tab>
-                    <Tabs.Tab value="devices">Devices</Tabs.Tab>
+                    {TABS.map(([value, label]) => (
+                        <Tabs.Tab key={value} value={value}>
+                            {label}
+                        </Tabs.Tab>
+                    ))}
                 </Tabs.List>
                 <Box p="lg">
                     <Tabs.Panel value="screens">
@@ -279,6 +412,15 @@ export function GmApp({ name, program }: Props) {
         </Box>
     );
 }
+
+/** The panel's tabs: their values and names. */
+const TABS = [
+    ["screens", "Screens"],
+    ["messages", "Messages"],
+    ["variables", "Variables"],
+    ["effects", "Effects"],
+    ["devices", "Devices"],
+] as const;
 
 /** Opens a players' window on this computer (or brings the open one forward). */
 function openPlayers(program: string): void {
@@ -441,6 +583,7 @@ function Transmit({ send }: { send: (message: GmMessage) => void }) {
             <form onSubmit={submit}>
                 <Stack gap="sm">
                     <Textarea
+                        id="gm-message"
                         label="Message"
                         placeholder="MOTHER: CREW EXPENDABLE."
                         autosize

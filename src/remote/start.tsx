@@ -6,6 +6,7 @@ import { toolTheme } from "../mantine/theme.ts";
 import { fetchProgramJson } from "../ui/load-program.ts";
 import { GmApp } from "./GmApp.tsx";
 import "@mantine/core/styles.css";
+import "@mantine/spotlight/styles.css";
 import "./gm.css";
 
 /** The panel's light, dark or automatic colour scheme, kept between visits (with the editor's). */

@@ -37,6 +37,11 @@ The rest is in tabs (<left> and <right> move between them, and the panel opens a
 - **Devices:** a QR code for a players' device (see below), and a button to open a players'
   window on this computer.
 
+**Cmd/Ctrl+K** (or **Commands…**) opens a command palette, to do any of it by typing a few
+letters: go to a screen (by its title or id), open a dialog, turn a true/false variable over or
+change another (it opens its field), start, stop or reset a timer, turn an effect on or off,
+send a burst of static, or start a transmission.
+
 When a new version of Teletronix is waiting (see [Offline](#offline)), the panel says so, and
 **Reload** switches to it there and then, rather than once every Teletronix window has closed.
 Players' windows get it the next time they're opened or reloaded.

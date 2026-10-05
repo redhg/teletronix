@@ -355,6 +355,31 @@ test.describe("the editor", () => {
         await expect(page.getByRole("button", { name: "Rename crew" })).toBeVisible();
     });
 
+    test("goes anywhere and does anything from its command palette", async ({ page }) => {
+        await openEditor(page);
+        const command = async (words: string) => {
+            await page.keyboard.press("ControlOrMeta+k");
+            await page.getByRole("textbox", { name: "Command" }).fill(words);
+            await page.keyboard.press("Enter");
+        };
+
+        await command("the other one");
+        await expect(page.getByRole("main")).toContainText("· THE OTHER ONE");
+        await expect(preview(page).locator(".screen")).toContainText("OTHER SCREEN");
+
+        // in a text field too
+        await page.getByRole("textbox", { name: "File name" }).focus();
+        await command("add carousel");
+        await expect(page.getByRole("button", { name: /^Element 4: carousel/ })).toBeVisible();
+        await command("undo");
+        await expect(page.getByRole("button", { name: /^Element 4/ })).toHaveCount(0);
+
+        await command("warning");
+        await expect(page.getByRole("textbox", { name: "content" })).toHaveValue(/DANGER AHEAD/);
+        await command("appearance");
+        await expect(page.getByRole("heading", { name: "Appearance" })).toBeVisible();
+    });
+
     test("designs the program's own sounds", async ({ page }) => {
         await openEditor(page);
         await section(page, "Sounds");
