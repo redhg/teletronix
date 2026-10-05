@@ -21,7 +21,7 @@ Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `s
 with no file yet, for a new program). On the left, the program's parts; in the middle, a form for
 the one chosen; on the right, a live preview, which shows appearance changes at once and
 restarts with anything else, on the screen it was showing.
-- **Program:** its name, start screen, bars, variables and timers, and how screens appear. The
+- **Program:** its name, start screen, bars, and how screens appear. The
   fields are built from the schema, each with its description and default: leave one empty (or
   choose ↺) to use the default. A setting that's one of several kinds (a reveal, a transition,
   a screen's preset) is a list to pick from, with the chosen kind's own options under it (e.g. a
@@ -46,7 +46,10 @@ rest spread out. The **File** menu starts a new program, opens a JSON file, and 
   list, with that kind's settings under it (switching keeps the settings both have, e.g. its
   text). **Rename** renames the actions that open it; **Open in the preview** opens it there.
 
-Variables, timers and sounds of their own come next.
+- **Variables & timers:** each variable's name, kind (true/false, number or text) and
+  starting value, and each timer's settings; add and delete them here.
+
+Sounds of their own come next.
 
 | Script | |
 |---|---|

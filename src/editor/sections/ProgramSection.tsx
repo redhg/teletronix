@@ -14,7 +14,6 @@ const GROUPS: { title: string; keys: string[] }[] = [
         keys: ["reveal", "transition", "align", "waitForReveal", "autoscroll", "defaults"],
     },
     { title: "Bars", keys: ["header", "footer"] },
-    { title: "Variables and timers", keys: ["variables", "timers"] },
     { title: "Players", keys: ["skipKeys", "save", "blockContextMenu"] },
 ];
 
@@ -33,7 +32,13 @@ export function ProgramSection({ config, screens, set, errors }: Props) {
     const defs = schema.$defs ?? {};
     const properties = schema.properties ?? {};
     // (anything not in a group, e.g. a setting added later, still shows, at the end)
-    const grouped = new Set([...GROUPS.flatMap((group) => group.keys), ...APPEARANCE_KEYS]);
+    const grouped = new Set([
+        ...GROUPS.flatMap((group) => group.keys),
+        ...APPEARANCE_KEYS,
+        // (in a section of their own)
+        "variables",
+        "timers",
+    ]);
     const others = Object.keys(properties).filter((key) => !grouped.has(key));
 
     const field = (key: string) => {

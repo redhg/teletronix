@@ -43,6 +43,7 @@ import { APPEARANCE_KEYS, AppearanceSection, appearanceOf } from "./sections/App
 import { DialogSection } from "./sections/DialogSection.tsx";
 import { ProgramSection } from "./sections/ProgramSection.tsx";
 import { type ScreenErrors, ScreenSection } from "./sections/ScreenSection.tsx";
+import { VariablesSection } from "./sections/VariablesSection.tsx";
 import "./editor.css";
 
 /** A program file as written. */
@@ -59,6 +60,7 @@ type Section = string;
 const SECTIONS: { id: Section; label: string; description: string }[] = [
     { id: "program", label: "Program", description: "Name, start screen, bars, variables…" },
     { id: "appearance", label: "Appearance", description: "Colours, font, effects, sound" },
+    { id: "variables", label: "Variables & timers", description: "What it remembers, and clocks" },
 ];
 const screenSection = (id: string): Section => `screen:${id}`;
 
@@ -67,6 +69,7 @@ function sectionOf(path: Path): Section | null {
     if (path[0] === "screens" && path[1] !== undefined) return screenSection(String(path[1]));
     if (path[0] === "dialogs" && path[1] !== undefined) return `dialog:${String(path[1])}`;
     if (path[0] !== "config") return null;
+    if (path[1] === "variables" || path[1] === "timers") return "variables";
     return APPEARANCE_KEYS.includes(String(path[1])) ? "appearance" : "program";
 }
 
@@ -673,6 +676,9 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                             set={setConfig}
                             errors={configErrors}
                         />
+                    )}
+                    {section === "variables" && (
+                        <VariablesSection config={config} set={setConfig} errors={configErrors} />
                     )}
                     {section === "appearance" && (
                         <AppearanceSection config={config} set={setConfig} />

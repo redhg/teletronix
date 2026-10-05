@@ -55,3 +55,9 @@
 .editor-choice-options {
     border-inline-start: 2px solid var(--mantine-color-default-border);
 }
+
+/* a timer's settings, set apart from the next timer's */
+.editor-timer {
+    padding-bottom: var(--mantine-spacing-md);
+    border-bottom: 1px solid var(--mantine-color-default-border);
+}

@@ -280,4 +280,27 @@ test.describe("the editor", () => {
         await page.getByRole("button", { name: "Add a dialog" }).click();
         await expect(dialogList.getByRole("button", { name: "new-dialog" })).toBeVisible();
     });
+
+    test("edits variables and timers", async ({ page }) => {
+        await openEditor(page);
+        await section(page, "Variables & timers");
+        await page.getByRole("textbox", { name: "Add a variable" }).fill("fuel");
+        await page.getByRole("button", { name: "Add a variable" }).click();
+        await choose(page, "fuel: kind", "Number");
+        await page.getByRole("textbox", { name: "fuel", exact: true }).fill("40");
+        await page.getByRole("textbox", { name: "Add a variable" }).fill("fuel");
+        await expect(page.getByText('"fuel" is taken')).toBeVisible();
+        await page.getByRole("textbox", { name: "Add a variable" }).fill("");
+
+        await page.getByRole("textbox", { name: "Add a timer" }).fill("clock");
+        await page.getByRole("button", { name: "Add a timer" }).click();
+        await expect(page.getByText("No problems")).toBeVisible();
+        const [download] = await Promise.all([
+            page.waitForEvent("download"),
+            page.getByRole("button", { name: /^Download/ }).click(),
+        ]);
+        const config = JSON.parse(await readFile(await download.path(), "utf8")).config;
+        expect(config.variables).toEqual({ fuel: 40 });
+        expect(config.timers).toEqual({ clock: { from: 60 } });
+    });
 });
