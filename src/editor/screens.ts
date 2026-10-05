@@ -168,3 +168,70 @@ export function renameSound(file: ProgramFile, from: string, to: string): Progra
         ),
     };
 }
+
+// ─── Variables ───────────────────────────────────────────────────────────────
+
+/** Settings that hold a variable's (or timer's) name: one, or a list of them. */
+const VARIABLE_KEYS = new Set([
+    "variable",
+    "variables",
+    "timer",
+    "startTimer",
+    "stopTimer",
+    "resetTimer",
+    "x",
+    "y",
+]);
+
+/**
+ * The program with a variable or timer renamed (they share their names), and everything that
+ * names it: "{name}" in text, conditions (`if`), assignments (`set`), the elements bound to it
+ * (`variable`, a choice's `variables`, a timer element's `timer`, a map marker's `x` and `y`),
+ * and the actions that start, stop and reset a timer. It keeps its place among the others.
+ */
+export function renameVariable(file: ProgramFile, from: string, to: string): ProgramFile {
+    const rename = (value: unknown): unknown => (value === from ? to : value);
+    const renameKeys = (value: unknown): unknown =>
+        value === null || typeof value !== "object" || Array.isArray(value)
+            ? value
+            : Object.fromEntries(Object.entries(value).map(([key, item]) => [rename(key), item]));
+    const condition = (value: unknown): unknown => {
+        if (value === null || typeof value !== "object" || Array.isArray(value)) return value;
+        return Object.fromEntries(
+            Object.entries(value).map(([key, item]) =>
+                key === "all" || key === "any"
+                    ? [key, Array.isArray(item) ? item.map(condition) : item]
+                    : key === "not"
+                      ? [key, condition(item)]
+                      : [rename(key), item],
+            ),
+        );
+    };
+    const walk = (value: unknown): unknown => {
+        if (typeof value === "string") return value.split(`{${from}}`).join(`{${to}}`);
+        if (Array.isArray(value)) return value.map(walk);
+        if (value === null || typeof value !== "object") return value;
+        return Object.fromEntries(
+            Object.entries(value).map(([key, item]) => [
+                key,
+                key === "if"
+                    ? condition(item)
+                    : key === "set"
+                      ? renameKeys(item)
+                      : VARIABLE_KEYS.has(key) && typeof item !== "object"
+                        ? rename(item)
+                        : VARIABLE_KEYS.has(key) && Array.isArray(item)
+                          ? item.map(rename)
+                          : walk(item),
+            ]),
+        );
+    };
+    const renamed = walk(file) as ProgramFile;
+    if (!renamed.config) return renamed;
+    const config = { ...renamed.config };
+    // the declarations themselves: their names, but not their starting values
+    const declared = (file.config as Record<string, unknown>).variables;
+    if (declared) config.variables = renameKeys(declared);
+    if (config.timers) config.timers = renameKeys(config.timers);
+    return { ...renamed, config };
+}

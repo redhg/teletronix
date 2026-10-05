@@ -39,6 +39,7 @@ import {
     renameDialog,
     renameScreen,
     renameSound,
+    renameVariable,
     type ScreenFile,
     screensOf,
 } from "./screens.ts";
@@ -736,7 +737,12 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                         />
                     )}
                     {section === "variables" && (
-                        <VariablesSection config={config} set={setConfig} errors={configErrors} />
+                        <VariablesSection
+                            config={config}
+                            set={setConfig}
+                            errors={configErrors}
+                            onRename={(from, to) => history.set(renameVariable(file, from, to))}
+                        />
                     )}
                     {section === "appearance" && (
                         <AppearanceSection config={config} set={setConfig} />

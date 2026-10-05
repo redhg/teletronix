@@ -12,7 +12,10 @@ restarts with anything else, on the screen it was showing (⟲ restarts it by ha
   edited as JSON.
 - **Appearance:** colours, font, text size, line spacing, effects and sound.
 - **Variables & timers:** each variable's name, kind (true/false, number or text) and starting
-  value, and each timer's settings; add and delete them here.
+  value, and each timer's settings; add and delete them here. **✎** renames one, and
+  everything that uses it: `{name}` in text, conditions, `set`, the elements bound to it, and
+  the actions that start, stop and reset a timer. (Elements' own placeholders, such as a
+  carousel's `{slide}`, are renamed too if a variable shares the name.)
 - **Sounds:** the program's own sound effects, designed sfxr-style: roll one from a preset
   (blip, laser, explosion…), mutate it, adjust its wave and sliders by ear, and play it. Play
   one with `"sound": "its-name"`; **Rename** renames what plays it. And Teletronix's own

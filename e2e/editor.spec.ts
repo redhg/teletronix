@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { expect, type Page, type Program, test } from "./fixtures.ts";
 
 const program: Program = {
-    config: { name: "Editor", start: "home", header: [{ left: "SHIP" }] },
+    config: { name: "Editor", start: "home", header: [{ left: "SHIP" }], variables: { crew: 3 } },
     screens: {
         home: {
             content: [
@@ -16,6 +16,12 @@ const program: Program = {
             content: [
                 "OTHER SCREEN",
                 { type: "link", text: "> WARN", action: { dialog: "warning" } },
+                {
+                    type: "link",
+                    text: "> CREW OF {crew}",
+                    if: { crew: { atLeast: 1 } },
+                    action: { set: { crew: { add: -1 } } },
+                },
             ],
         },
     },
@@ -190,7 +196,7 @@ test.describe("the editor", () => {
             // (OTHER shows, under HOME, now HOME is chosen)
             await openScreen(page, /^THE OTHER ONE/);
             await page.getByRole("button", { name: "Paste" }).click();
-            await expect(element(page, 3)).toHaveAccessibleName(/link, > OTHER/);
+            await expect(element(page, 4)).toHaveAccessibleName(/link, > OTHER/);
             await expect(page.getByText("No problems")).toBeVisible();
         });
 
@@ -315,8 +321,38 @@ test.describe("the editor", () => {
             page.getByRole("button", { name: /^Download/ }).click(),
         ]);
         const config = JSON.parse(await readFile(await download.path(), "utf8")).config;
-        expect(config.variables).toEqual({ fuel: 40 });
+        expect(config.variables).toEqual({ crew: 3, fuel: 40 });
         expect(config.timers).toEqual({ clock: { from: 60 } });
+    });
+
+    test("renames a variable, and what uses it", async ({ page }) => {
+        await openEditor(page);
+        await section(page, "Variables & timers");
+        await page.getByRole("button", { name: "Rename crew" }).click();
+        const name = page.getByRole("textbox", { name: "Rename crew" });
+        await name.fill("not");
+        await expect(page.getByText('"not" means something in conditions')).toBeVisible();
+        await name.fill("hands");
+        await name.press("Enter");
+        await expect(page.getByRole("button", { name: "Rename hands" })).toBeVisible();
+        await expect(page.getByText("No problems")).toBeVisible();
+
+        const [download] = await Promise.all([
+            page.waitForEvent("download"),
+            page.getByRole("button", { name: /^Download/ }).click(),
+        ]);
+        const file = JSON.parse(await readFile(await download.path(), "utf8"));
+        expect(file.config.variables).toEqual({ hands: 3 });
+        expect(file.screens.other.content[2]).toEqual({
+            type: "link",
+            text: "> CREW OF {hands}",
+            if: { hands: { atLeast: 1 } },
+            action: { set: { hands: { add: -1 } } },
+        });
+
+        // one undo puts it all back
+        await page.keyboard.press("ControlOrMeta+z");
+        await expect(page.getByRole("button", { name: "Rename crew" })).toBeVisible();
     });
 
     test("designs the program's own sounds", async ({ page }) => {

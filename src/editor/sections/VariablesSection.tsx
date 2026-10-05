@@ -4,6 +4,7 @@ import {
     Code,
     Group,
     NumberInput,
+    Popover,
     Select,
     SimpleGrid,
     Stack,
@@ -35,10 +36,12 @@ interface Props {
     set: (path: Path, value: unknown) => void;
     /** Mistakes in the config, by property */
     errors: Map<string, string>;
+    /** Renames a variable or timer, and everything that names it */
+    onRename: (from: string, to: string) => void;
 }
 
 /** The program's variables (each a name, a kind and its starting value) and its timers. */
-export function VariablesSection({ config, set, errors }: Props) {
+export function VariablesSection({ config, set, errors, onRename }: Props) {
     const variables = (config.variables ?? {}) as Record<string, Value>;
     const timers = (config.timers ?? {}) as Record<string, Record<string, unknown>>;
     const timer = useMemo(() => jsonSchemaOf(TimerSchema), []);
@@ -111,6 +114,13 @@ export function VariablesSection({ config, set, errors }: Props) {
                                             )}
                                         </Table.Td>
                                         <Table.Td w={36}>
+                                            <Rename
+                                                name={name}
+                                                taken={taken}
+                                                onRename={(to) => onRename(name, to)}
+                                            />
+                                        </Table.Td>
+                                        <Table.Td w={36}>
                                             <Tooltip label="Delete">
                                                 <ActionIcon
                                                     variant="subtle"
@@ -149,7 +159,14 @@ export function VariablesSection({ config, set, errors }: Props) {
                 {Object.entries(timers).map(([name, settings]) => (
                     <Stack key={name} gap="sm" className="editor-timer">
                         <Group justify="space-between">
-                            <Code fz="md">{name}</Code>
+                            <Group gap={4}>
+                                <Code fz="md">{name}</Code>
+                                <Rename
+                                    name={name}
+                                    taken={taken}
+                                    onRename={(to) => onRename(name, to)}
+                                />
+                            </Group>
                             <Button
                                 size="compact-xs"
                                 variant="subtle"
@@ -181,6 +198,86 @@ export function VariablesSection({ config, set, errors }: Props) {
     );
 }
 
+/** What's wrong with a name for a variable or timer, if anything. */
+function nameProblem(name: string, taken: string[]): string | null {
+    if (name === "") return null;
+    if (!NAME.test(name)) return "Starts with a letter or _, then letters, digits, _ and -";
+    if (["all", "any", "not"].includes(name)) return `"${name}" means something in conditions`;
+    return taken.includes(name) ? `"${name}" is taken` : null;
+}
+
+/** A button that renames a variable or timer, from a little form under it. */
+function Rename({
+    name,
+    taken,
+    onRename,
+}: {
+    name: string;
+    taken: string[];
+    onRename: (to: string) => void;
+}) {
+    const [opened, setOpened] = useState(false);
+    const [to, setTo] = useState(name);
+    const problem = to === name ? null : nameProblem(to, taken);
+    return (
+        <Popover
+            opened={opened}
+            onChange={setOpened}
+            onOpen={() => setTo(name)}
+            position="bottom-start"
+            trapFocus
+            withArrow
+        >
+            <Popover.Target>
+                <Tooltip label="Rename" disabled={opened}>
+                    <ActionIcon
+                        variant="subtle"
+                        aria-label={`Rename ${name}`}
+                        onClick={() => {
+                            setTo(name);
+                            setOpened((open) => !open);
+                        }}
+                    >
+                        ✎
+                    </ActionIcon>
+                </Tooltip>
+            </Popover.Target>
+            <Popover.Dropdown>
+                <form
+                    onSubmit={(event) => {
+                        event.preventDefault();
+                        if (to === name || problem || !to) return;
+                        onRename(to);
+                        setOpened(false);
+                    }}
+                >
+                    <Stack gap="xs" w={240}>
+                        <TextInput
+                            size="xs"
+                            label={`Rename ${name}`}
+                            description="Text, conditions, actions and elements that use it follow"
+                            value={to}
+                            error={problem}
+                            data-autofocus
+                            onChange={(event) => setTo(event.currentTarget.value.trim())}
+                            styles={{
+                                input: { fontFamily: "var(--mantine-font-family-monospace)" },
+                            }}
+                        />
+                        <Button
+                            type="submit"
+                            size="xs"
+                            disabled={to === name || !to || Boolean(problem)}
+                        >
+                            Rename
+                        </Button>
+                    </Stack>
+                </form>
+            </Popover.Dropdown>
+        </Popover>
+    );
+}
+
 /** A name to add, checked: a variable name, and not one already used. */
 function AddName({
     label,
@@ -192,14 +289,7 @@ function AddName({
     onAdd: (name: string) => void;
 }) {
     const [name, setName] = useState("");
-    const problem =
-        name === ""
-            ? null
-            : !NAME.test(name)
-              ? "Starts with a letter or _, then letters, digits, _ and -"
-              : taken.includes(name)
-                ? `"${name}" is taken`
-                : null;
+    const problem = nameProblem(name, taken);
     return (
         <form
             onSubmit={(event) => {
