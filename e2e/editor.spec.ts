@@ -222,6 +222,77 @@ test.describe("the editor", () => {
             await expect(element(page, 2)).toHaveAccessibleName(/link, > OTHER/);
         });
 
+        test("edits links and menus with forms of their own", async ({ page }) => {
+            await openEditor(page);
+            await screenList(page)
+                .getByRole("button", { name: /^Show the screens under HOME/ })
+                .click();
+            await openScreen(page, /^THE OTHER ONE/);
+            const asJson = async () => {
+                await page.getByRole("tab", { name: "JSON" }).click();
+                const json = JSON.parse(
+                    await page.getByRole("textbox", { name: "As JSON" }).inputValue(),
+                );
+                await page.getByRole("tab", { name: "Settings" }).click();
+                return json;
+            };
+
+            // a link's action: what it does, from the program's own screens and dialogs
+            await element(page, 2).click();
+            await expect(page.getByRole("textbox", { name: "Text", exact: true })).toHaveValue(
+                "> WARN",
+            );
+            await expect(
+                page.getByRole("combobox", { name: "When it's clicked: does" }),
+            ).toHaveValue("Open a dialog");
+            await choose(page, "When it's clicked: does", "Go to a screen");
+            await choose(page, "When it's clicked: screen", "home");
+            await page
+                .getByRole("button", { name: "When it's clicked: add change variables" })
+                .click();
+            await page
+                .getByRole("textbox", { name: "When it's clicked: change variables" })
+                .fill('{ "crew": 1 }');
+            expect(await asJson()).toEqual({
+                type: "link",
+                text: "> WARN",
+                action: { screen: "home", set: { crew: 1 } },
+            });
+            await expect(page.getByText("No problems")).toBeVisible();
+
+            // more than the form shows: JSON
+            await page.getByRole("tab", { name: "JSON" }).click();
+            await page.getByRole("textbox", { name: "As JSON" }).fill(
+                JSON.stringify({
+                    type: "link",
+                    text: "> WARN",
+                    action: [{ if: { crew: 3 }, back: true }, { screen: "home" }],
+                }),
+            );
+            await page.getByRole("tab", { name: "Settings" }).click();
+            await expect(page.getByText(/does more than the form shows/)).toBeVisible();
+
+            // a menu, from nothing
+            await page.getByRole("combobox", { name: "Add an element" }).click();
+            await page.keyboard.type("menu");
+            await page.getByRole("option", { name: /^menu/ }).click();
+            await page.getByRole("button", { name: "Add an item" }).click();
+            await page.getByRole("textbox", { name: "Item 1: text" }).fill("> ENGINES");
+            await page.getByRole("textbox", { name: "Item 1: key" }).fill("1");
+            await page.getByRole("button", { name: "Add an item" }).click();
+            await choose(page, "Item 2: when it's chosen: does", "Go back");
+            await page.getByRole("button", { name: "Move item 2 up" }).click();
+            expect(await asJson()).toEqual({
+                type: "menu",
+                items: [
+                    { text: "NEW ITEM", action: { back: true } },
+                    { text: "> ENGINES", action: { screen: "home" }, key: "1" },
+                ],
+            });
+            await expect(page.getByText("No problems")).toBeVisible();
+            await expect(preview(page).locator(".screen")).toContainText("> ENGINES");
+        });
+
         test("copies an element from one screen into another", async ({ page }) => {
             await openEditor(page);
             await openScreen(page, /^HOME/);

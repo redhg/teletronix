@@ -1136,8 +1136,7 @@ What happens when a progress bar finishes: an action, now or after a pause
 
 One of:
 
-- [Action case](#action-case)
-- [Action case](#action-case)[]
+- [Action](#action)
 - [Delayed action](#delayed-action)
 
 <a id="delayed-action"></a>

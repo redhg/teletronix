@@ -23,7 +23,13 @@ restarts with anything else, on the screen it was showing (⟲ restarts it by ha
 - **Screens:** every screen, under its `parent`, or found by name; **+** adds one (under the one
   chosen). A screen's page has its settings (folded away) and its content, an element to a row:
   open one to edit it: **Settings**, a form built from its type's schema, or **JSON** (for
-  anything a form can't do, e.g. a section's contents). Drag a row by its **⠿** handle to move it
+  anything a form can't do, e.g. a section's contents). Text, links and menus have forms of
+  their own: the text, what a link does, a menu's items (each with its key and what it does,
+  added, moved and deleted), with the rest under **More settings**. Anything that does
+  something (a link's or item's action, a timer's `onComplete`, and so on) is a form too: go
+  to a screen or open a dialog (picked from the program's), go back, or restart, with **+
+  Sound**, **+ Change variables** and **+ In a frame** to add those. An action with conditions,
+  a choice at random or timers stays JSON. Drag a row by its **⠿** handle to move it
 (or focus the handle, press Space, move it with the arrow keys and press Space again); rows also
 move up and down with their arrows, and duplicate, copy
   (**Paste** puts the copy at the end of any screen) and delete, and **Add an element** picks any

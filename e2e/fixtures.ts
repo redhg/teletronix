@@ -180,6 +180,12 @@ export class AudioSpy {
     }
 }
 
+/**
+ * A notice, not a fault: a layout that settles over two frames (e.g. a text box growing to
+ * fit, in the editor) makes a browser say so, WebKit as an error.
+ */
+const BENIGN = /ResizeObserver loop (completed with undelivered notifications|limit exceeded)/;
+
 interface Fixtures {
     player: Player;
     audio: AudioSpy;
@@ -194,11 +200,13 @@ export const test = base.extend<Fixtures>({
     noErrors: [
         async ({ page, expectedErrors }, use) => {
             const errors: string[] = [];
-            page.on("pageerror", (error) => errors.push(String(error)));
-            page.on("console", (message) => {
-                if (message.type() !== "error") return;
-                const text = message.text();
+            const report = (text: string) => {
+                if (BENIGN.test(text)) return;
                 if (!expectedErrors.some((expected) => expected.test(text))) errors.push(text);
+            };
+            page.on("pageerror", (error) => report(String(error)));
+            page.on("console", (message) => {
+                if (message.type() === "error") report(message.text());
             });
             await use(undefined);
             expect(errors, "errors in the page").toEqual([]);

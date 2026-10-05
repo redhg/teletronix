@@ -257,6 +257,8 @@ export const ActionSchema = z
     .union([ActionCaseSchema, z.array(ActionCaseSchema).min(1)])
     .transform((action): Action => (Array.isArray(action) ? action : [action]))
     .meta({
+        // named, so the JSON Schema refers to it (and the editor knows an action by it)
+        id: "Action",
         description:
             "What happens: go to a screen, open a dialog, change variables, play a sound. Or a " +
             'list of these with "if" conditions, where the first whose condition holds happens.',

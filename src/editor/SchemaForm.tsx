@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { type ReactNode, useEffect, useState } from "react";
 import { z } from "zod";
+import { ActionField } from "./forms/ActionField.tsx";
 
 /** The parts of a JSON Schema the forms read. */
 export interface JsonSchema {
@@ -24,6 +25,8 @@ export interface JsonSchema {
     oneOf?: JsonSchema[];
     $ref?: string;
     properties?: Record<string, JsonSchema>;
+    /** An object's properties that must be there */
+    required?: string[];
     minimum?: number;
     maximum?: number;
     $defs?: Record<string, JsonSchema>;
@@ -145,15 +148,41 @@ interface FieldProps {
     error?: string;
     /** In place of the field's usual input */
     children?: ReactNode;
+    /** Whether it must be set (an action that's optional can be "Nothing") */
+    required?: boolean;
 }
+
+/** Whether a property is an action: what happens, e.g. when a link is clicked. */
+export const isAction = (schema: JsonSchema) => schema.$ref === "#/$defs/Action";
 
 /**
  * A field for one property, built from its schema: a switch, a number, text, a choice of
  * values, or JSON for anything more involved. Leaving it empty (or ↺) uses its default.
  */
-export function SchemaField({ name, schema, defs, value, onChange, error, children }: FieldProps) {
+export function SchemaField({
+    name,
+    schema,
+    defs,
+    value,
+    onChange,
+    error,
+    children,
+    required,
+}: FieldProps) {
     const resolved = resolve(schema, defs);
     const { text, default: fallback } = describe(resolved);
+    if (isAction(schema) && !children) {
+        return (
+            <ActionField
+                label={name}
+                description={describe(schema).text}
+                value={value}
+                onChange={onChange}
+                error={error}
+                optional={!required}
+            />
+        );
+    }
     // (a default of text is written in quotes: a placeholder shows the text itself)
     const shown = fallback?.replace(/^"(.*)"$/, "$1");
     const set = value !== undefined;

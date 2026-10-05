@@ -1,6 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
+    Accordion,
     ActionIcon,
     Badge,
     Collapse,
@@ -15,6 +16,7 @@ import {
 } from "@mantine/core";
 import { useMergedRef } from "@mantine/hooks";
 import { useEffect, useMemo, useRef } from "react";
+import { HAND_FORMS } from "./forms/ElementForms.tsx";
 import { describe, JsonField, jsonSchemaOf, SchemaField } from "./SchemaForm.tsx";
 import { ELEMENT_TYPES, type ElementFile, summarize, typeOf } from "./screens.ts";
 
@@ -91,6 +93,37 @@ export function ElementEditor({
     } = useSortable({ id: sortableId });
     const ref = useMergedRef(box, setNodeRef);
 
+    // its settings: each a field built from its schema, or (for the most used types) a form
+    // made for it, with the rest under "More settings"
+    const keys = Object.keys(schema?.properties ?? {}).filter((key) => key !== "type");
+    const hand = typeof element === "string" ? undefined : HAND_FORMS[type];
+    const more = hand ? keys.filter((key) => !hand.keys.includes(key)) : [];
+    const moreSet =
+        typeof element === "string" ? 0 : more.filter((key) => element[key] !== undefined).length;
+    const set = (key: string, value: unknown) => {
+        if (typeof element === "string") return;
+        const next = { ...element };
+        if (value === undefined) delete next[key];
+        else next[key] = value;
+        onChange(next);
+    };
+    const field = (key: string) => {
+        const property = schema?.properties?.[key];
+        if (!property || typeof element === "string") return null;
+        return (
+            <SchemaField
+                key={key}
+                name={key}
+                schema={property}
+                defs={defs}
+                value={element[key]}
+                error={errors.get(key)}
+                required={schema?.required?.includes(key)}
+                onChange={(value) => set(key, value)}
+            />
+        );
+    };
+
     const form =
         typeof element === "string" ? (
             <Textarea
@@ -110,24 +143,35 @@ export function ElementEditor({
                         {errors.get("")}
                     </Text>
                 )}
-                {Object.entries(schema.properties ?? {})
-                    .filter(([key]) => key !== "type")
-                    .map(([key, property]) => (
-                        <SchemaField
-                            key={key}
-                            name={key}
-                            schema={property}
-                            defs={defs}
-                            value={element[key]}
-                            error={errors.get(key)}
-                            onChange={(value) => {
-                                const next = { ...element };
-                                if (value === undefined) delete next[key];
-                                else next[key] = value;
-                                onChange(next);
-                            }}
-                        />
-                    ))}
+                {hand ? (
+                    <>
+                        <hand.Form element={element} set={set} errors={errors} field={field} />
+                        {more.length > 0 && (
+                            <Accordion
+                                variant="contained"
+                                defaultValue={more.some((key) => errors.has(key)) ? "more" : null}
+                            >
+                                <Accordion.Item value="more">
+                                    <Accordion.Control>
+                                        <Group gap="xs">
+                                            <Text size="sm" fw={500}>
+                                                More settings
+                                            </Text>
+                                            <Text size="xs" c="dimmed">
+                                                {moreSet === 0 ? "none set" : `${moreSet} set`}
+                                            </Text>
+                                        </Group>
+                                    </Accordion.Control>
+                                    <Accordion.Panel>
+                                        <Stack gap="md">{more.map(field)}</Stack>
+                                    </Accordion.Panel>
+                                </Accordion.Item>
+                            </Accordion>
+                        )}
+                    </>
+                ) : (
+                    keys.map(field)
+                )}
             </Stack>
         ) : (
             <Text size="sm" c="red">

@@ -30,6 +30,7 @@ import {
     type PreviewMessage,
 } from "../ui/preview-protocol.ts";
 import { formatJson } from "./format.ts";
+import { type ProgramNames, ProgramNamesContext } from "./forms/names.ts";
 import { useHistory } from "./history.ts";
 import { type Path, parsePath, setIn } from "./paths.ts";
 import {
@@ -166,6 +167,16 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                 ...(typeof screen.parent === "string" ? { parent: screen.parent } : {}),
             })),
         [file],
+    );
+
+    // what the forms offer to choose from
+    const names: ProgramNames = useMemo(
+        () => ({
+            screens: treeScreens,
+            dialogs: Object.keys(dialogsOf(file)),
+            sounds: Object.keys((file.sounds ?? {}) as object),
+        }),
+        [treeScreens, file],
     );
 
     const edit = useCallback(
@@ -752,112 +763,122 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
             </AppShell.Navbar>
 
             <AppShell.Main>
-                <Stack gap="lg">
-                    {dialogId && dialogFiles[dialogId] && (
-                        <DialogSection
-                            key={dialogId}
-                            id={dialogId}
-                            dialog={dialogFiles[dialogId]}
-                            onChange={(dialog) =>
-                                history.set(
-                                    setIn(file, ["dialogs", dialogId], dialog) as ProgramFile,
-                                    `dialogs.${dialogId}`,
-                                )
-                            }
-                            onRename={(to) => renameDialogTo(dialogId, to)}
-                            onDuplicate={() => {
-                                const copy = freeId(dialogs, `${dialogId}-copy`);
-                                history.set(
-                                    setIn(
-                                        file,
-                                        ["dialogs", copy],
-                                        structuredClone(dialogFiles[dialogId]),
-                                    ) as ProgramFile,
-                                );
-                                select(`dialog:${copy}`);
-                            }}
-                            onDelete={() => {
-                                history.set(
-                                    setIn(file, ["dialogs", dialogId], undefined) as ProgramFile,
-                                );
-                                select("program");
-                            }}
-                            onPreview={() => post({ type: "teletronix:dialog", dialog: dialogId })}
-                            error={
-                                errors.find((error) => error.path.startsWith(`dialogs.${dialogId}`))
-                                    ?.message
-                            }
-                        />
-                    )}
-                    {!screenId && !dialogId && (
-                        <Title order={2}>
-                            {SECTIONS.find((item) => item.id === section)?.label}
-                        </Title>
-                    )}
-                    {screenId && screenFiles[screenId] && (
-                        <ScreenSection
-                            key={screenId}
-                            id={screenId}
-                            screen={screenFiles[screenId]}
-                            screens={screens}
-                            onChange={(screen) => setScreen(screenId, screen)}
-                            onRename={(to) => renameTo(screenId, to)}
-                            onDuplicate={() => duplicateScreen(screenId)}
-                            onDelete={() => deleteScreen(screenId)}
-                            onPreview={() => post({ type: "teletronix:go", screen: screenId })}
-                            errors={screenErrors(errors, screenId)}
-                            open={openElement}
-                            onOpen={setOpenElement}
-                            copied={copied}
-                            onCopy={(element) => {
-                                setCopied(element);
-                                setStatus("Copied: paste it into any screen");
-                            }}
-                        />
-                    )}
-                    {screenId && !screenFiles[screenId] && (
-                        <Text c="dimmed">There's no screen "{screenId}" any more.</Text>
-                    )}
-                    {section === "program" && (
-                        <ProgramSection
-                            config={config}
-                            screens={screens}
-                            set={setConfig}
-                            errors={configErrors}
-                        />
-                    )}
-                    {section === "sounds" && (
-                        <SoundsSection
-                            setting={config.sound as SoundSetting | undefined}
-                            onSetting={(setting) => setConfig(["sound"], setting)}
-                            sounds={(file.sounds ?? {}) as Record<string, unknown>}
-                            onChange={(name, recipe) =>
-                                history.set(
-                                    setIn(file, ["sounds", name], recipe) as ProgramFile,
-                                    `sounds.${name}`,
-                                )
-                            }
-                            onRename={(from, to) => {
-                                if (!/^[\w-]+$/.test(to)) return "Letters, digits, _ and - only";
-                                if (to in ((file.sounds ?? {}) as object))
-                                    return `There's already a sound "${to}"`;
-                                history.set(renameSound(file, from, to));
-                                return null;
-                            }}
-                        />
-                    )}
-                    {section === "variables" && (
-                        <VariablesSection
-                            config={config}
-                            set={setConfig}
-                            errors={configErrors}
-                            onRename={(from, to) => history.set(renameVariable(file, from, to))}
-                        />
-                    )}
-                    {section === "appearance" && (
-                        <AppearanceSection config={config} set={setConfig} />
-                    )}
-                </Stack>
+                <ProgramNamesContext value={names}>
+                    <Stack gap="lg">
+                        {dialogId && dialogFiles[dialogId] && (
+                            <DialogSection
+                                key={dialogId}
+                                id={dialogId}
+                                dialog={dialogFiles[dialogId]}
+                                onChange={(dialog) =>
+                                    history.set(
+                                        setIn(file, ["dialogs", dialogId], dialog) as ProgramFile,
+                                        `dialogs.${dialogId}`,
+                                    )
+                                }
+                                onRename={(to) => renameDialogTo(dialogId, to)}
+                                onDuplicate={() => {
+                                    const copy = freeId(dialogs, `${dialogId}-copy`);
+                                    history.set(
+                                        setIn(
+                                            file,
+                                            ["dialogs", copy],
+                                            structuredClone(dialogFiles[dialogId]),
+                                        ) as ProgramFile,
+                                    );
+                                    select(`dialog:${copy}`);
+                                }}
+                                onDelete={() => {
+                                    history.set(
+                                        setIn(
+                                            file,
+                                            ["dialogs", dialogId],
+                                            undefined,
+                                        ) as ProgramFile,
+                                    );
+                                    select("program");
+                                }}
+                                onPreview={() =>
+                                    post({ type: "teletronix:dialog", dialog: dialogId })
+                                }
+                                error={
+                                    errors.find((error) =>
+                                        error.path.startsWith(`dialogs.${dialogId}`),
+                                    )?.message
+                                }
+                            />
+                        )}
+                        {!screenId && !dialogId && (
+                            <Title order={2}>
+                                {SECTIONS.find((item) => item.id === section)?.label}
+                            </Title>
+                        )}
+                        {screenId && screenFiles[screenId] && (
+                            <ScreenSection
+                                key={screenId}
+                                id={screenId}
+                                screen={screenFiles[screenId]}
+                                screens={screens}
+                                onChange={(screen) => setScreen(screenId, screen)}
+                                onRename={(to) => renameTo(screenId, to)}
+                                onDuplicate={() => duplicateScreen(screenId)}
+                                onDelete={() => deleteScreen(screenId)}
+                                onPreview={() => post({ type: "teletronix:go", screen: screenId })}
+                                errors={screenErrors(errors, screenId)}
+                                open={openElement}
+                                onOpen={setOpenElement}
+                                copied={copied}
+                                onCopy={(element) => {
+                                    setCopied(element);
+                                    setStatus("Copied: paste it into any screen");
+                                }}
+                            />
+                        )}
+                        {screenId && !screenFiles[screenId] && (
+                            <Text c="dimmed">There's no screen "{screenId}" any more.</Text>
+                        )}
+                        {section === "program" && (
+                            <ProgramSection
+                                config={config}
+                                screens={screens}
+                                set={setConfig}
+                                errors={configErrors}
+                            />
+                        )}
+                        {section === "sounds" && (
+                            <SoundsSection
+                                setting={config.sound as SoundSetting | undefined}
+                                onSetting={(setting) => setConfig(["sound"], setting)}
+                                sounds={(file.sounds ?? {}) as Record<string, unknown>}
+                                onChange={(name, recipe) =>
+                                    history.set(
+                                        setIn(file, ["sounds", name], recipe) as ProgramFile,
+                                        `sounds.${name}`,
+                                    )
+                                }
+                                onRename={(from, to) => {
+                                    if (!/^[\w-]+$/.test(to))
+                                        return "Letters, digits, _ and - only";
+                                    if (to in ((file.sounds ?? {}) as object))
+                                        return `There's already a sound "${to}"`;
+                                    history.set(renameSound(file, from, to));
+                                    return null;
+                                }}
+                            />
+                        )}
+                        {section === "variables" && (
+                            <VariablesSection
+                                config={config}
+                                set={setConfig}
+                                errors={configErrors}
+                                onRename={(from, to) => history.set(renameVariable(file, from, to))}
+                            />
+                        )}
+                        {section === "appearance" && (
+                            <AppearanceSection config={config} set={setConfig} />
+                        )}
+                    </Stack>
+                </ProgramNamesContext>
             </AppShell.Main>
 
             <AppShell.Aside>
