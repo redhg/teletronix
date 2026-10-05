@@ -33,6 +33,7 @@ import { useHistory } from "./history.ts";
 import { type Path, parsePath, setIn } from "./paths.ts";
 import {
     dialogsOf,
+    type ElementFile,
     freeId,
     insertScreen,
     renameDialog,
@@ -128,6 +129,8 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
     // the screen being edited, and its open element
     const screenId = section.startsWith("screen:") ? section.slice("screen:".length) : null;
     const [openElement, setOpenElement] = useState<number | null>(null);
+    // an element copied, to paste into a screen
+    const [copied, setCopied] = useState<ElementFile | null>(null);
     const select = (next: Section, element: number | null = null) => {
         setSection(next);
         setOpenElement(element);
@@ -694,6 +697,11 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                             errors={screenErrors(errors, screenId)}
                             open={openElement}
                             onOpen={setOpenElement}
+                            copied={copied}
+                            onCopy={(element) => {
+                                setCopied(element);
+                                setStatus("Copied: paste it into any screen");
+                            }}
                         />
                     )}
                     {screenId && !screenFiles[screenId] && (

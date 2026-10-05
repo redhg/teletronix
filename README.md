@@ -50,8 +50,9 @@ restarts with anything else, on the screen it was showing (⟲ restarts it by ha
 - **Screens:** every screen, under its `parent`, or found by name; **+** adds one (under the one
   chosen). A screen's page has its settings (folded away) and its content, an element to a row:
   open one to edit it: **Settings**, a form built from its type's schema, or **JSON** (for
-  anything a form can't do, e.g. a section's contents). Rows move up and down, duplicate and
-  delete, and **Add an element** picks any type, by its name or what it does. **Rename** renames
+  anything a form can't do, e.g. a section's contents). Rows move up and down, duplicate, copy
+  (**Paste** puts the copy at the end of any screen) and delete, and **Add an element** picks any
+  type, by its name or what it does. **Rename** renames
   links and anything else that names the screen; **More** duplicates or deletes it. The preview
   shows the screen you're on.
 - **Dialogs:** listed under the screens; **+** adds one. Its kind (alert or confirm) is a list,

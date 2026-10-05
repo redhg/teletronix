@@ -39,6 +39,8 @@ interface Props {
     onToggle: () => void;
     onMove: (by: number) => void;
     onDuplicate: () => void;
+    /** Copies it, to paste into a screen */
+    onCopy: () => void;
     onDelete: () => void;
 }
 
@@ -56,6 +58,7 @@ export function ElementEditor({
     onToggle,
     onMove,
     onDuplicate,
+    onCopy,
     onDelete,
 }: Props) {
     const type = typeOf(element);
@@ -188,6 +191,16 @@ export function ElementEditor({
                             onClick={onDuplicate}
                         >
                             ⧉
+                        </ActionIcon>
+                    </Tooltip>
+                    <Tooltip label="Copy, to paste into a screen">
+                        <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            aria-label="Copy"
+                            onClick={onCopy}
+                        >
+                            ⎘
                         </ActionIcon>
                     </Tooltip>
                     <Tooltip label="Delete">

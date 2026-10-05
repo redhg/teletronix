@@ -40,6 +40,9 @@ interface Props {
     /** The open element, if any */
     open: number | null;
     onOpen: (index: number | null) => void;
+    /** The element copied, to paste, if any */
+    copied: ElementFile | null;
+    onCopy: (element: ElementFile) => void;
 }
 
 /** A screen: its settings, and its content, an element at a time. */
@@ -55,6 +58,8 @@ export function ScreenSection({
     errors,
     open,
     onOpen,
+    copied,
+    onCopy,
 }: Props) {
     const schema = useMemo(() => jsonSchemaOf(ScreenSchema), []);
     const defs = schema.$defs ?? {};
@@ -180,6 +185,7 @@ export function ScreenSection({
                                 ]);
                                 onOpen(index + 1);
                             }}
+                            onCopy={() => onCopy(structuredClone(element))}
                             onDelete={() => {
                                 setContent(content.filter((_, at) => at !== index));
                                 if (open === index) onOpen(null);
@@ -187,12 +193,27 @@ export function ScreenSection({
                         />
                     ))}
                 </Stack>
-                <AddElement
-                    onAdd={(type) => {
-                        setContent([...content, newElement(type)]);
-                        onOpen(content.length);
-                    }}
-                />
+                <Group gap="xs" align="start" wrap="nowrap">
+                    <div style={{ flex: 1 }}>
+                        <AddElement
+                            onAdd={(type) => {
+                                setContent([...content, newElement(type)]);
+                                onOpen(content.length);
+                            }}
+                        />
+                    </div>
+                    <Button
+                        variant="default"
+                        disabled={copied === null}
+                        onClick={() => {
+                            if (copied === null) return;
+                            setContent([...content, structuredClone(copied)]);
+                            onOpen(content.length);
+                        }}
+                    >
+                        Paste
+                    </Button>
+                </Group>
             </Panel>
         </Stack>
     );

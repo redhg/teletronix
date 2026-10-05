@@ -182,6 +182,17 @@ test.describe("the editor", () => {
         const element = (page: Page, number: number) =>
             page.getByRole("button", { name: new RegExp(`^Element ${number}:`) });
 
+        test("copies an element from one screen into another", async ({ page }) => {
+            await openEditor(page);
+            await openScreen(page, /^HOME/);
+            await element(page, 2).locator("..").getByRole("button", { name: "Copy" }).click();
+            // (OTHER shows, under HOME, now HOME is chosen)
+            await openScreen(page, /^OTHER/);
+            await page.getByRole("button", { name: "Paste" }).click();
+            await expect(element(page, 3)).toHaveAccessibleName(/link, > OTHER/);
+            await expect(page.getByText("No problems")).toBeVisible();
+        });
+
         test("edits a screen's elements, with the preview showing it", async ({ page }) => {
             await openEditor(page);
             await screenList(page)
