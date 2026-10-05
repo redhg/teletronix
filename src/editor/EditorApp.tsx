@@ -21,6 +21,7 @@ import { useHotkeys } from "@mantine/hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type ParseError, parseProgram } from "../engine/index.ts";
 import { ColorScheme } from "../mantine/ColorScheme.tsx";
+import { MenuCaret } from "../mantine/MenuCaret.tsx";
 import { ScreenTree } from "../mantine/ScreenTree.tsx";
 import {
     type AppearanceSettings,
@@ -474,7 +475,7 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                         </Tooltip>
                         <Menu position="bottom-end">
                             <Menu.Target>
-                                <Button size="xs" variant="default">
+                                <Button size="xs" variant="default" rightSection={<MenuCaret />}>
                                     File
                                 </Button>
                             </Menu.Target>

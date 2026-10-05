@@ -1,6 +1,7 @@
 import { Button, Code, Group, Menu, Stack, TextInput, Title } from "@mantine/core";
 import { useMemo, useState } from "react";
 import { DialogSchema } from "../../engine/schema/dialog.ts";
+import { MenuCaret } from "../../mantine/MenuCaret.tsx";
 import { Panel } from "../../mantine/Panel.tsx";
 import { jsonSchemaOf, SchemaField } from "../SchemaForm.tsx";
 
@@ -75,7 +76,9 @@ export function DialogSection({
                     </Button>
                     <Menu position="bottom-end">
                         <Menu.Target>
-                            <Button variant="default">More</Button>
+                            <Button variant="default" rightSection={<MenuCaret />}>
+                                More
+                            </Button>
                         </Menu.Target>
                         <Menu.Dropdown>
                             <Menu.Item onClick={onDuplicate}>Duplicate the dialog</Menu.Item>

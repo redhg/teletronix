@@ -8,3 +8,9 @@
     text-align: center;
     color: var(--mantine-color-dimmed);
 }
+
+/* the chevron on a button that opens a menu */
+.tool-caret {
+    display: block;
+    opacity: 0.8;
+}

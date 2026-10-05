@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { useMemo, useState } from "react";
 import { ScreenSchema } from "../../engine/schema/program.ts";
+import { MenuCaret } from "../../mantine/MenuCaret.tsx";
 import { Panel } from "../../mantine/Panel.tsx";
 import { ElementEditor } from "../ElementEditor.tsx";
 import { describe, jsonSchemaOf, SchemaField } from "../SchemaForm.tsx";
@@ -263,7 +264,9 @@ function Header({
                 </Button>
                 <Menu position="bottom-end">
                     <Menu.Target>
-                        <Button variant="default">More</Button>
+                        <Button variant="default" rightSection={<MenuCaret />}>
+                            More
+                        </Button>
                     </Menu.Target>
                     <Menu.Dropdown>
                         <Menu.Item onClick={onDuplicate}>Duplicate the screen</Menu.Item>
