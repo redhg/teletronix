@@ -54,8 +54,6 @@ export const BlendSchema = z
             "color instead of the background",
     });
 
-export type Blend = z.output<typeof BlendSchema>;
-
 // ─── Reveals ─────────────────────────────────────────────────────────────────
 // How an image appears. The engine only times it; the view draws each effect.
 
@@ -110,8 +108,6 @@ export const ImageRevealSchema = z
             '"instant", or { "type", "duration" } to set its speed (default: "pixelate", or ' +
             '"instant" when the screen reveals instantly)',
     });
-
-export type ImageReveal = z.output<typeof ImageRevealSchema>;
 
 export const BitmapSchema = z
     .strictObject({

@@ -113,10 +113,3 @@ export type Cue =
     | { type: "sound"; name: string }
     /** Something chosen without a click, e.g. a button's hotkey */
     | { type: "select" };
-
-/**
- * Sounds in a program's library with these names replace Teletronix's own: "key" for key
- * clicks, "select" for choosing things, "tick" for sliders, "error" for unknown commands,
- * and "dialog" and "alert" for dialogs opening.
- */
-export const REPLACEABLE_SOUNDS = ["key", "select", "tick", "error", "dialog", "alert"] as const;

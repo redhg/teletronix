@@ -16,43 +16,6 @@ Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `s
 `#<screen>` starts on that screen instead of the start screen, e.g.
 <http://localhost:5173/?data=sample#home>, and changing it jumps there: handy while writing one.
 
-### The editor
-`?edit` opens a program in the editor, e.g. <http://localhost:5173/?edit&data=sample> (or a name
-with no file yet, for a new program). On the left, the program's parts; in the middle, a form for
-the one chosen; on the right, a live preview, which shows appearance changes at once and
-restarts with anything else, on the screen it was showing.
-- **Program:** its name, start screen, bars, and how screens appear. The
-  fields are built from the schema, each with its description and default: leave one empty (or
-  choose ↺) to use the default. A setting that's one of several kinds (a reveal, a transition,
-  a screen's preset) is a list to pick from, with the chosen kind's own options under it (e.g. a
-  teletype reveal's `speed`); it's written as just the name until an option is set. Anything
-  else more involved than text, a number or a switch is edited as JSON.
-- **Appearance:** colours, font, text size, line spacing, effects and sound.
-- **Screens:** every screen, under its `parent`, or found by name; **+** adds one (under the one
-  chosen). A screen's page has its settings (folded away) and its content, an element to a row:
-  open one to edit it: **Settings**, a form built from its type's schema, or **JSON** (for
-  anything a form can't do, e.g. a section's contents). Rows move up and down, duplicate and delete, and **Add an
-  element** picks any type, by its name or what it does. **Rename** renames links and anything
-  else that names the screen; **More** duplicates or deletes it. The preview shows the screen
-  you're on.
-
-It checks the program as you go: the problems badge lists each mistake, and goes to it (to the
-element, open, for one in a screen). Undo and
-redo with **Cmd/Ctrl+Z** and **Cmd/Ctrl+Shift+Z**. **Save** (**Cmd/Ctrl+S**) writes
-`public/data/<name>.json` in `npm run dev`; anywhere else (e.g. a build), it downloads the file
-instead. It writes JSON the way it's written by hand: short and flat things on one line, the
-rest spread out. The **File** menu starts a new program, opens a JSON file, and downloads.
-- **Dialogs:** listed under the screens; **+** adds one. Its kind (alert or confirm) is a
-  list, with that kind's settings under it (switching keeps the settings both have, e.g. its
-  text). **Rename** renames the actions that open it; **Open in the preview** opens it there.
-
-- **Variables & timers:** each variable's name, kind (true/false, number or text) and
-  starting value, and each timer's settings; add and delete them here.
-
-- **Sounds:** the program's own sound effects, designed sfxr-style: roll one from a preset
-  (blip, laser, explosion…), mutate it, adjust its wave and sliders by ear, and play it. Play one
-  with `"sound": "its-name"`; **Rename** renames what plays it.
-
 | Script | |
 |---|---|
 | `npm run dev` | Dev server |
@@ -64,6 +27,42 @@ rest spread out. The **File** menu starts a new program, opens a JSON file, and 
 | `npm run lint` / `npm run format` | Biome check / fix |
 | `npm run gen` | Regenerate `schema/teletronix.schema.json` and `docs/reference.md` after changing the schema |
 | `node scripts/convert-phosphor.ts <in> <out>` | Convert a Phosphor JSON file |
+
+### The editor
+`?edit` opens a program in the editor, e.g. <http://localhost:5173/?edit&data=sample> (or a name
+with no file yet, for a new program). On the left, the program's parts; in the middle, a form for
+the one chosen; on the right, a live preview, which shows appearance changes at once and
+restarts with anything else, on the screen it was showing.
+- **Program:** its name, start screen, bars, and how screens appear. The fields are built from
+  the schema, each with its description and default: leave one empty (or choose ↺) to use the
+  default. A setting that's one of several kinds (a reveal, a transition, a screen's preset, a
+  dialog) is a list to pick from, with the chosen kind's own options under it (e.g. a teletype
+  reveal's `speed`); it's written as just the name until an option is set, and switching kinds
+  keeps the options both have. Anything else more involved than text, a number or a switch is
+  edited as JSON.
+- **Appearance:** colours, font, text size, line spacing, effects and sound.
+- **Variables & timers:** each variable's name, kind (true/false, number or text) and starting
+  value, and each timer's settings; add and delete them here.
+- **Sounds:** the program's own sound effects, designed sfxr-style: roll one from a preset
+  (blip, laser, explosion…), mutate it, adjust its wave and sliders by ear, and play it. Play
+  one with `"sound": "its-name"`; **Rename** renames what plays it.
+- **Screens:** every screen, under its `parent`, or found by name; **+** adds one (under the one
+  chosen). A screen's page has its settings (folded away) and its content, an element to a row:
+  open one to edit it: **Settings**, a form built from its type's schema, or **JSON** (for
+  anything a form can't do, e.g. a section's contents). Rows move up and down, duplicate and
+  delete, and **Add an element** picks any type, by its name or what it does. **Rename** renames
+  links and anything else that names the screen; **More** duplicates or deletes it. The preview
+  shows the screen you're on.
+- **Dialogs:** listed under the screens; **+** adds one. Its kind (alert or confirm) is a list,
+  with that kind's settings under it. **Rename** renames the actions that open it; **Open in the
+  preview** opens it there.
+
+It checks the program as you go: the problems badge lists each mistake, and goes to it (to the
+element, open, for one in a screen). Undo and redo with **Cmd/Ctrl+Z** and
+**Cmd/Ctrl+Shift+Z**. **Save** (**Cmd/Ctrl+S**) writes `public/data/<name>.json` in
+`npm run dev`; anywhere else (e.g. a build), it downloads the file instead. It writes JSON the
+way it's written by hand: short and flat things on one line, the rest spread out. The **File**
+menu starts a new program, opens a JSON file, and downloads.
 
 ## Writing a program
 Point `$schema` at `schema/teletronix.schema.json` for validation and autocomplete in your
@@ -1227,8 +1226,8 @@ Every new feature gets tests.
 - `src/editor/`: the program editor (`?edit`), built with Mantine like the GM's panel; their
   shared pieces are in `src/mantine/`. The dev server's save endpoint is
   `scripts/editor-save.ts`.
-- `src/remote/`: the GM's control panel (`&gm`, built with Mantine, which only it loads), and
-  the players' side of it. The relay that
-  passes their messages between devices is `scripts/remote-relay.ts`, in Vite's servers.
+- `src/remote/`: the GM's control panel (`&gm`, built with Mantine like the editor; players
+  never load it), and the players' side of it. The relay that passes their messages between
+  devices is `scripts/remote-relay.ts`, in Vite's servers.
 - `src/ui/`: the React layer. Per-frame text is written straight to the DOM, so React only
   re-renders on structural changes.
