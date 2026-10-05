@@ -11,8 +11,12 @@ body {
 }
 
 body {
-    background: var(--bg) radial-gradient(rgb(from var(--fg) r g b / 0.15), var(--bg) 100%) fixed;
+    /* the screen's own glow, which a theme can do without (set in src/ui/appearance.ts) */
+    background: var(--bg)
+        var(--screen-glow, radial-gradient(rgb(from var(--fg) r g b / 0.15), var(--bg) 100%)) fixed;
     color: var(--fg);
+    /* a theme can show every letter as a capital (an LCD's), however it's written */
+    text-transform: var(--text-transform, none);
     font-family: var(--font-family);
     font-size: var(--font-size);
     line-height: var(--line-height);

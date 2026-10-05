@@ -129,6 +129,8 @@ export class Terminal {
     private remoteAmbience: string | false | undefined;
     /** The program-wide effects: the config's, unless replaced with setEffects(). */
     private configEffects: EffectsSetting | undefined;
+    /** The theme's effects, under the program's */
+    private themeEffects: EffectsSetting | undefined;
     private snapshot: TerminalSnapshot = {
         screen: null,
         outgoing: null,
@@ -154,6 +156,7 @@ export class Terminal {
                 ? options.startAt
                 : undefined;
         this.configEffects = options.program.effects;
+        this.themeEffects = options.program.themeEffects;
         this.variables = new Map(options.program.variables);
         for (const screen of options.program.screens.values()) {
             forEachElement(screen.content, (element) => this.elements.set(element.id, element));
@@ -497,9 +500,13 @@ export class Terminal {
         return this.timers.get(name)?.running ?? false;
     }
 
-    /** Replaces the program-wide effects, e.g. while trying out settings in a preview. */
-    setEffects(effects: EffectsSetting | undefined): void {
+    /**
+     * Replaces the program-wide effects, and its theme's, e.g. while trying out settings in a
+     * preview.
+     */
+    setEffects(effects: EffectsSetting | undefined, theme?: EffectsSetting): void {
         this.configEffects = effects;
+        this.themeEffects = theme;
         this.effects.clear();
         this.markDirty();
         this.flush();
@@ -798,7 +805,12 @@ export class Terminal {
         let effects = this.effects.get(screenId);
         if (!effects) {
             const screen = this.program.screens.get(screenId);
-            effects = resolveEffects(this.configEffects, screen?.effects, this.remoteEffects);
+            effects = resolveEffects(
+                this.themeEffects,
+                this.configEffects,
+                screen?.effects,
+                this.remoteEffects,
+            );
             this.effects.set(screenId, effects);
         }
         return effects;
@@ -914,7 +926,9 @@ export class Terminal {
                     : null,
             interstitial: this.interstitial ? { type: this.interstitial.type } : null,
             dialog: this.dialog,
-            effects: this.run ? this.effectsFor(this.run.screen.id) : resolveEffects(),
+            effects: this.run
+                ? this.effectsFor(this.run.screen.id)
+                : resolveEffects(this.themeEffects, this.configEffects),
             variables: this.variablesVersion,
             ambience:
                 this.remoteAmbience === undefined

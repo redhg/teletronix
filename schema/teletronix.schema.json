@@ -812,7 +812,11 @@
                                 "default",
                                 "amber",
                                 "green",
-                                "white"
+                                "white",
+                                "vcr",
+                                "lcd",
+                                "paper",
+                                "printout"
                             ]
                         },
                         {
@@ -832,6 +836,21 @@
                                     "description": "Color of text with the \"alert\" class (default: \"#ff3c00\")",
                                     "type": "string",
                                     "pattern": "^#[0-9a-fA-F]{6}$"
+                                },
+                                "shadow": {
+                                    "description": "The shadow text casts: a CRT's \"glow\", a dark \"drop\" shadow, an LCD's segments' faint \"lcd\" shadow, ink's slight \"ink\" bleed, or \"none\" (default: \"glow\")",
+                                    "type": "string",
+                                    "enum": [
+                                        "glow",
+                                        "drop",
+                                        "lcd",
+                                        "ink",
+                                        "none"
+                                    ]
+                                },
+                                "capitals": {
+                                    "description": "Show every letter as a capital, as an LCD would, however it's written (default: false)",
+                                    "type": "boolean"
                                 }
                             },
                             "required": [
@@ -842,7 +861,7 @@
                             "description": "Your own colors"
                         }
                     ],
-                    "description": "The color scheme: \"default\" (pale blue on black), \"amber\", \"green\" or \"white\", or your own colors (default: \"default\")"
+                    "description": "The color scheme: \"default\" (pale blue on black), \"amber\", \"green\" or \"white\"; a look of its own, with a font and effects: \"vcr\" (a VCR's blue menu), \"lcd\" (an LCD's segments), \"paper\" (typed) or \"printout\" (dot matrix); or your own colors (default: \"default\")"
                 },
                 "font": {
                     "type": "string",
@@ -855,11 +874,15 @@
                         "ibm-mda",
                         "toshiba-satellite",
                         "departure-mono",
+                        "home-video",
+                        "digit-tech",
+                        "matrixtype",
+                        "x-typewriter",
                         "courier-new",
                         "consolas",
                         "menlo"
                     ],
-                    "description": "The typeface: a period PC font, or one installed on the player's computer (\"courier-new\", \"consolas\" on Windows, \"menlo\" on macOS; the browser's own monospace font where it isn't) (default: \"departure-mono\")"
+                    "description": "The typeface: a period PC font; a VCR's (\"home-video\"), an LCD's segments (\"digit-tech\"), a dot-matrix printer's (\"matrixtype\") or a typewriter's (\"x-typewriter\"); or one installed on the player's computer (\"courier-new\", \"consolas\" on Windows, \"menlo\" on macOS; the browser's own monospace font where it isn't) (default: the theme's, or \"departure-mono\")"
                 },
                 "fontScale": {
                     "type": "number",

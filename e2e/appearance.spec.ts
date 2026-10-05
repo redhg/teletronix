@@ -44,6 +44,58 @@ test.describe("the player", () => {
         await expect(player.screen.locator(".alert")).toHaveCSS("color", "rgb(255, 255, 0)");
     });
 
+    test.describe("a theme with a look of its own", () => {
+        test("brings its font, filled in with symbols, and its effects", async ({
+            page,
+            player,
+        }) => {
+            await player.open(withConfig({ theme: "vcr" }));
+            const style = await styles(page);
+            expect(style.background).toBe("rgb(21, 49, 201)");
+            // (the symbol font straight after its font; WebKit leaves out the quotes)
+            expect(style.fontFamily).toMatch(
+                /"?Teletronix home-video"?, "?Teletronix symbols home-video"?/,
+            );
+            // a pixel font: whole multiples of its 20px
+            expect(style.fontSize % 20).toBe(0);
+            await expect
+                .poll(() =>
+                    page.evaluate(() =>
+                        document.fonts.check('20px "Teletronix symbols home-video"', "█─┌"),
+                    ),
+                )
+                .toBe(true);
+            await expect(page.locator("canvas.static")).toBeAttached();
+        });
+
+        test("can show capitals, with no screen glow", async ({ page, player }) => {
+            await player.open(withConfig({ theme: "lcd" }));
+            const look = await page.evaluate(() => {
+                const body = getComputedStyle(document.body);
+                const root = getComputedStyle(document.documentElement);
+                return {
+                    transform: body.textTransform,
+                    image: body.backgroundImage,
+                    smoothing: root.getPropertyValue("--font-smoothing"),
+                };
+            });
+            expect(look).toEqual({ transform: "uppercase", image: "none", smoothing: "auto" });
+            // (only shown as capitals: the text is as written)
+            await expect(player.screen).toContainText("RED ALERT");
+        });
+
+        test("gives way to the program's own font and effects", async ({ page, player }) => {
+            await player.open(
+                withConfig({ theme: "vcr", font: "ibm-vga", effects: { static: false } }),
+            );
+            const style = await styles(page);
+            expect(style.background).toBe("rgb(21, 49, 201)");
+            expect(style.fontFamily).toContain("ibm-vga");
+            expect(style.fontFamily).not.toContain("symbols");
+            await expect(page.locator("canvas.static")).toHaveCount(0);
+        });
+    });
+
     test("uses the program's font, at a crisp size", async ({ page, player }) => {
         await player.open(withConfig({ font: "ibm-ega" }));
         const style = await styles(page);

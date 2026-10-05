@@ -13,6 +13,8 @@ import {
     resolveTheme,
     ThemeSchema,
     type ThemeSetting,
+    themeEffects,
+    themeFont,
 } from "./appearance.ts";
 import { type BarCrumb, type BarLine, BarSchema, barActions } from "./bars.ts";
 import {
@@ -313,6 +315,8 @@ export interface Program {
     start: string;
     defaults: Defaults;
     effects?: EffectsSetting;
+    /** The theme's own effects, under the program's */
+    themeEffects?: EffectsSetting;
     autoscroll: boolean;
     blockContextMenu: boolean;
     /** Save progress in the browser, and carry on from it */
@@ -460,6 +464,7 @@ function normalize(
             glitch: { duration: defaults?.glitch?.duration ?? DEFAULT_GLITCH_DURATION },
         },
         effects,
+        ...(themeEffects(theme) ? { themeEffects: themeEffects(theme) } : {}),
         autoscroll: autoscroll ?? true,
         blockContextMenu: blockContextMenu ?? true,
         save: save ?? false,
@@ -467,7 +472,7 @@ function normalize(
         sound: resolveSound(sound),
         theme,
         palette: resolveTheme(theme),
-        font: font ?? DEFAULT_FONT,
+        font: font ?? themeFont(theme) ?? DEFAULT_FONT,
         fontScale: fontScale ?? DEFAULT_FONT_SCALE,
         lineSpacing: lineSpacing ?? DEFAULT_LINE_SPACING,
         screens,

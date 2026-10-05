@@ -22,9 +22,13 @@ import {
     SOUND_KINDS,
     type SoundKind,
     type SoundSetting,
+    TEXT_SHADOWS,
+    type TextShadow,
     THEMES,
     type ThemeName,
     type ThemeSetting,
+    themeEffects,
+    themeFont,
 } from "../../engine/index.ts";
 import { Panel } from "../../mantine/Panel.tsx";
 import type { Path } from "../paths.ts";
@@ -32,15 +36,48 @@ import { describe, jsonSchemaOf } from "../SchemaForm.tsx";
 
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
+/** The themes' names in the list. */
+const THEME_LABELS: Record<ThemeName, string> = {
+    default: "Default (pale blue)",
+    amber: "Amber",
+    green: "Green",
+    white: "White",
+    vcr: "VCR (a blue on-screen menu)",
+    lcd: "LCD (segments)",
+    paper: "Paper (typewriter)",
+    printout: "Printout (dot matrix)",
+};
+
+const SHADOW_LABELS: Record<TextShadow, string> = {
+    glow: "A CRT's glow",
+    drop: "A dark drop shadow",
+    lcd: "An LCD's faint shadow",
+    ink: "Ink's slight bleed",
+    none: "None",
+};
+
+/** A custom theme as written: its colors, and its shadow and capitals if not the usual. */
+function customTheme(palette: Palette): ThemeSetting {
+    const { shadow, capitals, ...colors } = palette;
+    return {
+        ...colors,
+        ...(shadow === "glow" ? {} : { shadow }),
+        ...(capitals ? { capitals } : {}),
+    };
+}
+
 /** The config's appearance properties: this section's, not the Program section's. */
 export const APPEARANCE_KEYS = ["theme", "font", "fontScale", "lineSpacing", "effects", "sound"];
 
 /** A program's appearance, from its config as written (anything missing at its default). */
 export function appearanceOf(config: Record<string, unknown>) {
-    const font = (config.font as FontId | undefined) ?? DEFAULT_FONT;
+    const theme = config.theme as ThemeSetting | undefined;
+    // (a theme can have a font of its own)
+    const fallback = themeFont(theme) ?? DEFAULT_FONT;
+    const font = (config.font as FontId | undefined) ?? fallback;
     return {
-        theme: config.theme as ThemeSetting | undefined,
-        font: font in FONTS ? font : DEFAULT_FONT,
+        theme,
+        font: font in FONTS ? font : fallback,
         fontScale: typeof config.fontScale === "number" ? config.fontScale : DEFAULT_FONT_SCALE,
         lineSpacing:
             typeof config.lineSpacing === "number" ? config.lineSpacing : DEFAULT_LINE_SPACING,
@@ -61,12 +98,16 @@ export function AppearanceSection({ config, set }: Props) {
     const palette = resolveTheme(appearance.theme);
     const themeChoice =
         typeof appearance.theme === "object" ? "custom" : (appearance.theme ?? DEFAULT_THEME);
-    const effects = expandEffects(appearance.effects);
+    // (a theme can have effects of its own, which the program's are laid over)
+    const baseEffects = themeEffects(appearance.theme);
+    const effects = expandEffects(appearance.effects, baseEffects);
+    const baseFont = themeFont(appearance.theme) ?? DEFAULT_FONT;
     const sound = resolveSound(appearance.sound);
 
     const setTheme = (theme: ThemeSetting | undefined) =>
         set(["theme"], theme === DEFAULT_THEME ? undefined : theme);
-    const setEffects = (state: EffectsState) => set(["effects"], compactEffects(state));
+    const setEffects = (state: EffectsState) =>
+        set(["effects"], compactEffects(state, baseEffects));
     const setSound = (next: ResolvedSound | null) => set(["sound"], compactSound(next));
 
     return (
@@ -76,18 +117,26 @@ export function AppearanceSection({ config, set }: Props) {
                     <Select
                         label="Theme"
                         data={[
-                            ...Object.keys(THEMES).map((name) => ({
+                            ...(Object.keys(THEMES) as ThemeName[]).map((name) => ({
                                 value: name,
-                                label: capitalize(name),
+                                label: THEME_LABELS[name],
                             })),
                             { value: "custom", label: "Custom…" },
                         ]}
                         value={themeChoice}
                         allowDeselect={false}
                         onChange={(choice) =>
-                            setTheme(choice === "custom" ? { ...palette } : (choice as ThemeName))
+                            setTheme(
+                                choice === "custom" ? customTheme(palette) : (choice as ThemeName),
+                            )
                         }
                     />
+                    {(themeFont(appearance.theme) || baseEffects) && (
+                        <Text size="xs" c="dimmed">
+                            It brings a font and effects of its own: choose others below to change
+                            them.
+                        </Text>
+                    )}
                     <SimpleGrid cols={{ base: 1, xl: 3 }}>
                         {(["fg", "bg", "alert"] as const).map((key) => (
                             <ColorInput
@@ -97,11 +146,45 @@ export function AppearanceSection({ config, set }: Props) {
                                 disabled={themeChoice !== "custom"}
                                 format="hex"
                                 onChange={(color) =>
-                                    setTheme({ ...palette, [key]: color } as Palette)
+                                    setTheme(customTheme({ ...palette, [key]: color }))
                                 }
                             />
                         ))}
                     </SimpleGrid>
+                    {themeChoice === "custom" && (
+                        <Group align="end">
+                            <Select
+                                label="Text's shadow"
+                                data={TEXT_SHADOWS.map((shadow) => ({
+                                    value: shadow,
+                                    label: SHADOW_LABELS[shadow],
+                                }))}
+                                value={palette.shadow}
+                                allowDeselect={false}
+                                onChange={(shadow) =>
+                                    setTheme(
+                                        customTheme({
+                                            ...palette,
+                                            shadow: (shadow ?? "glow") as TextShadow,
+                                        }),
+                                    )
+                                }
+                            />
+                            <Switch
+                                label="Capitals"
+                                mb={8}
+                                checked={palette.capitals === true}
+                                onChange={(event) =>
+                                    setTheme(
+                                        customTheme({
+                                            ...palette,
+                                            capitals: event.currentTarget.checked,
+                                        }),
+                                    )
+                                }
+                            />
+                        </Group>
+                    )}
                 </Panel>
 
                 <Panel title="Font">
@@ -114,7 +197,7 @@ export function AppearanceSection({ config, set }: Props) {
                         value={appearance.font}
                         allowDeselect={false}
                         onChange={(font) =>
-                            set(["font"], font === DEFAULT_FONT ? undefined : (font ?? undefined))
+                            set(["font"], font === baseFont ? undefined : (font ?? undefined))
                         }
                     />
                     <Labelled label={`Text size: ${appearance.fontScale.toFixed(2)}×`}>

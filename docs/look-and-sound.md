@@ -2,12 +2,35 @@
 
 ## Appearance
 `config.theme` sets the colors: `"default"` (pale blue on black), `"amber"`, `"green"`, `"white"`, or your
-own, e.g. `{ "fg": "#33ff66", "bg": "#001100" }`. `config.font` picks a typeface: `"departure-mono"`
-(the default), `"ast-premiumexec"`, `"ibm-vga"`, `"ibm-ega"`, `"ibm-cga"`, `"ibm-cga-thin"`,
-`"ibm-mda"` or `"toshiba-satellite"`. Text is sized to whole multiples of the font's pixel
-height, so it stays crisp. Or a font installed on the player's computer: `"courier-new"`,
-`"consolas"` (Windows) or `"menlo"` (macOS). These aren't bundled, so where one isn't
-installed, the browser's own monospace font stands in; they can be any size.
+own, e.g. `{ "fg": "#33ff66", "bg": "#001100" }`. Some themes are a whole look, with a font and
+effects of their own:
+
+| Theme | Looks like | Font | Effects |
+|---|---|---|---|
+| `"vcr"` | A VCR's on-screen menu: white on blue, with a dark drop shadow | Home Video | A little static, faint scanlines |
+| `"lcd"` | An LCD's dark segments on grey-green glass, in capitals | Digit Tech | None |
+| `"paper"` | Typed on cream paper | X Typewriter | A soft vignette |
+| `"printout"` | Printed by a dot-matrix printer | MatrixType | None |
+
+The program's own `font` and `effects` win over the theme's: `"theme": "vcr", "font": "ibm-vga"`
+is the VCR's blue in IBM VGA. A theme of your own can choose how text casts its `shadow`
+(`"glow"`, a CRT's, the default; `"drop"`, `"lcd"`, `"ink"` or `"none"`), and show it all in
+`capitals`: `{ "fg": "#222222", "bg": "#eeeeee", "shadow": "ink" }`.
+
+`config.font` picks a typeface (the default is the theme's, or `"departure-mono"`): a period PC
+font, `"ast-premiumexec"`, `"ibm-vga"`, `"ibm-ega"`, `"ibm-cga"`, `"ibm-cga-thin"`, `"ibm-mda"` or
+`"toshiba-satellite"`; a VCR's, `"home-video"`; an LCD's segments, `"digit-tech"`; a dot-matrix
+printer's, `"matrixtype"`; or a typewriter's, `"x-typewriter"`. Pixel fonts are sized to whole
+multiples of their pixel height, so they stay crisp. Or a font installed on the player's
+computer: `"courier-new"`, `"consolas"` (Windows) or `"menlo"` (macOS). These aren't bundled, so
+where one isn't installed, the browser's own monospace font stands in; they can be any size.
+
+Home Video, Digit Tech, MatrixType and X Typewriter don't have the box lines, blocks, shades and
+arrows Teletronix draws tables, bars, maps and frames with (nor, in X Typewriter, `< > [ ] ^ { }`),
+so each comes with a font of just those, drawn to its measure: the lines meet the next
+character's, in its weight, and in MatrixType, in dots. They're by
+[GGBotNet](https://ggbot.net): Home Video, Digit Tech and MatrixType are CC0 (public domain),
+and X Typewriter is under the SIL Open Font License (see `public/licenses/`).
 
 `config.fontScale` makes text bigger or smaller, from 0.5 to 2 (default 0.75). It scales the
 usual size, which already adapts to the window, so text stays in proportion on a phone and a

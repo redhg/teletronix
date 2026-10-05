@@ -72,7 +72,7 @@ export default defineConfig({
             },
             workbox: {
                 globPatterns: [
-                    "**/*.{html,js,css,woff,woff2,png,jpg,gif,svg,json,txt,mp3,ogg,wav,m4a,webm}",
+                    "**/*.{html,js,css,woff,woff2,otf,png,jpg,gif,svg,json,txt,mp3,ogg,wav,m4a,webm}",
                 ],
                 // programs' images and audio can be large
                 maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,

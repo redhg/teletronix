@@ -51,6 +51,11 @@ const choose = async (page: Page, field: string, option: string) => {
     await page.getByRole("combobox", { name: field }).click();
     await page.getByRole("option", { name: option, exact: true }).click();
 };
+/** An effect's on/off switch, in the Appearance section's Effects panel. */
+const effectSwitch = (page: Page, name: string) =>
+    page
+        .getByRole("region", { name: "Effects" })
+        .getByRole("switch", { name: new RegExp(`^${name}`) });
 const section = (page: Page, name: string) =>
     page
         .getByRole("navigation", { name: "Parts of the program" })
@@ -82,6 +87,40 @@ test.describe("the editor", () => {
         await expect(page.getByText("Unsaved")).toBeVisible();
         // (still the same run of the program: appearance doesn't restart it)
         await expect(preview(page).locator(".screen")).toContainText("HOME SCREEN");
+    });
+
+    test("brings a theme's font and effects, writing only what's changed", async ({ page }) => {
+        await openEditor(page);
+        await section(page, "Appearance");
+        const config = async () => {
+            const [download] = await Promise.all([
+                page.waitForEvent("download"),
+                page.getByRole("button", { name: /^Download/ }).click(),
+            ]);
+            return JSON.parse(await readFile(await download.path(), "utf8")).config;
+        };
+        await choose(page, "Theme", "VCR (a blue on-screen menu)");
+        await expect(page.getByRole("combobox", { name: "Typeface" })).toHaveValue(
+            "Home Video (VCR)",
+        );
+        await expect(effectSwitch(page, "Static")).toBeChecked();
+        await expect
+            .poll(() => previewStyle(page, (body) => body.fontFamily))
+            .toContain("home-video");
+        await expect(preview(page).locator("canvas.static")).toBeAttached();
+        let written = await config();
+        expect([written.theme, written.font, written.effects]).toEqual([
+            "vcr",
+            undefined,
+            undefined,
+        ]);
+
+        // the program's own, over the theme's
+        await choose(page, "Typeface", "IBM VGA");
+        await effectSwitch(page, "Static").click();
+        written = await config();
+        expect([written.font, written.effects]).toEqual(["ibm-vga", { static: false }]);
+        await expect(preview(page).locator("canvas.static")).toHaveCount(0);
     });
 
     test("restarts the preview with other changes, on the same screen", async ({ page }) => {

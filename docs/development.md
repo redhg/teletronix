@@ -45,3 +45,7 @@ Every new feature gets tests.
   devices is `scripts/remote-relay.ts`, in Vite's servers.
 - `src/ui/`: the React layer. Per-frame text is written straight to the DOM, so React only
   re-renders on structural changes.
+- `src/assets/fonts/`: the bundled fonts, and the symbol fonts made for the ones that lack box
+  lines, blocks and arrows (`symbols-<font>.otf`). `node scripts/symbols-font.ts` makes them
+  again, from each font's measurements and the symbols' shapes in that script; a test fails
+  if they're out of date.

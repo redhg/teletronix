@@ -82,9 +82,12 @@ export const EFFECT_OPTIONS_SCHEMAS: { [N in EffectName]: z.ZodType } = {
 /** Every effect, on or off, with all its options: what a settings panel edits. */
 export type EffectsState = { [N in EffectName]: { on: boolean; options: EffectOptions[N] } };
 
-/** Expands a program's effects setting into the full state. */
-export function expandEffects(setting: EffectsSetting | undefined): EffectsState {
-    const resolved = resolveEffects(setting);
+/** Expands a program's effects setting into the full state, over a theme's (`base`). */
+export function expandEffects(
+    setting: EffectsSetting | undefined,
+    base?: EffectsSetting,
+): EffectsState {
+    const resolved = resolveEffects(base, setting);
     const state = {} as Record<EffectName, { on: boolean; options: object }>;
     for (const name of Object.keys(EFFECTS) as EffectName[]) {
         const options = resolved[name];
@@ -93,11 +96,19 @@ export function expandEffects(setting: EffectsSetting | undefined): EffectsState
     return state as EffectsState;
 }
 
-/** The smallest setting for a state: only what differs from the defaults. */
-export function compactEffects(state: EffectsState): EffectsSetting | undefined {
+/**
+ * The smallest setting for a state: only what differs from the defaults, or from a theme's
+ * effects (`base`), which it's laid over.
+ */
+export function compactEffects(
+    state: EffectsState,
+    base?: EffectsSetting,
+): EffectsSetting | undefined {
     const setting: Record<string, boolean | object> = {};
+    const before = expandEffects(undefined, base);
     for (const name of Object.keys(EFFECTS) as EffectName[]) {
-        const { enabledByDefault, defaults } = EFFECTS[name];
+        const enabledByDefault = before[name].on;
+        const defaults = before[name].options as Record<string, unknown>;
         const { on, options } = state[name];
         const changed = Object.entries(options).filter(
             ([key, value]) => defaults[key as keyof typeof defaults] !== value,

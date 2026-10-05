@@ -21,7 +21,31 @@ describe("appearance", () => {
             fg: "#33ff66",
             bg: "#001100",
             alert: "#ff3c00",
+            shadow: "glow",
         });
+        expect(resolveTheme({ fg: "#000000", bg: "#ffffff", shadow: "ink" }).shadow).toBe("ink");
+    });
+
+    it("takes a theme's font and effects, unless the program has its own", () => {
+        const vcr = parse({ theme: "vcr" });
+        if (!vcr.ok) throw new Error(JSON.stringify(vcr.errors));
+        expect(vcr.program.palette).toEqual({
+            fg: "#f4f4f4",
+            bg: "#1531c9",
+            alert: "#ffd23a",
+            shadow: "drop",
+        });
+        expect(vcr.program.font).toBe("home-video");
+        expect(vcr.program.themeEffects).toEqual(THEMES.vcr.effects);
+
+        const own = parse({ theme: "vcr", font: "ibm-vga" });
+        expect(own.ok && own.program.font).toBe("ibm-vga");
+        // a theme of colors only has no look of its own
+        const amber = parse({ theme: "amber" });
+        expect(amber.ok && [amber.program.font, amber.program.themeEffects]).toEqual([
+            "departure-mono",
+            undefined,
+        ]);
     });
 
     it("rejects unknown fonts and malformed colors", () => {
@@ -44,5 +68,19 @@ describe("Terminal.setEffects", () => {
         terminal.setEffects({ scanlines: false, bloom: true });
         // the screen's own static stays on
         expect(Object.keys(terminal.getSnapshot().effects)).toEqual(["static", "bloom"]);
+    });
+
+    it("lays the program's effects over its theme's", () => {
+        const { terminal } = createTestTerminal({
+            config: { name: "Test", theme: "vcr", effects: { scanlines: false } },
+            screens: { home: { content: ["x"] } },
+        });
+        terminal.start();
+        // the theme's static, but not its scanlines: the program turned them off
+        expect(terminal.getSnapshot().effects).toEqual({
+            static: { opacity: 0.06, fps: 24, scale: 3 },
+        });
+        terminal.setEffects(undefined, THEMES.paper.effects);
+        expect(Object.keys(terminal.getSnapshot().effects)).toEqual(["vignette"]);
     });
 });

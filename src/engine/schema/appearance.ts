@@ -1,17 +1,25 @@
 import { z } from "zod";
+import type { EffectsSetting } from "./effects.ts";
 
 // ─── Fonts ───────────────────────────────────────────────────────────────────
 // Pixel fonts are only crisp at whole multiples of their pixel height, so each font
-// records it. All but Departure Mono are from The Ultimate Oldschool PC Font Pack by
-// VileR (int10h.org, CC BY-SA 4.0); Departure Mono is by Helena Zhang (SIL OFL 1.1).
-// System fonts aren't bundled: they're used if the player's computer has them, and the
-// browser's own monospace font if not. They can be any size.
+// records it. The PC fonts are from The Ultimate Oldschool PC Font Pack by VileR (int10h.org,
+// CC BY-SA 4.0); Departure Mono is by Helena Zhang (SIL OFL 1.1); Home Video, Digit Tech,
+// MatrixType (CC0) and X Typewriter (SIL OFL 1.1) are by GGBotNet. Those four lack the box
+// lines, blocks and arrows Teletronix draws with, so each has a symbol font made to its
+// measure (scripts/symbols-font.ts). System fonts aren't bundled: they're used if the
+// player's computer has them, and the browser's own monospace font if not. They can be any
+// size.
 
 interface FontInfo {
     name: string;
     pixelHeight: number;
     /** For a font installed on the player's computer: its CSS family name. */
     system?: string;
+    /** Smooth curves and segments rather than pixels: smoothed, at any size. */
+    outline?: boolean;
+    /** The symbol font that fills in what it lacks (src/assets/fonts/symbols-<id>.otf) */
+    symbols?: string;
 }
 
 export const FONTS = {
@@ -23,6 +31,25 @@ export const FONTS = {
     "ibm-mda": { name: "IBM MDA", pixelHeight: 14 },
     "toshiba-satellite": { name: "Toshiba Satellite", pixelHeight: 16 },
     "departure-mono": { name: "Departure Mono", pixelHeight: 11 },
+    "home-video": { name: "Home Video (VCR)", pixelHeight: 20, symbols: "home-video" },
+    "digit-tech": {
+        name: "Digit Tech (LCD segments)",
+        pixelHeight: 1,
+        outline: true,
+        symbols: "digit-tech",
+    },
+    matrixtype: {
+        name: "MatrixType (dot matrix)",
+        pixelHeight: 1,
+        outline: true,
+        symbols: "matrixtype",
+    },
+    "x-typewriter": {
+        name: "X Typewriter",
+        pixelHeight: 1,
+        outline: true,
+        symbols: "x-typewriter",
+    },
     "courier-new": { name: "Courier New (installed)", pixelHeight: 1, system: '"Courier New"' },
     consolas: { name: "Consolas (installed, Windows)", pixelHeight: 1, system: "Consolas" },
     menlo: { name: "Menlo (installed, macOS)", pixelHeight: 1, system: "Menlo" },
@@ -31,14 +58,20 @@ export const FONTS = {
 /** Whether a font is one installed on the player's computer, rather than bundled. */
 export const isSystemFont = (font: FontId): boolean => "system" in FONTS[font];
 
+/** Whether a font is drawn smoothed: an installed font, or an outline one. */
+export const isSmoothFont = (font: FontId): boolean =>
+    isSystemFont(font) || "outline" in FONTS[font];
+
 export type FontId = keyof typeof FONTS;
 export const DEFAULT_FONT: FontId = "departure-mono";
 
 export const FontSchema = z.enum(Object.keys(FONTS) as [FontId, ...FontId[]]).meta({
     description:
-        "The typeface: a period PC font, or one installed on the player's computer " +
-        '("courier-new", "consolas" on Windows, "menlo" on macOS; the browser\'s own ' +
-        'monospace font where it isn\'t) (default: "departure-mono")',
+        "The typeface: a period PC font; a VCR's (\"home-video\"), an LCD's segments " +
+        '("digit-tech"), a dot-matrix printer\'s ("matrixtype") or a typewriter\'s ' +
+        '("x-typewriter"); or one installed on the player\'s computer ("courier-new", ' +
+        '"consolas" on Windows, "menlo" on macOS; the browser\'s own monospace font where it ' +
+        "isn't) (default: the theme's, or \"departure-mono\")",
 });
 
 /** How much bigger (or smaller) than usual text is. */
@@ -69,6 +102,13 @@ export const LineSpacingSchema = z
 
 // ─── Themes ──────────────────────────────────────────────────────────────────
 
+// A theme is colors, and the shadow text casts; and can bring a look of its own, a font and
+// effects, which a program's own font and effects override.
+
+/** What text casts: a CRT's glow, a dark drop shadow, an LCD's segments' shadow, ink's bleed. */
+export const TEXT_SHADOWS = ["glow", "drop", "lcd", "ink", "none"] as const;
+export type TextShadow = (typeof TEXT_SHADOWS)[number];
+
 export interface Palette {
     /** Text */
     fg: string;
@@ -76,14 +116,62 @@ export interface Palette {
     bg: string;
     /** Warnings: text with the "alert" class */
     alert: string;
+    /** The shadow text casts */
+    shadow: TextShadow;
+    /** Show every letter as a capital, however it's written */
+    capitals?: boolean;
+}
+
+interface Theme extends Palette {
+    /** Its font, unless the program has one */
+    font?: FontId;
+    /** Its effects, under the program's */
+    effects?: EffectsSetting;
 }
 
 export const THEMES = {
-    default: { fg: "#d4f9fa", bg: "#000c0c", alert: "#ff3c00" },
-    amber: { fg: "#e07d0b", bg: "#080400", alert: "#ff3c00" },
-    green: { fg: "#24a114", bg: "#000200", alert: "#ff3c00" },
-    white: { fg: "#dadada", bg: "#020202", alert: "#ff3c00" },
-} as const satisfies Record<string, Palette>;
+    default: { fg: "#d4f9fa", bg: "#000c0c", alert: "#ff3c00", shadow: "glow" },
+    amber: { fg: "#e07d0b", bg: "#080400", alert: "#ff3c00", shadow: "glow" },
+    green: { fg: "#24a114", bg: "#000200", alert: "#ff3c00", shadow: "glow" },
+    white: { fg: "#dadada", bg: "#020202", alert: "#ff3c00", shadow: "glow" },
+    // a VCR's on-screen menu: white on blue, a little tape noise
+    vcr: {
+        fg: "#f4f4f4",
+        bg: "#1531c9",
+        alert: "#ffd23a",
+        shadow: "drop",
+        font: "home-video",
+        effects: { static: { opacity: 0.06 }, scanlines: { opacity: 0.2 } },
+    },
+    // a calculator's or a car stereo's: dark segments on grey-green glass
+    lcd: {
+        fg: "#1f261a",
+        bg: "#a9b58e",
+        alert: "#6e1414",
+        shadow: "lcd",
+        capitals: true,
+        font: "digit-tech",
+        effects: { scanlines: false },
+    },
+    // typed on paper
+    paper: {
+        fg: "#2b2622",
+        bg: "#f1e9d2",
+        alert: "#a8201a",
+        shadow: "ink",
+        font: "x-typewriter",
+        effects: { scanlines: false, vignette: { strength: 0.3 } },
+    },
+    // printed by a dot-matrix printer
+    printout: {
+        fg: "#2a3242",
+        bg: "#fbfbf3",
+        alert: "#b3261e",
+        shadow: "ink",
+        font: "matrixtype",
+        effects: { scanlines: false },
+    },
+} as const satisfies Record<string, Theme>;
 
 export type ThemeName = keyof typeof THEMES;
 export const DEFAULT_THEME: ThemeName = "default";
@@ -100,6 +188,23 @@ export const CustomThemeSchema = z
         alert: ColorSchema.optional().meta({
             description: 'Color of text with the "alert" class (default: "#ff3c00")',
         }),
+        shadow: z
+            .enum(TEXT_SHADOWS)
+            .optional()
+            .meta({
+                description:
+                    'The shadow text casts: a CRT\'s "glow", a dark "drop" shadow, an LCD\'s ' +
+                    'segments\' faint "lcd" shadow, ink\'s slight "ink" bleed, or "none" ' +
+                    '(default: "glow")',
+            }),
+        capitals: z
+            .boolean()
+            .optional()
+            .meta({
+                description:
+                    "Show every letter as a capital, as an LCD would, however it's written " +
+                    "(default: false)",
+            }),
     })
     .meta({ description: "Your own colors" });
 
@@ -107,15 +212,30 @@ export const ThemeSchema = z
     .union([z.enum(Object.keys(THEMES) as [ThemeName, ...ThemeName[]]), CustomThemeSchema])
     .meta({
         description:
-            'The color scheme: "default" (pale blue on black), "amber", "green" or "white", ' +
-            'or your own colors (default: "default")',
+            'The color scheme: "default" (pale blue on black), "amber", "green" or "white"; ' +
+            'a look of its own, with a font and effects: "vcr" (a VCR\'s blue menu), "lcd" ' +
+            '(an LCD\'s segments), "paper" (typed) or "printout" (dot matrix); or your own ' +
+            'colors (default: "default")',
     });
 
 export type ThemeSetting = z.output<typeof ThemeSchema>;
 
 /** The colors for a theme setting. */
 export function resolveTheme(theme: ThemeSetting | undefined): Palette {
-    if (theme === undefined) return THEMES[DEFAULT_THEME];
-    if (typeof theme === "string") return THEMES[theme];
-    return { alert: THEMES[DEFAULT_THEME].alert, ...theme };
+    const named: Palette = THEMES[typeof theme === "string" ? theme : DEFAULT_THEME];
+    const { fg, bg, alert, shadow, capitals } = named;
+    if (theme === undefined || typeof theme === "string") {
+        return { fg, bg, alert, shadow, ...(capitals ? { capitals } : {}) };
+    }
+    return { alert, shadow, ...theme };
+}
+
+/** A theme's font, if it has one of its own. */
+export function themeFont(theme: ThemeSetting | undefined): FontId | undefined {
+    return typeof theme === "string" ? (THEMES[theme] as Theme).font : undefined;
+}
+
+/** A theme's effects, if it has any of its own: under the program's. */
+export function themeEffects(theme: ThemeSetting | undefined): EffectsSetting | undefined {
+    return typeof theme === "string" ? (THEMES[theme] as Theme).effects : undefined;
 }

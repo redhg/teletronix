@@ -22,12 +22,17 @@ export {
     DEFAULT_THEME,
     FONTS,
     type FontId,
+    isSmoothFont,
     isSystemFont,
     type Palette,
     resolveTheme,
+    TEXT_SHADOWS,
+    type TextShadow,
     THEMES,
     type ThemeName,
     type ThemeSetting,
+    themeEffects,
+    themeFont,
 } from "./schema/appearance.ts";
 export {
     type BarCrumb,

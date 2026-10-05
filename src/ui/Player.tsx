@@ -5,6 +5,7 @@ import {
     resolveTheme,
     type Terminal,
     type ThemeSetting,
+    themeEffects,
 } from "../engine/index.ts";
 import type { Remote } from "../remote/follow.ts";
 import { RemoteBadge } from "../remote/RemoteBadge.tsx";
@@ -86,7 +87,7 @@ export function Player({ terminal, initial, preview, kiosk = false, remote }: Pr
             setFont(settings.font);
             setFontScale(settings.fontScale);
             setLineSpacing(settings.lineSpacing);
-            terminal.setEffects(settings.effects);
+            terminal.setEffects(settings.effects, themeEffects(settings.theme));
             setSound(resolveSound(settings.sound));
         };
         window.addEventListener("message", handleMessage);
