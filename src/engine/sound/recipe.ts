@@ -63,7 +63,7 @@ export const RecipeSchema = z
     .meta({
         description:
             "A generated sound effect, made from sfxr-style settings. Design one on the sound " +
-            "test page (?sound, Custom tab) and paste it in.",
+            "in the editor (?edit, Sounds).",
     });
 
 /** A recipe with every setting filled in. */

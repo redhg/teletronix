@@ -241,7 +241,7 @@ export const FileSchema = z
             .meta({
                 description:
                     'Sound effects, by name, for "sound" on actions, elements, screens and ' +
-                    "dialogs. Design them on the sound test page (?sound, Custom tab). Named " +
+                    "dialogs. Design them in the editor (?edit, Sounds). Named " +
                     '"key", "select", "tick", "error", "dialog" or "alert", one replaces ' +
                     "Teletronix's own sound of that kind.",
             }),

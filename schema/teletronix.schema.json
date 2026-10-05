@@ -3884,7 +3884,7 @@
                                         }
                                     },
                                     "additionalProperties": false,
-                                    "description": "Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the sound test page (?sound, Built-in tab) and paste the result here."
+                                    "description": "Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the editor (?edit, Sounds, Built-in tab) and paste the result here."
                                 }
                             },
                             "additionalProperties": false,
@@ -10972,7 +10972,7 @@
             }
         },
         "sounds": {
-            "description": "Sound effects, by name, for \"sound\" on actions, elements, screens and dialogs. Design them on the sound test page (?sound, Custom tab). Named \"key\", \"select\", \"tick\", \"error\", \"dialog\" or \"alert\", one replaces Teletronix's own sound of that kind.",
+            "description": "Sound effects, by name, for \"sound\" on actions, elements, screens and dialogs. Design them in the editor (?edit, Sounds). Named \"key\", \"select\", \"tick\", \"error\", \"dialog\" or \"alert\", one replaces Teletronix's own sound of that kind.",
             "type": "object",
             "propertyNames": {
                 "type": "string",
@@ -11132,7 +11132,7 @@
                     }
                 },
                 "additionalProperties": false,
-                "description": "A generated sound effect, made from sfxr-style settings. Design one on the sound test page (?sound, Custom tab) and paste it in."
+                "description": "A generated sound effect, made from sfxr-style settings. Design one on the sound in the editor (?edit, Sounds)."
             }
         }
     },

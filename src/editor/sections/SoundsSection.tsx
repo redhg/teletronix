@@ -8,11 +8,12 @@ import {
     Slider,
     Stack,
     Switch,
+    Tabs,
     Text,
     TextInput,
 } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
-import { resolveSound } from "../../engine/index.ts";
+import { resolveSound, type SoundSetting } from "../../engine/index.ts";
 import {
     compactRecipe,
     defaultRecipe,
@@ -29,6 +30,7 @@ import {
 } from "../../engine/sound/recipe.ts";
 import { Panel } from "../../mantine/Panel.tsx";
 import { Synth } from "../../ui/sound/synth.ts";
+import { VoicesPanel } from "./VoicesPanel.tsx";
 
 /** How long a slider must rest before the sound plays, so a drag doesn't stutter. */
 const AUTOPLAY_DELAY = 200;
@@ -47,6 +49,9 @@ const GROUPS = Object.entries(RECIPE_PARAMS).reduce<[string, RecipeParamName[]][
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 interface Props {
+    /** The config's sound setting, for Teletronix's own sounds */
+    setting: SoundSetting | undefined;
+    onSetting: (setting: SoundSetting | undefined) => void;
     sounds: Record<string, unknown>;
     /** Sets a sound (undefined: deletes it) */
     onChange: (name: string, recipe: unknown) => void;
@@ -59,7 +64,29 @@ interface Props {
  * ear, and play it by name (`"sound": "its-name"`), or name it after one of Teletronix's own
  * (key, select, tick…) to replace that.
  */
-export function SoundsSection({ sounds, onChange, onRename }: Props) {
+export function SoundsSection({ setting, onSetting, sounds, onChange, onRename }: Props) {
+    return (
+        <Tabs defaultValue="own" keepMounted={false}>
+            <Tabs.List mb="md">
+                <Tabs.Tab value="own">The program's sounds</Tabs.Tab>
+                <Tabs.Tab value="builtin">Teletronix's own</Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel value="own">
+                <ProgramSounds sounds={sounds} onChange={onChange} onRename={onRename} />
+            </Tabs.Panel>
+            <Tabs.Panel value="builtin">
+                <VoicesPanel setting={setting} onChange={onSetting} />
+            </Tabs.Panel>
+        </Tabs>
+    );
+}
+
+/** The program's own sounds: a list, and the one chosen, to design. */
+function ProgramSounds({
+    sounds,
+    onChange,
+    onRename,
+}: Pick<Props, "sounds" | "onChange" | "onRename">) {
     const names = Object.keys(sounds);
     const [chosen, setChosen] = useState<string | null>(names[0] ?? null);
     const current = chosen !== null && chosen in sounds ? chosen : (names[0] ?? null);

@@ -1,5 +1,5 @@
 // Every number the synthesizer uses for Teletronix's own sounds, with the defaults. A
-// program can override any of them in config.sound.voices; the sound test page (?sound,
+// program can override any of them in config.sound.voices; the editor (?edit, Sounds,
 // Built-in tab) tunes them by ear and prints the JSON for that.
 
 import { z } from "zod";
@@ -221,7 +221,7 @@ export const VoicesSchema = z
     .meta({
         description:
             "Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear " +
-            "on the sound test page (?sound, Built-in tab) and paste the result here.",
+            "on the editor (?edit, Sounds, Built-in tab) and paste the result here.",
     });
 
 /** Voice overrides as a program writes them: any voice, any of its settings. */

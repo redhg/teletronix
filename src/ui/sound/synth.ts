@@ -171,7 +171,7 @@ export class Synth {
         return buffer.duration;
     }
 
-    /** Plays one voice now, whatever the settings (for the sound test page). */
+    /** Plays one voice now, whatever the settings (for the editor's sounds). */
     preview(name: Exclude<VoiceName, "hum" | "hiss">, duration = 1): void {
         if (this.context) this.voice(name, this.context.currentTime, duration);
     }

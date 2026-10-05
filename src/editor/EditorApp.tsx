@@ -19,7 +19,7 @@ import {
 } from "@mantine/core";
 import { useHotkeys } from "@mantine/hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { type ParseError, parseProgram } from "../engine/index.ts";
+import { type ParseError, parseProgram, type SoundSetting } from "../engine/index.ts";
 import { ColorScheme } from "../mantine/ColorScheme.tsx";
 import { MenuCaret } from "../mantine/MenuCaret.tsx";
 import { ScreenTree } from "../mantine/ScreenTree.tsx";
@@ -684,6 +684,8 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                     )}
                     {section === "sounds" && (
                         <SoundsSection
+                            setting={config.sound as SoundSetting | undefined}
+                            onSetting={(setting) => setConfig(["sound"], setting)}
                             sounds={(file.sounds ?? {}) as Record<string, unknown>}
                             onChange={(name, recipe) =>
                                 history.set(

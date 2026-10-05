@@ -40,6 +40,8 @@ export async function startEditor(root: Root, params: URLSearchParams): Promise<
 
 /** Whether Save can write into public/data here: only the dev server has the endpoint. */
 async function saveAvailable(): Promise<boolean> {
+    // (a build never has it: no need to ask, e.g. while offline)
+    if (!import.meta.env.DEV) return false;
     try {
         const response = await fetch(new URL("__teletronix/save", location.href));
         return response.status === 204;

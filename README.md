@@ -45,7 +45,8 @@ restarts with anything else, on the screen it was showing.
   value, and each timer's settings; add and delete them here.
 - **Sounds:** the program's own sound effects, designed sfxr-style: roll one from a preset
   (blip, laser, explosion…), mutate it, adjust its wave and sliders by ear, and play it. Play
-  one with `"sound": "its-name"`; **Rename** renames what plays it.
+  one with `"sound": "its-name"`; **Rename** renames what plays it. And Teletronix's own
+  sounds (the key click, beeps, glitch…), tuned by ear (see [Sound](#sound)).
 - **Screens:** every screen, under its `parent`, or found by name; **+** adds one (under the one
   chosen). A screen's page has its settings (folded away) and its content, an element to a row:
   open one to edit it: **Settings**, a form built from its type's schema, or **JSON** (for
@@ -1026,15 +1027,14 @@ clicked or pressed a key, so it starts then. Players can mute it with the toggle
 [bar](#header-and-status-bars) instead, with `{ "soundToggle": true }`: the corner's goes while
 that bar shows. `"button": false` leaves the corner's out altogether; Ctrl+M still works.
 
-The **sound test page**, <http://localhost:5173/?sound>, has two tabs:
-- **Built-in** tunes Teletronix's own sounds: play each one, adjust it with sliders by ear, and
-  copy the result into your program's `config` as `sound.voices`, e.g.
-  `"sound": { "voices": { "key": { "pitch": 2400 } } }`. Only the settings you change are written.
-- **Custom** designs brand new sound effects: roll a preset (laser, explosion, pickup, blip…),
-  adjust it, and copy it as JSON. Its synthesizer is a port of [jsfxr](https://github.com/chr15m/jsfxr)
-  (public domain), the JavaScript version of DrPetter's classic sfxr.
-
-Edits on both tabs are kept in the browser.
+The [editor](#the-editor)'s **Sounds** section has two tabs:
+- **Teletronix's own** tunes the built-in sounds: play each one and adjust it by ear. Only the
+  settings you change are written, into `config.sound.voices`, e.g.
+  `"sound": { "voices": { "key": { "pitch": 2400 } } }`.
+- **The program's sounds** designs brand new sound effects for its `sounds` (below): roll a
+  preset (laser, explosion, pickup, blip…) and adjust it. Its synthesizer is a port of
+  [jsfxr](https://github.com/chr15m/jsfxr) (public domain), the JavaScript version of DrPetter's
+  classic sfxr.
 
 ### Your own sounds
 A program can define sound effects in a top-level `sounds` library, and play them by name:
@@ -1191,8 +1191,8 @@ Two suites, both run on every push by GitHub Actions:
 
 - **Unit tests** (`npm test`, Vitest): the engine, schemas, modules' behavior and the
   generated files, with a fake clock. Next to the code, as `*.test.ts`.
-- **Browser tests** (`npm run test:e2e`, Playwright): the player, the editor and the
-  sound test page, driven as a user would, in Chromium, Firefox and WebKit. In `e2e/`, one
+- **Browser tests** (`npm run test:e2e`, Playwright): the player, the editor and the GM's
+  panel, driven as a user would, in Chromium, Firefox and WebKit. In `e2e/`, one
   file per feature. They build the app and serve it on port 4180, so a running dev server
   (or `npm run table`) doesn't matter.
 

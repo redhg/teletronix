@@ -34,8 +34,8 @@ test.describe("offline", () => {
 
         await page.goto("./?data=ypsilon14");
         await expect(player.screen).not.toBeEmpty();
-        await page.goto("./?sound");
-        await expect(page.locator(".voice").first()).toBeVisible();
+        await page.goto("./?edit&data=sample");
+        await expect(page.getByText("Teletronix editor")).toBeVisible();
     });
 });
 

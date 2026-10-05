@@ -324,4 +324,25 @@ test.describe("the editor", () => {
         expect(Object.keys(file.sounds)).toEqual(["laser"]);
         expect(file.sounds.laser.wave).toBe("noise");
     });
+
+    test("tunes Teletronix's own sounds, writing only what changes", async ({ page }) => {
+        await openEditor(page);
+        await section(page, "Sounds");
+        await page.getByRole("tab", { name: "Teletronix's own" }).click();
+        const written = async () => {
+            const [download] = await Promise.all([
+                page.waitForEvent("download"),
+                page.getByRole("button", { name: /^Download/ }).click(),
+            ]);
+            return JSON.parse(await readFile(await download.path(), "utf8")).config.sound;
+        };
+        await page.getByRole("button", { name: "Play: Select" }).click();
+        await choose(page, "Select: Wave", "sine");
+        expect(await written()).toEqual({ voices: { select: { wave: "sine" } } });
+        await page.getByRole("button", { name: "Reset: Select" }).click();
+        expect(await written()).toBeUndefined();
+        await page
+            .getByRole("textbox", { name: "Type here to hear key clicks" })
+            .pressSequentially("ab");
+    });
 });

@@ -30,7 +30,7 @@ A Teletronix program: its settings, screens, dialogs and sounds
 | `config` | [Config](#config) | **required** | Settings for the whole program |
 | `screens` | map of id → [Screen](#screen) | **required** | The screens, by id. Links, commands and `next` refer to them by id. |
 | `dialogs` | map of id → [Alert](#alert) \| [Confirm](#confirm) |  | The dialogs, by id. Actions open them by id. |
-| `sounds` | map of id → [Sound recipe](#sound-recipe) |  | Sound effects, by name, for "sound" on actions, elements, screens and dialogs. Design them on the sound test page (?sound, Custom tab). Named "key", "select", "tick", "error", "dialog" or "alert", one replaces Teletronix's own sound of that kind. |
+| `sounds` | map of id → [Sound recipe](#sound-recipe) |  | Sound effects, by name, for "sound" on actions, elements, screens and dialogs. Design them in the editor (?edit, Sounds). Named "key", "select", "tick", "error", "dialog" or "alert", one replaces Teletronix's own sound of that kind. |
 
 <a id="config"></a>
 
@@ -1970,13 +1970,13 @@ Sound options: the volume, and each kind of sound on or off
 | `interface` | boolean | `true` | Beeps for links, toggles, sliders, prompts and dialogs |
 | `hum` | boolean | `false` | A CRT's mains hum and high-pitched whine, all the time |
 | `button` | boolean |  | Whether the sound toggle shows in the corner of the screen (default: true). Without it, players mute with Ctrl+M, or a { "soundToggle": true } in a bar. |
-| `voices` | [Sound voices](#sound-voices) |  | Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the sound test page (?sound, Built-in tab) and paste the result here. |
+| `voices` | [Sound voices](#sound-voices) |  | Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the editor (?edit, Sounds, Built-in tab) and paste the result here. |
 
 <a id="sound-recipe"></a>
 
 ### Sound recipe
 
-A generated sound effect, made from sfxr-style settings. Design one on the sound test page (?sound, Custom tab) and paste it in.
+A generated sound effect, made from sfxr-style settings. Design one on the sound in the editor (?edit, Sounds).
 
 | Property | Type | Default | Description |
 |---|---|---|---|
@@ -2009,7 +2009,7 @@ A generated sound effect, made from sfxr-style settings. Design one on the sound
 
 ### Sound voices
 
-Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the sound test page (?sound, Built-in tab) and paste the result here.
+Adjustments to Teletronix's own sounds, overriding their defaults. Tune them by ear on the editor (?edit, Sounds, Built-in tab) and paste the result here.
 
 | Property | Type | Default | Description |
 |---|---|---|---|
