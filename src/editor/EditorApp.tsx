@@ -308,9 +308,17 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
         if (!/^[\w-]+$/.test(to)) return "Letters, digits, _ and - only";
         if (screens.includes(to)) return `There's already a screen "${to}"`;
         history.set(renameScreen(file, from, to));
+        renames.current.set(to, from).set(from, to);
         select(screenSection(to), openElement);
         return null;
     };
+    // undoing (or redoing) a rename takes the editor along to the screen's other name
+    const renames = useRef(new Map<string, string>());
+    useEffect(() => {
+        if (!screenId || screenFiles[screenId]) return;
+        const other = renames.current.get(screenId);
+        if (other && screenFiles[other]) setSection(screenSection(other));
+    }, [screenId, screenFiles]);
     const duplicateScreen = (id: string) => {
         const copy = freeId(screens, `${id}-copy`);
         history.set(insertScreen(file, copy, structuredClone(screenFiles[id] ?? {}), id));

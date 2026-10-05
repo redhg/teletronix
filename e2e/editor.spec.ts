@@ -225,6 +225,11 @@ test.describe("the editor", () => {
             await page.getByRole("button", { name: "Rename" }).click();
             await expect(page.getByText("deck", { exact: true })).toBeVisible();
             await expect(page.getByText("No problems")).toBeVisible();
+            // undo follows it back to its old name, and redo forward again
+            await page.getByRole("button", { name: "Undo" }).click();
+            await expect(page.getByText("other", { exact: true })).toBeVisible();
+            await page.getByRole("button", { name: "Redo" }).click();
+            await expect(page.getByText("deck", { exact: true })).toBeVisible();
             // HOME's link goes to it by its new name
             await openScreen(page, /^HOME/);
             await element(page, 2).click();
