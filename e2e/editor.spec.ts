@@ -189,6 +189,39 @@ test.describe("the editor", () => {
         const element = (page: Page, number: number) =>
             page.getByRole("button", { name: new RegExp(`^Element ${number}:`) });
 
+        test("moves elements by dragging them, or from the keyboard", async ({ page }) => {
+            await openEditor(page);
+            await openScreen(page, /^HOME/);
+            await expect(element(page, 1)).toHaveAccessibleName(/text, HOME SCREEN/);
+
+            // picked up with Space, moved with an arrow key, dropped with Space
+            await page.getByRole("button", { name: "Move element 2", exact: true }).focus();
+            const said = (words: RegExp) => expect(page.getByText(words)).toBeAttached();
+            await page.keyboard.press("Space");
+            await said(/^element 2, link .* is now at 2 of 2/);
+            await page.keyboard.press("ArrowUp");
+            await said(/is now at 1 of 2/);
+            await page.keyboard.press("Space");
+            await said(/^Dropped element 2, link .* at 1/);
+            await expect(element(page, 1)).toHaveAccessibleName(/link, > OTHER/);
+            await expect(preview(page).locator(".screen")).toContainText(/> OTHER.*HOME SCREEN/);
+
+            // and with the mouse, by the handle
+            const handle = await page
+                .getByRole("button", { name: "Move element 1", exact: true })
+                .boundingBox();
+            const below = await element(page, 2).boundingBox();
+            if (!handle || !below) throw new Error("no boxes");
+            await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+            await page.mouse.down();
+            await page.mouse.move(handle.x + handle.width / 2, below.y + below.height, {
+                steps: 8,
+            });
+            await page.mouse.up();
+            await expect(element(page, 1)).toHaveAccessibleName(/text, HOME SCREEN/);
+            await expect(element(page, 2)).toHaveAccessibleName(/link, > OTHER/);
+        });
+
         test("copies an element from one screen into another", async ({ page }) => {
             await openEditor(page);
             await openScreen(page, /^HOME/);

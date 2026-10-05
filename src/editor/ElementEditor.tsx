@@ -1,3 +1,5 @@
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
     ActionIcon,
     Badge,
@@ -11,6 +13,7 @@ import {
     Tooltip,
     UnstyledButton,
 } from "@mantine/core";
+import { useMergedRef } from "@mantine/hooks";
 import { useEffect, useMemo, useRef } from "react";
 import { describe, JsonField, jsonSchemaOf, SchemaField } from "./SchemaForm.tsx";
 import { ELEMENT_TYPES, type ElementFile, summarize, typeOf } from "./screens.ts";
@@ -27,6 +30,8 @@ function schemaFor(type: string) {
 }
 
 interface Props {
+    /** Its id in the list it can be dragged around */
+    sortableId: string;
     element: ElementFile;
     /** Its place in the list, from 0 */
     index: number;
@@ -49,6 +54,7 @@ interface Props {
  * settings, in a form built from its type's schema, or as JSON.
  */
 export function ElementEditor({
+    sortableId,
     element,
     index,
     count,
@@ -74,6 +80,16 @@ export function ElementEditor({
     useEffect(() => {
         if (expanded) box.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }, [expanded]);
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        setActivatorNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: sortableId });
+    const ref = useMergedRef(box, setNodeRef);
 
     const form =
         typeof element === "string" ? (
@@ -121,13 +137,29 @@ export function ElementEditor({
 
     return (
         <Paper
-            ref={box}
+            ref={ref}
             withBorder
             radius="md"
             className="editor-element"
             data-expanded={expanded || undefined}
+            data-dragging={isDragging || undefined}
+            style={{ transform: CSS.Translate.toString(transform), transition }}
         >
-            <Group gap="xs" wrap="nowrap" px="sm" py={6}>
+            <Group gap="xs" wrap="nowrap" pl={4} pr="sm" py={6}>
+                <Tooltip label="Drag to move (or Space, then the arrow keys)" openDelay={500}>
+                    <ActionIcon
+                        ref={setActivatorNodeRef}
+                        variant="subtle"
+                        color="gray"
+                        className="editor-element-handle"
+                        {...attributes}
+                        {...listeners}
+                        aria-label={`Move element ${index + 1}`}
+                        aria-roledescription="sortable"
+                    >
+                        ⠿
+                    </ActionIcon>
+                </Tooltip>
                 <UnstyledButton
                     className="editor-element-summary"
                     onClick={onToggle}

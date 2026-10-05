@@ -61,3 +61,18 @@
     padding-bottom: var(--mantine-spacing-md);
     border-bottom: 1px solid var(--mantine-color-default-border);
 }
+
+/* an element's drag handle, and the element being dragged */
+.editor-element-handle {
+    cursor: grab;
+    touch-action: none;
+    font-size: 16px;
+}
+.editor-element[data-dragging] {
+    position: relative;
+    z-index: 2;
+    box-shadow: var(--mantine-shadow-md);
+}
+.editor-element[data-dragging] .editor-element-handle {
+    cursor: grabbing;
+}

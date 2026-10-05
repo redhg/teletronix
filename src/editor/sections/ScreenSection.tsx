@@ -1,4 +1,20 @@
 import {
+    closestCenter,
+    DndContext,
+    type DragEndEvent,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from "@dnd-kit/core";
+import { restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
     Accordion,
     Button,
     Code,
@@ -16,7 +32,14 @@ import { MenuCaret } from "../../mantine/MenuCaret.tsx";
 import { Panel } from "../../mantine/Panel.tsx";
 import { ElementEditor } from "../ElementEditor.tsx";
 import { describe, jsonSchemaOf, SchemaField } from "../SchemaForm.tsx";
-import { ELEMENT_TYPES, type ElementFile, newElement, type ScreenFile } from "../screens.ts";
+import {
+    ELEMENT_TYPES,
+    type ElementFile,
+    newElement,
+    type ScreenFile,
+    summarize,
+    typeOf,
+} from "../screens.ts";
 
 /** What a screen's mistakes are about: one of its settings, or an element (and its setting). */
 export interface ScreenErrors {
@@ -72,6 +95,32 @@ export function ScreenSection({
         onChange(next);
     };
     const settingKeys = Object.keys(schema.properties ?? {}).filter((key) => key !== "content");
+
+    // dragging an element by its handle (or picking it up with Space or Enter, then the arrow
+    // keys) moves it; elements have no ids of their own, so they go by their place
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    );
+    const ids = content.map((_, index) => `element-${index}`);
+    const indexOf = (id: string | number) => ids.indexOf(String(id));
+    const nameOf = (id: string | number) => {
+        const index = indexOf(id);
+        const element = content[index];
+        if (element === undefined) return "the element";
+        const summary = summarize(element);
+        return `element ${index + 1}, ${typeOf(element)}${summary ? ` ${summary}` : ""}`;
+    };
+    const move = (from: number, to: number) => {
+        if (from === to || from < 0 || to < 0) return;
+        setContent(arrayMove(content, from, to));
+        if (open === from) onOpen(to);
+        else if (open !== null && from < open && to >= open) onOpen(open - 1);
+        else if (open !== null && from > open && to <= open) onOpen(open + 1);
+    };
+    const dropped = ({ active, over }: DragEndEvent) => {
+        if (over) move(indexOf(active.id), indexOf(over.id));
+    };
     const setCount = settingKeys.filter((key) => screen[key] !== undefined).length;
 
     return (
@@ -154,46 +203,67 @@ export function ScreenSection({
                         This screen is a preset: its own content (if any) comes after the preset's.
                     </Text>
                 )}
-                <Stack gap={6}>
-                    {content.map((element, index) => (
-                        <ElementEditor
-                            // biome-ignore lint/suspicious/noArrayIndexKey: elements have no ids of their own
-                            key={index}
-                            element={element}
-                            index={index}
-                            count={content.length}
-                            errors={errors.elements.get(index) ?? new Map()}
-                            expanded={open === index}
-                            onToggle={() => onOpen(open === index ? null : index)}
-                            onChange={(next) =>
-                                setContent(content.map((old, at) => (at === index ? next : old)))
-                            }
-                            onMove={(by) => {
-                                const to = index + by;
-                                const next = [...content];
-                                [next[index], next[to]] = [
-                                    next[to] as ElementFile,
-                                    next[index] as ElementFile,
-                                ];
-                                setContent(next);
-                                if (open === index) onOpen(to);
-                            }}
-                            onDuplicate={() => {
-                                setContent([
-                                    ...content.slice(0, index + 1),
-                                    structuredClone(element),
-                                    ...content.slice(index + 1),
-                                ]);
-                                onOpen(index + 1);
-                            }}
-                            onCopy={() => onCopy(structuredClone(element))}
-                            onDelete={() => {
-                                setContent(content.filter((_, at) => at !== index));
-                                if (open === index) onOpen(null);
-                            }}
-                        />
-                    ))}
-                </Stack>
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+                    onDragEnd={dropped}
+                    accessibility={{
+                        screenReaderInstructions: {
+                            draggable:
+                                "To move an element, press Space or Enter to pick it up, the up and down arrow keys to move it, then Space or Enter to drop it, or Escape to put it back.",
+                        },
+                        announcements: {
+                            onDragStart: ({ active }) => `Picked up ${nameOf(active.id)}.`,
+                            onDragOver: ({ active, over }) =>
+                                over
+                                    ? `${nameOf(active.id)} is now at ${indexOf(over.id) + 1} of ${content.length}.`
+                                    : `${nameOf(active.id)} is outside the list.`,
+                            onDragEnd: ({ active, over }) =>
+                                over
+                                    ? `Dropped ${nameOf(active.id)} at ${indexOf(over.id) + 1}.`
+                                    : `Put ${nameOf(active.id)} back.`,
+                            onDragCancel: ({ active }) => `Put ${nameOf(active.id)} back.`,
+                        },
+                    }}
+                >
+                    <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+                        <Stack gap={6}>
+                            {content.map((element, index) => (
+                                <ElementEditor
+                                    // biome-ignore lint/suspicious/noArrayIndexKey: elements have no ids of their own
+                                    key={index}
+                                    sortableId={ids[index] as string}
+                                    element={element}
+                                    index={index}
+                                    count={content.length}
+                                    errors={errors.elements.get(index) ?? new Map()}
+                                    expanded={open === index}
+                                    onToggle={() => onOpen(open === index ? null : index)}
+                                    onChange={(next) =>
+                                        setContent(
+                                            content.map((old, at) => (at === index ? next : old)),
+                                        )
+                                    }
+                                    onMove={(by) => move(index, index + by)}
+                                    onDuplicate={() => {
+                                        setContent([
+                                            ...content.slice(0, index + 1),
+                                            structuredClone(element),
+                                            ...content.slice(index + 1),
+                                        ]);
+                                        onOpen(index + 1);
+                                    }}
+                                    onCopy={() => onCopy(structuredClone(element))}
+                                    onDelete={() => {
+                                        setContent(content.filter((_, at) => at !== index));
+                                        if (open === index) onOpen(null);
+                                    }}
+                                />
+                            ))}
+                        </Stack>
+                    </SortableContext>
+                </DndContext>
                 <Group gap="xs" align="start" wrap="nowrap">
                     <div style={{ flex: 1 }}>
                         <AddElement
