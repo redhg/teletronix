@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { PresetSchema } from "../engine/schema/presets.ts";
 import { ScreenSchema } from "../engine/schema/program.ts";
-import { choiceValue, jsonSchemaOf, namedChoices } from "./SchemaForm.tsx";
+import { choiceValue, jsonSchemaOf, namedChoices, textOrNone } from "./SchemaForm.tsx";
 import { ELEMENT_TYPES } from "./screens.ts";
 
 const screen = jsonSchemaOf(ScreenSchema);
@@ -43,5 +44,15 @@ describe("named kinds in the editor's forms", () => {
             const reveal = json.properties?.reveal;
             if (reveal) expect(namedChoices(reveal, json.$defs ?? {}), type).not.toBeNull();
         }
+    });
+
+    it("know text that can be false for none, e.g. a preset's title", () => {
+        const boot = jsonSchemaOf(PresetSchema);
+        const defs = boot.$defs ?? {};
+        const found = (boot.anyOf ?? boot.oneOf ?? [])
+            .map((option) => option.properties?.title)
+            .filter((title) => title !== undefined);
+        expect(found.some((title) => textOrNone(title, defs))).toBe(true);
+        expect(textOrNone(property("title"), screen.$defs ?? {})).toBe(false);
     });
 });

@@ -345,4 +345,31 @@ test.describe("the editor", () => {
             .getByRole("textbox", { name: "Type here to hear key clicks" })
             .pressSequentially("ab");
     });
+
+    test("edits text that can be none, e.g. a preset's lines", async ({ page }) => {
+        await openEditor(page);
+        await page.getByRole("button", { name: "Add a screen" }).click();
+        await page.getByRole("button", { name: /Screen settings/ }).click();
+        // (boot is the first preset in the list)
+        await page.getByRole("combobox", { name: "preset" }).focus();
+        await page.keyboard.press("ArrowDown");
+        await page.keyboard.press("Enter");
+        await expect(page.getByRole("combobox", { name: "preset" })).toHaveValue("boot");
+        const options = page.locator(".editor-choice-options");
+        await options.getByRole("textbox", { name: "title", exact: true }).fill("MY OS");
+        await options.getByRole("switch", { name: "copyright: none" }).click();
+        await expect(
+            options.getByRole("textbox", { name: "copyright", exact: true }),
+        ).toBeDisabled();
+        const [download] = await Promise.all([
+            page.waitForEvent("download"),
+            page.getByRole("button", { name: /^Download/ }).click(),
+        ]);
+        const file = JSON.parse(await readFile(await download.path(), "utf8"));
+        expect(file.screens["new-screen"].preset).toMatchObject({
+            type: "boot",
+            title: "MY OS",
+            copyright: false,
+        });
+    });
 });

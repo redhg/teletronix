@@ -116,6 +116,18 @@ export function choiceValue(
     return { type: name, ...set };
 }
 
+/** Whether a schema is text, or false for none: `"a title"` or `false`. */
+export function textOrNone(schema: JsonSchema, defs: Record<string, JsonSchema>): boolean {
+    const options = (schema.anyOf ?? schema.oneOf ?? []).map((option) => resolve(option, defs));
+    return (
+        options.length === 2 &&
+        options.some(
+            (option) => option.type === "string" && !option.enum && option.const === undefined,
+        ) &&
+        options.some((option) => option.type === "boolean" && option.const === false)
+    );
+}
+
 /** A schema's description without its "(default: …)", and the default it gives. */
 export function describe(schema: JsonSchema): { text: string; default?: string } {
     const text = schema.description ?? "";
@@ -205,6 +217,31 @@ export function SchemaField({ name, schema, defs, value, onChange, error, childr
                 onChange={onChange}
                 placeholder={shown}
             />
+        );
+    }
+
+    // text, or false for none (e.g. a preset's title)
+    if (
+        textOrNone(resolved, defs) &&
+        (value === undefined || typeof value === "string" || value === false)
+    ) {
+        return (
+            <Stack gap={4}>
+                <TextInput
+                    {...common}
+                    value={typeof value === "string" ? value : ""}
+                    placeholder={value === false ? "(none)" : shown}
+                    disabled={value === false}
+                    onChange={(event) => onChange(event.currentTarget.value || undefined)}
+                />
+                <Switch
+                    size="xs"
+                    label="None"
+                    aria-label={`${name}: none`}
+                    checked={value === false}
+                    onChange={(event) => onChange(event.currentTarget.checked ? false : undefined)}
+                />
+            </Stack>
         );
     }
 
