@@ -11,6 +11,7 @@ const program: Program = {
             ],
         },
         other: {
+            title: "THE OTHER ONE",
             parent: "home",
             content: [
                 "OTHER SCREEN",
@@ -187,7 +188,7 @@ test.describe("the editor", () => {
             await openScreen(page, /^HOME/);
             await element(page, 2).locator("..").getByRole("button", { name: "Copy" }).click();
             // (OTHER shows, under HOME, now HOME is chosen)
-            await openScreen(page, /^OTHER/);
+            await openScreen(page, /^THE OTHER ONE/);
             await page.getByRole("button", { name: "Paste" }).click();
             await expect(element(page, 3)).toHaveAccessibleName(/link, > OTHER/);
             await expect(page.getByText("No problems")).toBeVisible();
@@ -198,8 +199,9 @@ test.describe("the editor", () => {
             await screenList(page)
                 .getByRole("button", { name: /^Show the screens under HOME/ })
                 .click();
-            await openScreen(page, /^OTHER/);
+            await openScreen(page, /^THE OTHER ONE/);
             await expect(preview(page).locator(".screen")).toContainText("OTHER SCREEN");
+            await expect(page.getByRole("main")).toContainText("· THE OTHER ONE");
 
             await element(page, 1).click();
             await page.getByRole("textbox", { name: "Text" }).fill("EDITED SCREEN");
@@ -236,18 +238,18 @@ test.describe("the editor", () => {
             await expect(preview(page).locator(".screen")).toContainText("NEW SCREEN");
 
             await screenList(page)
-                .getByRole("button", { name: /^OTHER/ })
+                .getByRole("button", { name: /^THE OTHER ONE/ })
                 .click();
             await page.getByRole("button", { name: "Rename" }).click();
             await page.getByRole("textbox", { name: "Screen id" }).fill("deck");
             await page.getByRole("button", { name: "Rename" }).click();
-            await expect(page.getByText("deck", { exact: true })).toBeVisible();
+            await expect(page.getByRole("main").getByText("deck", { exact: true })).toBeVisible();
             await expect(page.getByText("No problems")).toBeVisible();
             // undo follows it back to its old name, and redo forward again
             await page.getByRole("button", { name: "Undo" }).click();
-            await expect(page.getByText("other", { exact: true })).toBeVisible();
+            await expect(page.getByRole("main").getByText("other", { exact: true })).toBeVisible();
             await page.getByRole("button", { name: "Redo" }).click();
-            await expect(page.getByText("deck", { exact: true })).toBeVisible();
+            await expect(page.getByRole("main").getByText("deck", { exact: true })).toBeVisible();
             // HOME's link goes to it by its new name
             await openScreen(page, /^HOME/);
             await element(page, 2).click();
@@ -256,7 +258,9 @@ test.describe("the editor", () => {
                 /"screen": "deck"/,
             );
 
-            await screenList(page).getByRole("button", { name: /^DECK/ }).click();
+            await screenList(page)
+                .getByRole("button", { name: /^THE OTHER ONE/ })
+                .click();
             page.once("dialog", (dialog) => dialog.accept());
             await page.getByRole("button", { name: "More" }).click();
             await page.getByRole("menuitem", { name: "Delete the screen" }).click();

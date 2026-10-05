@@ -78,6 +78,7 @@ export function ScreenSection({
         <Stack gap="lg">
             <Header
                 id={id}
+                title={typeof screen.title === "string" ? screen.title : undefined}
                 onRename={onRename}
                 onPreview={onPreview}
                 onDuplicate={onDuplicate}
@@ -222,12 +223,15 @@ export function ScreenSection({
 /** The screen's id (renamable), and what can be done with it. */
 function Header({
     id,
+    title,
     onRename,
     onPreview,
     onDuplicate,
     onDelete,
 }: {
     id: string;
+    /** Its name in breadcrumbs, if it has one */
+    title?: string;
     onRename: (to: string) => string | null;
     onPreview: () => void;
     onDuplicate: () => void;
@@ -247,6 +251,11 @@ function Header({
                 <Group gap="xs" align="baseline">
                     <Title order={2}>Screen</Title>
                     <Code fz="lg">{id}</Code>
+                    {title && (
+                        <Text c="dimmed" size="lg">
+                            · {title}
+                        </Text>
+                    )}
                     <Button size="compact-xs" variant="subtle" onClick={() => setRenaming(id)}>
                         Rename
                     </Button>
