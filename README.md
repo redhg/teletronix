@@ -49,7 +49,9 @@ rest spread out. The **File** menu starts a new program, opens a JSON file, and 
 - **Variables & timers:** each variable's name, kind (true/false, number or text) and
   starting value, and each timer's settings; add and delete them here.
 
-Sounds of their own come next.
+- **Sounds:** the program's own sound effects, designed sfxr-style: roll one from a preset
+  (blip, laser, explosion…), mutate it, adjust its wave and sliders by ear, and play it. Play one
+  with `"sound": "its-name"`; **Rename** renames what plays it.
 
 | Script | |
 |---|---|

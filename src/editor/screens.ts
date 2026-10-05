@@ -142,3 +142,29 @@ export function renameDialog(file: ProgramFile, from: string, to: string): Progr
     );
     return { ...rest, dialogs };
 }
+
+// ─── Sounds ──────────────────────────────────────────────────────────────────
+
+/** The program with a sound renamed, and everything that plays it (`"sound": "its-name"`). */
+export function renameSound(file: ProgramFile, from: string, to: string): ProgramFile {
+    const walk = (value: unknown): unknown => {
+        if (Array.isArray(value)) return value.map(walk);
+        if (value === null || typeof value !== "object") return value;
+        return Object.fromEntries(
+            Object.entries(value).map(([key, item]) => [
+                key,
+                key === "sound" && item === from ? to : walk(item),
+            ]),
+        );
+    };
+    const { sounds, ...rest } = walk(file) as ProgramFile;
+    return {
+        ...rest,
+        sounds: Object.fromEntries(
+            Object.entries((sounds ?? {}) as Record<string, unknown>).map(([id, sound]) => [
+                id === from ? to : id,
+                sound,
+            ]),
+        ),
+    };
+}

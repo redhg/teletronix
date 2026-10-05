@@ -36,6 +36,7 @@ import {
     insertScreen,
     renameDialog,
     renameScreen,
+    renameSound,
     type ScreenFile,
     screensOf,
 } from "./screens.ts";
@@ -43,6 +44,7 @@ import { APPEARANCE_KEYS, AppearanceSection, appearanceOf } from "./sections/App
 import { DialogSection } from "./sections/DialogSection.tsx";
 import { ProgramSection } from "./sections/ProgramSection.tsx";
 import { type ScreenErrors, ScreenSection } from "./sections/ScreenSection.tsx";
+import { SoundsSection } from "./sections/SoundsSection.tsx";
 import { VariablesSection } from "./sections/VariablesSection.tsx";
 import "./editor.css";
 
@@ -61,6 +63,7 @@ const SECTIONS: { id: Section; label: string; description: string }[] = [
     { id: "program", label: "Program", description: "Name, start screen, bars, variables…" },
     { id: "appearance", label: "Appearance", description: "Colours, font, effects, sound" },
     { id: "variables", label: "Variables & timers", description: "What it remembers, and clocks" },
+    { id: "sounds", label: "Sounds", description: "Sound effects of its own" },
 ];
 const screenSection = (id: string): Section => `screen:${id}`;
 
@@ -68,6 +71,7 @@ const screenSection = (id: string): Section => `screen:${id}`;
 function sectionOf(path: Path): Section | null {
     if (path[0] === "screens" && path[1] !== undefined) return screenSection(String(path[1]));
     if (path[0] === "dialogs" && path[1] !== undefined) return `dialog:${String(path[1])}`;
+    if (path[0] === "sounds") return "sounds";
     if (path[0] !== "config") return null;
     if (path[1] === "variables" || path[1] === "timers") return "variables";
     return APPEARANCE_KEYS.includes(String(path[1])) ? "appearance" : "program";
@@ -675,6 +679,24 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                             screens={screens}
                             set={setConfig}
                             errors={configErrors}
+                        />
+                    )}
+                    {section === "sounds" && (
+                        <SoundsSection
+                            sounds={(file.sounds ?? {}) as Record<string, unknown>}
+                            onChange={(name, recipe) =>
+                                history.set(
+                                    setIn(file, ["sounds", name], recipe) as ProgramFile,
+                                    `sounds.${name}`,
+                                )
+                            }
+                            onRename={(from, to) => {
+                                if (!/^[\w-]+$/.test(to)) return "Letters, digits, _ and - only";
+                                if (to in ((file.sounds ?? {}) as object))
+                                    return `There's already a sound "${to}"`;
+                                history.set(renameSound(file, from, to));
+                                return null;
+                            }}
                         />
                     )}
                     {section === "variables" && (

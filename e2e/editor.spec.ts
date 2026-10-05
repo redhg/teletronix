@@ -303,4 +303,25 @@ test.describe("the editor", () => {
         expect(config.variables).toEqual({ fuel: 40 });
         expect(config.timers).toEqual({ clock: { from: 60 } });
     });
+
+    test("designs the program's own sounds", async ({ page }) => {
+        await openEditor(page);
+        await section(page, "Sounds");
+        await page.getByRole("textbox", { name: "Add a sound" }).fill("zap");
+        await page.getByRole("button", { name: "Add a sound" }).click();
+        await page.getByRole("radiogroup", { name: "Wave" }).getByText("Noise").click();
+        await page.getByRole("button", { name: "Play", exact: true }).click();
+        await page.getByRole("textbox", { name: "Sound name" }).fill("laser");
+        await page.getByRole("button", { name: "Rename" }).click();
+        await expect(page.getByRole("navigation", { name: "Sounds" })).toContainText("laser");
+        await expect(page.getByText("No problems")).toBeVisible();
+
+        const [download] = await Promise.all([
+            page.waitForEvent("download"),
+            page.getByRole("button", { name: /^Download/ }).click(),
+        ]);
+        const file = JSON.parse(await readFile(await download.path(), "utf8"));
+        expect(Object.keys(file.sounds)).toEqual(["laser"]);
+        expect(file.sounds.laser.wave).toBe("noise");
+    });
 });
