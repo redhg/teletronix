@@ -57,9 +57,26 @@ describe("the boot preset", () => {
         expect(content[2]).toMatchObject({ to: 64, unit: " WORDS", label: "MEMORY TEST: " });
         expect(content[4]).toMatchObject({
             status: "[ONLINE]",
-            items: ["LIFE SUPPORT", { text: "CRYO", status: "[FAIL]" }],
+            items: ["LIFE SUPPORT", { text: "CRYO", status: "[FAIL]" }, "LOADING TEST"],
         });
         expect(texts(file({ memory: 128 }))[3]).toMatchObject({ to: 128 });
+    });
+
+    it("loads the program last: by its name, in its own words, or not at all", () => {
+        const checks = (preset: object) =>
+            texts(file(preset)).find((element) => element.type === "checklist") as
+                | { items: unknown[] }
+                | undefined;
+        expect(checks({})?.items.at(-1)).toBe("LOADING TEST");
+        expect(checks({ loading: "LOADING MU-TH-UR 6000" })?.items.at(-1)).toBe(
+            "LOADING MU-TH-UR 6000",
+        );
+        expect(checks({ loading: false })?.items).not.toContain("LOADING TEST");
+        // without checks, a line of its own
+        const lines = texts(file({ checks: false }));
+        expect(lines.some((element) => "text" in element && element.text === "LOADING TEST")).toBe(
+            true,
+        );
     });
 
     it("puts the screen's own content after it, then the pause", () => {

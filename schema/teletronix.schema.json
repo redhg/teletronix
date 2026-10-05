@@ -7798,6 +7798,19 @@
                                         "description": "Each check's status (default: \"[ OK ]\")",
                                         "type": "string"
                                     },
+                                    "loading": {
+                                        "description": "A last check, loading the program, e.g. \"LOADING MU-TH-UR 6000\", or false for none (a line of its own without checks) (default: LOADING and the program's name, in capitals)",
+                                        "anyOf": [
+                                            {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            {
+                                                "type": "boolean",
+                                                "const": false
+                                            }
+                                        ]
+                                    },
                                     "ready": {
                                         "default": "BOOT COMPLETE.",
                                         "description": "The line once it has finished, or false for none (default: \"BOOT COMPLETE.\")",

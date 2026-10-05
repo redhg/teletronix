@@ -355,7 +355,9 @@ function normalize(
     for (const [id, screen] of Object.entries(file.screens)) {
         const writtenPreset = (written as { screens?: Record<string, { preset?: unknown }> })
             ?.screens?.[id]?.preset;
-        const preset = screen.preset && expandPreset(screen.preset, firstScreen, writtenPreset);
+        const preset =
+            screen.preset &&
+            expandPreset(screen.preset, firstScreen, writtenPreset, file.config.name);
         // what a preset makes is checked like any content; its problems are the preset's
         const presetContent = (content: unknown[]) => {
             const parsed = parseContent(content);

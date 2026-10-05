@@ -640,7 +640,7 @@ also be written out by hand. See [the reference](reference.md#presets) for every
 
 | Preset | |
 |---|---|
-| `"boot"` | A `title` and `copyright` line, a `memory` test (a counter), a checklist of `checks`, and a `ready` line, then on to `next` after `after` milliseconds. With `"pause": true` (or the text to show) it waits for a key press first: browsers only play sound once the player has pressed a key or clicked, so the screen after it can start with sound. |
+| `"boot"` | A `title` and `copyright` line, a `memory` test (a counter), a checklist of `checks` ending with `loading` the program (default: `LOADING` and the program's `name`), and a `ready` line, then on to `next` after `after` milliseconds. With `"pause": true` (or the text to show) it waits for a key press first: browsers only play sound once the player has pressed a key or clicked, so the screen after it can start with sound. |
 | `"shutdown"` | A `title`, a checklist of `checks`, and a `message`, then the screen switches off like an old CRT (unless `"powerOff": false`) `after` a moment. A key press (or a tap) switches back on, going to `next` (default: the start screen); `"restart": false` stays off for good. |
 | `"error"` | A `title`, `message` and `code` in a blinking box, in the alert color, like an Amiga's Guru Meditation. A key press (or a tap) goes to `next` (default: the start screen); `"restart": false` stays for good. |
 | `"login"` | A login screen: a warning `title` in the alert color, then a [login](#logins) with its `accounts` that goes to `next` (default: the start screen), showing `granted` first. With `attempts`, too many wrong tries go to the `lockout` screen. It takes the login's other settings too. |

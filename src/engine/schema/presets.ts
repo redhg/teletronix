@@ -104,6 +104,15 @@ export const BootPresetSchema = z
             .meta({
                 description: `Each check's status (default: "${DEFAULT_CHECKLIST_STATUS}")`,
             }),
+        loading: z
+            .union([z.string().min(1), z.literal(false)])
+            .optional()
+            .meta({
+                description:
+                    'A last check, loading the program, e.g. "LOADING MU-TH-UR 6000", or false ' +
+                    "for none (a line of its own without checks) (default: LOADING and the " +
+                    "program's name, in capitals)",
+            }),
         ready: Line("The line once it has finished", BOOT_DEFAULTS.ready),
         pause: z
             .union([z.boolean(), z.string().min(1)])
@@ -866,7 +875,13 @@ const goTo = (screen: string, after = 0): NextRule => ({
  * A preset as ordinary content, and the rule that moves on from it. `start` is the program's
  * start screen, where some presets go by default.
  */
-export function expandPreset(preset: Preset, start: string, written?: unknown): Expanded {
+export function expandPreset(
+    preset: Preset,
+    start: string,
+    written?: unknown,
+    /** The program's name, for a boot screen's loading line */
+    program?: string,
+): Expanded {
     // Settings a preset hands on to its elements (which can hold actions and conditions) are
     // taken as written: parsing has already converted them, and they're parsed again as the
     // elements' own.
@@ -881,6 +896,11 @@ export function expandPreset(preset: Preset, start: string, written?: unknown): 
     switch (preset.type) {
         case "boot": {
             const header = [...line(preset.title), ...line(preset.copyright)];
+            // loading the program: the last check (or a line of its own, without checks)
+            const loading =
+                preset.loading === false
+                    ? null
+                    : (preset.loading ?? (program ? `LOADING ${program.toUpperCase()}` : null));
             const memory = preset.memory
                 ? [
                       {
@@ -907,7 +927,11 @@ export function expandPreset(preset: Preset, start: string, written?: unknown): 
                 before: spaced(
                     header,
                     memory,
-                    checklist(preset.checks, preset.status),
+                    checklist(
+                        preset.checks && loading ? [...preset.checks, loading] : preset.checks,
+                        preset.status,
+                    ),
+                    preset.checks || loading === null ? [] : line(loading),
                     line(preset.ready),
                 ),
                 after: pause,

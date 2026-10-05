@@ -169,6 +169,7 @@ A computer starting up: a title, a memory test, a checklist of things starting, 
 | `memory` | whole number, > 0 \| [Boot memory test](#boot-memory-test) \| `false` | `640` | A memory test that counts up: the size to count to, { "size", "label", "unit", "done" } to change its wording too, or false for none |
 | `checks` | [Checklist item](#checklist-item)[] \| `false` | `["DETECTING DRIVES","LOADING KERNEL","MOUNTING FILE SYSTEMS","STARTING NETWORK","STARTING TERMINAL SERVICES"]` | The checklist of things it starts: strings, or checklist items with their own "status" or "delay", or false for none |
 | `status` | string | `"[ OK ]"` | Each check's status |
+| `loading` | string \| `false` | LOADING and the program's name, in capitals | A last check, loading the program, e.g. "LOADING MU-TH-UR 6000", or false for none (a line of its own without checks) |
 | `ready` | string \| `false` | `"BOOT COMPLETE."` | The line once it has finished, or false for none |
 | `pause` | boolean \| string | `false` | Wait for a key press (or a tap) at the end, with a line of text: true for "PRESS ANY KEY TO CONTINUE", or the text to show (default: false). Browsers only play sound once the player has pressed a key or clicked, so this lets the next screen start with sound. |
 | `next` | id | stay | The screen to go to once it has finished |
