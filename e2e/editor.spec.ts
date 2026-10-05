@@ -372,4 +372,12 @@ test.describe("the editor", () => {
             copyright: false,
         });
     });
+
+    test("restarts the preview on the screen it's showing", async ({ page }) => {
+        await openEditor(page);
+        await preview(page).getByRole("button", { name: "> OTHER" }).click();
+        await expect(preview(page).locator(".screen")).toContainText("OTHER SCREEN");
+        await page.getByRole("button", { name: "Restart the preview" }).click();
+        await expect(preview(page).locator(".screen")).toContainText("OTHER SCREEN");
+    });
 });

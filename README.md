@@ -32,7 +32,7 @@ Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `s
 `?edit` opens a program in the editor, e.g. <http://localhost:5173/?edit&data=sample> (or a name
 with no file yet, for a new program). On the left, the program's parts; in the middle, a form for
 the one chosen; on the right, a live preview, which shows appearance changes at once and
-restarts with anything else, on the screen it was showing.
+restarts with anything else, on the screen it was showing (⟲ restarts it by hand).
 - **Program:** its name, start screen, bars, and how screens appear. The fields are built from
   the schema, each with its description and default: leave one empty (or choose ↺) to use the
   default. A setting that's one of several kinds (a reveal, a transition, a screen's preset, a

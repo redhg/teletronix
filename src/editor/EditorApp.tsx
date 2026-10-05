@@ -245,6 +245,8 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
     const preview = useRef<HTMLIFrameElement>(null);
     const fileRef = useRef(file);
     fileRef.current = file;
+    // the screen the preview is showing (for restarting it there)
+    const previewScreen = useRef<string | null>(null);
     // the screen being edited, which the preview shows
     const screenRef = useRef(screenId);
     screenRef.current = screenId;
@@ -262,6 +264,10 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             if (event.source !== preview.current?.contentWindow || !isPreviewMessage(event)) return;
+            if (event.data.type === "teletronix:screen") {
+                previewScreen.current = event.data.screen;
+                return;
+            }
             if (event.data.type === "teletronix:ready") {
                 post({
                     type: "teletronix:program",
@@ -507,6 +513,25 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                         >
                             Preview
                         </Button>
+                        <Tooltip label="Restart the preview: the screen shown, from the start">
+                            <ActionIcon
+                                variant="default"
+                                aria-label="Restart the preview"
+                                disabled={!showPreview}
+                                className="editor-history"
+                                onClick={() =>
+                                    post({
+                                        type: "teletronix:program",
+                                        file: fileRef.current,
+                                        ...(previewScreen.current
+                                            ? { screen: previewScreen.current }
+                                            : {}),
+                                    })
+                                }
+                            >
+                                ⟲
+                            </ActionIcon>
+                        </Tooltip>
                         <ColorScheme />
                     </Group>
                 </Group>
