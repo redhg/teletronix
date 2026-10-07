@@ -93,6 +93,8 @@
                 { "type": "text", "text": "  Scanlines, static, bloom, vignette, flicker and fringe.", "className": "dim" },
                 { "type": "link", "text": "> SOUNDS", "action": { "screen": "sounds" } },
                 { "type": "text", "text": "  Key clicks, beeps, hum, and sounds of your own.", "className": "dim" },
+                { "type": "link", "text": "> POINTERS", "action": { "screen": "pointers" } },
+                { "type": "text", "text": "  The mouse pointer: the theme's, a DOS block, a crosshair, your own.", "className": "dim" },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
@@ -889,6 +891,116 @@
                 { "type": "link", "text": "> SILENCE", "action": { "screen": "sounds-silence" } },
                 "",
                 "The drone is \"DSGNDron_Mysterious Resonant Industrial Sci-fi Drone 3_EM\" by newlocknew (freesound.org/s/749636), under CC BY-NC 4.0.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "pointers": {
+            "title": "POINTERS",
+            "parent": "cat-reveals",
+            "content": [
+                "POINTERS",
+                { "type": "rule" },
+                "",
+                "\"pointer\", in the config or on a screen, sets the mouse pointer. Each of these screens has its own; this one has the browser's (\"system\"). Touch screens have none, and a player can always switch back to their own in quick settings (Ctrl+,).",
+                "",
+                { "type": "link", "text": "> THE THEME'S", "action": { "screen": "pointer-theme" } },
+                { "type": "text", "text": "  A pixel arrow in the theme's colors, and a hand on links.", "className": "dim" },
+                { "type": "link", "text": "> BLOCK", "action": { "screen": "pointer-block" } },
+                { "type": "text", "text": "  A character cell in inverse video, cell to cell, as in DOS.", "className": "dim" },
+                { "type": "link", "text": "> CROSSHAIR", "action": { "screen": "pointer-crosshair" } },
+                { "type": "text", "text": "  Hairlines across the whole screen.", "className": "dim" },
+                { "type": "link", "text": "> AN IMAGE", "action": { "screen": "pointer-image" } },
+                { "type": "text", "text": "  A pointer of your own: a PNG, and the pixel that points.", "className": "dim" },
+                { "type": "link", "text": "> HIDDEN", "action": { "screen": "pointer-hidden" } },
+                { "type": "text", "text": "  None at all: for a terminal you use with the keyboard.", "className": "dim" },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "pointer-theme": {
+            "title": "THE THEME'S",
+            "parent": "pointers",
+            "pointer": "theme",
+            "content": [
+                "THE THEME'S",
+                "===========",
+                "",
+                "\"pointer\": \"theme\": a pixel-art arrow drawn in the theme's own colors (the text's, outlined in the background's), and a hand over anything to click. Every theme gets one, your own included.",
+                "",
+                "Point at these:",
+                { "type": "buttons", "buttons": [{ "text": "ENGAGE", "action": { "screen": "pointer-theme" } }, { "text": "ABORT", "action": { "screen": "pointer-theme" } }] },
+                { "type": "link", "text": "> A LINK TO THIS SCREEN", "action": { "screen": "pointer-theme" } },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "pointer-block": {
+            "title": "BLOCK",
+            "parent": "pointers",
+            "pointer": "block",
+            "content": [
+                "BLOCK",
+                "=====",
+                "",
+                "\"pointer\": \"block\": the character cell under the mouse in inverse video, jumping from cell to cell, as a mouse driver drew it in a DOS text mode.",
+                "",
+                { "type": "table", "border": "box", "columns": [{ "title": "SECTOR" }, { "title": "STATUS" }], "rows": [["A1", "CLEAR"], ["B4", "DEBRIS"], ["C2", "UNKNOWN"]] },
+                "",
+                "Point at these:",
+                { "type": "buttons", "buttons": [{ "text": "ENGAGE", "action": { "screen": "pointer-block" } }, { "text": "ABORT", "action": { "screen": "pointer-block" } }] },
+                { "type": "link", "text": "> A LINK TO THIS SCREEN", "action": { "screen": "pointer-block" } },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "pointer-crosshair": {
+            "title": "CROSSHAIR",
+            "parent": "pointers",
+            "pointer": "crosshair",
+            "content": [
+                "CROSSHAIR",
+                "=========",
+                "",
+                "\"pointer\": \"crosshair\": a hairline across and down the whole screen, crossing under the mouse. For a targeting screen, like the star map's.",
+                "",
+                "Point at these:",
+                { "type": "buttons", "buttons": [{ "text": "ENGAGE", "action": { "screen": "pointer-crosshair" } }, { "text": "ABORT", "action": { "screen": "pointer-crosshair" } }] },
+                { "type": "link", "text": "> A LINK TO THIS SCREEN", "action": { "screen": "pointer-crosshair" } },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "pointer-image": {
+            "title": "AN IMAGE",
+            "parent": "pointers",
+            "pointer": { "src": "data/pointers/reticle.png", "x": 15, "y": 15 },
+            "content": [
+                "AN IMAGE",
+                "========",
+                "",
+                "\"pointer\": { \"src\": \"data/pointers/reticle.png\", \"x\": 15, \"y\": 15 }: an image of your own, a PNG of 32 by 32 pixels or so, and the pixel in it that points (here, the reticle's middle).",
+                "",
+                "Point at these:",
+                { "type": "buttons", "buttons": [{ "text": "ENGAGE", "action": { "screen": "pointer-image" } }, { "text": "ABORT", "action": { "screen": "pointer-image" } }] },
+                { "type": "link", "text": "> A LINK TO THIS SCREEN", "action": { "screen": "pointer-image" } },
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "pointer-hidden": {
+            "title": "HIDDEN",
+            "parent": "pointers",
+            "pointer": "hidden",
+            "content": [
+                "HIDDEN",
+                "======",
+                "",
+                "\"pointer\": \"hidden\": no pointer at all, for a terminal used with the keyboard. Clicks still work, for anyone who finds what they're after. Tab and Enter: the keyboard's way round.",
+                "",
+                "Point at these:",
+                { "type": "buttons", "buttons": [{ "text": "ENGAGE", "action": { "screen": "pointer-hidden" } }, { "text": "ABORT", "action": { "screen": "pointer-hidden" } }] },
+                { "type": "link", "text": "> A LINK TO THIS SCREEN", "action": { "screen": "pointer-hidden" } },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]
