@@ -462,3 +462,48 @@ describe("remote control", () => {
         expect(terminal.timerRunning("clock")).toBe(true);
     });
 });
+
+describe("views", () => {
+    const file = {
+        config: { name: "Test", reveal: "instant" as const },
+        screens: { home: { content: ["HOME"] }, after: { content: ["AFTER"] } },
+    };
+
+    it("opens an image or video over the screen, and closes it", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.start();
+        terminal.dispatch(ActionSchema.parse({ view: "data/images/photo.jpg" }));
+        expect(terminal.getSnapshot().view).toEqual({
+            src: "data/images/photo.jpg",
+            kind: "image",
+            fit: "contain",
+            loop: false,
+            muted: false,
+            osd: false,
+        });
+        // the screen's keys wait
+        expect(terminal.pressKey("Enter")).toBe(false);
+        terminal.closeView();
+        expect(terminal.getSnapshot().view).toBe(null);
+    });
+
+    it("does what a video says when it ends", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.start();
+        terminal.dispatch(
+            ActionSchema.parse({ view: { src: "tape.mp4", onEnd: { screen: "after" } } }),
+        );
+        expect(terminal.getSnapshot().view?.kind).toBe("video");
+        terminal.viewEnded();
+        expect(terminal.getSnapshot().view).toBe(null);
+        expect(terminal.getSnapshot().screen?.run.screen.id).toBe("after");
+    });
+
+    it("closes when the screen changes", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.start();
+        terminal.dispatch(ActionSchema.parse({ view: "a.png" }));
+        terminal.navigate("after");
+        expect(terminal.getSnapshot().view).toBe(null);
+    });
+});

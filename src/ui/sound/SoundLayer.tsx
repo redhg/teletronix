@@ -128,9 +128,13 @@ function StaticHiss({ synth }: { synth: Synth }) {
     return null;
 }
 
-/** The audio file looping in the background, as the screen (or a GM) says. */
+/**
+ * The audio file looping in the background, as the screen (or a GM) says: quiet while a
+ * video with its sound plays.
+ */
 function Ambience({ synth }: { synth: Synth }) {
-    const ambience = useTerminalSnapshot().ambience;
-    useEffect(() => synth.setAmbience(ambience), [synth, ambience]);
+    const { ambience, view } = useTerminalSnapshot();
+    const video = view?.kind === "video" && !view.muted;
+    useEffect(() => synth.setAmbience(video ? null : ambience), [synth, ambience, video]);
     return null;
 }

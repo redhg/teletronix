@@ -28,6 +28,7 @@ import {
     resolveSettings,
     saveSettings,
 } from "./settings/settings.ts";
+import { VideoVolumeContext } from "./sound/context.ts";
 import { SoundLayer } from "./sound/SoundLayer.tsx";
 import { TerminalView } from "./TerminalView.tsx";
 import { TerminalContext, useTerminalSnapshot } from "./terminal-context.ts";
@@ -163,34 +164,36 @@ export function Player({ terminal, initial, preview, kiosk = false, remote }: Pr
         <TerminalContext value={terminal}>
             <PaletteContext value={palette}>
                 <SettingsContext value={allowed ? openSettings : null}>
-                    <SoundLayer terminal={terminal} sound={shownSound}>
-                        {started ? (
-                            <>
-                                <TerminalView
-                                    layoutKey={`${shownFont}:${loadedFont}:${shownScale}:${lineSpacing}`}
+                    <VideoVolumeContext value={settings?.volume ?? 1}>
+                        <SoundLayer terminal={terminal} sound={shownSound}>
+                            {started ? (
+                                <>
+                                    <TerminalView
+                                        layoutKey={`${shownFont}:${loadedFont}:${shownScale}:${lineSpacing}`}
+                                    />
+                                    {remote && <RemoteBadge remote={remote} />}
+                                </>
+                            ) : (
+                                <KioskGate title={terminal.program.config.name} onStart={start} />
+                            )}
+                            {started && settings?.pointer !== "system" && (
+                                <ScreenPointer terminal={terminal} palette={palette} />
+                            )}
+                            {settings && settingsOpen && (
+                                <SettingsDialog
+                                    settings={settings}
+                                    programVolume={sound?.volume ?? null}
+                                    ownPointer={hasOwnPointer(terminal.program)}
+                                    change={changeSettings}
+                                    reset={() => {
+                                        saveSettings(name, {});
+                                        setOwn({});
+                                    }}
+                                    close={() => setSettingsOpen(false)}
                                 />
-                                {remote && <RemoteBadge remote={remote} />}
-                            </>
-                        ) : (
-                            <KioskGate title={terminal.program.config.name} onStart={start} />
-                        )}
-                        {started && settings?.pointer !== "system" && (
-                            <ScreenPointer terminal={terminal} palette={palette} />
-                        )}
-                        {settings && settingsOpen && (
-                            <SettingsDialog
-                                settings={settings}
-                                programVolume={sound?.volume ?? null}
-                                ownPointer={hasOwnPointer(terminal.program)}
-                                change={changeSettings}
-                                reset={() => {
-                                    saveSettings(name, {});
-                                    setOwn({});
-                                }}
-                                close={() => setSettingsOpen(false)}
-                            />
-                        )}
-                    </SoundLayer>
+                            )}
+                        </SoundLayer>
+                    </VideoVolumeContext>
                 </SettingsContext>
             </PaletteContext>
         </TerminalContext>

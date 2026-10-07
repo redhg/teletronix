@@ -87,6 +87,8 @@
                 { "type": "text", "text": "  The glitch reveal, close up.", "className": "dim" },
                 { "type": "link", "text": "> IMAGES", "action": { "screen": "images" } },
                 { "type": "text", "text": "  Bitmaps, blended with the screen, and their reveal effects.", "className": "dim" },
+                { "type": "link", "text": "> FULL SCREEN", "action": { "screen": "views" } },
+                { "type": "text", "text": "  Images and video over the whole window, VCR style.", "className": "dim" },
                 { "type": "link", "text": "> VISUALS", "action": { "screen": "visuals" } },
                 { "type": "text", "text": "  Line art that moves: waveforms, charts, radar, wireframes.", "className": "dim" },
                 { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } },
@@ -891,6 +893,44 @@
                 { "type": "link", "text": "> SILENCE", "action": { "screen": "sounds-silence" } },
                 "",
                 "The drone is \"DSGNDron_Mysterious Resonant Industrial Sci-fi Drone 3_EM\" by newlocknew (freesound.org/s/749636), under CC BY-NC 4.0.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "views": {
+            "title": "FULL SCREEN",
+            "parent": "cat-reveals",
+            "content": [
+                "FULL SCREEN",
+                { "type": "rule" },
+                "",
+                "An action's \"view\" shows an image or video over the whole window, on the same glass as the screen: its effects are drawn over it. [ BACK ] in the corner (it fades while nothing moves) or Esc closes it. A click or Space pauses a video.",
+                "",
+                { "type": "link", "text": "> A PHOTO", "action": { "view": { "src": "data/images/gulf-of-mexico-at-night.jpg", "caption": "THE GULF OF MEXICO, AT NIGHT, FROM ORBIT" } } },
+                { "type": "text", "text": "  Its whole, with bars round it, and a caption.", "className": "dim" },
+                { "type": "link", "text": "> A PHOTO, FILLING THE WINDOW", "action": { "view": { "src": "data/images/gulf-of-mexico-at-night.jpg", "fit": "cover" } } },
+                { "type": "text", "text": "  \"fit\": \"cover\": the whole window, trimmed to fit.", "className": "dim" },
+                { "type": "link", "text": "> TAPE 3", "action": { "view": { "src": "data/video/test-tape.mp4", "osd": true } } },
+                { "type": "text", "text": "  A video, with a VCR's on-screen display: PLAY ► and the tape counter.", "className": "dim" },
+                { "type": "link", "text": "> TAPE 3, ON A LOOP", "action": { "view": { "src": "data/video/test-tape.mp4", "loop": true, "osd": true } } },
+                { "type": "text", "text": "  Over and over, until you close it.", "className": "dim" },
+                { "type": "link", "text": "> TAPE 3, THEN A SCREEN", "action": { "view": { "src": "data/video/test-tape.mp4", "osd": true, "onEnd": { "screen": "views-after" } } } },
+                { "type": "text", "text": "  \"onEnd\": what happens when it's over.", "className": "dim" },
+                "",
+                "The tape is made with FFmpeg's own test patterns and tone.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "views-after": {
+            "title": "END OF TAPE",
+            "parent": "views",
+            "transition": "static",
+            "content": [
+                "END OF TAPE",
+                "===========",
+                "",
+                "The tape ran out, and its \"onEnd\" brought you here.",
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]

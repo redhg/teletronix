@@ -2,7 +2,7 @@ import { ownClock } from "../../modules/timer/definition.ts";
 import type { Random } from "../random.ts";
 import type { Reveal } from "../reveal/index.ts";
 import { resolveTransition, type TransitionSpec } from "../reveal/index.ts";
-import type { Action, ActionCase } from "../schema/common.ts";
+import type { Action, ActionCase, View } from "../schema/common.ts";
 import { type Dialog, DialogSchema, dialogAction } from "../schema/dialog.ts";
 import { type EffectsSetting, type ResolvedEffects, resolveEffects } from "../schema/effects.ts";
 import type { Element } from "../schema/elements.ts";
@@ -66,6 +66,8 @@ export interface TerminalSnapshot {
     /** Shown between screens; the current screen starts revealing once it's gone. */
     interstitial: Interstitial | null;
     dialog: Dialog | null;
+    /** The image or video over the whole window, if one's open (an action's "view"). */
+    view: View | null;
     /** The effects that are on for the current screen. */
     effects: ResolvedEffects;
     /** Changes whenever a variable does, for views that show them (e.g. the bars). */
@@ -123,6 +125,7 @@ export class Terminal {
     /** Element outcomes waiting to run, for the current screen (see ModuleDefinition.outcome). */
     private outcomes: { run: ScreenRun; holder: ScreenRun; action: Action; due: number }[] = [];
     private dialog: Dialog | null = null;
+    private view: View | null = null;
     /** Resolved once per screen, so effect views see the same object on every visit. */
     private readonly effects = new Map<string, ResolvedEffects>();
     /** Effects laid over the program's and screen's (see setRemoteEffects). */
@@ -138,6 +141,7 @@ export class Terminal {
         outgoing: null,
         interstitial: null,
         dialog: null,
+        view: null,
         effects: {},
         variables: 0,
         ambience: null,
@@ -292,6 +296,7 @@ export class Terminal {
         else if (frame && chosen.screen !== undefined) this.showInFrame(frame, one(chosen.screen));
         else if (chosen.screen !== undefined) this.navigate(one(chosen.screen));
         else if (chosen.dialog !== undefined) this.openDialog(one(chosen.dialog));
+        else if (chosen.view) this.openView(chosen.view);
         this.flush();
         return chosen;
     }
@@ -368,6 +373,7 @@ export class Terminal {
         }
         const now = this.ticker.now();
         this.dialog = null;
+        this.view = null;
         this.nextFired = false;
         this.outcomes = [];
         // timer elements' own timers go with their screen
@@ -440,6 +446,31 @@ export class Terminal {
         this.run = null;
         this.outgoing = null;
         this.navigate(this.program.start);
+    }
+
+    /** Shows an image or video over the whole window (see View), until closeView. */
+    openView(view: View): void {
+        this.view = view;
+        this.markDirty();
+        this.flush();
+    }
+
+    /** Closes the image or video, back to the screen. */
+    closeView(): void {
+        if (!this.view) return;
+        this.view = null;
+        this.markDirty();
+        this.flush();
+    }
+
+    /** A video has played to its end: it closes, and its onEnd happens. */
+    viewEnded(): void {
+        const view = this.view;
+        if (view?.kind !== "video" || view.loop) return;
+        this.view = null;
+        this.markDirty();
+        if (view.onEnd) this.dispatch(view.onEnd);
+        this.flush();
     }
 
     openDialog(dialogId: string): void {
@@ -613,6 +644,8 @@ export class Terminal {
      * Returns whether the key was used. `key` is a KeyboardEvent.key value.
      */
     pressKey(key: string): boolean {
+        // (a view has the keys to itself)
+        if (this.view) return false;
         // a pause in the reveal waits for any key; one that's a button waits to be pressed,
         // though buttons' hotkeys still work
         if (!this.dialog && this.run?.paused) {
@@ -956,6 +989,7 @@ export class Terminal {
                     : null,
             interstitial: this.interstitial ? { type: this.interstitial.type } : null,
             dialog: this.dialog,
+            view: this.view,
             effects: this.run
                 ? this.effectsFor(this.run.screen.id)
                 : this.effectsOff

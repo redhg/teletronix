@@ -199,6 +199,14 @@ export const ActionCaseSchema = z
             description: "A timer to stop and put back to its start",
         }),
         sound: actionSound,
+        // (a getter: a view's onEnd is an action, so the two refer to each other)
+        get view() {
+            return ViewSchema.optional().meta({
+                description:
+                    "An image or video to show over the whole window, until the player closes " +
+                    "it (or a video ends, with onEnd)",
+            });
+        },
         back: z
             .literal(true)
             .optional()
@@ -222,6 +230,14 @@ export const ActionCaseSchema = z
     .refine((action) => !(action.frame && (action.back || action.restart)), {
         message: 'A frame shows a screen: leave out "back" and "restart"',
     })
+    .refine(
+        (action) =>
+            !(action.view && (action.screen || action.dialog || action.back || action.restart)),
+        {
+            message:
+                'A view shows over the screen: leave out "screen", "dialog", "back" and "restart"',
+        },
+    )
     .refine((action) => !(action.screen && action.dialog), {
         message: 'Set "screen" or "dialog", not both',
     })
@@ -242,10 +258,11 @@ export const ActionCaseSchema = z
             action.sound !== undefined ||
             action.startTimer !== undefined ||
             action.stopTimer !== undefined ||
-            action.resetTimer !== undefined,
+            action.resetTimer !== undefined ||
+            action.view !== undefined,
         {
             message:
-                'Set "screen", "dialog", "set", "sound", "back", "restart" or a timer to start, stop or reset',
+                'Set "screen", "dialog", "view", "set", "sound", "back", "restart" or a timer to start, stop or reset',
         },
     )
     .meta({
@@ -269,6 +286,102 @@ export type ActionCase = z.output<typeof ActionCaseSchema>;
 
 /** An action: cases, of which the first whose condition holds happens. */
 export type Action = readonly ActionCase[];
+
+// ─── Views ───────────────────────────────────────────────────────────────────
+// An image or video over the whole window (an action's "view"), until the player closes it.
+
+const VIDEO = /\.(mp4|m4v|webm|ogv|mov)(\?.*)?$/i;
+
+/** What a view shows, filled in. */
+export interface View {
+    src: string;
+    kind: "image" | "video";
+    /** "contain": all of it, with bars round it; "cover": the whole window, trimmed */
+    fit: "contain" | "cover";
+    loop: boolean;
+    muted: boolean;
+    caption?: string;
+    /** A VCR's on-screen display: PLAY ► and a tape counter */
+    osd: boolean;
+    /** For a video: what happens when it ends (it closes first) */
+    onEnd?: Action;
+}
+
+export const ViewOptionsSchema = z
+    .strictObject({
+        src: z
+            .string()
+            .min(1)
+            .meta({
+                description:
+                    'An image or a video, relative to the page, e.g. "data/video/tape3.mp4", or a ' +
+                    "web address. Videos are MP4 (which plays everywhere), WebM, M4V, OGV or MOV.",
+            }),
+        kind: z.enum(["image", "video"]).optional().meta({
+            description: "Whether it's an image or a video (default: from the file's extension)",
+        }),
+        fit: z
+            .enum(["contain", "cover"])
+            .default("contain")
+            .meta({
+                description:
+                    '"contain": all of it, with bars round it; "cover": the whole window, trimmed ' +
+                    'to fit (default: "contain")',
+            }),
+        loop: z.boolean().default(false).meta({
+            description: "Play a video over and over (default: false)",
+        }),
+        muted: z.boolean().default(false).meta({
+            description: "Play a video without its sound (default: false)",
+        }),
+        caption: z.string().optional().meta({ description: "A line of text under it" }),
+        osd: z
+            .boolean()
+            .default(false)
+            .meta({
+                description:
+                    "A VCR's on-screen display, in the terminal's font: PLAY ► (or PAUSE) and a " +
+                    "tape counter (default: false)",
+            }),
+        get onEnd() {
+            return ActionSchema.optional().meta({
+                description: "What happens when a video ends (it closes first)",
+            });
+        },
+    })
+    .meta({ description: "An image or video over the whole window, with its options" });
+
+export const ViewSchema: z.ZodType<View> = z
+    .union([z.string().min(1), ViewOptionsSchema])
+    .transform((view): View => {
+        const options = typeof view === "string" ? { src: view } : view;
+        const { src, kind, fit, loop, muted, caption, osd, onEnd } = options as {
+            src: string;
+            kind?: "image" | "video";
+            fit?: "contain" | "cover";
+            loop?: boolean;
+            muted?: boolean;
+            caption?: string;
+            osd?: boolean;
+            onEnd?: Action;
+        };
+        return {
+            src,
+            kind: kind ?? (VIDEO.test(src) ? "video" : "image"),
+            fit: fit ?? "contain",
+            loop: loop ?? false,
+            muted: muted ?? false,
+            ...(caption === undefined ? {} : { caption }),
+            osd: osd ?? false,
+            ...(onEnd === undefined ? {} : { onEnd }),
+        };
+    })
+    .meta({
+        id: "View",
+        description:
+            "An image or video over the whole window, until the player closes it: its file, " +
+            'e.g. "data/images/photo.jpg", or { "src", … } with options',
+    });
 
 // ─── Element base ────────────────────────────────────────────────────────────
 

@@ -36,6 +36,8 @@ import {
     TeletypeOptionsSchema,
     TeletypeRevealSchema,
     TransitionSchema,
+    ViewOptionsSchema,
+    ViewSchema,
 } from "../src/engine/schema/common.ts";
 import {
     AlertSchema,
@@ -384,6 +386,8 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
         [
             ["Action", ActionSchema],
             ["Action case", ActionCaseSchema],
+            ["View", ViewSchema],
+            ["View options", ViewOptionsSchema],
             ["Reveal", RevealSchema],
             ["Teletype reveal", TeletypeRevealSchema, '"type": "teletype"'],
             ["Glitch reveal", GlitchRevealSchema, '"type": "glitch"'],

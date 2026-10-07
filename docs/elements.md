@@ -45,6 +45,16 @@ Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also chang
 the screen before (and the one before that, each time), so one help screen can serve many.
 A link to the screen you just came from counts as going back too, so a `> BACK` written as
 `{ "screen": "menu" }` doesn't leave the menu's own back pointing at the screen you left.
+`{ "view": "data/images/photo.jpg" }` shows an image or video over the whole window, on the same
+glass as the screen (its effects are drawn over it), until the player closes it: `[ BACK ]` in the
+corner (it fades while nothing moves) or Esc. A click or Space pauses a video. With options:
+`{ "view": { "src": "data/video/tape3.mp4", "osd": true, "onEnd": { "screen": "after" } } }`:
+`fit` (`"contain"`, all of it with bars round it, or `"cover"`, filling the window), `loop`,
+`muted`, a `caption`, `osd` (a VCR's on-screen display, `PLAY ►` and a tape counter) and `onEnd`
+(what happens when a video ends). A video plays at full volume (or the player's, from quick
+settings), silent while sound's muted, and the ambience waits while it plays. MP4 plays in every
+browser. Keep videos small: the offline copy leaves out files over 10MB, and every version of a
+file stays in a repository's history; a `src` can be a web address instead, for online play.
 `{ "restart": true }` starts the
 program over, as if just loaded: the start screen, with every variable, timer and element's
 memory (a locked login, an opened section) back where it began. Every element takes an optional

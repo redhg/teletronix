@@ -44,7 +44,7 @@ export {
     hasSoundToggle,
     layoutBarLine,
 } from "./schema/bars.ts";
-export type { Action } from "./schema/common.ts";
+export type { Action, View } from "./schema/common.ts";
 export { ActionSchema } from "./schema/common.ts";
 export { dialogAction } from "./schema/dialog.ts";
 export {

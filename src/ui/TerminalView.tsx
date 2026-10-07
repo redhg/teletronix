@@ -16,6 +16,7 @@ import { EffectsLayer } from "./effects.tsx";
 import { ScreenView } from "./ScreenView.tsx";
 import { useTerminal, useTerminalSnapshot } from "./terminal-context.ts";
 import { useColumns } from "./use-columns.ts";
+import { Viewer } from "./viewer/Viewer.tsx";
 import "./terminal.css";
 
 const INTERSTITIAL_STATIC = { ...staticEffect.defaults, opacity: 1 };
@@ -31,7 +32,7 @@ interface Props {
 
 export function TerminalView({ layoutKey }: Props) {
     const terminal = useTerminal();
-    const { screen, outgoing, interstitial, dialog, effects } = useTerminalSnapshot();
+    const { screen, outgoing, interstitial, dialog, view, effects } = useTerminalSnapshot();
     const ref = useRef<HTMLElement>(null);
     const screensRef = useRef<HTMLDivElement>(null);
     const [autoscroll] = useState(() => new Autoscroller());
@@ -136,6 +137,7 @@ export function TerminalView({ layoutKey }: Props) {
             )}
             <EffectsLayer effects={effects} />
             {dialog && <DialogView key={dialog.id} dialog={dialog} />}
+            {view && <Viewer key={view.src} view={view} effects={effects} />}
         </AutoscrollContext>
     );
 }

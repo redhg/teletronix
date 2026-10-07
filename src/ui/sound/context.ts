@@ -17,3 +17,6 @@ export interface SoundToggle {
 export const SoundToggleContext = createContext<SoundToggle | null>(null);
 
 export const useSoundToggle = () => useContext(SoundToggleContext);
+
+/** How loud videos play: the player's chosen volume (quick settings), or full. */
+export const VideoVolumeContext = createContext(1);

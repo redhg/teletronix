@@ -4402,110 +4402,7 @@
     "title": "Teletronix program",
     "description": "A Teletronix program: its settings, screens, dialogs and sounds",
     "$defs": {
-        "Condition": {
-            "description": "A test of the variables: { \"keycard\": true }, { \"power\": { \"atLeast\": 90 } }, or { \"all\": [ … ] }, { \"any\": [ … ] } or { \"not\": … } to combine them",
-            "$ref": "#/$defs/__schema0"
-        },
         "__schema0": {
-            "anyOf": [
-                {
-                    "type": "object",
-                    "properties": {
-                        "all": {
-                            "minItems": 1,
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/$defs/Condition"
-                            },
-                            "description": "Conditions that must all hold"
-                        }
-                    },
-                    "required": [
-                        "all"
-                    ],
-                    "additionalProperties": false,
-                    "description": "Holds when every condition in it does"
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "any": {
-                            "minItems": 1,
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/$defs/Condition"
-                            },
-                            "description": "Conditions of which at least one must hold"
-                        }
-                    },
-                    "required": [
-                        "any"
-                    ],
-                    "additionalProperties": false,
-                    "description": "Holds when at least one condition in it does"
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "not": {
-                            "description": "The condition that must not hold",
-                            "$ref": "#/$defs/Condition"
-                        }
-                    },
-                    "required": [
-                        "not"
-                    ],
-                    "additionalProperties": false,
-                    "description": "Holds when the condition in it doesn't"
-                },
-                {
-                    "type": "object",
-                    "propertyNames": {
-                        "type": "string",
-                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
-                        "description": "A variable declared in config.variables"
-                    },
-                    "additionalProperties": {
-                        "anyOf": [
-                            {
-                                "description": "true or false, a number, or text",
-                                "type": [
-                                    "boolean",
-                                    "number",
-                                    "string"
-                                ]
-                            },
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "equals": {
-                                        "description": "Exactly this value (text is compared ignoring case and outer spaces)",
-                                        "type": [
-                                            "boolean",
-                                            "number",
-                                            "string"
-                                        ]
-                                    },
-                                    "atLeast": {
-                                        "description": "This number or more",
-                                        "type": "number"
-                                    },
-                                    "atMost": {
-                                        "description": "This number or less",
-                                        "type": "number"
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "description": "A test of one variable's value. Set more than one and the value must pass them all."
-                            }
-                        ]
-                    },
-                    "description": "Variables and what they must be: a value, e.g. { \"keycard\": true }, or a test, e.g. { \"power\": { \"atLeast\": 90 } }. With several, every one must pass."
-                }
-            ]
-        },
-        "Action": {
-            "description": "What happens: go to a screen, open a dialog, change variables, play a sound. Or a list of these with \"if\" conditions, where the first whose condition holds happens.",
             "anyOf": [
                 {
                     "type": "object",
@@ -4663,6 +4560,10 @@
                             "description": "A sound from the program's sounds, played as the action happens",
                             "type": "string",
                             "pattern": "^[A-Za-z0-9_-]+$"
+                        },
+                        "view": {
+                            "description": "An image or video to show over the whole window, until the player closes it (or a video ends, with onEnd)",
+                            "$ref": "#/$defs/View"
                         },
                         "back": {
                             "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
@@ -4838,6 +4739,10 @@
                                 "type": "string",
                                 "pattern": "^[A-Za-z0-9_-]+$"
                             },
+                            "view": {
+                                "description": "An image or video to show over the whole window, until the player closes it (or a video ends, with onEnd)",
+                                "$ref": "#/$defs/View"
+                            },
                             "back": {
                                 "description": "Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to",
                                 "type": "boolean",
@@ -4854,6 +4759,176 @@
                     }
                 }
             ]
+        },
+        "Condition": {
+            "description": "A test of the variables: { \"keycard\": true }, { \"power\": { \"atLeast\": 90 } }, or { \"all\": [ … ] }, { \"any\": [ … ] } or { \"not\": … } to combine them",
+            "$ref": "#/$defs/__schema1"
+        },
+        "__schema1": {
+            "anyOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "all": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/Condition"
+                            },
+                            "description": "Conditions that must all hold"
+                        }
+                    },
+                    "required": [
+                        "all"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Holds when every condition in it does"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "any": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/Condition"
+                            },
+                            "description": "Conditions of which at least one must hold"
+                        }
+                    },
+                    "required": [
+                        "any"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Holds when at least one condition in it does"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "not": {
+                            "description": "The condition that must not hold",
+                            "$ref": "#/$defs/Condition"
+                        }
+                    },
+                    "required": [
+                        "not"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Holds when the condition in it doesn't"
+                },
+                {
+                    "type": "object",
+                    "propertyNames": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                        "description": "A variable declared in config.variables"
+                    },
+                    "additionalProperties": {
+                        "anyOf": [
+                            {
+                                "description": "true or false, a number, or text",
+                                "type": [
+                                    "boolean",
+                                    "number",
+                                    "string"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "equals": {
+                                        "description": "Exactly this value (text is compared ignoring case and outer spaces)",
+                                        "type": [
+                                            "boolean",
+                                            "number",
+                                            "string"
+                                        ]
+                                    },
+                                    "atLeast": {
+                                        "description": "This number or more",
+                                        "type": "number"
+                                    },
+                                    "atMost": {
+                                        "description": "This number or less",
+                                        "type": "number"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "description": "A test of one variable's value. Set more than one and the value must pass them all."
+                            }
+                        ]
+                    },
+                    "description": "Variables and what they must be: a value, e.g. { \"keycard\": true }, or a test, e.g. { \"power\": { \"atLeast\": 90 } }. With several, every one must pass."
+                }
+            ]
+        },
+        "View": {
+            "description": "An image or video over the whole window, until the player closes it: its file, e.g. \"data/images/photo.jpg\", or { \"src\", … } with options",
+            "anyOf": [
+                {
+                    "type": "string",
+                    "minLength": 1
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "src": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "An image or a video, relative to the page, e.g. \"data/video/tape3.mp4\", or a web address. Videos are MP4 (which plays everywhere), WebM, M4V, OGV or MOV."
+                        },
+                        "kind": {
+                            "description": "Whether it's an image or a video (default: from the file's extension)",
+                            "type": "string",
+                            "enum": [
+                                "image",
+                                "video"
+                            ]
+                        },
+                        "fit": {
+                            "default": "contain",
+                            "description": "\"contain\": all of it, with bars round it; \"cover\": the whole window, trimmed to fit (default: \"contain\")",
+                            "type": "string",
+                            "enum": [
+                                "contain",
+                                "cover"
+                            ]
+                        },
+                        "loop": {
+                            "default": false,
+                            "description": "Play a video over and over (default: false)",
+                            "type": "boolean"
+                        },
+                        "muted": {
+                            "default": false,
+                            "description": "Play a video without its sound (default: false)",
+                            "type": "boolean"
+                        },
+                        "caption": {
+                            "description": "A line of text under it",
+                            "type": "string"
+                        },
+                        "osd": {
+                            "default": false,
+                            "description": "A VCR's on-screen display, in the terminal's font: PLAY ► (or PAUSE) and a tape counter (default: false)",
+                            "type": "boolean"
+                        },
+                        "onEnd": {
+                            "description": "What happens when a video ends (it closes first)",
+                            "$ref": "#/$defs/Action"
+                        }
+                    },
+                    "required": [
+                        "src"
+                    ],
+                    "additionalProperties": false,
+                    "description": "An image or video over the whole window, with its options"
+                }
+            ]
+        },
+        "Action": {
+            "description": "What happens: go to a screen, open a dialog, change variables, play a sound. Or a list of these with \"if\" conditions, where the first whose condition holds happens.",
+            "$ref": "#/$defs/__schema0"
         },
         "ShellFolder": {
             "description": "A folder's contents: names, each a text file (a string, or a list of lines), a folder (an object of names), or { \"file\" }, { \"run\" } or { \"folder\" } with settings",

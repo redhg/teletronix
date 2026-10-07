@@ -306,3 +306,24 @@ describe("audio files and ambience", () => {
         expect(errors(file({ sounds: { drone: { src: "" } } }))[0]?.path).toBe("sounds.drone.src");
     });
 });
+
+describe("views", () => {
+    const linked = (action: unknown) =>
+        errors(
+            file({
+                screens: { home: { content: [{ type: "link", text: "> GO", action }] } },
+            } as Partial<TeletronixFile>),
+        ).map((error) => error.message);
+
+    it("checks a view's onEnd like any action", () => {
+        expect(linked({ view: { src: "t.mp4", onEnd: { screen: "nowhere" } } })).toEqual([
+            'Unknown screen "nowhere"',
+        ]);
+    });
+
+    it("won't mix a view with going somewhere", () => {
+        expect(linked({ view: "a.png", screen: "home" })).toEqual([
+            'A view shows over the screen: leave out "screen", "dialog", "back" and "restart"',
+        ]);
+    });
+});

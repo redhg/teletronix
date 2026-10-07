@@ -15,7 +15,7 @@ autocomplete in your editor, point `$schema` at
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Audio file](#audio-file), [Pointer image](#pointer-image), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
-- **Shared types:** [Action](#action), [Action case](#action-case), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
+- **Shared types:** [Action](#action), [Action case](#action-case), [View](#view), [View options](#view-options), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
 
 ## Program
 
@@ -2309,8 +2309,37 @@ Go to a screen or open a dialog, changing variables and playing a sound on the w
 | `stopTimer` | id |  | A timer to stop where it is |
 | `resetTimer` | id |  | A timer to stop and put back to its start |
 | `sound` | id |  | A sound from the program's sounds, played as the action happens |
+| `view` | [View](#view) |  | An image or video to show over the whole window, until the player closes it (or a video ends, with onEnd) |
 | `back` | `true` |  | Go back to the screen before this one (and before that, each time), e.g. from a help screen many screens link to |
 | `restart` | `true` |  | Start the program over, as if just loaded: the start screen, with every variable, timer and element's memory (e.g. a locked login) back where it began |
+
+<a id="view"></a>
+
+### View
+
+An image or video over the whole window, until the player closes it: its file, e.g. "data/images/photo.jpg", or { "src", … } with options
+
+One of:
+
+- string
+- [View options](#view-options)
+
+<a id="view-options"></a>
+
+### View options
+
+An image or video over the whole window, with its options
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `src` | string | **required** | An image or a video, relative to the page, e.g. "data/video/tape3.mp4", or a web address. Videos are MP4 (which plays everywhere), WebM, M4V, OGV or MOV. |
+| `kind` | `"image"` \| `"video"` | from the file's extension | Whether it's an image or a video |
+| `fit` | `"contain"` \| `"cover"` | `"contain"` | "contain": all of it, with bars round it; "cover": the whole window, trimmed to fit |
+| `loop` | boolean | `false` | Play a video over and over |
+| `muted` | boolean | `false` | Play a video without its sound |
+| `caption` | string |  | A line of text under it |
+| `osd` | boolean | `false` | A VCR's on-screen display, in the terminal's font: PLAY ► (or PAUSE) and a tape counter |
+| `onEnd` | [Action](#action) |  | What happens when a video ends (it closes first) |
 
 <a id="reveal"></a>
 

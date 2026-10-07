@@ -652,6 +652,8 @@ function checkReferences(program: Program, ctx: z.RefinementCtx): void {
             ...unknownTimer(choice.startTimer),
             ...unknownTimer(choice.stopTimer),
             ...unknownTimer(choice.resetTimer),
+            // (a video's onEnd is an action too)
+            ...(choice.view?.onEnd ? actionProblems(choice.view.onEnd) : []),
         ]);
     const report = (path: PropertyKey[], messages: string | string[] | null) => {
         for (const message of [messages ?? []].flat()) {
