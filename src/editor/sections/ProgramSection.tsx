@@ -12,7 +12,15 @@ const GROUPS: { title: string; keys: string[] }[] = [
     { title: "About", keys: ["name", "author", "description", "start"] },
     {
         title: "How screens appear",
-        keys: ["reveal", "transition", "align", "waitForReveal", "autoscroll", "defaults"],
+        keys: [
+            "reveal",
+            "transition",
+            "align",
+            "waitForReveal",
+            "autoscroll",
+            "defaults",
+            "characters",
+        ],
     },
     { title: "Bars", keys: ["header", "footer"] },
     { title: "Players", keys: ["skipKeys", "save", "blockContextMenu"] },

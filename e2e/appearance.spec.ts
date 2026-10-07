@@ -44,6 +44,41 @@ test.describe("the player", () => {
         await expect(player.screen.locator(".alert")).toHaveCSS("color", "rgb(255, 255, 0)");
     });
 
+    test("shows characters as others, only where they're shown", async ({ page, player }) => {
+        await player.open({
+            config: {
+                name: "Characters",
+                start: "home",
+                reveal: "instant",
+                characters: { "<": "(", ">": ")", "█": "#" },
+                header: [{ left: "<BAR>" }],
+            },
+            screens: {
+                home: {
+                    content: [
+                        "<OK> ██",
+                        {
+                            type: "prompt",
+                            prompt: "> ",
+                            commands: [{ command: "<go>", action: { screen: "there" } }],
+                        },
+                    ],
+                },
+                there: { content: ["THERE <"] },
+            },
+        });
+        await expect(player.screen).toContainText("(OK) ##");
+        await expect(page.locator(".bar-header")).toContainText("(BAR)");
+        // screen readers get the text as written
+        await expect(player.screen.locator(".sr-only").first()).toHaveText("<OK> ██");
+        // what's typed is matched (and kept) as written
+        const input = player.screen.locator(".prompt input");
+        await input.fill("<go>");
+        await expect(input).toHaveValue("<go>");
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("THERE (");
+    });
+
     test.describe("a theme with a look of its own", () => {
         test("brings its font, filled in with symbols, and its effects", async ({
             page,

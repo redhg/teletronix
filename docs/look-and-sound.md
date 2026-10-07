@@ -38,6 +38,11 @@ big monitor. Pixel fonts still snap to whole multiples of their pixels, so they 
 Text is never smaller than 16px, so it stays readable on a phone; there, a pixel font snaps to
 the screen's own (smaller) pixels, so it's crisp at more sizes.
 
+`config.characters` shows some characters as others, e.g. `{ "<": "(", "█": "#" }`: for a font
+that lacks a character, or just for the look. One character always stands in for one, so text
+keeps its shape. Only what's shown changes: commands, conditions and what players type are
+matched as written, and screen readers read it as written.
+
 `config.lineSpacing` sets how far apart lines are, as a multiple of the text's size, from 1 to 2
 (default 1.25). At 1, lines touch, as on the original machines, so block art (`█▓▒░`) and box
 drawing join up from line to line. (Maps and big timer digits always join up.)

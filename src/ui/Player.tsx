@@ -10,6 +10,7 @@ import {
 import type { Remote } from "../remote/follow.ts";
 import { RemoteBadge } from "../remote/RemoteBadge.tsx";
 import { applyAppearance, loadFont } from "./appearance.ts";
+import { mapCharacters } from "./character-map.ts";
 import { KioskGate, useKiosk } from "./kiosk/Kiosk.tsx";
 import { PaletteContext } from "./palette-context.ts";
 import { isPreviewMessage } from "./preview-protocol.ts";
@@ -64,6 +65,9 @@ export function Player({ terminal, initial, preview, kiosk = false, remote }: Pr
             current = false;
         };
     }, [font]);
+
+    // characters the program shows as others, wherever they're drawn
+    useEffect(() => mapCharacters(document.body, terminal.program.characters ?? {}), [terminal]);
 
     // block the browser's right-click menu, except in text fields (for pasting)
     const blockContextMenu = terminal.program.blockContextMenu;

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { fillRecipe, type Recipe, RecipeSchema } from "../sound/recipe.ts";
 import type { Align } from "../text/layout.ts";
 import {
+    CharactersSchema,
     DEFAULT_FONT,
     DEFAULT_FONT_SCALE,
     DEFAULT_LINE_SPACING,
@@ -204,6 +205,7 @@ export const ConfigSchema = z
         font: FontSchema.optional(),
         fontScale: FontScaleSchema.optional(),
         lineSpacing: LineSpacingSchema.optional(),
+        characters: CharactersSchema.optional(),
         effects: EffectsSchema.optional(),
         sound: SoundSchema.optional(),
         ambience: SoundNameSchema.optional().meta({
@@ -332,6 +334,8 @@ export interface Program {
     fontScale: number;
     /** How far apart lines are, as a multiple of the text's size */
     lineSpacing: number;
+    /** Characters shown as others (see CharactersSchema) */
+    characters?: Readonly<Record<string, string>>;
     screens: ReadonlyMap<string, Screen>;
     dialogs: ReadonlyMap<string, Dialog>;
     /** Generated sound effects by name, each filled in */
@@ -385,6 +389,7 @@ function normalize(
         font,
         fontScale,
         lineSpacing,
+        characters,
         variables,
         timers,
         skipKeys,
@@ -475,6 +480,7 @@ function normalize(
         font: font ?? themeFont(theme) ?? DEFAULT_FONT,
         fontScale: fontScale ?? DEFAULT_FONT_SCALE,
         lineSpacing: lineSpacing ?? DEFAULT_LINE_SPACING,
+        ...(characters && Object.keys(characters).length > 0 ? { characters } : {}),
         screens,
         dialogs,
         sounds: new Map(

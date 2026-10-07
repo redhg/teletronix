@@ -100,6 +100,21 @@ export const LineSpacingSchema = z
             "block art and box drawing join up, as on the original machines) to 2 (default: 1.25)",
     });
 
+// ─── Characters ──────────────────────────────────────────────────────────────
+
+/** One character (a code point): a letter, a symbol, a box line. */
+const CharacterSchema = z
+    .string()
+    .refine((text) => Array.from(text).length === 1, { message: "One character" });
+
+export const CharactersSchema = z.record(CharacterSchema, CharacterSchema).meta({
+    description:
+        'Characters shown as others, e.g. { "<": "(", "█": "#" }: for a font without some ' +
+        "character, or just for the look. Only what's shown changes, one character for " +
+        "one, so text keeps its shape; commands, conditions and what players type are " +
+        "matched as written.",
+});
+
 // ─── Themes ──────────────────────────────────────────────────────────────────
 
 // A theme is colors, and the shadow text casts; and can bring a look of its own, a font and

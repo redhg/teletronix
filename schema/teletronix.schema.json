@@ -896,6 +896,16 @@
                     "maximum": 2,
                     "description": "How far apart lines are, as a multiple of the text's size, from 1 (touching, so block art and box drawing join up, as on the original machines) to 2 (default: 1.25)"
                 },
+                "characters": {
+                    "type": "object",
+                    "propertyNames": {
+                        "type": "string"
+                    },
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Characters shown as others, e.g. { \"<\": \"(\", \"█\": \"#\" }: for a font without some character, or just for the look. Only what's shown changes, one character for one, so text keeps its shape; commands, conditions and what players type are matched as written."
+                },
                 "effects": {
                     "type": "object",
                     "properties": {
