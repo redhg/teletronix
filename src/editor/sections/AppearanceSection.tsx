@@ -46,6 +46,8 @@ const THEME_LABELS: Record<ThemeName, string> = {
     lcd: "LCD (segments)",
     paper: "Paper (typewriter)",
     printout: "Printout (dot matrix)",
+    "contrast-dark": "High contrast, dark",
+    "contrast-light": "High contrast, light",
 };
 
 const SHADOW_LABELS: Record<TextShadow, string> = {

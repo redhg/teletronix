@@ -10,7 +10,8 @@ effects of their own:
 | `"vcr"` | A VCR's on-screen menu: white on blue, with a dark drop shadow | Home Video | A little static, faint scanlines |
 | `"lcd"` | An LCD's dark segments on grey-green glass, in capitals | Digit Tech | None |
 | `"paper"` | Typed on cream paper | X Typewriter | A soft vignette |
-| `"printout"` | Printed by a dot-matrix printer, on green-bar paper | MatrixType | None |
+| `"printout"` | Printed by a dot-matrix printer, on green-bar paper |
+| `"contrast-dark"`, `"contrast-light"` | High contrast for legibility: white on black, or black on white, no glow | The device's own monospace | All off | MatrixType | None |
 
 The program's own `font` and `effects` win over the theme's: `"theme": "vcr", "font": "ibm-vga"`
 is the VCR's blue in IBM VGA. A theme of your own can choose how text casts its `shadow`
@@ -21,7 +22,8 @@ the text: `{ "fg": "#222222", "bg": "#eeeeee", "shadow": "ink", "stripes": "#dce
 `config.font` picks a typeface (the default is the theme's, or `"departure-mono"`): a period PC
 font, `"ast-premiumexec"`, `"ibm-vga"`, `"ibm-ega"`, `"ibm-cga"`, `"ibm-cga-thin"`, `"ibm-mda"` or
 `"toshiba-satellite"`; a VCR's, `"home-video"`; an LCD's segments, `"digit-tech"`; a dot-matrix
-printer's, `"matrixtype"`; or a typewriter's, `"x-typewriter"`. Pixel fonts are sized to whole
+printer's, `"matrixtype"`; or a typewriter's, `"x-typewriter"`; or the clearest at hand, the device's own monospace font,
+`"system-mono"` (Menlo on a Mac, Consolas on Windows). Pixel fonts are sized to whole
 multiples of their pixel height, so they stay crisp. Or a font installed on the player's
 computer: `"courier-new"`, `"consolas"` (Windows) or `"menlo"` (macOS). These aren't bundled, so
 where one isn't installed, the browser's own monospace font stands in; they can be any size.

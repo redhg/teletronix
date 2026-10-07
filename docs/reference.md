@@ -55,8 +55,8 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `variables` | [Variables](#variables) |  | The program's variables and their starting values: true or false, a number, or text. Actions change them with `set`, toggles, sliders and prompts can be bound to them, `if` tests them, and text shows them as "{name}". They reset when the page reloads. |
 | `timers` | [Timers](#timers) |  | The program's timers, by name: clocks that keep running from screen to screen, such as a self-destruct countdown |
 | `skipKeys` | string[] | ["Escape"] | Keys that finish revealing the screen at once, like a click, when the program doesn't use them for anything else: key names like "Escape" or "Space", or [] for none. In kiosk mode, Esc also leaves full screen, so try ["Space"] |
-| `theme` | [Theme](#theme) | `"default"` | The color scheme: "default" (pale blue on black), "amber", "green" or "white"; a look of its own, with a font and effects: "vcr" (a VCR's blue menu), "lcd" (an LCD's segments), "paper" (typed) or "printout" (dot matrix, on green-bar paper); or your own colors |
-| `font` | `"ast-premiumexec"` \| `"ibm-vga"` \| `"ibm-ega"` \| `"ibm-cga"` \| `"ibm-cga-thin"` \| `"ibm-mda"` \| `"toshiba-satellite"` \| `"departure-mono"` \| `"home-video"` \| `"digit-tech"` \| `"matrixtype"` \| `"x-typewriter"` \| `"courier-new"` \| `"consolas"` \| `"menlo"` | the theme's, or "departure-mono" | The typeface: a period PC font; a VCR's ("home-video"), an LCD's segments ("digit-tech"), a dot-matrix printer's ("matrixtype") or a typewriter's ("x-typewriter"); or one installed on the player's computer ("courier-new", "consolas" on Windows, "menlo" on macOS; the browser's own monospace font where it isn't) |
+| `theme` | [Theme](#theme) | `"default"` | The color scheme: "default" (pale blue on black), "amber", "green" or "white"; a look of its own, with a font and effects: "vcr" (a VCR's blue menu), "lcd" (an LCD's segments), "paper" (typed) or "printout" (dot matrix, on green-bar paper); "contrast-dark" or "contrast-light", for legibility; or your own colors |
+| `font` | `"ast-premiumexec"` \| `"ibm-vga"` \| `"ibm-ega"` \| `"ibm-cga"` \| `"ibm-cga-thin"` \| `"ibm-mda"` \| `"toshiba-satellite"` \| `"departure-mono"` \| `"home-video"` \| `"digit-tech"` \| `"matrixtype"` \| `"x-typewriter"` \| `"courier-new"` \| `"consolas"` \| `"menlo"` \| `"system-mono"` | the theme's, or "departure-mono" | The typeface: a period PC font; a VCR's ("home-video"), an LCD's segments ("digit-tech"), a dot-matrix printer's ("matrixtype") or a typewriter's ("x-typewriter"); or one installed on the player's computer ("courier-new", "consolas" on Windows, "menlo" on macOS; the browser's own monospace font where it isn't) |
 | `fontScale` | number, 0.5–2 | `0.75` | How big text is, from 0.5 (half the usual size) to 2 (twice). A pixel font still snaps to whole multiples of its pixels, so it grows in steps |
 | `lineSpacing` | number, 1–2 | `1.25` | How far apart lines are, as a multiple of the text's size, from 1 (touching, so block art and box drawing join up, as on the original machines) to 2 |
 | `characters` | map of id → string |  | Characters shown as others, e.g. { "<": "(", "█": "#" }: for a font without some character, or just for the look. Only what's shown changes, one character for one, so text keeps its shape; commands, conditions and what players type are matched as written. |
@@ -1929,11 +1929,11 @@ The "no" button, chosen with <esc> or a click outside the dialog
 
 ### Theme
 
-The color scheme: "default" (pale blue on black), "amber", "green" or "white"; a look of its own, with a font and effects: "vcr" (a VCR's blue menu), "lcd" (an LCD's segments), "paper" (typed) or "printout" (dot matrix, on green-bar paper); or your own colors (default: "default")
+The color scheme: "default" (pale blue on black), "amber", "green" or "white"; a look of its own, with a font and effects: "vcr" (a VCR's blue menu), "lcd" (an LCD's segments), "paper" (typed) or "printout" (dot matrix, on green-bar paper); "contrast-dark" or "contrast-light", for legibility; or your own colors (default: "default")
 
 One of:
 
-- `"default"` | `"amber"` | `"green"` | `"white"` | `"vcr"` | `"lcd"` | `"paper"` | `"printout"`
+- `"default"` | `"amber"` | `"green"` | `"white"` | `"vcr"` | `"lcd"` | `"paper"` | `"contrast-dark"` | `"contrast-light"` | `"printout"`
 - [Custom theme](#custom-theme)
 
 <a id="custom-theme"></a>

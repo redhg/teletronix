@@ -119,6 +119,26 @@ test.describe("the player", () => {
             await expect(player.screen).toContainText("RED ALERT");
         });
 
+        test("can be high contrast: plain, clear, with no effects", async ({ page, player }) => {
+            await player.open(withConfig({ theme: "contrast-light" }));
+            const look = await page.evaluate(() => {
+                const body = getComputedStyle(document.body);
+                return {
+                    color: body.color,
+                    background: body.backgroundColor,
+                    image: body.backgroundImage,
+                    shadow: body.textShadow,
+                    font: body.fontFamily,
+                };
+            });
+            expect(look.color).toBe("rgb(0, 0, 0)");
+            expect(look.background).toBe("rgb(255, 255, 255)");
+            expect(look.image).toBe("none");
+            expect(look.shadow).not.toContain("rgba(0, 0, 0, 0.5)");
+            expect(look.font).toContain("ui-monospace");
+            await expect(page.locator(".effects > *")).toHaveCount(0);
+        });
+
         test("can have bands behind the lines, like green-bar paper", async ({ page, player }) => {
             const bands = () =>
                 page.locator(".terminal").evaluate((el) => getComputedStyle(el).backgroundImage);

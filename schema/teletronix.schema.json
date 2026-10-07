@@ -816,6 +816,8 @@
                                 "vcr",
                                 "lcd",
                                 "paper",
+                                "contrast-dark",
+                                "contrast-light",
                                 "printout"
                             ]
                         },
@@ -866,7 +868,7 @@
                             "description": "Your own colors"
                         }
                     ],
-                    "description": "The color scheme: \"default\" (pale blue on black), \"amber\", \"green\" or \"white\"; a look of its own, with a font and effects: \"vcr\" (a VCR's blue menu), \"lcd\" (an LCD's segments), \"paper\" (typed) or \"printout\" (dot matrix, on green-bar paper); or your own colors (default: \"default\")"
+                    "description": "The color scheme: \"default\" (pale blue on black), \"amber\", \"green\" or \"white\"; a look of its own, with a font and effects: \"vcr\" (a VCR's blue menu), \"lcd\" (an LCD's segments), \"paper\" (typed) or \"printout\" (dot matrix, on green-bar paper); \"contrast-dark\" or \"contrast-light\", for legibility; or your own colors (default: \"default\")"
                 },
                 "font": {
                     "type": "string",
@@ -885,7 +887,8 @@
                         "x-typewriter",
                         "courier-new",
                         "consolas",
-                        "menlo"
+                        "menlo",
+                        "system-mono"
                     ],
                     "description": "The typeface: a period PC font; a VCR's (\"home-video\"), an LCD's segments (\"digit-tech\"), a dot-matrix printer's (\"matrixtype\") or a typewriter's (\"x-typewriter\"); or one installed on the player's computer (\"courier-new\", \"consolas\" on Windows, \"menlo\" on macOS; the browser's own monospace font where it isn't) (default: the theme's, or \"departure-mono\")"
                 },

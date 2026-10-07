@@ -53,6 +53,12 @@ export const FONTS = {
     "courier-new": { name: "Courier New (installed)", pixelHeight: 1, system: '"Courier New"' },
     consolas: { name: "Consolas (installed, Windows)", pixelHeight: 1, system: "Consolas" },
     menlo: { name: "Menlo (installed, macOS)", pixelHeight: 1, system: "Menlo" },
+    // whichever clear monospace font the device has: for legibility, e.g. high contrast
+    "system-mono": {
+        name: "The device's own monospace",
+        pixelHeight: 1,
+        system: 'ui-monospace, Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono"',
+    },
 } as const satisfies Record<string, FontInfo>;
 
 /** Whether a font is one installed on the player's computer, rather than bundled. */
@@ -146,6 +152,9 @@ interface Theme extends Palette {
     effects?: EffectsSetting;
 }
 
+/** Every effect off (the rest are off unless turned on). */
+const NO_EFFECTS: EffectsSetting = { scanlines: false };
+
 export const THEMES = {
     default: { fg: "#d4f9fa", bg: "#000c0c", alert: "#ff3c00", shadow: "glow" },
     amber: { fg: "#e07d0b", bg: "#080400", alert: "#ff3c00", shadow: "glow" },
@@ -178,6 +187,23 @@ export const THEMES = {
         shadow: "ink",
         font: "x-typewriter",
         effects: { scanlines: false, vignette: { strength: 0.3 } },
+    },
+    // high contrast, for legibility: plain colors, a clear font, no effects or glow
+    "contrast-dark": {
+        fg: "#ffffff",
+        bg: "#000000",
+        alert: "#ffd400",
+        shadow: "none",
+        font: "system-mono",
+        effects: NO_EFFECTS,
+    },
+    "contrast-light": {
+        fg: "#000000",
+        bg: "#ffffff",
+        alert: "#b00000",
+        shadow: "none",
+        font: "system-mono",
+        effects: NO_EFFECTS,
     },
     // printed by a dot-matrix printer
     printout: {
@@ -238,7 +264,7 @@ export const ThemeSchema = z
             'The color scheme: "default" (pale blue on black), "amber", "green" or "white"; ' +
             'a look of its own, with a font and effects: "vcr" (a VCR\'s blue menu), "lcd" ' +
             '(an LCD\'s segments), "paper" (typed) or "printout" (dot matrix, on green-bar ' +
-            "paper); or your own " +
+            'paper); "contrast-dark" or "contrast-light", for legibility; or your own ' +
             'colors (default: "default")',
     });
 
