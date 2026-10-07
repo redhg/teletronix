@@ -43,6 +43,8 @@ A screen's `content` is a list of elements, revealed one after another:
 Actions are `{ "screen": "<id>" }` or `{ "dialog": "<id>" }`, and can also change variables
 (see [Variables and conditions](programs.md#variables-and-conditions)). `{ "back": true }` goes back to
 the screen before (and the one before that, each time), so one help screen can serve many.
+A link to the screen you just came from counts as going back too, so a `> BACK` written as
+`{ "screen": "menu" }` doesn't leave the menu's own back pointing at the screen you left.
 `{ "restart": true }` starts the
 program over, as if just loaded: the start screen, with every variable, timer and element's
 memory (a locked login, an opened section) back where it began. Every element takes an optional

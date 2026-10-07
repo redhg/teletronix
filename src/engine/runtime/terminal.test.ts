@@ -277,6 +277,19 @@ describe("going back", () => {
         expect(at(terminal)).toBe("one");
     });
 
+    it("counts a link to the screen it just came from as going back", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.start();
+        terminal.dispatch([{ screen: "two" }]);
+        terminal.dispatch([{ screen: "help" }]);
+        // help's own "> BACK", written as a link to two
+        terminal.dispatch([{ screen: "two" }]);
+        expect(at(terminal)).toBe("two");
+        // so two's back goes on to one, not round to help
+        terminal.dispatch([{ back: true }]);
+        expect(at(terminal)).toBe("one");
+    });
+
     it("starts afresh on a restart, and is saved", () => {
         const { terminal } = createTestTerminal(file);
         terminal.start();

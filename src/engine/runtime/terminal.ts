@@ -352,11 +352,17 @@ export class Terminal {
     navigate(screenId: string, remember = true): void {
         const screen = this.program.screens.get(screenId);
         if (!screen) throw new Error(`Unknown screen "${screenId}"`);
-        // where it came from, for going back (not when it's coming back)
+        // where it came from, for going back (not when it's coming back). A link to the screen
+        // it just came from, e.g. a "> BACK" written as { "screen": "menu" }, is going back
+        // too: otherwise the menu's own back would return here.
         const from = this.run?.screen.id;
         if (remember && from !== undefined && from !== screenId) {
-            this.history.push(from);
-            if (this.history.length > HISTORY) this.history.shift();
+            if (this.history.at(-1) === screenId) {
+                this.history.pop();
+            } else {
+                this.history.push(from);
+                if (this.history.length > HISTORY) this.history.shift();
+            }
         }
         const now = this.ticker.now();
         this.dialog = null;
