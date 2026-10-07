@@ -1995,6 +1995,7 @@
             ]
         },
         "maps": {
+            "pointer": "crosshair",
             "title": "STAR MAP",
             "parent": "cat-computers",
             "content": [

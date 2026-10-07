@@ -13,7 +13,7 @@ autocomplete in your editor, point `$schema` at
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Random](#random), [Pick](#pick), [Timers](#timers), [Timer](#timer)
 - **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Log](#log), [Map](#map), [Map marker](#map-marker), [Map point](#map-point), [Conversation](#conversation), [Conversation part](#conversation-part), [Conversation reply](#conversation-reply), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Visual level](#visual-level), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Carousel](#carousel), [Frames](#frames), [Frame](#frame), [Tree](#tree), [Tree item](#tree-item), [Tree markers](#tree-markers), [Pause](#pause), [Rule](#rule), [Breadcrumb](#breadcrumb), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
-- **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Audio file](#audio-file), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
+- **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Audio file](#audio-file), [Pointer image](#pointer-image), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
 - **Shared types:** [Action](#action), [Action case](#action-case), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
 
@@ -60,6 +60,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `fontScale` | number, 0.5–2 | `0.75` | How big text is, from 0.5 (half the usual size) to 2 (twice). A pixel font still snaps to whole multiples of its pixels, so it grows in steps |
 | `lineSpacing` | number, 1–2 | `1.25` | How far apart lines are, as a multiple of the text's size, from 1 (touching, so block art and box drawing join up, as on the original machines) to 2 |
 | `characters` | map of id → string |  | Characters shown as others, e.g. { "<": "(", "█": "#" }: for a font without some character, or just for the look. Only what's shown changes, one character for one, so text keeps its shape; commands, conditions and what players type are matched as written. |
+| `pointer` | `"system"` \| `"theme"` \| `"block"` \| `"crosshair"` \| `"hidden"` \| [Pointer image](#pointer-image) | `"system"` | The mouse pointer: "system" (the browser's own), "theme" (a pixel arrow in the theme's colors), "block" (a character cell that jumps from cell to cell, as in DOS), "crosshair" (lines across the whole screen), "hidden", or an image of your own. Not on touch screens; players can switch back to their own in quick settings |
 | `effects` | [Effects](#effects) |  | Visual effects: true, false, or an object of options |
 | `sound` | [Sound](#sound) |  | Generated retro sound effects: true, false, or an object of options. On by default; players can mute them with the sound toggle. |
 | `ambience` | id |  | An audio file from the program's sounds to loop in the background, e.g. a drone or a ship's engines, unless a screen says otherwise. It fades from one to the next as screens change. |
@@ -119,6 +120,7 @@ A screen of content. Its elements are revealed one after another.
 | `footer` | [Bar](#bar) \| `false` |  | A status bar for this screen instead of the config's, or false for none |
 | `next` | [Next rule](#next-rule) \| [Next rule](#next-rule)[] |  | Moves on without a link: after a delay, at a key press, or both. One rule, or a list where the first rule to trigger wins. With empty content and full-opacity static, this makes a burst of noise between screens. |
 | `sound` | id |  | A sound from the program's sounds, played as the screen appears |
+| `pointer` | `"system"` \| `"theme"` \| `"block"` \| `"crosshair"` \| `"hidden"` \| [Pointer image](#pointer-image) | the config's | The mouse pointer on this screen, e.g. a crosshair on a targeting screen |
 | `ambience` | id \| `false` |  | An audio file from the program's sounds to loop in the background while this screen shows, instead of config.ambience, or false for silence |
 | `preset` | [Preset](#preset) |  | A ready-made screen, e.g. { "type": "boot" }, shown before any content of its own |
 | `content` | [Content](#content)[] |  | The elements, revealed in order. Can be empty; can be left out with a preset. |
@@ -2025,6 +2027,18 @@ A sound from an audio file: a recording, a clip, or a background drone to play a
 |---|---|---|---|
 | `src` | string | **required** | An audio file (MP3, OGG, WAV…), relative to the page, e.g. "data/audio/drone.mp3" |
 | `volume` | number, 0–1 | `1` | How loud it plays, from 0 to 1, under the overall volume |
+
+<a id="pointer-image"></a>
+
+### Pointer image
+
+A pointer of your own: an image, and the pixel in it that points
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `src` | string | **required** | An image, relative to the page, e.g. "data/pointers/claw.png": a PNG, about 32×32 pixels at most (bigger ones may be ignored) |
+| `x` | whole number, ≥ 0 | `0` | The column of the pixel that points, from the left |
+| `y` | whole number, ≥ 0 | `0` | The row of the pixel that points, from the top |
 
 <a id="sound-voices"></a>
 

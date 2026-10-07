@@ -1,0 +1,78 @@
+/* The program's mouse pointer (see Pointer.tsx). --pointer is the browser's pointer: the
+   theme's arrow, an image, or none, where one is drawn over the screen instead. */
+:root[data-pointer],
+:root[data-pointer] * {
+    /* biome-ignore lint/complexity/noImportantStyles: the program's pointer wins over every element's own */
+    cursor: var(--pointer) !important;
+}
+
+/* the theme's hand over what can be clicked */
+:root[data-pointer="theme"]
+:is(a, button, summary, label, [role="button"], [role="link"], [role="switch"], [role="slider"]) {
+    /* biome-ignore lint/complexity/noImportantStyles: the program's pointer wins over every element's own */
+    cursor: var(--pointer-hand) !important;
+}
+
+/* text fields keep the text cursor, but for a hidden pointer */
+:root[data-pointer]:not([data-pointer="hidden"]) :is(input, textarea) {
+    /* biome-ignore lint/complexity/noImportantStyles: the program's pointer wins over every element's own */
+    cursor: text !important;
+}
+
+/* A dialog sits above everything drawn on the page, a drawn pointer included: the browser's
+   own pointer there. */
+:root:is([data-pointer="block"], [data-pointer="crosshair"]) :is(dialog, dialog *) {
+    /* biome-ignore lint/complexity/noImportantStyles: the program's pointer wins over every element's own */
+    cursor: auto !important;
+}
+
+:root:is([data-pointer="block"], [data-pointer="crosshair"]) dialog button {
+    /* biome-ignore lint/complexity/noImportantStyles: the program's pointer wins over every element's own */
+    cursor: pointer !important;
+}
+
+/* a kiosk still hides it, once the mouse is still (see kiosk.css) */
+html[data-kiosk][data-cursor-hidden],
+html[data-kiosk][data-cursor-hidden] * {
+    /* biome-ignore lint/complexity/noImportantStyles: the program's pointer wins over every element's own */
+    cursor: none !important;
+}
+
+html[data-cursor-hidden] :is(.pointer-block, .pointer-across, .pointer-down) {
+    display: none;
+}
+
+.pointer-block,
+.pointer-across,
+.pointer-down {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.pointer-block[hidden],
+.pointer-across[hidden],
+.pointer-down[hidden] {
+    display: none;
+}
+
+/* a character cell in inverse video, as text-mode mouse drivers drew it */
+.pointer-block {
+    -webkit-backdrop-filter: invert(1);
+    backdrop-filter: invert(1);
+}
+
+/* hairlines: a single screen pixel across, whatever the screen's density, with no glow */
+.pointer-across {
+    width: 100vw;
+    height: calc(1px / var(--pixel-ratio, 1));
+    background: var(--fg);
+}
+
+.pointer-down {
+    width: calc(1px / var(--pixel-ratio, 1));
+    height: 100vh;
+    background: var(--fg);
+}

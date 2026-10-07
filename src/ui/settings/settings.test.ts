@@ -11,6 +11,7 @@ describe("a player's settings", () => {
             effects: true,
             instant: false,
             volume: undefined,
+            pointer: "program",
         });
         expect(resolveSettings({ textSize: 1.5, volume: 0.2 }, device)).toMatchObject({
             textSize: 1.5,

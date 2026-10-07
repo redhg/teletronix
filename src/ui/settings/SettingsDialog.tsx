@@ -56,6 +56,8 @@ interface Props {
     settings: Resolved;
     /** The program's volume, or null if it has no sound */
     programVolume: number | null;
+    /** Whether the program has a mouse pointer of its own, to switch back from */
+    ownPointer: boolean;
     change: (settings: Partial<PlayerSettings>) => void;
     reset: () => void;
     close: () => void;
@@ -66,7 +68,14 @@ interface Props {
  * device. A dialog in the terminal's own look; the arrow keys move between rows and change
  * the one with focus.
  */
-export function SettingsDialog({ settings, programVolume, change, reset, close }: Props) {
+export function SettingsDialog({
+    settings,
+    programVolume,
+    ownPointer,
+    change,
+    reset,
+    close,
+}: Props) {
     const dialog = useRef<HTMLDialogElement>(null);
     const sound = useSoundToggle();
     useEffect(() => {
@@ -142,6 +151,20 @@ export function SettingsDialog({ settings, programVolume, change, reset, close }
             change: () => change({ effects: !settings.effects }),
             activate: () => change({ effects: !settings.effects }),
         },
+        ...(ownPointer
+            ? [
+                  {
+                      id: "pointer",
+                      label: "POINTER",
+                      value: settings.pointer === "system" ? "THIS DEVICE'S" : "AS MADE",
+                      role: "button" as const,
+                      change: () =>
+                          change({ pointer: settings.pointer === "system" ? "program" : "system" }),
+                      activate: () =>
+                          change({ pointer: settings.pointer === "system" ? "program" : "system" }),
+                  },
+              ]
+            : []),
         {
             id: "instant",
             label: "TEXT",

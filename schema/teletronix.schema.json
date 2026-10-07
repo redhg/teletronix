@@ -918,6 +918,50 @@
                     },
                     "description": "Characters shown as others, e.g. { \"<\": \"(\", \"█\": \"#\" }: for a font without some character, or just for the look. Only what's shown changes, one character for one, so text keeps its shape; commands, conditions and what players type are matched as written."
                 },
+                "pointer": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "enum": [
+                                "system",
+                                "theme",
+                                "block",
+                                "crosshair",
+                                "hidden"
+                            ]
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "src": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "An image, relative to the page, e.g. \"data/pointers/claw.png\": a PNG, about 32×32 pixels at most (bigger ones may be ignored)"
+                                },
+                                "x": {
+                                    "default": 0,
+                                    "description": "The column of the pixel that points, from the left (default: 0)",
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991
+                                },
+                                "y": {
+                                    "default": 0,
+                                    "description": "The row of the pixel that points, from the top (default: 0)",
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991
+                                }
+                            },
+                            "required": [
+                                "src"
+                            ],
+                            "additionalProperties": false,
+                            "description": "A pointer of your own: an image, and the pixel in it that points"
+                        }
+                    ],
+                    "description": "The mouse pointer: \"system\" (the browser's own), \"theme\" (a pixel arrow in the theme's colors), \"block\" (a character cell that jumps from cell to cell, as in DOS), \"crosshair\" (lines across the whole screen), \"hidden\", or an image of your own. Not on touch screens; players can switch back to their own in quick settings (default: \"system\")"
+                },
                 "effects": {
                     "type": "object",
                     "properties": {
@@ -2512,6 +2556,50 @@
                         "description": "A sound from the program's sounds, played as the screen appears",
                         "type": "string",
                         "pattern": "^[A-Za-z0-9_-]+$"
+                    },
+                    "pointer": {
+                        "description": "The mouse pointer on this screen, e.g. a crosshair on a targeting screen (default: the config's)",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "system",
+                                    "theme",
+                                    "block",
+                                    "crosshair",
+                                    "hidden"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "src": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "An image, relative to the page, e.g. \"data/pointers/claw.png\": a PNG, about 32×32 pixels at most (bigger ones may be ignored)"
+                                    },
+                                    "x": {
+                                        "default": 0,
+                                        "description": "The column of the pixel that points, from the left (default: 0)",
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 9007199254740991
+                                    },
+                                    "y": {
+                                        "default": 0,
+                                        "description": "The row of the pixel that points, from the top (default: 0)",
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 9007199254740991
+                                    }
+                                },
+                                "required": [
+                                    "src"
+                                ],
+                                "additionalProperties": false,
+                                "description": "A pointer of your own: an image, and the pixel in it that points"
+                            }
+                        ]
                     },
                     "ambience": {
                         "description": "An audio file from the program's sounds to loop in the background while this screen shows, instead of config.ambience, or false for silence",

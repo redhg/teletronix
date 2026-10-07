@@ -24,6 +24,7 @@ that player, on that device, over what the program says, and kept there for that
 - **Text size**, from 75% to 200% of the program's.
 - **Effects** on or off.
 - **Text** typed in, or all at once.
+- **Pointer**: the program's, or the device's own (for a program with a pointer of its own).
 
 The arrow keys move between the rows and change the one chosen (or click its ◄ and ►); Esc closes
 it, and **Reset** goes back to the program's. Until a player chooses, a device set to reduce

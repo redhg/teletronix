@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import {
     type FontId,
+    hasOwnPointer,
+    type Palette,
+    pointerOf,
     resolveSound,
     resolveTheme,
     type Terminal,
@@ -14,6 +17,7 @@ import { applyAppearance, loadFont } from "./appearance.ts";
 import { mapCharacters } from "./character-map.ts";
 import { KioskGate, useKiosk } from "./kiosk/Kiosk.tsx";
 import { PaletteContext } from "./palette-context.ts";
+import { Pointer } from "./pointer/Pointer.tsx";
 import { isPreviewMessage } from "./preview-protocol.ts";
 import { SettingsContext } from "./settings/context.ts";
 import { SettingsDialog } from "./settings/SettingsDialog.tsx";
@@ -26,7 +30,7 @@ import {
 } from "./settings/settings.ts";
 import { SoundLayer } from "./sound/SoundLayer.tsx";
 import { TerminalView } from "./TerminalView.tsx";
-import { TerminalContext } from "./terminal-context.ts";
+import { TerminalContext, useTerminalSnapshot } from "./terminal-context.ts";
 
 interface Props {
     terminal: Terminal;
@@ -170,10 +174,14 @@ export function Player({ terminal, initial, preview, kiosk = false, remote }: Pr
                         ) : (
                             <KioskGate title={terminal.program.config.name} onStart={start} />
                         )}
+                        {started && settings?.pointer !== "system" && (
+                            <ScreenPointer terminal={terminal} palette={palette} />
+                        )}
                         {settings && settingsOpen && (
                             <SettingsDialog
                                 settings={settings}
                                 programVolume={sound?.volume ?? null}
+                                ownPointer={hasOwnPointer(terminal.program)}
                                 change={changeSettings}
                                 reset={() => {
                                     saveSettings(name, {});
@@ -187,4 +195,10 @@ export function Player({ terminal, initial, preview, kiosk = false, remote }: Pr
             </PaletteContext>
         </TerminalContext>
     );
+}
+
+/** The mouse pointer for the screen showing (see Pointer). */
+function ScreenPointer({ terminal, palette }: { terminal: Terminal; palette: Palette }) {
+    const screen = useTerminalSnapshot().screen?.run.screen;
+    return <Pointer pointer={pointerOf(terminal.program, screen)} palette={palette} />;
 }

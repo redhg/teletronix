@@ -19,6 +19,8 @@ export interface PlayerSettings {
     instant?: boolean;
     /** From 0 to 1; the program's otherwise */
     volume?: number;
+    /** The program's mouse pointer, or the device's own */
+    pointer?: "program" | "system";
 }
 
 /** What the device asks for: reduced motion, more contrast, a dark or light scheme. */
@@ -51,6 +53,7 @@ export interface Resolved {
     effects: boolean;
     instant: boolean;
     volume: number | undefined;
+    pointer: "program" | "system";
 }
 
 export function resolveSettings(settings: PlayerSettings, device: DevicePreferences): Resolved {
@@ -65,6 +68,7 @@ export function resolveSettings(settings: PlayerSettings, device: DevicePreferen
         effects: settings.effects ?? true,
         instant: settings.instant ?? device.reducedMotion,
         volume: settings.volume,
+        pointer: settings.pointer ?? "program",
     };
 }
 
@@ -89,13 +93,17 @@ export function loadSettings(program: string): PlayerSettings {
     try {
         const stored: unknown = JSON.parse(localStorage.getItem(key(program)) ?? "{}");
         if (typeof stored !== "object" || stored === null) return {};
-        const { look, textSize, effects, instant, volume } = stored as Record<string, unknown>;
+        const { look, textSize, effects, instant, volume, pointer } = stored as Record<
+            string,
+            unknown
+        >;
         return {
             ...(LOOKS.includes(look as Look) ? { look: look as Look } : {}),
             ...(typeof textSize === "number" ? { textSize } : {}),
             ...(typeof effects === "boolean" ? { effects } : {}),
             ...(typeof instant === "boolean" ? { instant } : {}),
             ...(typeof volume === "number" ? { volume: Math.min(1, Math.max(0, volume)) } : {}),
+            ...(pointer === "program" || pointer === "system" ? { pointer } : {}),
         };
     } catch {
         return {};

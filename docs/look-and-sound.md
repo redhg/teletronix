@@ -42,8 +42,17 @@ big monitor. Pixel fonts still snap to whole multiples of their pixels, so they 
 Text is never smaller than 16px, so it stays readable on a phone; there, a pixel font snaps to
 the screen's own (smaller) pixels, so it's crisp at more sizes.
 
-The page's scrollbar takes the theme's colors too: square, with no arrows, but the browser's
-own, so it scrolls as usual with touch, wheel and keys.
+`config.pointer` sets the mouse pointer: `"system"`, the browser's own (the default); `"theme"`,
+a pixel-art arrow (and a hand over what can be clicked) in the theme's colors; `"block"`, a
+character cell in inverse video that jumps from cell to cell, as a mouse did in DOS; `"crosshair"`,
+lines across the whole screen; `"hidden"`; or an image of your own, with the pixel that points,
+`{ "src": "data/pointers/claw.png", "x": 2, "y": 1 }` (a PNG, 32×32 pixels or so: bigger ones may be
+ignored). A screen can have its own, e.g. a crosshair on a targeting screen, as the sample's star
+map does. Clicks go through as usual. Touch screens have no pointer, so it's left out there, and
+players can switch back to their own in [quick settings](at-the-table.md#players-own-settings).
+
+The page's scrollbar takes the theme's colors too (in browsers that can color it: not older
+Safari), but stays the browser's own, so it scrolls as usual with touch, wheel and keys.
 
 `config.characters` shows some characters as others, e.g. `{ "<": "(", "█": "#" }`: for a font
 that lacks a character, or just for the look. One character always stands in for one, so text

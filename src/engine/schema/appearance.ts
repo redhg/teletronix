@@ -121,6 +121,41 @@ export const CharactersSchema = z.record(CharacterSchema, CharacterSchema).meta(
         "matched as written.",
 });
 
+// ─── Pointer ─────────────────────────────────────────────────────────────────
+
+export const POINTERS = ["system", "theme", "block", "crosshair", "hidden"] as const;
+export type PointerName = (typeof POINTERS)[number];
+
+export const PointerImageSchema = z
+    .strictObject({
+        src: z
+            .string()
+            .min(1)
+            .meta({
+                description:
+                    'An image, relative to the page, e.g. "data/pointers/claw.png": a PNG, about ' +
+                    "32×32 pixels at most (bigger ones may be ignored)",
+            }),
+        x: z.int().min(0).default(0).meta({
+            description: "The column of the pixel that points, from the left (default: 0)",
+        }),
+        y: z.int().min(0).default(0).meta({
+            description: "The row of the pixel that points, from the top (default: 0)",
+        }),
+    })
+    .meta({ description: "A pointer of your own: an image, and the pixel in it that points" });
+
+export const PointerSchema = z.union([z.enum(POINTERS), PointerImageSchema]).meta({
+    description:
+        'The mouse pointer: "system" (the browser\'s own), "theme" (a pixel arrow in the ' +
+        'theme\'s colors), "block" (a character cell that jumps from cell to cell, as in DOS), ' +
+        '"crosshair" (lines across the whole screen), "hidden", or an image of your own. ' +
+        "Not on touch screens; players can switch back to their own in quick settings " +
+        '(default: "system")',
+});
+
+export type PointerSetting = z.output<typeof PointerSchema>;
+
 // ─── Themes ──────────────────────────────────────────────────────────────────
 
 // A theme is colors, and the shadow text casts; and can bring a look of its own, a font and

@@ -8,7 +8,11 @@ import { FringeOptionsSchema } from "../src/effects/fringe/definition.ts";
 import { ScanlinesOptionsSchema } from "../src/effects/scanlines/definition.ts";
 import { StaticOptionsSchema } from "../src/effects/static/definition.ts";
 import { VignetteOptionsSchema } from "../src/effects/vignette/definition.ts";
-import { CustomThemeSchema, ThemeSchema } from "../src/engine/schema/appearance.ts";
+import {
+    CustomThemeSchema,
+    PointerImageSchema,
+    ThemeSchema,
+} from "../src/engine/schema/appearance.ts";
 import {
     BarBreadcrumbSchema,
     BarLineObjectSchema,
@@ -355,6 +359,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Sound options", SoundOptionsSchema],
             ["Sound recipe", RecipeSchema],
             ["Audio file", AudioFileSchema],
+            ["Pointer image", PointerImageSchema],
             ["Sound voices", VoicesSchema],
             ...(Object.keys(VOICE_PARAMS) as VoiceName[]).map((name): [string, z.ZodType] => [
                 `${VOICE_PARAMS[name].label} voice`,

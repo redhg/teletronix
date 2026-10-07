@@ -11,6 +11,8 @@ import {
     FontSchema,
     LineSpacingSchema,
     type Palette,
+    PointerSchema,
+    type PointerSetting,
     resolveTheme,
     ThemeSchema,
     type ThemeSetting,
@@ -120,6 +122,11 @@ export const ScreenSchema = z
         sound: SoundNameSchema.optional().meta({
             description: "A sound from the program's sounds, played as the screen appears",
         }),
+        pointer: PointerSchema.optional().meta({
+            description:
+                "The mouse pointer on this screen, e.g. a crosshair on a targeting " +
+                "screen (default: the config's)",
+        }),
         ambience: z
             .union([SoundNameSchema, z.literal(false)])
             .optional()
@@ -206,6 +213,7 @@ export const ConfigSchema = z
         fontScale: FontScaleSchema.optional(),
         lineSpacing: LineSpacingSchema.optional(),
         characters: CharactersSchema.optional(),
+        pointer: PointerSchema.optional(),
         effects: EffectsSchema.optional(),
         sound: SoundSchema.optional(),
         ambience: SoundNameSchema.optional().meta({
@@ -319,6 +327,8 @@ export interface Screen {
     sound?: string;
     /** An audio file to loop while it shows, or false for silence (default: the program's) */
     ambience?: string | false;
+    /** The mouse pointer while it shows (default: the program's) */
+    pointer?: PointerSetting;
     content: Element[];
 }
 
@@ -346,6 +356,8 @@ export interface Program {
     fontScale: number;
     /** How far apart lines are, as a multiple of the text's size */
     lineSpacing: number;
+    /** The mouse pointer, unless a screen has its own */
+    pointer?: PointerSetting;
     /** Characters shown as others (see CharactersSchema) */
     characters?: Readonly<Record<string, string>>;
     screens: ReadonlyMap<string, Screen>;
@@ -366,6 +378,18 @@ export interface Program {
     /** Variables by name, with their starting values */
     variables: ReadonlyMap<string, VariableValue>;
 }
+
+/** The mouse pointer on a screen: its own, or the program's, or the browser's. */
+export function pointerOf(program: Program, screen: Screen | undefined): PointerSetting {
+    return screen?.pointer ?? program.pointer ?? "system";
+}
+
+/** Whether a program ever has a pointer other than the browser's own. */
+export const hasOwnPointer = (program: Program): boolean =>
+    (program.pointer ?? "system") !== "system" ||
+    [...program.screens.values()].some(
+        (screen) => screen.pointer !== undefined && screen.pointer !== "system",
+    );
 
 /**
  * The audio file to loop in the background on a screen: its own ambience, or the program's,
@@ -403,6 +427,7 @@ function normalize(
         fontScale,
         lineSpacing,
         characters,
+        pointer,
         variables,
         timers,
         skipKeys,
@@ -441,7 +466,7 @@ function normalize(
         const content = normalizeContent(items, `${id}#`);
         const { reveal, transition, autoscroll, align, waitForReveal } = screen;
         const effects = screen.effects ?? preset?.effects;
-        const { sound, title, parent, ambience: screenAmbience } = screen;
+        const { sound, title, parent, ambience: screenAmbience, pointer: screenPointer } = screen;
         const header = screen.header ?? preset?.header;
         const footer = screen.footer ?? preset?.footer;
         const rules = [...(screen.next ?? []), ...(preset?.next ? [preset.next] : [])];
@@ -461,6 +486,7 @@ function normalize(
             next,
             sound,
             ...(screenAmbience === undefined ? {} : { ambience: screenAmbience }),
+            ...(screenPointer === undefined ? {} : { pointer: screenPointer }),
             content,
         });
     }
@@ -495,6 +521,7 @@ function normalize(
         fontScale: fontScale ?? DEFAULT_FONT_SCALE,
         lineSpacing: lineSpacing ?? DEFAULT_LINE_SPACING,
         ...(characters && Object.keys(characters).length > 0 ? { characters } : {}),
+        ...(pointer === undefined ? {} : { pointer }),
         screens,
         dialogs,
         sounds: new Map(
