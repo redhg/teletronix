@@ -61,3 +61,14 @@
     background: var(--fg);
     text-shadow: var(--fringe, 0 0 transparent), var(--inverse-glow);
 }
+
+/* with sprocket holes down the sides, the same margins as the screen (see terminal.css) */
+:root[data-sprockets] .bar-line {
+    padding-inline: calc(var(--line-height) + 5ch);
+}
+
+@media (max-width: 600px) {
+    :root[data-sprockets] .bar-line {
+        padding-inline: var(--line-height);
+    }
+}

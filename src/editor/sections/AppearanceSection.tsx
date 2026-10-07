@@ -186,6 +186,19 @@ export function AppearanceSection({ config, set }: Props) {
                                     )
                                 }
                             />
+                            <Switch
+                                label="Sprocket holes"
+                                mb={8}
+                                checked={palette.sprockets === true}
+                                onChange={(event) =>
+                                    setTheme(
+                                        customTheme({
+                                            ...palette,
+                                            sprockets: event.currentTarget.checked || undefined,
+                                        }),
+                                    )
+                                }
+                            />
                             <ColorInput
                                 label="Stripes"
                                 description="Bands behind every other three lines"

@@ -137,6 +137,9 @@ export function applyAppearance(
     } else {
         root.removeProperty("--stripes");
     }
+    // sprocket holes down the sides (drawn in terminal.css)
+    if (palette.sprockets) document.documentElement.dataset.sprockets = "";
+    else delete document.documentElement.dataset.sprockets;
     if (palette.capitals) root.setProperty("--text-transform", "uppercase");
     else root.removeProperty("--text-transform");
     const info: { system?: string; pixelHeight: number } = FONTS[font];

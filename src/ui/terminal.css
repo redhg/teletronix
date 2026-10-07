@@ -1,4 +1,5 @@
 .terminal {
+    position: relative;
     min-height: 100vh;
     /* a theme's bands, like green-bar printer paper, scrolling with the text */
     background-image: var(--stripes, none);
@@ -7,6 +8,52 @@
     padding-top: calc((1 + var(--header-lines, 0)) * 1lh);
     padding-bottom: calc((1 + var(--footer-lines, 0)) * 1lh);
     user-select: none;
+}
+
+/* Sprocket holes down both sides, like fanfold printer paper: a hole every three lines (half an
+   inch, at six lines an inch), on the green bars' bands, with a perforated tear-off line inside
+   them. They scroll with the text; narrow screens have no room for them. */
+:root[data-sprockets] .terminal {
+    --sprocket-margin: 5ch;
+    padding-inline: calc(1lh + var(--sprocket-margin));
+}
+
+:root[data-sprockets] .terminal::before,
+:root[data-sprockets] .terminal::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    width: var(--sprocket-margin);
+    background:
+        radial-gradient(
+            circle closest-side,
+            rgb(from var(--fg) r g b / 0.3) 0 72%,
+            rgb(from var(--fg) r g b / 0.12) 76% 82%,
+            transparent 86%
+        )
+        center top / 1.2lh 3lh repeat-y;
+    pointer-events: none;
+}
+
+:root[data-sprockets] .terminal::before {
+    left: 0;
+    border-right: 2px dotted rgb(from var(--fg) r g b / 0.25);
+}
+
+:root[data-sprockets] .terminal::after {
+    right: 0;
+    border-left: 2px dotted rgb(from var(--fg) r g b / 0.25);
+}
+
+@media (max-width: 600px) {
+    :root[data-sprockets] .terminal {
+        padding-inline: 1lh;
+    }
+
+    :root[data-sprockets] .terminal::before,
+    :root[data-sprockets] .terminal::after {
+        display: none;
+    }
 }
 
 /* No z-index or isolation around screens: either would wall off an image's mix-blend-mode

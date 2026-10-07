@@ -143,6 +143,8 @@ export interface Palette {
     capitals?: boolean;
     /** Bands of this color behind every other three lines, like fanfold printer paper */
     stripes?: string;
+    /** Sprocket holes down both sides, like fanfold printer paper */
+    sprockets?: boolean;
 }
 
 interface Theme extends Palette {
@@ -212,6 +214,7 @@ export const THEMES = {
         alert: "#b3261e",
         shadow: "ink",
         stripes: "#dcead6",
+        sprockets: true,
         font: "matrixtype",
         effects: { scanlines: false },
     },
@@ -246,6 +249,14 @@ export const CustomThemeSchema = z
                 "Bands of this color behind every other three lines, scrolling with the text, " +
                 "like green-bar printer paper (default: none)",
         }),
+        sprockets: z
+            .boolean()
+            .optional()
+            .meta({
+                description:
+                    "Sprocket holes down both sides, scrolling with the text, like fanfold printer " +
+                    "paper; left out on narrow screens (default: false)",
+            }),
         capitals: z
             .boolean()
             .optional()
@@ -273,7 +284,7 @@ export type ThemeSetting = z.output<typeof ThemeSchema>;
 /** The colors for a theme setting. */
 export function resolveTheme(theme: ThemeSetting | undefined): Palette {
     const named: Palette = THEMES[typeof theme === "string" ? theme : DEFAULT_THEME];
-    const { fg, bg, alert, shadow, capitals, stripes } = named;
+    const { fg, bg, alert, shadow, capitals, stripes, sprockets } = named;
     if (theme === undefined || typeof theme === "string") {
         return {
             fg,
@@ -282,6 +293,7 @@ export function resolveTheme(theme: ThemeSetting | undefined): Palette {
             shadow,
             ...(capitals ? { capitals } : {}),
             ...(stripes ? { stripes } : {}),
+            ...(sprockets ? { sprockets } : {}),
         };
     }
     return { alert, shadow, ...theme };

@@ -144,6 +144,20 @@ test.describe("the player", () => {
                 page.locator(".terminal").evaluate((el) => getComputedStyle(el).backgroundImage);
             await player.open(withConfig({ theme: "printout" }));
             expect(await bands()).toContain("repeating-linear-gradient");
+            // and sprocket holes down the sides, in margins of their own
+            const holes = await page
+                .locator(".terminal")
+                .evaluate((el) => getComputedStyle(el, "::before").backgroundImage);
+            expect(holes).toContain("radial-gradient");
+            const margin = await page
+                .locator(".terminal")
+                .evaluate((el) => Number.parseFloat(getComputedStyle(el).paddingLeft));
+            await player.open(withConfig({ theme: "paper" }));
+            expect(
+                await page
+                    .locator(".terminal")
+                    .evaluate((el) => Number.parseFloat(getComputedStyle(el).paddingLeft)),
+            ).toBeLessThan(margin);
             await player.open(withConfig({ theme: "paper" }));
             expect(await bands()).toBe("none");
         });

@@ -10,14 +10,15 @@ effects of their own:
 | `"vcr"` | A VCR's on-screen menu: white on blue, with a dark drop shadow | Home Video | A little static, faint scanlines |
 | `"lcd"` | An LCD's dark segments on grey-green glass, in capitals | Digit Tech | None |
 | `"paper"` | Typed on cream paper | X Typewriter | A soft vignette |
-| `"printout"` | Printed by a dot-matrix printer, on green-bar paper |
+| `"printout"` | Printed by a dot-matrix printer, on green-bar paper with sprocket holes |
 | `"contrast-dark"`, `"contrast-light"` | High contrast for legibility: white on black, or black on white, no glow | The device's own monospace | All off | MatrixType | None |
 
 The program's own `font` and `effects` win over the theme's: `"theme": "vcr", "font": "ibm-vga"`
 is the VCR's blue in IBM VGA. A theme of your own can choose how text casts its `shadow`
 (`"glow"`, a CRT's, the default; `"drop"`, `"lcd"`, `"ink"` or `"none"`), and show it all in
 `capitals`, and have `stripes`, bands of a color behind every other three lines that scroll with
-the text: `{ "fg": "#222222", "bg": "#eeeeee", "shadow": "ink", "stripes": "#dcead6" }`.
+the text, and `sprockets`, holes down both sides like fanfold paper's (left out on narrow screens):
+`{ "fg": "#222222", "bg": "#eeeeee", "shadow": "ink", "stripes": "#dcead6", "sprockets": true }`.
 
 `config.font` picks a typeface (the default is the theme's, or `"departure-mono"`): a period PC
 font, `"ast-premiumexec"`, `"ibm-vga"`, `"ibm-ega"`, `"ibm-cga"`, `"ibm-cga-thin"`, `"ibm-mda"` or

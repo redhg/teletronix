@@ -1950,6 +1950,7 @@ Your own colors
 | `alert` | id | `"#ff3c00"` | Color of text with the "alert" class |
 | `shadow` | `"glow"` \| `"drop"` \| `"lcd"` \| `"ink"` \| `"none"` | `"glow"` | The shadow text casts: a CRT's "glow", a dark "drop" shadow, an LCD's segments' faint "lcd" shadow, ink's slight "ink" bleed, or "none" |
 | `stripes` | id | none | Bands of this color behind every other three lines, scrolling with the text, like green-bar printer paper |
+| `sprockets` | boolean | `false` | Sprocket holes down both sides, scrolling with the text, like fanfold printer paper; left out on narrow screens |
 | `capitals` | boolean | `false` | Show every letter as a capital, as an LCD would, however it's written |
 
 <a id="sound"></a>
