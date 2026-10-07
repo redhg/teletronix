@@ -1,5 +1,7 @@
 .terminal {
     min-height: 100vh;
+    /* a theme's bands, like green-bar printer paper, scrolling with the text */
+    background-image: var(--stripes, none);
     padding: 1lh;
     /* room for the header and status bars, when a program has them */
     padding-top: calc((1 + var(--header-lines, 0)) * 1lh);

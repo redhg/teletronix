@@ -119,6 +119,15 @@ test.describe("the player", () => {
             await expect(player.screen).toContainText("RED ALERT");
         });
 
+        test("can have bands behind the lines, like green-bar paper", async ({ page, player }) => {
+            const bands = () =>
+                page.locator(".terminal").evaluate((el) => getComputedStyle(el).backgroundImage);
+            await player.open(withConfig({ theme: "printout" }));
+            expect(await bands()).toContain("repeating-linear-gradient");
+            await player.open(withConfig({ theme: "paper" }));
+            expect(await bands()).toBe("none");
+        });
+
         test("gives way to the program's own font and effects", async ({ page, player }) => {
             await player.open(
                 withConfig({ theme: "vcr", font: "ibm-vga", effects: { static: false } }),

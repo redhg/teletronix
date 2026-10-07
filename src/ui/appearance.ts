@@ -128,6 +128,15 @@ export function applyAppearance(
     } else {
         root.setProperty("--screen-glow", "none");
     }
+    // bands behind every other three lines, on the lines (the terminal's padding is whole lines)
+    if (palette.stripes) {
+        root.setProperty(
+            "--stripes",
+            `repeating-linear-gradient(to bottom, transparent 0 3lh, ${palette.stripes} 3lh 6lh)`,
+        );
+    } else {
+        root.removeProperty("--stripes");
+    }
     if (palette.capitals) root.setProperty("--text-transform", "uppercase");
     else root.removeProperty("--text-transform");
     const info: { system?: string; pixelHeight: number } = FONTS[font];

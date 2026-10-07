@@ -58,11 +58,12 @@ const SHADOW_LABELS: Record<TextShadow, string> = {
 
 /** A custom theme as written: its colors, and its shadow and capitals if not the usual. */
 function customTheme(palette: Palette): ThemeSetting {
-    const { shadow, capitals, ...colors } = palette;
+    const { shadow, capitals, stripes, ...colors } = palette;
     return {
         ...colors,
         ...(shadow === "glow" ? {} : { shadow }),
         ...(capitals ? { capitals } : {}),
+        ...(stripes ? { stripes } : {}),
     };
 }
 
@@ -180,6 +181,18 @@ export function AppearanceSection({ config, set }: Props) {
                                             ...palette,
                                             capitals: event.currentTarget.checked,
                                         }),
+                                    )
+                                }
+                            />
+                            <ColorInput
+                                label="Stripes"
+                                description="Bands behind every other three lines"
+                                placeholder="None"
+                                format="hex"
+                                value={palette.stripes ?? ""}
+                                onChange={(color) =>
+                                    setTheme(
+                                        customTheme({ ...palette, stripes: color || undefined }),
                                     )
                                 }
                             />

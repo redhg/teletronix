@@ -848,6 +848,11 @@
                                         "none"
                                     ]
                                 },
+                                "stripes": {
+                                    "description": "Bands of this color behind every other three lines, scrolling with the text, like green-bar printer paper (default: none)",
+                                    "type": "string",
+                                    "pattern": "^#[0-9a-fA-F]{6}$"
+                                },
                                 "capitals": {
                                     "description": "Show every letter as a capital, as an LCD would, however it's written (default: false)",
                                     "type": "boolean"
@@ -861,7 +866,7 @@
                             "description": "Your own colors"
                         }
                     ],
-                    "description": "The color scheme: \"default\" (pale blue on black), \"amber\", \"green\" or \"white\"; a look of its own, with a font and effects: \"vcr\" (a VCR's blue menu), \"lcd\" (an LCD's segments), \"paper\" (typed) or \"printout\" (dot matrix); or your own colors (default: \"default\")"
+                    "description": "The color scheme: \"default\" (pale blue on black), \"amber\", \"green\" or \"white\"; a look of its own, with a font and effects: \"vcr\" (a VCR's blue menu), \"lcd\" (an LCD's segments), \"paper\" (typed) or \"printout\" (dot matrix, on green-bar paper); or your own colors (default: \"default\")"
                 },
                 "font": {
                     "type": "string",

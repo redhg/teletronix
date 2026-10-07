@@ -135,6 +135,8 @@ export interface Palette {
     shadow: TextShadow;
     /** Show every letter as a capital, however it's written */
     capitals?: boolean;
+    /** Bands of this color behind every other three lines, like fanfold printer paper */
+    stripes?: string;
 }
 
 interface Theme extends Palette {
@@ -183,6 +185,7 @@ export const THEMES = {
         bg: "#fbfbf3",
         alert: "#b3261e",
         shadow: "ink",
+        stripes: "#dcead6",
         font: "matrixtype",
         effects: { scanlines: false },
     },
@@ -212,6 +215,11 @@ export const CustomThemeSchema = z
                     'segments\' faint "lcd" shadow, ink\'s slight "ink" bleed, or "none" ' +
                     '(default: "glow")',
             }),
+        stripes: ColorSchema.optional().meta({
+            description:
+                "Bands of this color behind every other three lines, scrolling with the text, " +
+                "like green-bar printer paper (default: none)",
+        }),
         capitals: z
             .boolean()
             .optional()
@@ -229,7 +237,8 @@ export const ThemeSchema = z
         description:
             'The color scheme: "default" (pale blue on black), "amber", "green" or "white"; ' +
             'a look of its own, with a font and effects: "vcr" (a VCR\'s blue menu), "lcd" ' +
-            '(an LCD\'s segments), "paper" (typed) or "printout" (dot matrix); or your own ' +
+            '(an LCD\'s segments), "paper" (typed) or "printout" (dot matrix, on green-bar ' +
+            "paper); or your own " +
             'colors (default: "default")',
     });
 
@@ -238,9 +247,16 @@ export type ThemeSetting = z.output<typeof ThemeSchema>;
 /** The colors for a theme setting. */
 export function resolveTheme(theme: ThemeSetting | undefined): Palette {
     const named: Palette = THEMES[typeof theme === "string" ? theme : DEFAULT_THEME];
-    const { fg, bg, alert, shadow, capitals } = named;
+    const { fg, bg, alert, shadow, capitals, stripes } = named;
     if (theme === undefined || typeof theme === "string") {
-        return { fg, bg, alert, shadow, ...(capitals ? { capitals } : {}) };
+        return {
+            fg,
+            bg,
+            alert,
+            shadow,
+            ...(capitals ? { capitals } : {}),
+            ...(stripes ? { stripes } : {}),
+        };
     }
     return { alert, shadow, ...theme };
 }
