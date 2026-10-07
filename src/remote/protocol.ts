@@ -18,6 +18,8 @@ export interface PlayerState {
     timers: Record<string, { seconds: number | undefined; running: boolean }>;
     /** The audio file looping in the background, by its name in the program's sounds */
     ambience: string | null;
+    /** The image or video over the whole window, by its file, if one's open */
+    view: string | null;
 }
 
 /** From the panel to the players' terminal. */
@@ -32,6 +34,10 @@ export type GmMessage =
     | { type: "effects"; effects: EffectsSetting | null }
     /** Ambience over the program's: an audio file, false for silence, or null for none. */
     | { type: "ambience"; ambience: string | false | null }
+    /** An image or video over the whole window (as an action's "view" has it): a handout. */
+    | { type: "view"; view: unknown }
+    /** Closes the image or video. */
+    | { type: "close-view" }
     /** A burst of heavy static, for `ms` milliseconds. */
     | { type: "burst"; ms: number }
     /** A message, typed into a dialog. */

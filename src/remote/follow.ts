@@ -1,4 +1,4 @@
-import { ActionSchema, type EffectsSetting, type Terminal } from "../engine/index.ts";
+import { ActionSchema, type EffectsSetting, type Terminal, ViewSchema } from "../engine/index.ts";
 import { channelLink, type Link, type LinkStatus, newCode, randomId, relayLink } from "./link.ts";
 import type { GmEnvelope, PlayerMessage, PlayerState } from "./protocol.ts";
 
@@ -34,6 +34,7 @@ export function playerState(terminal: Terminal): PlayerState {
             ]),
         ),
         ambience: snapshot.ambience,
+        view: snapshot.view?.src ?? null,
     };
 }
 
@@ -145,6 +146,14 @@ export function followRemote(
             case "effects":
                 effects = message.effects ?? undefined;
                 if (!burst) terminal.setRemoteEffects(effects);
+                break;
+            case "view": {
+                const view = ViewSchema.safeParse(message.view);
+                if (view.success) terminal.openView(view.data);
+                break;
+            }
+            case "close-view":
+                terminal.closeView();
                 break;
             case "ambience":
                 terminal.setRemoteAmbience(message.ambience ?? undefined);

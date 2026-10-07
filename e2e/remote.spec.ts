@@ -1,4 +1,4 @@
-import { expect, type Page, type Program, test } from "./fixtures.ts";
+import { expect, type Page, type Program, serveTestImages, test } from "./fixtures.ts";
 
 const program: Program = {
     config: {
@@ -138,6 +138,44 @@ test.describe("a GM's panel", () => {
             .getByText("As the program says")
             .click();
         await expect(page.locator("canvas.static")).toHaveCount(0);
+    });
+});
+
+test.describe("the GM's handouts", () => {
+    test("show the players an image over their screen, and close it", async ({ page, player }) => {
+        await serveTestImages(page);
+        const withPhoto: Program = {
+            ...program,
+            screens: {
+                ...program.screens,
+                bridge: {
+                    ...program.screens.bridge,
+                    content: [
+                        "BRIDGE SCREEN",
+                        {
+                            type: "link",
+                            text: "> PHOTO",
+                            action: {
+                                view: { src: "e2e-images/sunset-grid.png", caption: "A SUNSET" },
+                            },
+                        },
+                    ],
+                },
+            },
+        };
+        await player.open(withPhoto);
+        const gm = await openGm(page, withPhoto);
+        await expect(gm.getByRole("status")).toContainText("Players on HOME");
+        await tab(gm, "Messages");
+        const handouts = gm.getByRole("region", { name: "Handouts" });
+        await handouts.getByRole("button", { name: /sunset-grid\.png/ }).click();
+        await expect(page.getByRole("dialog", { name: "A SUNSET" })).toBeVisible();
+        await expect(handouts.getByRole("button", { name: /sunset-grid\.png/ })).toHaveAttribute(
+            "aria-current",
+            "true",
+        );
+        await handouts.getByRole("button", { name: "Close it" }).click();
+        await expect(page.getByRole("dialog", { name: "A SUNSET" })).toHaveCount(0);
     });
 });
 

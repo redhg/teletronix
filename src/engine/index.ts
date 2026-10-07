@@ -45,7 +45,7 @@ export {
     layoutBarLine,
 } from "./schema/bars.ts";
 export type { Action, View } from "./schema/common.ts";
-export { ActionSchema } from "./schema/common.ts";
+export { ActionSchema, ViewSchema } from "./schema/common.ts";
 export { dialogAction } from "./schema/dialog.ts";
 export {
     compactEffects,

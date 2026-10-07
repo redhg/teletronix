@@ -20,7 +20,15 @@ import {
     Title,
 } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
-import { type FormEvent, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+    type FormEvent,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import { EFFECTS, type EffectName, type Program, type VariableValue } from "../engine/index.ts";
 import { ColorScheme } from "../mantine/ColorScheme.tsx";
 import { type CommandGroup, Palette, PaletteButton } from "../mantine/Palette.tsx";
@@ -28,6 +36,7 @@ import { Panel } from "../mantine/Panel.tsx";
 import { ScreenTree } from "../mantine/ScreenTree.tsx";
 import { AddDevice } from "./AddDevice.tsx";
 import { GONE_MS, HEARTBEAT_MS } from "./follow.ts";
+import { type Handout, handoutsOf } from "./handouts.ts";
 import {
     CODE_LENGTH,
     channelLink,
@@ -178,6 +187,10 @@ export function GmApp({ name, program }: Props) {
         setEffects(next);
         sendEffects(next);
     };
+    // images and videos to show the players, as the program has them
+    const handouts = useMemo(() => handoutsOf(program), [program]);
+    const showHandout = (view: unknown) => send({ type: "view", view });
+
     const changeAmbience = (next: string | false | null) => {
         setAmbience(next);
         send({ type: "ambience", ambience: next });
@@ -238,6 +251,28 @@ export function GmApp({ name, program }: Props) {
                 keywords: ["dialog"],
                 run: () => action({ dialog: id }),
             })),
+        },
+        {
+            group: "Handouts",
+            commands: [
+                ...handouts.map((handout) => ({
+                    id: handout.src,
+                    label: `Show ${fileName(handout.src)}`,
+                    description: handout.kind === "video" ? "Video" : "Image",
+                    keywords: ["handout", "view", handout.kind, handout.src],
+                    run: () => showHandout(handout.view ?? handout.src),
+                })),
+                ...(latest?.view
+                    ? [
+                          {
+                              id: "@close",
+                              label: "Close the image or video",
+                              keywords: ["handout", "view"],
+                              run: () => send({ type: "close-view" }),
+                          },
+                      ]
+                    : []),
+            ],
         },
         {
             group: "Variables",
@@ -406,6 +441,12 @@ export function GmApp({ name, program }: Props) {
                                 open={latest?.dialog ?? null}
                                 go={(dialog) => action({ dialog })}
                                 close={() => send({ type: "close-dialog" })}
+                            />
+                            <Handouts
+                                handouts={handouts}
+                                showing={latest?.view ?? null}
+                                show={showHandout}
+                                close={() => send({ type: "close-view" })}
                             />
                         </SimpleGrid>
                     </Tabs.Panel>
@@ -978,6 +1019,77 @@ function Ambience({
                     { value: SILENCE, label: "Silence" },
                 ]}
             />
+        </Panel>
+    );
+}
+
+/** A file's name, from its path or address (without any ?query or #part). */
+const fileName = (src: string) => src.split(/[?#]/)[0]?.split("/").filter(Boolean).at(-1) ?? src;
+
+/**
+ * Images and videos to show the players over their whole screen, whenever the moment comes:
+ * the program's own, or any other by its file or address.
+ */
+function Handouts({
+    handouts,
+    showing,
+    show,
+    close,
+}: {
+    handouts: Handout[];
+    /** What the players have open, by its file */
+    showing: string | null;
+    show: (view: unknown) => void;
+    close: () => void;
+}) {
+    const [other, setOther] = useState("");
+    return (
+        <Panel title="Handouts">
+            <Text size="sm" c="dimmed">
+                An image or video over the players' whole screen, until they close it (or you do).
+            </Text>
+            {handouts.length > 0 && (
+                <Group gap="xs">
+                    {handouts.map((handout) => (
+                        <Button
+                            key={handout.src}
+                            size="xs"
+                            variant={handout.src === showing ? "filled" : "light"}
+                            aria-current={handout.src === showing ? "true" : undefined}
+                            title={handout.src}
+                            onClick={() => show(handout.view ?? handout.src)}
+                        >
+                            {handout.kind === "video" ? "▶ " : "▣ "}
+                            {fileName(handout.src)}
+                        </Button>
+                    ))}
+                </Group>
+            )}
+            <form
+                onSubmit={(event) => {
+                    event.preventDefault();
+                    if (other.trim()) show(other.trim());
+                }}
+            >
+                <Group gap="xs" align="end">
+                    <TextInput
+                        size="xs"
+                        label="Another"
+                        placeholder="data/images/photo.jpg, or a web address"
+                        value={other}
+                        onChange={(event) => setOther(event.currentTarget.value)}
+                        style={{ flex: 1 }}
+                    />
+                    <Button type="submit" size="xs" variant="light" disabled={!other.trim()}>
+                        Show
+                    </Button>
+                </Group>
+            </form>
+            <Group>
+                <Button variant="default" size="xs" disabled={showing === null} onClick={close}>
+                    Close it
+                </Button>
+            </Group>
         </Panel>
     );
 }

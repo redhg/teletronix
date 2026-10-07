@@ -46,7 +46,9 @@ The rest is in tabs (<left> and <right> move between them, and the panel opens a
   there.
 - **Messages:** **transmit** a message, typed into a dialog on the players' screen, with its
   own button text, and in the alert colour if you like (Cmd/Ctrl+Enter sends it). And open
-  any of the program's dialogs, or close the open one.
+  any of the program's dialogs, or close the open one. And **handouts**: show the players any image or
+  video the program has (or another, by its file or address) over their whole screen, as a
+  [view](elements.md) does, and close it again.
 - **Variables:** every variable, live. Change one (Enter sets it) and the players' screen
   follows, as if an action had set it. And each timer's time, with Start, Stop and Reset.
 - **Effects:** turns any effect on or off over what the program and screen say, or back to
