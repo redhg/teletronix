@@ -4,9 +4,11 @@ on:
     push:
     pull_request:
 
+# Pinned to Ubuntu 24.04, rather than ubuntu-latest: the browser job installs Playwright's
+# system packages and PulseAudio, which a new Ubuntu can break. Move up deliberately.
 jobs:
     check:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v5
             - uses: actions/setup-node@v5
@@ -19,7 +21,7 @@ jobs:
             - run: npm test
 
     browsers:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v5
             - uses: actions/setup-node@v5
@@ -49,7 +51,7 @@ jobs:
     deploy:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         needs: [check, browsers]
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         permissions:
             contents: read
             pages: write
