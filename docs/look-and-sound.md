@@ -42,6 +42,9 @@ big monitor. Pixel fonts still snap to whole multiples of their pixels, so they 
 Text is never smaller than 16px, so it stays readable on a phone; there, a pixel font snaps to
 the screen's own (smaller) pixels, so it's crisp at more sizes.
 
+The page's scrollbar takes the theme's colors too: square, with no arrows, but the browser's
+own, so it scrolls as usual with touch, wheel and keys.
+
 `config.characters` shows some characters as others, e.g. `{ "<": "(", "█": "#" }`: for a font
 that lacks a character, or just for the look. One character always stands in for one, so text
 keeps its shape. Only what's shown changes: commands, conditions and what players type are

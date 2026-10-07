@@ -75,3 +75,30 @@ body {
     clip-path: inset(50%);
     white-space: nowrap;
 }
+
+/* Scrollbars in the terminal's colors, square, with no arrows: the browser's own, so they
+   scroll as it does (touch, wheel, keys, screen readers), the page's and frames' alike. */
+:root {
+    scrollbar-color: rgb(from var(--fg) r g b / 0.55) transparent;
+}
+
+/* (for browsers without scrollbar-color, e.g. older Safari) */
+::-webkit-scrollbar {
+    width: 0.6em;
+    height: 0.6em;
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(from var(--fg) r g b / 0.55);
+    border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--fg);
+}
+
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-corner {
+    display: none;
+}
