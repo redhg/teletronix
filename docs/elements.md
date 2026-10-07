@@ -48,7 +48,7 @@ A link to the screen you just came from counts as going back too, so a `> BACK` 
 `{ "screen": "menu" }` doesn't leave the menu's own back pointing at the screen you left.
 `{ "view": "data/images/photo.jpg" }` shows an image or video over the whole window, on the same
 glass as the screen (its effects are drawn over it), until the player closes it: `[ BACK ]` in the
-corner (it fades while nothing moves) or Esc. A click or Space pauses a video. With options:
+corner (it fades, and the pointer hides, while nothing moves) or Esc. A click or Space pauses a video. With options:
 `{ "view": { "src": "data/video/tape3.mp4", "osd": true, "onEnd": { "screen": "after" } } }`:
 `fit` (`"contain"`, all of it with bars round it, or `"cover"`, filling the window), `loop`,
 `muted`, a `caption`, `osd` (a VCR's on-screen display, `PLAY ►` and a tape counter) and `onEnd`

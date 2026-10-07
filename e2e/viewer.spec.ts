@@ -52,6 +52,15 @@ test.describe("the full-window viewer", () => {
         // the effects are on the same glass, over it
         await expect(viewer.locator(".effects")).toBeAttached();
 
+        // the pointer goes with BACK while nothing moves, and comes back with a move
+        const cursor = () => viewer.locator("img").evaluate((el) => getComputedStyle(el).cursor);
+        await expect(viewer).toHaveAttribute("data-idle", "true", { timeout: 5000 });
+        expect(await cursor()).toBe("none");
+        await page.mouse.move(100, 100);
+        await page.mouse.move(140, 120);
+        await expect(viewer).not.toHaveAttribute("data-idle");
+        expect(await cursor()).not.toBe("none");
+
         await page.keyboard.press("Escape");
         await expect(viewer).toHaveCount(0);
         await player.link("> PHOTO").click();

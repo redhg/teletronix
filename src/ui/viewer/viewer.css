@@ -65,3 +65,11 @@
 .viewer:has(.viewer-caption) .viewer-back {
     bottom: 2.5lh;
 }
+
+/* the pointer goes with BACK while nothing moves, and comes back with it; over a program's own
+   pointer too (see pointer.css) */
+:root .viewer[data-idle],
+:root .viewer[data-idle] * {
+    /* biome-ignore lint/complexity/noImportantStyles: over the program's pointer, which is !important too */
+    cursor: none !important;
+}
