@@ -1,4 +1,9 @@
 # Teletronix
+**Play it online: <https://redhg.github.io/teletronix/>**: the
+[sample](https://redhg.github.io/teletronix/?data=sample), or
+[*The Haunting of Ypsilon-14*](https://redhg.github.io/teletronix/?data=ypsilon14). It works
+offline once opened, and installs as an app (see [Online](docs/at-the-table.md#online)).
+
 A retrofuturistic terminal simulator for tabletop role-playing games, and the successor to
 Phosphor.
 
@@ -6,8 +11,6 @@ A JSON file describes a program: screens of text that type themselves in, links,
 little computers to explore, dialogs, timers and variables, all on a CRT with its glow, static
 and sound. Write one by hand or in the built-in editor, then play it full screen at the table,
 with the GM steering it from another window or device.
-
-Play it at <https://redhg.github.io/teletronix/> (see [Online](docs/at-the-table.md#online)).
 
 ## Getting started
 Requires Node 24+.
