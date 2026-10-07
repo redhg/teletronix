@@ -101,6 +101,7 @@ import {
 } from "../../modules/timer/definition.ts";
 import { type ToggleElement, ToggleSchema, toggleModule } from "../../modules/toggle/definition.ts";
 import { type TreeElement, TreeSchema, treeModule } from "../../modules/tree/definition.ts";
+import { type VideoElement, VideoSchema, videoModule } from "../../modules/video/definition.ts";
 import { type VisualElement, VisualSchema, visualModule } from "../../modules/visual/definition.ts";
 import type { ModuleDefinition } from "../module.ts";
 import type { Align, LayoutOptions } from "../text/layout.ts";
@@ -122,6 +123,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     ToggleSchema,
     PromptSchema,
     BitmapSchema,
+    VideoSchema,
     ProgressSchema,
     SliderSchema,
     SectionSchema,
@@ -170,6 +172,7 @@ export type Element =
     | ToggleElement
     | PromptElement
     | BitmapElement
+    | VideoElement
     | ProgressElement
     | SliderElement
     | SectionElement
@@ -212,6 +215,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     toggle: toggleModule,
     prompt: promptModule,
     bitmap: bitmapModule,
+    video: videoModule,
     progress: progressModule,
     slider: sliderModule,
     section: sectionModule,

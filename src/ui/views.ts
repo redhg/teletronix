@@ -34,6 +34,7 @@ import { TextView } from "../modules/text/View.tsx";
 import { TimerView } from "../modules/timer/View.tsx";
 import { ToggleView } from "../modules/toggle/View.tsx";
 import { TreeView } from "../modules/tree/View.tsx";
+import { VideoView } from "../modules/video/View.tsx";
 import { VisualView } from "../modules/visual/View.tsx";
 import type { ElementView } from "./element-view.ts";
 
@@ -44,6 +45,7 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     toggle: ToggleView,
     prompt: PromptView,
     bitmap: BitmapView,
+    video: VideoView,
     progress: ProgressView,
     slider: SliderView,
     section: SectionView,

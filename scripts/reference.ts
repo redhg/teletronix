@@ -166,6 +166,7 @@ import { TextSchema } from "../src/modules/text/definition.ts";
 import { TimerElementSchema } from "../src/modules/timer/definition.ts";
 import { ToggleSchema } from "../src/modules/toggle/definition.ts";
 import { TreeItemSchema, TreeMarkersSchema, TreeSchema } from "../src/modules/tree/definition.ts";
+import { VideoSchema } from "../src/modules/video/definition.ts";
 import { VisualLevelSchema, VisualSchema } from "../src/modules/visual/definition.ts";
 
 interface JsonSchema {
@@ -290,6 +291,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Number rule", NumberRuleSchema],
             ["Timer element", TimerElementSchema, '"type": "timer"'],
             ["Bitmap", BitmapSchema, '"type": "bitmap"'],
+            ["Video", VideoSchema, '"type": "video"'],
             ["Blend", BlendSchema],
             ["Blend with a color", BlendObjectSchema],
             ["Image reveal", ImageRevealSchema],

@@ -1,0 +1,20 @@
+.video video {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* a click shows it over the whole window */
+.video-expand {
+    display: block;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+}
+
+.video-expand:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 2px;
+}

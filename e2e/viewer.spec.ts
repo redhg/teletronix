@@ -28,6 +28,9 @@ const program: Program = {
             next: [{ key: "x", action: { screen: "after" } }],
         },
         after: { content: ["AFTER THE TAPE"] },
+        clip: {
+            content: ["A CLIP", { type: "video", src: VIDEO, alt: "A TEST TAPE", cols: 20 }],
+        },
     },
 };
 
@@ -80,5 +83,25 @@ test.describe("the full-window viewer", () => {
         await expect(player.screen).toContainText("HOME");
         await page.keyboard.press("Escape");
         await expect(viewer).toHaveCount(0);
+    });
+
+    test("plays a clip among the text, and shows it over the window on a click", async ({
+        page,
+        player,
+    }) => {
+        await player.open(program, "#clip");
+        const clip = player.screen.locator(".video video");
+        await expect(clip).toHaveAttribute("aria-label", "A TEST TAPE");
+        // looping, silent, playing
+        await expect
+            .poll(() => clip.evaluate((video: HTMLVideoElement) => video.currentTime > 0))
+            .toBe(true);
+        expect(await clip.evaluate((video: HTMLVideoElement) => [video.loop, video.muted])).toEqual(
+            [true, true],
+        );
+        await player.screen.getByRole("button", { name: /A TEST TAPE: show it/ }).click();
+        await expect(page.getByRole("dialog", { name: "A TEST TAPE" })).toBeVisible();
+        await page.keyboard.press("Escape");
+        await expect(page.getByRole("dialog", { name: "A TEST TAPE" })).toHaveCount(0);
     });
 });

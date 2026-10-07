@@ -5763,6 +5763,135 @@
                             "properties": {
                                 "type": {
                                     "type": "string",
+                                    "const": "video"
+                                },
+                                "src": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "A video, relative to the page, e.g. \"data/video/radar.mp4\", or a web address. MP4 plays in every browser."
+                                },
+                                "alt": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "What it shows, for screen readers"
+                                },
+                                "cols": {
+                                    "description": "Its width in character columns; its height follows, keeping its shape. On a narrower screen, it shrinks to fit (default: the video's own width, or the screen's)",
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                },
+                                "loop": {
+                                    "default": true,
+                                    "description": "Play it over and over (default: true)",
+                                    "type": "boolean"
+                                },
+                                "muted": {
+                                    "default": true,
+                                    "description": "Play it without its sound (default: true: a clip among the text is quiet, like an animated picture)",
+                                    "type": "boolean"
+                                },
+                                "expand": {
+                                    "default": true,
+                                    "description": "A click (or Enter) shows it over the whole window, with its sound, as an action's \"view\" does (default: true)",
+                                    "type": "boolean"
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "src",
+                                "alt"
+                            ],
+                            "additionalProperties": false,
+                            "description": "A video among the text: playing as the screen reaches it, looping and silent by default; a click shows it over the whole window"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
                                     "const": "progress"
                                 },
                                 "label": {

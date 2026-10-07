@@ -15,6 +15,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"login"` | A username and a masked password, checked against its accounts, with an optional limit on wrong tries. See below. |
 | `"number"` | A prompt for whole numbers only: codes, keypads, settings. See below. |
 | `"bitmap"` | An image (`src`, `alt`). The screen waits for it to load. `cols` sets its width in characters (its height follows), e.g. to match a line of text. See [Image reveals](#image-reveals). |
+| `"video"` | A video among the text (`src`, `alt`, `cols`), looping and silent by default (`loop`, `muted`), like an animated picture. A click or Enter shows it over the whole window, with its sound (`"expand": false` to keep it in place). |
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"counter"` | A number that counts quickly to a target, like a memory test: "MEMORY TEST: 640K OK". See below. |
 | `"checklist"` | Lines that appear one at a time, each followed after a moment by a status like `[ OK ]`. See below. |

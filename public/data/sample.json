@@ -917,6 +917,10 @@
                 { "type": "link", "text": "> TAPE 3, THEN A SCREEN", "action": { "view": { "src": "data/video/test-tape.mp4", "osd": true, "onEnd": { "screen": "views-after" } } } },
                 { "type": "text", "text": "  \"onEnd\": what happens when it's over.", "className": "dim" },
                 "",
+                "A video can play among the text, too: looping and silent, as an animated picture would. A click shows it over the whole window, with its sound.",
+                "",
+                { "type": "video", "src": "data/video/test-tape.mp4", "alt": "TAPE 3: COLOR BARS, THEN A TEST PATTERN", "cols": 32 },
+                "",
                 "The tape is made with FFmpeg's own test patterns and tone.",
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
