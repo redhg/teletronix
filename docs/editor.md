@@ -18,7 +18,8 @@ restarts with anything else, on the screen it was showing (⟲ restarts it by ha
   carousel's `{slide}`, are renamed too if a variable shares the name.)
 - **Sounds:** the program's own sound effects, designed sfxr-style: roll one from a preset
   (blip, laser, explosion…), mutate it, adjust its wave and sliders by ear, and play it. Or
-  **Add an audio file**: where it is, how loud, and **Play** to hear it loop, as it would as
+  **Add an audio file**: where it is (in `npm run dev`, picked from the files in
+  `public/data/audio/`), how loud, and **Play** to hear it loop, as it would as
   ambience (picked in the Program settings, and a screen's). Play one with
   `"sound": "its-name"`; **Rename** renames what plays it. And Teletronix's own sounds (the
   key click, beeps, glitch…), tuned by ear (see [Sound](look-and-sound.md#sound)).

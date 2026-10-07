@@ -1,4 +1,5 @@
 import {
+    Autocomplete,
     Button,
     Code,
     Group,
@@ -31,6 +32,29 @@ import {
 import { Panel } from "../../mantine/Panel.tsx";
 import { Synth } from "../../ui/sound/synth.ts";
 import { VoicesPanel } from "./VoicesPanel.tsx";
+
+/**
+ * The audio files in public/data/audio, to choose from: listed by the dev server (see
+ * scripts/editor-save.ts), and none anywhere else.
+ */
+function useAudioFiles(): string[] {
+    const [files, setFiles] = useState<string[]>([]);
+    useEffect(() => {
+        if (!import.meta.env.DEV) return;
+        let current = true;
+        fetch(new URL("__teletronix/audio", location.href))
+            .then((response) => (response.ok ? response.json() : []))
+            .then((list: unknown) => {
+                if (current && Array.isArray(list))
+                    setFiles(list.filter((x) => typeof x === "string"));
+            })
+            .catch(() => {});
+        return () => {
+            current = false;
+        };
+    }, []);
+    return files;
+}
 
 /** Whether a sound as written is an audio file, rather than a generated sound. */
 const isFile = (sound: unknown) => typeof sound === "object" && sound !== null && "src" in sound;
@@ -273,6 +297,7 @@ function AudioFileEditor({
     useEffect(() => () => synth.close(), [synth]);
     useEffect(() => synth.configure(resolveSound(undefined), false), [synth]);
     const [playing, setPlaying] = useState(false);
+    const available = useAudioFiles();
     // (what's heard follows the settings as they change)
     useEffect(() => {
         synth.setFiles(new Map([[name, { src, volume }]]));
@@ -282,11 +307,16 @@ function AudioFileEditor({
     return (
         <Stack gap="md">
             <SoundName name={name} onRename={onRename} onDelete={onDelete} />
-            <TextInput
+            <Autocomplete
                 label="File"
-                description="Where it is, from the page: put it in public/data/audio/ and write data/audio/its-name.mp3. MP3, OGG, WAV or M4A."
+                description={
+                    available.length > 0
+                        ? "One of the files in public/data/audio/ (or another, from the page). MP3, OGG, WAV or M4A."
+                        : "Where it is, from the page: put it in public/data/audio/ and write data/audio/its-name.mp3. MP3, OGG, WAV or M4A."
+                }
+                data={available}
                 value={src}
-                onChange={(event) => onChange({ ...written, src: event.currentTarget.value })}
+                onChange={(next) => onChange({ ...written, src: next })}
                 styles={{ input: { fontFamily: "var(--mantine-font-family-monospace)" } }}
             />
             <Stack gap={4}>

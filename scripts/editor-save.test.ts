@@ -46,3 +46,18 @@ describe("the editor's save endpoint", () => {
         expect((await put("/__teletronix/save", "{}")).status).toBe(405);
     });
 });
+
+describe("the editor's audio list", () => {
+    it("lists the audio files in the folder's audio folder, as programs name them", async () => {
+        const { mkdirSync, writeFileSync } = await import("node:fs");
+        expect(await (await fetch(`${base}/__teletronix/audio`)).json()).toEqual([]);
+        mkdirSync(join(folder, "audio", "ship"), { recursive: true });
+        for (const name of ["drone.mp3", "notes.txt", "ship/alarm.ogg"]) {
+            writeFileSync(join(folder, "audio", name), "");
+        }
+        expect(await (await fetch(`${base}/__teletronix/audio`)).json()).toEqual([
+            "data/audio/drone.mp3",
+            "data/audio/ship/alarm.ogg",
+        ]);
+    });
+});

@@ -557,7 +557,7 @@ test.describe("the editor", () => {
         await page.getByRole("button", { name: "Add an audio file" }).click();
         await expect(page.getByRole("navigation", { name: "Sounds" })).toContainText("Audio file");
         await page
-            .getByRole("textbox", { name: "File", exact: true })
+            .getByRole("combobox", { name: "File", exact: true })
             .fill("data/audio/sci-fi-drone.mp3");
         const volume = page.getByRole("slider", { name: "Volume" });
         await volume.focus();
