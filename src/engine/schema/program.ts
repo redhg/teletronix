@@ -223,6 +223,16 @@ export const ConfigSchema = z
                     "timers, and what every element remembers), and carry on from it when the " +
                     'page is opened again. A "restart" action starts over (default: false)',
             }),
+        playerSettings: z
+            .boolean()
+            .optional()
+            .meta({
+                description:
+                    "Let players change things for themselves, on their own device (Ctrl+, or a " +
+                    "long press on the sound toggle): sound, volume, high contrast, text size, " +
+                    "effects, and text at once. False for a kiosk players shouldn't change " +
+                    "(default: true)",
+            }),
         blockContextMenu: z
             .boolean()
             .optional()
@@ -321,6 +331,8 @@ export interface Program {
     themeEffects?: EffectsSetting;
     autoscroll: boolean;
     blockContextMenu: boolean;
+    /** Whether players can change things for themselves (quick settings) */
+    playerSettings: boolean;
     /** Save progress in the browser, and carry on from it */
     save: boolean;
     /** Sound as written (for tools that edit it), and resolved */
@@ -382,6 +394,7 @@ function normalize(
         effects,
         autoscroll,
         blockContextMenu,
+        playerSettings,
         save,
         sound,
         ambience,
@@ -472,6 +485,7 @@ function normalize(
         ...(themeEffects(theme) ? { themeEffects: themeEffects(theme) } : {}),
         autoscroll: autoscroll ?? true,
         blockContextMenu: blockContextMenu ?? true,
+        playerSettings: playerSettings ?? true,
         save: save ?? false,
         soundSetting: sound,
         sound: resolveSound(sound),

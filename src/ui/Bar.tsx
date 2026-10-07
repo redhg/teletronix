@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { type BarLine, breadcrumb, layoutBarLine } from "../engine/index.ts";
 import { classNames } from "./element-view.ts";
+import { useOpensSettings } from "./settings/context.ts";
 import { useSound, useSoundToggle } from "./sound/context.ts";
 import { useTerminal } from "./terminal-context.ts";
 import "./bar.css";
@@ -22,6 +23,8 @@ export function Bar({ lines, position, columns, screenId }: Props) {
     const terminal = useTerminal();
     const sound = useSound();
     const toggle = useSoundToggle();
+    // (a long press, or a right-click, opens the quick settings)
+    const press = useOpensSettings(() => toggle?.toggle());
     const trail = useMemo(
         () => (screenId === undefined ? [] : breadcrumb(terminal.program, screenId)),
         [terminal, screenId],
@@ -47,7 +50,7 @@ export function Bar({ lines, position, columns, screenId }: Props) {
                                     aria-label="Sound"
                                     aria-pressed={!toggle.muted}
                                     title={`Sound ${toggle.muted ? "off" : "on"} (Ctrl+M)`}
-                                    onClick={toggle.toggle}
+                                    {...press}
                                 >
                                     {piece.text}
                                 </button>

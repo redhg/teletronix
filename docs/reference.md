@@ -64,6 +64,7 @@ Settings for the whole program. `reveal`, `transition`, `effects` and `autoscrol
 | `sound` | [Sound](#sound) |  | Generated retro sound effects: true, false, or an object of options. On by default; players can mute them with the sound toggle. |
 | `ambience` | id |  | An audio file from the program's sounds to loop in the background, e.g. a drone or a ship's engines, unless a screen says otherwise. It fades from one to the next as screens change. |
 | `save` | boolean | `false` | Save the player's progress in the browser as they go (the screen, variables, timers, and what every element remembers), and carry on from it when the page is opened again. A "restart" action starts over |
+| `playerSettings` | boolean | `true` | Let players change things for themselves, on their own device (Ctrl+, or a long press on the sound toggle): sound, volume, high contrast, text size, effects, and text at once. False for a kiosk players shouldn't change |
 | `blockContextMenu` | boolean | `true` | Block the browser's right-click menu, so the program feels like a terminal rather than a web page. Text fields keep theirs |
 | `autoscroll` | boolean | `true` | Scroll to keep new content in view as it appears, unless the reader has scrolled up |
 

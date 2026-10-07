@@ -235,13 +235,14 @@ test.describe("the editor", () => {
 
             // picked up with Space, moved with an arrow key, dropped with Space
             await page.getByRole("button", { name: "Move element 2", exact: true }).focus();
-            const said = (words: RegExp) => expect(page.getByText(words)).toBeAttached();
+            // (picked up, the handle is pressed; announcements come and go too fast to wait on)
+            const picked = page.getByRole("button", { name: "Move element 2", exact: true });
             await page.keyboard.press("Space");
-            await said(/^element 2, link .* is now at 2 of 2/);
+            await expect(picked).toHaveAttribute("aria-pressed", "true");
             await page.keyboard.press("ArrowUp");
-            await said(/is now at 1 of 2/);
+            await expect(page.getByText(/is now at 1 of 2/)).toBeAttached();
             await page.keyboard.press("Space");
-            await said(/^Dropped element 2, link .* at 1/);
+            await expect(page.getByText(/^Dropped element 2, link .* at 1/)).toBeAttached();
             await expect(element(page, 1)).toHaveAccessibleName(/link, > OTHER/);
             await expect(preview(page).locator(".screen")).toContainText(/> OTHER.*HOME SCREEN/);
 

@@ -89,7 +89,9 @@ export class Terminal {
     readonly program: Program;
 
     private readonly ticker: Ticker;
-    private readonly instant: boolean;
+    private instant: boolean;
+    /** Every effect off, whatever else says (a player's choice, for legibility). */
+    private effectsOff = false;
     private readonly random: Random | undefined;
     private readonly load: TerminalOptions["load"];
     private readonly startAt: string | undefined;
@@ -507,6 +509,27 @@ export class Terminal {
     }
 
     /**
+     * Shows everything at once from now on, rather than typing it in (a player's choice), and
+     * finishes what's revealing now; or animates again.
+     */
+    setInstant(instant: boolean): void {
+        if (this.instant === instant) return;
+        this.instant = instant;
+        if (instant) this.skip();
+        this.markDirty();
+        this.flush();
+    }
+
+    /** Turns every effect off, whatever the program, screen or GM says; or back on. */
+    setEffectsOff(off: boolean): void {
+        if (this.effectsOff === off) return;
+        this.effectsOff = off;
+        this.effects.clear();
+        this.markDirty();
+        this.flush();
+    }
+
+    /**
      * Replaces the program-wide effects, and its theme's, e.g. while trying out settings in a
      * preview.
      */
@@ -808,6 +831,7 @@ export class Terminal {
     }
 
     private effectsFor(screenId: string): ResolvedEffects {
+        if (this.effectsOff) return {};
         let effects = this.effects.get(screenId);
         if (!effects) {
             const screen = this.program.screens.get(screenId);
@@ -934,7 +958,9 @@ export class Terminal {
             dialog: this.dialog,
             effects: this.run
                 ? this.effectsFor(this.run.screen.id)
-                : resolveEffects(this.themeEffects, this.configEffects),
+                : this.effectsOff
+                  ? {}
+                  : resolveEffects(this.themeEffects, this.configEffects),
             variables: this.variablesVersion,
             ambience:
                 this.remoteAmbience === undefined

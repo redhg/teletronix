@@ -1,5 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { barsOf, hasSoundToggle, type ResolvedSound, type Terminal } from "../../engine/index.ts";
+import { useOpensSettings } from "../settings/context.ts";
 import { useTerminalSnapshot } from "../terminal-context.ts";
 import { SoundContext, type SoundToggle, SoundToggleContext } from "./context.ts";
 import { type SoundCue, Synth } from "./synth.ts";
@@ -85,6 +86,9 @@ export function SoundLayer({ terminal, sound, children }: Props) {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [sound, toggle]);
 
+    // (a long press, or a right-click, opens the quick settings)
+    const press = useOpensSettings(toggle);
+
     const toggleState = useMemo<SoundToggle | null>(
         () => (sound ? { muted, label: toggleLabel(muted), toggle } : null),
         [sound, muted, toggle],
@@ -107,7 +111,7 @@ export function SoundLayer({ terminal, sound, children }: Props) {
                         aria-label="Sound"
                         aria-pressed={!muted}
                         title={`Sound ${muted ? "off" : "on"} (Ctrl+M)`}
-                        onClick={toggle}
+                        {...press}
                     >
                         {toggleLabel(muted)}
                     </button>

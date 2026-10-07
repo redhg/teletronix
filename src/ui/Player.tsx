@@ -6,6 +6,7 @@ import {
     type Terminal,
     type ThemeSetting,
     themeEffects,
+    themeFont,
 } from "../engine/index.ts";
 import type { Remote } from "../remote/follow.ts";
 import { RemoteBadge } from "../remote/RemoteBadge.tsx";
@@ -14,6 +15,15 @@ import { mapCharacters } from "./character-map.ts";
 import { KioskGate, useKiosk } from "./kiosk/Kiosk.tsx";
 import { PaletteContext } from "./palette-context.ts";
 import { isPreviewMessage } from "./preview-protocol.ts";
+import { SettingsContext } from "./settings/context.ts";
+import { SettingsDialog } from "./settings/SettingsDialog.tsx";
+import {
+    devicePreferences,
+    loadSettings,
+    type PlayerSettings,
+    resolveSettings,
+    saveSettings,
+} from "./settings/settings.ts";
 import { SoundLayer } from "./sound/SoundLayer.tsx";
 import { TerminalView } from "./TerminalView.tsx";
 import { TerminalContext } from "./terminal-context.ts";
@@ -49,22 +59,69 @@ export function Player({ terminal, initial, preview, kiosk = false, remote }: Pr
     const start = useCallback(() => setStarted(true), []);
     useKiosk(terminal, kiosk && started);
 
-    const palette = useMemo(() => resolveTheme(theme), [theme]);
-    useLayoutEffect(
-        () => applyAppearance(palette, font, fontScale, lineSpacing),
-        [palette, font, fontScale, lineSpacing],
+    // the player's own settings, over the program's: on their device, unless it's the editor's
+    // preview or the program says no
+    const name = terminal.program.config.name;
+    const allowed = !preview && terminal.program.playerSettings;
+    const [own, setOwn] = useState<PlayerSettings>(() => (allowed ? loadSettings(name) : {}));
+    const [device] = useState(devicePreferences);
+    const settings = useMemo(
+        () => (allowed ? resolveSettings(own, device) : null),
+        [allowed, own, device],
     );
+    const changeSettings = useCallback(
+        (change: Partial<PlayerSettings>) =>
+            setOwn((was) => {
+                const next = { ...was, ...change };
+                saveSettings(name, next);
+                return next;
+            }),
+        [name],
+    );
+    const [settingsOpen, setSettingsOpen] = useState(false);
+    const openSettings = useCallback(() => setSettingsOpen(true), []);
+
+    const look = settings && settings.look !== "program" ? settings.look : null;
+    const shownFont = look ? (themeFont(look) ?? font) : font;
+    const shownScale = fontScale * (settings?.textSize ?? 1);
+    const palette = useMemo(() => resolveTheme(look ?? theme), [look, theme]);
+    useLayoutEffect(
+        () => applyAppearance(palette, shownFont, shownScale, lineSpacing),
+        [palette, shownFont, shownScale, lineSpacing],
+    );
+    useEffect(() => {
+        if (!settings) return;
+        terminal.setEffectsOff(look !== null || !settings.effects);
+        terminal.setInstant(settings.instant);
+    }, [terminal, settings, look]);
+    const shownSound = useMemo(
+        () =>
+            sound && settings?.volume !== undefined ? { ...sound, volume: settings.volume } : sound,
+        [sound, settings?.volume],
+    );
+
+    // Ctrl+, opens (and closes) the quick settings, from anywhere
+    useEffect(() => {
+        if (!allowed) return;
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key !== "," || !event.ctrlKey || event.metaKey || event.altKey) return;
+            event.preventDefault();
+            setSettingsOpen((was) => !was);
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [allowed]);
 
     useEffect(() => {
         let current = true;
-        loadFont(font).then(
-            () => current && setLoadedFont(font),
-            () => current && setLoadedFont(font),
+        loadFont(shownFont).then(
+            () => current && setLoadedFont(shownFont),
+            () => current && setLoadedFont(shownFont),
         );
         return () => {
             current = false;
         };
-    }, [font]);
+    }, [shownFont]);
 
     // characters the program shows as others, wherever they're drawn
     useEffect(() => mapCharacters(document.body, terminal.program.characters ?? {}), [terminal]);
@@ -101,18 +158,32 @@ export function Player({ terminal, initial, preview, kiosk = false, remote }: Pr
     return (
         <TerminalContext value={terminal}>
             <PaletteContext value={palette}>
-                <SoundLayer terminal={terminal} sound={sound}>
-                    {started ? (
-                        <>
-                            <TerminalView
-                                layoutKey={`${font}:${loadedFont}:${fontScale}:${lineSpacing}`}
+                <SettingsContext value={allowed ? openSettings : null}>
+                    <SoundLayer terminal={terminal} sound={shownSound}>
+                        {started ? (
+                            <>
+                                <TerminalView
+                                    layoutKey={`${shownFont}:${loadedFont}:${shownScale}:${lineSpacing}`}
+                                />
+                                {remote && <RemoteBadge remote={remote} />}
+                            </>
+                        ) : (
+                            <KioskGate title={terminal.program.config.name} onStart={start} />
+                        )}
+                        {settings && settingsOpen && (
+                            <SettingsDialog
+                                settings={settings}
+                                programVolume={sound?.volume ?? null}
+                                change={changeSettings}
+                                reset={() => {
+                                    saveSettings(name, {});
+                                    setOwn({});
+                                }}
+                                close={() => setSettingsOpen(false)}
                             />
-                            {remote && <RemoteBadge remote={remote} />}
-                        </>
-                    ) : (
-                        <KioskGate title={terminal.program.config.name} onStart={start} />
-                    )}
-                </SoundLayer>
+                        )}
+                    </SoundLayer>
+                </SettingsContext>
             </PaletteContext>
         </TerminalContext>
     );

@@ -23,7 +23,7 @@ const GROUPS: { title: string; keys: string[] }[] = [
         ],
     },
     { title: "Bars", keys: ["header", "footer"] },
-    { title: "Players", keys: ["skipKeys", "save", "blockContextMenu"] },
+    { title: "Players", keys: ["skipKeys", "save", "playerSettings", "blockContextMenu"] },
     { title: "Sound", keys: ["ambience"] },
 ];
 

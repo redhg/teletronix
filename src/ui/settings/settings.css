@@ -1,0 +1,47 @@
+/* The quick settings: a dialog in the terminal's look (see dialog.css), a row per setting */
+.settings {
+    width: min(48ch, calc(100vw - 2lh));
+}
+
+.settings-title {
+    margin-bottom: 1lh;
+}
+
+.settings-note {
+    opacity: 0.7;
+}
+
+.settings-rows {
+    display: grid;
+}
+
+.settings-row {
+    display: grid;
+    grid-template-columns: 11ch 1fr;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    text-shadow: inherit;
+    cursor: pointer;
+}
+
+.settings-row:hover,
+.settings-row:focus {
+    outline: none;
+    background: var(--bg);
+    color: var(--fg);
+    text-shadow: var(--glow);
+}
+
+.settings-row[aria-disabled] {
+    cursor: default;
+    opacity: 0.6;
+}
+
+/* a click on an arrow steps that way, as the arrow keys do */
+.settings-arrow {
+    padding-inline: 0.5ch;
+}

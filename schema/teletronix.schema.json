@@ -1518,6 +1518,10 @@
                     "description": "Save the player's progress in the browser as they go (the screen, variables, timers, and what every element remembers), and carry on from it when the page is opened again. A \"restart\" action starts over (default: false)",
                     "type": "boolean"
                 },
+                "playerSettings": {
+                    "description": "Let players change things for themselves, on their own device (Ctrl+, or a long press on the sound toggle): sound, volume, high contrast, text size, effects, and text at once. False for a kiosk players shouldn't change (default: true)",
+                    "type": "boolean"
+                },
                 "blockContextMenu": {
                     "description": "Block the browser's right-click menu, so the program feels like a terminal rather than a web page. Text fields keep theirs (default: true)",
                     "type": "boolean"

@@ -15,6 +15,22 @@ screen:
   it; kiosk mode goes back to full screen at the next key or tap. For a smoother kiosk, set
   `"skipKeys": ["Space"]` so players skip with Space instead.
 
+## Players' own settings
+**Ctrl+,** (or a long press, or a right-click, on the sound toggle `[♪]`) opens quick settings: for
+that player, on that device, over what the program says, and kept there for that program.
+- **Sound** on or off, and its **volume**.
+- **Look**: as the program made it, or high contrast, dark or light (see
+  [Appearance](look-and-sound.md#appearance)), which also turns the effects off.
+- **Text size**, from 75% to 200% of the program's.
+- **Effects** on or off.
+- **Text** typed in, or all at once.
+
+The arrow keys move between the rows and change the one chosen (or click its ◄ and ►); Esc closes
+it, and **Reset** goes back to the program's. Until a player chooses, a device set to reduce
+motion shows text at once (and the effects keep still), and one set to more contrast starts in
+high contrast. `"playerSettings": false` in the config leaves quick settings out, e.g. for a
+kiosk players shouldn't change. (The editor's preview always shows the program as it is.)
+
 ## GM remote control
 For one computer with two displays (e.g. a laptop for the GM and a monitor or projector for the
 players): play the program in one window, and open its address with `&gm` added in another

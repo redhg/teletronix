@@ -351,6 +351,42 @@ describe("element memory", () => {
     });
 });
 
+describe("a player's own settings", () => {
+    const file = {
+        config: { name: "Test", effects: { flicker: true } },
+        screens: {
+            one: { content: ["A LONG LINE TO TYPE IN"] },
+            two: { content: ["ANOTHER"] },
+        },
+    };
+
+    it("turns every effect off, over anything a GM turns on", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.start();
+        terminal.setEffectsOff(true);
+        terminal.setRemoteEffects({ static: true });
+        expect(terminal.getSnapshot().effects).toEqual({});
+        terminal.setEffectsOff(false);
+        expect(Object.keys(terminal.getSnapshot().effects)).toEqual([
+            "scanlines",
+            "static",
+            "flicker",
+        ]);
+    });
+
+    it("shows text at once, from now on", () => {
+        const { terminal } = createTestTerminal(file);
+        terminal.start();
+        const finished = () => terminal.getSnapshot().screen?.run.finishedAt ?? null;
+        expect(finished()).toBe(null);
+        terminal.setInstant(true);
+        // what was typing in is finished
+        expect(finished()).not.toBe(null);
+        terminal.navigate("two");
+        expect(finished()).not.toBe(null);
+    });
+});
+
 describe("remote control", () => {
     const file = {
         config: {
