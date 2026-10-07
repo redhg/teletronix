@@ -259,6 +259,12 @@ test.describe("the editor", () => {
             await page.mouse.up();
             await expect(element(page, 1)).toHaveAccessibleName(/text, HOME SCREEN/);
             await expect(element(page, 2)).toHaveAccessibleName(/link, > OTHER/);
+
+            // each move undoes by itself, however quickly they came
+            await page.keyboard.press("ControlOrMeta+z");
+            await expect(element(page, 1)).toHaveAccessibleName(/link, > OTHER/);
+            await page.keyboard.press("ControlOrMeta+z");
+            await expect(element(page, 1)).toHaveAccessibleName(/text, HOME SCREEN/);
         });
 
         test("edits links and menus with forms of their own", async ({ page }) => {

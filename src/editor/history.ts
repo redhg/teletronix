@@ -1,6 +1,6 @@
 import { useCallback, useReducer } from "react";
 
-/** How soon after the last, an edit of the same thing joins it in one step (a drag, typing). */
+/** How soon after the last, an edit of the same value joins it in one step (typing, a slider). */
 const JOIN_MS = 1000;
 /** How many steps back undo goes. */
 const STEPS = 200;
@@ -10,12 +10,12 @@ export interface HistoryState<T> {
     past: T[];
     present: T;
     future: T[];
-    /** What the last edit changed, and when: one like it, soon after, joins it */
-    last: { group: string; at: number } | null;
+    /** The value the last edit changed, and when: an edit of it, soon after, joins it */
+    last: { path: string; at: number } | null;
 }
 
 export type HistoryAction<T> =
-    | { type: "set"; value: T; group?: string; at: number }
+    | { type: "set"; value: T; at: number }
     | { type: "undo" }
     | { type: "redo" }
     | { type: "reset"; value: T };
@@ -27,15 +27,14 @@ export function historyReducer<T>(
     switch (action.type) {
         case "set": {
             if (action.value === state.present) return state;
+            const path = changedValue(state.present, action.value);
             const join =
-                action.group !== undefined &&
-                state.last?.group === action.group &&
-                action.at - state.last.at < JOIN_MS;
+                path !== null && state.last?.path === path && action.at - state.last.at < JOIN_MS;
             return {
                 past: join ? state.past : [...state.past, state.present].slice(-STEPS),
                 present: action.value,
                 future: [],
-                last: action.group === undefined ? null : { group: action.group, at: action.at },
+                last: path === null ? null : { path, at: action.at },
             };
         }
         case "undo": {
@@ -63,10 +62,40 @@ export function historyReducer<T>(
     }
 }
 
+/**
+ * Where the one value that differs between two versions is (a string, number or true/false,
+ * set, changed or left out), or null if more than that differs: a move, an element added or
+ * deleted, a rename. Parts that didn't change are the same objects (see setIn), so it only
+ * looks down the parts that did.
+ */
+export function changedValue(before: unknown, after: unknown, path = ""): string | null {
+    if (before === after) return null;
+    const isObject = (value: unknown): value is Record<string, unknown> =>
+        typeof value === "object" && value !== null;
+    if (!isObject(before) || !isObject(after)) {
+        // one value for another (or set, or left out), not a whole object
+        return isObject(before) || isObject(after) ? null : path;
+    }
+    if (Array.isArray(before) !== Array.isArray(after)) return null;
+    // a list that's grown or shrunk is elements added or deleted
+    if (Array.isArray(before) && before.length !== (after as unknown as unknown[]).length) {
+        return null;
+    }
+    let found: string | null = null;
+    for (const key of new Set([...Object.keys(before), ...Object.keys(after)])) {
+        if (before[key] === after[key]) continue;
+        if (found !== null) return null;
+        const inner = changedValue(before[key], after[key], `${path}/${key}`);
+        if (inner === null) return null;
+        found = inner;
+    }
+    return found;
+}
+
 export interface History<T> {
     value: T;
-    /** Changes it; edits in the same `group` (e.g. a field's path) soon after join into one step. */
-    set: (value: T, group?: string) => void;
+    /** Changes it; a quick run of edits to the same value (typing, a slider) is one step. */
+    set: (value: T) => void;
     undo: () => void;
     redo: () => void;
     canUndo: boolean;
@@ -83,10 +112,7 @@ export function useHistory<T>(initial: T): History<T> {
         future: [],
         last: null,
     });
-    const set = useCallback(
-        (value: T, group?: string) => dispatch({ type: "set", value, group, at: Date.now() }),
-        [],
-    );
+    const set = useCallback((value: T) => dispatch({ type: "set", value, at: Date.now() }), []);
     const undo = useCallback(() => dispatch({ type: "undo" }), []);
     const redo = useCallback(() => dispatch({ type: "redo" }), []);
     const reset = useCallback((value: T) => dispatch({ type: "reset", value }), []);

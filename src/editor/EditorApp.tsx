@@ -185,8 +185,7 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
     );
 
     const edit = useCallback(
-        (path: Path, value: unknown) =>
-            history.set(setIn(file, path, value) as ProgramFile, path.join(".")),
+        (path: Path, value: unknown) => history.set(setIn(file, path, value) as ProgramFile),
         [history, file],
     );
     const setConfig = useCallback(
@@ -338,7 +337,7 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
     // ─── Screens ─────────────────────────────────────────────────────────────
 
     const setScreen = (id: string, screen: ScreenFile) =>
-        history.set(setIn(file, ["screens", id], screen) as ProgramFile, `screens.${id}`);
+        history.set(setIn(file, ["screens", id], screen) as ProgramFile);
     const addScreen = () => {
         const id = freeId(screens, "new-screen");
         history.set(
@@ -778,7 +777,6 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                                 onChange={(dialog) =>
                                     history.set(
                                         setIn(file, ["dialogs", dialogId], dialog) as ProgramFile,
-                                        `dialogs.${dialogId}`,
                                     )
                                 }
                                 onRename={(to) => renameDialogTo(dialogId, to)}
@@ -858,7 +856,6 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                                 onChange={(name, recipe) =>
                                     history.set(
                                         setIn(file, ["sounds", name], recipe) as ProgramFile,
-                                        `sounds.${name}`,
                                     )
                                 }
                                 onRename={(from, to) => {
