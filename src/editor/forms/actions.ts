@@ -1,20 +1,31 @@
-// An action as the editor's form sees it: one thing it does (go to a screen, open a dialog, go
-// back, restart, or nothing more), with a sound to play and variables to set on the way.
+// An action as the editor's form sees it: one thing it does (go to a screen, open a dialog,
+// show an image or video, go back, restart, or nothing more), with a sound to play and
+// variables to set on the way.
 // Anything else (cases with conditions, a screen picked at random, timers) is JSON.
 
 /** What an action mainly does. */
-export type ActionKind = "screen" | "dialog" | "back" | "restart" | "none";
+export type ActionKind = "screen" | "dialog" | "view" | "back" | "restart" | "none";
 
 export const ACTION_KINDS: { value: ActionKind; label: string }[] = [
     { value: "screen", label: "Go to a screen" },
     { value: "dialog", label: "Open a dialog" },
+    { value: "view", label: "Show an image or video" },
     { value: "back", label: "Go back" },
     { value: "restart", label: "Restart the program" },
     { value: "none", label: "Only set variables or play a sound" },
 ];
 
 /** The settings the form has fields for. */
-const FORM_KEYS = new Set(["screen", "dialog", "frame", "back", "restart", "sound", "set"]);
+const FORM_KEYS = new Set(["screen", "dialog", "view", "frame", "back", "restart", "sound", "set"]);
+/** A view's settings the form has fields for (its onEnd is an action of its own). */
+const VIEW_KEYS = new Set(["src", "kind", "fit", "loop", "muted", "caption", "osd", "onEnd"]);
+
+/** Whether the form can show a view: its file, or its file and settings it has fields for. */
+const viewFits = (view: unknown) =>
+    typeof view === "string" ||
+    (isObject(view) &&
+        typeof view.src === "string" &&
+        Object.keys(view).every((key) => VIEW_KEYS.has(key)));
 
 type ActionObject = Record<string, unknown>;
 
@@ -28,6 +39,7 @@ export function fitsForm(value: unknown): value is ActionObject | undefined {
     if (!Object.keys(value).every((key) => FORM_KEYS.has(key))) return false;
     if (value.screen !== undefined && typeof value.screen !== "string") return false;
     if (value.dialog !== undefined && typeof value.dialog !== "string") return false;
+    if (value.view !== undefined && !viewFits(value.view)) return false;
     return true;
 }
 
@@ -36,6 +48,7 @@ export function kindOf(value: ActionObject | undefined): ActionKind | null {
     if (value === undefined) return null;
     if (value.screen !== undefined) return "screen";
     if (value.dialog !== undefined) return "dialog";
+    if (value.view !== undefined) return "view";
     if (value.back !== undefined) return "back";
     if (value.restart !== undefined) return "restart";
     return "none";
@@ -51,7 +64,7 @@ export function withKind(
     kind: ActionKind,
     choices: { screens: string[]; dialogs: string[] },
 ): ActionObject {
-    const { screen, dialog, frame: _, back: __, restart: ___, set, ...kept } = value ?? {};
+    const { screen, dialog, view, frame: _, back: __, restart: ___, set, ...kept } = value ?? {};
     const keepSet = kind !== "restart" && set !== undefined ? { set } : {};
     switch (kind) {
         case "screen":
@@ -66,6 +79,8 @@ export function withKind(
                 ...keepSet,
                 ...kept,
             };
+        case "view":
+            return { view: view ?? "", ...keepSet, ...kept };
         case "back":
             return { back: true, ...keepSet, ...kept };
         case "restart":

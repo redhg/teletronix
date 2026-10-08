@@ -47,17 +47,26 @@ describe("the editor's save endpoint", () => {
     });
 });
 
-describe("the editor's audio list", () => {
-    it("lists the audio files in the folder's audio folder, as programs name them", async () => {
+describe("the editor's file lists", () => {
+    it("lists a kind of file anywhere in the folder, as programs name them", async () => {
         const { mkdirSync, writeFileSync } = await import("node:fs");
-        expect(await (await fetch(`${base}/__teletronix/audio`)).json()).toEqual([]);
+        const list = async (kind: string) =>
+            (await fetch(`${base}/__teletronix/files/${kind}`)).json();
+        expect(await list("audio")).toEqual([]);
         mkdirSync(join(folder, "audio", "ship"), { recursive: true });
-        for (const name of ["drone.mp3", "notes.txt", "ship/alarm.ogg"]) {
-            writeFileSync(join(folder, "audio", name), "");
+        mkdirSync(join(folder, "images"), { recursive: true });
+        for (const name of [
+            "audio/drone.mp3",
+            "audio/notes.txt",
+            "audio/ship/alarm.ogg",
+            "images/map.png",
+            "tape.mp4",
+        ]) {
+            writeFileSync(join(folder, name), "");
         }
-        expect(await (await fetch(`${base}/__teletronix/audio`)).json()).toEqual([
-            "data/audio/drone.mp3",
-            "data/audio/ship/alarm.ogg",
-        ]);
+        expect(await list("audio")).toEqual(["data/audio/drone.mp3", "data/audio/ship/alarm.ogg"]);
+        expect(await list("images")).toEqual(["data/images/map.png"]);
+        expect(await list("video")).toEqual(["data/tape.mp4"]);
+        expect((await fetch(`${base}/__teletronix/files/fonts`)).status).toBe(404);
     });
 });

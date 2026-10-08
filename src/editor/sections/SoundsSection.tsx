@@ -31,30 +31,8 @@ import {
 } from "../../engine/sound/recipe.ts";
 import { Panel } from "../../mantine/Panel.tsx";
 import { Synth } from "../../ui/sound/synth.ts";
+import { useDataFiles } from "../forms/files.ts";
 import { VoicesPanel } from "./VoicesPanel.tsx";
-
-/**
- * The audio files in public/data/audio, to choose from: listed by the dev server (see
- * scripts/editor-save.ts), and none anywhere else.
- */
-function useAudioFiles(): string[] {
-    const [files, setFiles] = useState<string[]>([]);
-    useEffect(() => {
-        if (!import.meta.env.DEV) return;
-        let current = true;
-        fetch(new URL("__teletronix/audio", location.href))
-            .then((response) => (response.ok ? response.json() : []))
-            .then((list: unknown) => {
-                if (current && Array.isArray(list))
-                    setFiles(list.filter((x) => typeof x === "string"));
-            })
-            .catch(() => {});
-        return () => {
-            current = false;
-        };
-    }, []);
-    return files;
-}
 
 /** Whether a sound as written is an audio file, rather than a generated sound. */
 const isFile = (sound: unknown) => typeof sound === "object" && sound !== null && "src" in sound;
@@ -297,7 +275,7 @@ function AudioFileEditor({
     useEffect(() => () => synth.close(), [synth]);
     useEffect(() => synth.configure(resolveSound(undefined), false), [synth]);
     const [playing, setPlaying] = useState(false);
-    const available = useAudioFiles();
+    const available = useDataFiles("audio");
     // (what's heard follows the settings as they change)
     useEffect(() => {
         synth.setFiles(new Map([[name, { src, volume }]]));

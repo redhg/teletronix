@@ -1,4 +1,14 @@
-import { Button, Fieldset, Group, Select, Stack, Text, TextInput } from "@mantine/core";
+import {
+    Autocomplete,
+    Button,
+    Checkbox,
+    Fieldset,
+    Group,
+    Select,
+    Stack,
+    Text,
+    TextInput,
+} from "@mantine/core";
 import { useState } from "react";
 import { JsonField } from "../SchemaForm.tsx";
 import {
@@ -9,6 +19,7 @@ import {
     withKind,
     withSetting,
 } from "./actions.ts";
+import { useDataFiles } from "./files.ts";
 import { useProgramNames } from "./names.ts";
 
 interface Props {
@@ -130,6 +141,13 @@ export function ActionField({ label, description, value, onChange, error, option
                         />
                     )}
                 </Group>
+                {kind === "view" && (
+                    <ViewFields
+                        label={label}
+                        view={value?.view}
+                        onChange={(view) => set("view", view)}
+                    />
+                )}
                 {kind !== null && (
                     <>
                         {shows("frame") && (
@@ -189,5 +207,105 @@ export function ActionField({ label, description, value, onChange, error, option
                 )}
             </Stack>
         </Fieldset>
+    );
+}
+
+const VIDEO = /\.(mp4|m4v|webm|ogv|mov)(\?.*)?$/i;
+
+/**
+ * A view's settings: its file (picked from the program's images and videos, in the dev
+ * server), a caption, and its options. Written as just the file when that's all it has.
+ */
+function ViewFields({
+    label,
+    view,
+    onChange,
+}: {
+    label: string;
+    view: unknown;
+    onChange: (view: unknown) => void;
+}) {
+    const images = useDataFiles("images");
+    const videos = useDataFiles("video");
+    const options = (
+        typeof view === "object" && view !== null
+            ? view
+            : { src: typeof view === "string" ? view : "" }
+    ) as Record<string, unknown>;
+    const src = typeof options.src === "string" ? options.src : "";
+    const video = options.kind === "video" || (options.kind === undefined && VIDEO.test(src));
+    /** The view with one setting changed (left out at its default), as short as it can be. */
+    const change = (key: string, setting: unknown) => {
+        const next: Record<string, unknown> = { ...options };
+        if (
+            setting === undefined ||
+            setting === false ||
+            setting === "" ||
+            (key === "fit" && setting === "contain")
+        ) {
+            delete next[key];
+        } else {
+            next[key] = setting;
+        }
+        const keys = Object.keys(next);
+        onChange(keys.length === 1 && keys[0] === "src" ? next.src : next);
+    };
+    const check = (key: string, text: string) => (
+        <Checkbox
+            size="xs"
+            label={text}
+            aria-label={`${label}: ${text.toLowerCase()}`}
+            checked={key === "fit" ? options.fit === "cover" : options[key] === true}
+            onChange={(event) =>
+                change(
+                    key,
+                    key === "fit"
+                        ? event.currentTarget.checked
+                            ? "cover"
+                            : undefined
+                        : event.currentTarget.checked,
+                )
+            }
+        />
+    );
+    return (
+        <Stack gap="xs">
+            <Autocomplete
+                size="xs"
+                label="File"
+                aria-label={`${label}: file`}
+                description="An image or video, from the page (in public/data), or a web address"
+                placeholder="data/images/photo.jpg"
+                data={[
+                    ...(images.length > 0 ? [{ group: "Images", items: images }] : []),
+                    ...(videos.length > 0 ? [{ group: "Videos", items: videos }] : []),
+                ]}
+                value={src}
+                onChange={(next) => change("src", next)}
+                styles={{ input: { fontFamily: "var(--mantine-font-family-monospace)" } }}
+            />
+            <TextInput
+                size="xs"
+                label="Caption"
+                aria-label={`${label}: caption`}
+                placeholder="(none)"
+                value={typeof options.caption === "string" ? options.caption : ""}
+                onChange={(event) => change("caption", event.currentTarget.value)}
+            />
+            <Group gap="md">
+                {check("fit", "Fill the window")}
+                {video && check("loop", "Loop")}
+                {video && check("muted", "Muted")}
+                {video && check("osd", "VCR display")}
+            </Group>
+            {video && !options.loop && (
+                <ActionField
+                    label="When it ends"
+                    value={options.onEnd}
+                    onChange={(onEnd) => change("onEnd", onEnd)}
+                    optional
+                />
+            )}
+        </Stack>
     );
 }

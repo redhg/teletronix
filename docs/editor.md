@@ -18,8 +18,7 @@ restarts with anything else, on the screen it was showing (⟲ restarts it by ha
   carousel's `{slide}`, are renamed too if a variable shares the name.)
 - **Sounds:** the program's own sound effects, designed sfxr-style: roll one from a preset
   (blip, laser, explosion…), mutate it, adjust its wave and sliders by ear, and play it. Or
-  **Add an audio file**: where it is (in `npm run dev`, picked from the files in
-  `public/data/audio/`), how loud, and **Play** to hear it loop, as it would as
+  **Add an audio file**: where it is (in `npm run dev`, picked from the program's audio files), how loud, and **Play** to hear it loop, as it would as
   ambience (picked in the Program settings, and a screen's). Play one with
   `"sound": "its-name"`; **Rename** renames what plays it. And Teletronix's own sounds (the
   key click, beeps, glitch…), tuned by ear (see [Sound](look-and-sound.md#sound)).
@@ -30,7 +29,9 @@ restarts with anything else, on the screen it was showing (⟲ restarts it by ha
   their own: the text, what a link does, a menu's items (each with its key and what it does,
   added, moved and deleted), with the rest under **More settings**. Anything that does
   something (a link's or item's action, a timer's `onComplete`, and so on) is a form too: go
-  to a screen or open a dialog (picked from the program's), go back, or restart, with **+
+  to a screen or open a dialog (picked from the program's), show an image or video (its file picked from the program's in `npm run dev`, a
+  caption, filling the window, and for a video, looping, muted, a VCR display and what happens
+  when it ends), go back, or restart, with **+
   Sound**, **+ Change variables** and **+ In a frame** to add those. An action with conditions,
   a choice at random or timers stays JSON. Drag a row by its **⠿** handle to move it
 (or focus the handle, press Space, move it with the arrow keys and press Space again); rows also

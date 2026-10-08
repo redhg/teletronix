@@ -338,6 +338,43 @@ test.describe("the editor", () => {
             await expect(preview(page).locator(".screen")).toContainText("> ENGINES");
         });
 
+        test("makes a link show an image or video, with its options", async ({ page }) => {
+            await openEditor(page);
+            await openScreen(page, /^HOME/);
+            await element(page, 2).click();
+            const json = async () => {
+                await page.getByRole("tab", { name: "JSON" }).click();
+                const value = JSON.parse(
+                    await page.getByRole("textbox", { name: "As JSON" }).inputValue(),
+                );
+                await page.getByRole("tab", { name: "Settings" }).click();
+                return value.action;
+            };
+            await choose(page, "When it's clicked: does", "Show an image or video");
+            const file = page.getByRole("combobox", { name: "When it's clicked: file" });
+            await file.fill("data/images/photo.jpg");
+            // just the file, while that's all there is
+            expect(await json()).toEqual({ view: "data/images/photo.jpg" });
+            await page
+                .getByRole("checkbox", { name: "When it's clicked: fill the window" })
+                .check();
+            expect(await json()).toEqual({ view: { src: "data/images/photo.jpg", fit: "cover" } });
+            // a video's own options
+            await expect(page.getByRole("checkbox", { name: /VCR display/ })).toHaveCount(0);
+            await file.fill("data/video/tape.mp4");
+            await page.getByRole("checkbox", { name: "When it's clicked: vcr display" }).check();
+            await choose(page, "When it ends: does", "Go back");
+            expect(await json()).toEqual({
+                view: {
+                    src: "data/video/tape.mp4",
+                    fit: "cover",
+                    osd: true,
+                    onEnd: { back: true },
+                },
+            });
+            await expect(page.getByText("No problems")).toBeVisible();
+        });
+
         test("copies an element from one screen into another", async ({ page }) => {
             await openEditor(page);
             await openScreen(page, /^HOME/);

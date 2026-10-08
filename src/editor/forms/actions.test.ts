@@ -9,6 +9,8 @@ describe("an action in the form", () => {
         expect(fitsForm({ screen: "home", sound: "beep", set: { keycard: true } })).toBe(true);
         expect(fitsForm({ screen: "home", frame: "right" })).toBe(true);
         expect(fitsForm({ back: true })).toBe(true);
+        expect(fitsForm({ view: "a.png", sound: "beep" })).toBe(true);
+        expect(fitsForm({ view: { src: "t.mp4", osd: true, onEnd: { screen: "x" } } })).toBe(true);
     });
 
     it("doesn't fit with cases, a choice at random, or a timer", () => {
@@ -16,6 +18,7 @@ describe("an action in the form", () => {
         expect(fitsForm({ screen: ["home", "bridge"] })).toBe(false);
         expect(fitsForm({ screen: "home", startTimer: "clock" })).toBe(false);
         expect(fitsForm({ if: { keycard: true }, screen: "home" })).toBe(false);
+        expect(fitsForm({ view: { src: "a.png", zoom: 2 } })).toBe(false);
         expect(fitsForm("home")).toBe(false);
     });
 
@@ -23,6 +26,7 @@ describe("an action in the form", () => {
         expect(kindOf(undefined)).toBe(null);
         expect(kindOf({ screen: "home", set: {} })).toBe("screen");
         expect(kindOf({ dialog: "warning" })).toBe("dialog");
+        expect(kindOf({ view: "a.png" })).toBe("view");
         expect(kindOf({ back: true })).toBe("back");
         expect(kindOf({ restart: true })).toBe("restart");
         expect(kindOf({ sound: "beep" })).toBe("none");
@@ -44,6 +48,11 @@ describe("an action in the form", () => {
         expect(withKind(action, "restart", choices)).toEqual({ restart: true, sound: "beep" });
         expect(withKind(undefined, "screen", choices)).toEqual({ screen: "home" });
         expect(withKind({ dialog: "warning" }, "none", choices)).toEqual({});
+        expect(withKind({ view: "a.png", sound: "beep" }, "back", choices)).toEqual({
+            back: true,
+            sound: "beep",
+        });
+        expect(withKind(undefined, "view", choices)).toEqual({ view: "" });
     });
 
     it("changes one setting, leaving out an empty one", () => {

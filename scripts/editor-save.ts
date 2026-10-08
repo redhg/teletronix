@@ -6,15 +6,20 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 //
 //   GET __teletronix/save              204: saving is possible here
 //   PUT __teletronix/save/<name>.json  writes public/data/<name>.json (the body: the JSON)
-//   GET __teletronix/audio             the audio files in public/data/audio, to choose from:
-//                                      ["data/audio/drone.mp3", …]
+//   GET __teletronix/files/<kind>      the audio, images or video files in public/data, to
+//                                      choose from: ["data/audio/drone.mp3", …]
 //
 // Only from this computer, even when the server is open to the network (--host): another
 // device on the network can't change the files.
 
 const PATH = /\/__teletronix\/save(?:\/([A-Za-z0-9][A-Za-z0-9_-]*)\.json)?$/;
-const AUDIO_PATH = /\/__teletronix\/audio$/;
-const AUDIO = /\.(mp3|ogg|wav|m4a|webm)$/i;
+const FILES_PATH = /\/__teletronix\/files\/(audio|images|video)$/;
+/** Each kind of file, by its extensions. */
+const KINDS: Record<string, RegExp> = {
+    audio: /\.(mp3|ogg|wav|m4a)$/i,
+    images: /\.(png|jpe?g|gif|webp|svg|avif)$/i,
+    video: /\.(mp4|m4v|webm|ogv|mov)$/i,
+};
 /** The largest program accepted. */
 const MAX_BYTES = 10 * 1024 * 1024;
 const LOCAL = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
@@ -26,8 +31,9 @@ export function createSaver(folder: URL) {
     return (req: IncomingMessage, res: ServerResponse, next: Next): void => {
         const pathname = new URL(req.url ?? "", "http://editor").pathname;
         const match = PATH.exec(pathname);
-        if (AUDIO_PATH.test(pathname)) {
-            if (req.method === "GET") listAudio(new URL("audio/", folder), res);
+        const files = FILES_PATH.exec(pathname);
+        if (files?.[1]) {
+            if (req.method === "GET") listFiles(folder, KINDS[files[1]] as RegExp, res);
             else finish(res, 405);
         } else if (!match) {
             next();
@@ -69,23 +75,23 @@ function save(file: URL, req: IncomingMessage, res: ServerResponse): void {
     });
 }
 
-/** The audio files in the folder (and folders in it), as the program names them. */
-function listAudio(folder: URL, res: ServerResponse): void {
+/** The files of a kind in the folder (and the folders in it), as a program names them. */
+function listFiles(folder: URL, kind: RegExp, res: ServerResponse): void {
+    const send = (files: string[]) => {
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify(files));
+    };
     readdir(folder, { recursive: true }).then(
-        (names) => {
-            const files = names
-                .map((name) => name.replaceAll("\\", "/"))
-                .filter((name) => AUDIO.test(name))
-                .sort()
-                .map((name) => `data/audio/${name}`);
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify(files));
-        },
+        (names) =>
+            send(
+                names
+                    .map((name) => name.replaceAll("\\", "/"))
+                    .filter((name) => kind.test(name))
+                    .sort()
+                    .map((name) => `data/${name}`),
+            ),
         // (no folder: no files)
-        () => {
-            res.setHeader("Content-Type", "application/json");
-            res.end("[]");
-        },
+        () => send([]),
     );
 }
 
