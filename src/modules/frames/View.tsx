@@ -84,8 +84,10 @@ export function FrameView({ element, run }: ElementViewProps<FrameElement>) {
         const onScroll = () => {
             if (element.autoscroll) {
                 // up from where it put itself: the player's scrolling, so stop following;
-                // back to the bottom: follow again
-                const bottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 2;
+                // back to the bottom: follow again. (Within a line of it: a line can arrive
+                // between the player's scroll and its event, and it'd seem a line short.)
+                const line = Number.parseFloat(getComputedStyle(box).lineHeight) || 0;
+                const bottom = box.scrollTop + box.clientHeight >= box.scrollHeight - line - 2;
                 if (bottom) following.current = true;
                 else if (box.scrollTop < placed.current - 2) following.current = false;
                 placed.current = Math.min(placed.current, box.scrollTop);

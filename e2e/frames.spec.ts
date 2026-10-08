@@ -110,8 +110,12 @@ test.describe("frames", () => {
         });
         const bottom = () =>
             scroller.evaluate((el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 2);
+        // (following, it's at the bottom again as each line lands: a line comes every 300ms,
+        // so one that's just landed can be a frame from being scrolled to)
         await page.waitForTimeout(1000);
-        expect(await bottom()).toBe(true);
+        await expect.poll(bottom).toBe(true);
+        await page.waitForTimeout(1000);
+        await expect.poll(bottom).toBe(true);
     });
 
     test("stack on a narrow screen, each the whole width", async ({ page, player }) => {
