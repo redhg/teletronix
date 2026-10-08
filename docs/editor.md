@@ -10,7 +10,8 @@ restarts with anything else, on the screen it was showing (⟲ restarts it by ha
   reveal's `speed`); it's written as just the name until an option is set, and switching kinds
   keeps the options both have. Anything else more involved than text, a number or a switch is
   edited as JSON.
-- **Appearance:** colours, font, text size, line spacing, effects and sound.
+- **Appearance:** the theme, picked from little screens in each theme's colours and font (or
+  your own colours), then the font, text size, line spacing, effects and sound.
 - **The pointer** is in the Program settings (and a screen's): one of Teletronix's, or an image
   of your own (picked from the program's, in `npm run dev`) and the pixel in it that points.
 - **Variables & timers:** each variable's name, kind (true/false, number or text) and starting

@@ -75,6 +75,15 @@ export function loadFont(font: FontId): Promise<void> {
 }
 
 const family = (font: FontId) => `Teletronix ${font}`;
+
+/** A font's CSS font-family, once loaded (see loadFont): with its symbol font, if it has one. */
+export function fontStack(font: FontId): string {
+    const system = (FONTS[font] as { system?: string }).system;
+    if (system) return `${system}, monospace`;
+    const symbols = symbolsOf(font);
+    // (the symbol font fills in only what the font lacks)
+    return `"${family(font)}", ${symbols ? `"${symbolsFamily(symbols)}", ` : ""}ui-monospace, monospace`;
+}
 const symbolsFamily = (symbols: string) => `Teletronix symbols ${symbols}`;
 const symbolsOf = (font: FontId): string | undefined =>
     (FONTS[font] as { symbols?: string }).symbols;
@@ -143,14 +152,7 @@ export function applyAppearance(
     if (palette.capitals) root.setProperty("--text-transform", "uppercase");
     else root.removeProperty("--text-transform");
     const info: { system?: string; pixelHeight: number } = FONTS[font];
-    const symbols = symbolsOf(font);
-    root.setProperty(
-        "--font-family",
-        info.system
-            ? `${info.system}, monospace`
-            : // (the symbol font fills in only what the font lacks)
-              `"${family(font)}", ${symbols ? `"${symbolsFamily(symbols)}", ` : ""}ui-monospace, monospace`,
-    );
+    root.setProperty("--font-family", fontStack(font));
     root.setProperty("--font-px", `${info.pixelHeight}px`);
     root.setProperty("--font-scale", String(fontScale));
     root.setProperty("--line-spacing", String(lineSpacing));

@@ -76,7 +76,7 @@ test.describe("the editor", () => {
     test("shows appearance changes in the preview at once", async ({ page }) => {
         await openEditor(page);
         await section(page, "Appearance");
-        await choose(page, "Theme", "Amber");
+        await page.getByRole("radio", { name: "Amber" }).check();
         await expect
             .poll(() => previewStyle(page, (_, root) => root.getPropertyValue("--fg")))
             .toBe("#e07d0b");
@@ -99,7 +99,7 @@ test.describe("the editor", () => {
             ]);
             return JSON.parse(await readFile(await download.path(), "utf8")).config;
         };
-        await choose(page, "Theme", "VCR (a blue on-screen menu)");
+        await page.getByRole("radio", { name: "VCR (a blue on-screen menu)" }).check();
         await expect(page.getByRole("combobox", { name: "Typeface" })).toHaveValue(
             "Home Video (VCR)",
         );
@@ -204,7 +204,7 @@ test.describe("the editor", () => {
     test("downloads the program, written as a person would", async ({ page }) => {
         await openEditor(page);
         await section(page, "Appearance");
-        await choose(page, "Theme", "Green");
+        await page.getByRole("radio", { name: "Green" }).check();
         // (the test server has no save endpoint, as on a hosted copy: it downloads)
         const [download] = await Promise.all([
             page.waitForEvent("download"),

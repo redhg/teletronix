@@ -76,3 +76,13 @@
 .editor-element[data-dragging] .editor-element-handle {
     cursor: grabbing;
 }
+
+/* the themes to choose from, each a little screen */
+.editor-theme-screen {
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1.25;
+    white-space: pre;
+    overflow: hidden;
+}

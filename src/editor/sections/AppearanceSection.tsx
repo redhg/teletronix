@@ -24,13 +24,13 @@ import {
     type SoundSetting,
     TEXT_SHADOWS,
     type TextShadow,
-    THEMES,
     type ThemeName,
     type ThemeSetting,
     themeEffects,
     themeFont,
 } from "../../engine/index.ts";
 import { Panel } from "../../mantine/Panel.tsx";
+import { ThemePicker } from "../forms/ThemePicker.tsx";
 import type { Path } from "../paths.ts";
 import { describe, jsonSchemaOf } from "../SchemaForm.tsx";
 
@@ -117,17 +117,11 @@ export function AppearanceSection({ config, set }: Props) {
         <SimpleGrid cols={{ base: 1, lg: 2 }}>
             <Stack>
                 <Panel title="Colours">
-                    <Select
-                        label="Theme"
-                        data={[
-                            ...(Object.keys(THEMES) as ThemeName[]).map((name) => ({
-                                value: name,
-                                label: THEME_LABELS[name],
-                            })),
-                            { value: "custom", label: "Custom…" },
-                        ]}
+                    <ThemePicker
                         value={themeChoice}
-                        allowDeselect={false}
+                        labels={THEME_LABELS}
+                        font={(config.font as FontId | undefined) ?? DEFAULT_FONT}
+                        custom={palette}
                         onChange={(choice) =>
                             setTheme(
                                 choice === "custom" ? customTheme(palette) : (choice as ThemeName),
