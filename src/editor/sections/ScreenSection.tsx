@@ -32,6 +32,7 @@ import { MenuCaret } from "../../mantine/MenuCaret.tsx";
 import { Panel } from "../../mantine/Panel.tsx";
 import { ElementEditor } from "../ElementEditor.tsx";
 import { AmbienceField } from "../forms/AmbienceField.tsx";
+import { PointerField } from "../forms/PointerField.tsx";
 import { describe, jsonSchemaOf, SchemaField } from "../SchemaForm.tsx";
 import {
     ELEMENT_TYPES,
@@ -159,6 +160,19 @@ export function ScreenSection({
                             {settingKeys.map((key) => {
                                 const property = schema.properties?.[key];
                                 if (!property) return null;
+                                if (key === "pointer") {
+                                    return (
+                                        <PointerField
+                                            key={key}
+                                            label="pointer"
+                                            description={describe(property).text}
+                                            value={screen.pointer}
+                                            error={errors.settings.get(key)}
+                                            onChange={(pointer) => set("pointer", pointer)}
+                                            forScreen
+                                        />
+                                    );
+                                }
                                 if (key === "ambience") {
                                     return (
                                         <AmbienceField

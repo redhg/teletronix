@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { ConfigSchema } from "../../engine/schema/program.ts";
 import { Panel } from "../../mantine/Panel.tsx";
 import { AmbienceField } from "../forms/AmbienceField.tsx";
+import { PointerField } from "../forms/PointerField.tsx";
 import type { Path } from "../paths.ts";
 import { describe, jsonSchemaOf, SchemaField } from "../SchemaForm.tsx";
 import { APPEARANCE_KEYS } from "./AppearanceSection.tsx";
@@ -20,6 +21,7 @@ const GROUPS: { title: string; keys: string[] }[] = [
             "autoscroll",
             "defaults",
             "characters",
+            "pointer",
         ],
     },
     { title: "Bars", keys: ["header", "footer"] },
@@ -54,6 +56,18 @@ export function ProgramSection({ config, screens, set, errors }: Props) {
     const field = (key: string) => {
         const property = properties[key];
         if (!property) return null;
+        if (key === "pointer") {
+            return (
+                <PointerField
+                    key={key}
+                    label="pointer"
+                    description={describe(property).text}
+                    value={config.pointer}
+                    error={errors.get(key)}
+                    onChange={(pointer) => set(["pointer"], pointer)}
+                />
+            );
+        }
         if (key === "ambience") {
             return (
                 <AmbienceField

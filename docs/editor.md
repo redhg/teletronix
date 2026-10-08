@@ -11,6 +11,8 @@ restarts with anything else, on the screen it was showing (⟲ restarts it by ha
   keeps the options both have. Anything else more involved than text, a number or a switch is
   edited as JSON.
 - **Appearance:** colours, font, text size, line spacing, effects and sound.
+- **The pointer** is in the Program settings (and a screen's): one of Teletronix's, or an image
+  of your own (picked from the program's, in `npm run dev`) and the pixel in it that points.
 - **Variables & timers:** each variable's name, kind (true/false, number or text) and starting
   value, and each timer's settings; add and delete them here. **✎** renames one, and
   everything that uses it: `{name}` in text, conditions, `set`, the elements bound to it, and

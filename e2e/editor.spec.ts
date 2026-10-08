@@ -47,7 +47,7 @@ const previewStyle = (
             const root = getComputedStyle(document.documentElement);
             return new Function("body", "root", `return (${source})(body, root)`)(body, root);
         }, read.toString());
-const choose = async (page: Page, field: string, option: string) => {
+const choose = async (page: Page, field: string | RegExp, option: string) => {
     await page.getByRole("combobox", { name: field }).click();
     await page.getByRole("option", { name: option, exact: true }).click();
 };
@@ -121,6 +121,38 @@ test.describe("the editor", () => {
         written = await config();
         expect([written.font, written.effects]).toEqual(["ibm-vga", { static: false }]);
         await expect(preview(page).locator("canvas.static")).toHaveCount(0);
+    });
+
+    test("picks the mouse pointer, for the program and a screen", async ({ page }) => {
+        await openEditor(page);
+        const written = async () => {
+            const [download] = await Promise.all([
+                page.waitForEvent("download"),
+                page.getByRole("button", { name: /^Download/ }).click(),
+            ]);
+            return JSON.parse(await readFile(await download.path(), "utf8"));
+        };
+        await choose(page, /^pointer$/, "A block, cell to cell (as in DOS)");
+        expect((await written()).config.pointer).toBe("block");
+        await choose(page, /^pointer$/, "An image of your own…");
+        await page.getByRole("combobox", { name: "pointer: image" }).fill("data/pointers/claw.png");
+        await page.getByRole("textbox", { name: "pointer: x" }).fill("3");
+        expect((await written()).config.pointer).toEqual({ src: "data/pointers/claw.png", x: 3 });
+        // the browser's own: the default, so left out
+        await choose(page, /^pointer$/, "The browser's own");
+        expect((await written()).config.pointer).toBeUndefined();
+
+        await page
+            .getByRole("navigation", { name: "Screens" })
+            .getByRole("button", { name: /^HOME/ })
+            .click();
+        await page.getByText("Screen settings").click();
+        await page.getByRole("combobox", { name: /^pointer$/ }).scrollIntoViewIfNeeded();
+        await choose(page, /^pointer$/, "Hidden");
+        expect((await written()).screens.home.pointer).toBe("hidden");
+        await choose(page, /^pointer$/, "The program's");
+        expect((await written()).screens.home.pointer).toBeUndefined();
+        await expect(page.getByText("No problems")).toBeVisible();
     });
 
     test("restarts the preview with other changes, on the same screen", async ({ page }) => {
