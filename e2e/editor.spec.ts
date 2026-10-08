@@ -272,6 +272,8 @@ test.describe("the editor", () => {
             await page.keyboard.press("Space");
             await expect(picked).toHaveAttribute("aria-pressed", "true");
             await page.keyboard.press("ArrowUp");
+            // (moved: the last thing said until it's dropped)
+            await expect(page.getByText(/is now at 1 of 2/)).toBeAttached();
             await page.keyboard.press("Space");
             await expect(picked).not.toHaveAttribute("aria-pressed", "true");
             await expect(element(page, 1)).toHaveAccessibleName(/link, > OTHER/);
