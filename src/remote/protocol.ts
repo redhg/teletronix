@@ -20,6 +20,8 @@ export interface PlayerState {
     ambience: string | null;
     /** The image or video over the whole window, by its file, if one's open */
     view: string | null;
+    /** Whether the program's paused */
+    paused: boolean;
 }
 
 /** From the panel to the players' terminal. */
@@ -38,6 +40,10 @@ export type GmMessage =
     | { type: "view"; view: unknown }
     /** Closes the image or video. */
     | { type: "close-view" }
+    /** Pauses the program under a cover: a message, an image behind it, a sound looping. */
+    | { type: "pause"; message?: string; image?: string; sound?: string }
+    /** Carries on where it was paused. */
+    | { type: "resume" }
     /** A burst of heavy static, for `ms` milliseconds. */
     | { type: "burst"; ms: number }
     /** A message, typed into a dialog. */

@@ -18,7 +18,7 @@ import { ambienceOf, type Program } from "../schema/program.ts";
 import type { Cue } from "../schema/sound.ts";
 import { type Clock, countsDown, formatTime, shownSeconds } from "../schema/timers.ts";
 import { assign, type Condition, format, holds, type VariableValue } from "../schema/variables.ts";
-import type { Ticker } from "../time/ticker.ts";
+import { PausableTicker, type Ticker } from "../time/ticker.ts";
 import { type ElementState, ScreenRun } from "./screen-run.ts";
 
 export interface TerminalOptions {
@@ -68,6 +68,8 @@ export interface TerminalSnapshot {
     dialog: Dialog | null;
     /** The image or video over the whole window, if one's open (an action's "view"). */
     view: View | null;
+    /** While the program's paused (by a GM), what covers it; null while it runs. */
+    paused: PauseCover | null;
     /** The effects that are on for the current screen. */
     effects: ResolvedEffects;
     /** Changes whenever a variable does, for views that show them (e.g. the bars). */
@@ -77,6 +79,18 @@ export interface TerminalSnapshot {
 }
 
 const DEFAULT_COLUMNS = 80;
+
+/** What covers the screen while a program's paused. */
+export interface PauseCover {
+    /** Text across the middle */
+    message: string;
+    /** An image behind it, relative to the page, or a web address */
+    image?: string;
+    /** An audio file from the program's sounds to loop while it's paused */
+    sound?: string;
+}
+
+export const DEFAULT_PAUSE_MESSAGE = "PLEASE STAND BY";
 /** The most screens going back can go back through. */
 const HISTORY = 50;
 
@@ -90,7 +104,7 @@ const HISTORY = 50;
 export class Terminal {
     readonly program: Program;
 
-    private readonly ticker: Ticker;
+    private readonly ticker: PausableTicker;
     private instant: boolean;
     /** Every effect off, whatever else says (a player's choice, for legibility). */
     private effectsOff = false;
@@ -126,6 +140,7 @@ export class Terminal {
     private outcomes: { run: ScreenRun; holder: ScreenRun; action: Action; due: number }[] = [];
     private dialog: Dialog | null = null;
     private view: View | null = null;
+    private pauseCover: PauseCover | null = null;
     /** Resolved once per screen, so effect views see the same object on every visit. */
     private readonly effects = new Map<string, ResolvedEffects>();
     /** Effects laid over the program's and screen's (see setRemoteEffects). */
@@ -142,6 +157,7 @@ export class Terminal {
         interstitial: null,
         dialog: null,
         view: null,
+        paused: null,
         effects: {},
         variables: 0,
         ambience: null,
@@ -152,7 +168,7 @@ export class Terminal {
 
     constructor(options: TerminalOptions) {
         this.program = options.program;
-        this.ticker = options.ticker;
+        this.ticker = new PausableTicker(options.ticker);
         this.columns = options.columns ?? DEFAULT_COLUMNS;
         this.instant = options.instant ?? false;
         this.random = options.random;
@@ -448,6 +464,27 @@ export class Terminal {
         this.navigate(this.program.start);
     }
 
+    /**
+     * Pauses the whole program (e.g. a GM, for a break at the table): time stands still, so
+     * text stops typing, timers stop counting and nothing moves on, under a cover, until
+     * resume. Pausing again changes the cover.
+     */
+    pause(cover: Partial<PauseCover> = {}): void {
+        this.ticker.pause();
+        this.pauseCover = { message: cover.message ?? DEFAULT_PAUSE_MESSAGE, ...cover };
+        this.markDirty();
+        this.flush();
+    }
+
+    /** Carries on where it was paused. */
+    resume(): void {
+        if (!this.pauseCover) return;
+        this.ticker.resume();
+        this.pauseCover = null;
+        this.markDirty();
+        this.flush();
+    }
+
     /** Shows an image or video over the whole window (see View), until closeView. */
     openView(view: View): void {
         this.view = view;
@@ -644,8 +681,8 @@ export class Terminal {
      * Returns whether the key was used. `key` is a KeyboardEvent.key value.
      */
     pressKey(key: string): boolean {
-        // (a view has the keys to itself)
-        if (this.view) return false;
+        // (a view has the keys to itself; paused, nothing moves on)
+        if (this.view || this.pauseCover) return false;
         // a pause in the reveal waits for any key; one that's a button waits to be pressed,
         // though buttons' hotkeys still work
         if (!this.dialog && this.run?.paused) {
@@ -990,6 +1027,7 @@ export class Terminal {
             interstitial: this.interstitial ? { type: this.interstitial.type } : null,
             dialog: this.dialog,
             view: this.view,
+            paused: this.pauseCover,
             effects: this.run
                 ? this.effectsFor(this.run.screen.id)
                 : this.effectsOff

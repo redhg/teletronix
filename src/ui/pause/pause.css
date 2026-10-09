@@ -1,0 +1,49 @@
+/* The GM's pause: a cover over everything, on the same glass (the effects over it) */
+.pause-cover {
+    display: grid;
+    place-items: center;
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    text-shadow: var(--glow);
+    overflow: hidden;
+}
+
+/* (its parts in one cell, so the message is in the middle of the screen) */
+.pause-cover > * {
+    grid-area: 1 / 1;
+}
+
+.pause-cover::backdrop {
+    background: var(--bg);
+}
+
+.pause-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+/* the message, large, in inverse video, as a broadcaster's caption card */
+.pause-message {
+    position: relative;
+    max-width: calc(100vw - 4ch);
+    padding: 0.25lh 1.5ch;
+    background: var(--fg);
+    color: var(--bg);
+    font-size: 2em;
+    text-align: center;
+    text-shadow: var(--inverse-glow);
+    box-shadow: var(--glow);
+    white-space: pre-wrap;
+}

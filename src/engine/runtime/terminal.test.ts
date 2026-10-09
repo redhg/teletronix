@@ -507,3 +507,39 @@ describe("views", () => {
         expect(terminal.getSnapshot().view).toBe(null);
     });
 });
+
+describe("pausing", () => {
+    const file = {
+        config: {
+            name: "Test",
+            timers: { clock: { from: 60, autostart: true } },
+        },
+        screens: { home: { content: ["A LINE THAT TAKES A WHILE TO TYPE IN. ".repeat(4)] } },
+    };
+
+    it("stops time, under a cover, and carries on where it was", () => {
+        const { terminal, ticker } = createTestTerminal(file);
+        terminal.start();
+        ticker.advance(32, 16);
+        const finished = () => terminal.getSnapshot().screen?.run.finishedAt ?? null;
+        const clock = terminal.variable("clock");
+
+        terminal.pause({ image: "data/images/test-card.png" });
+        expect(terminal.getSnapshot().paused).toEqual({
+            message: "PLEASE STAND BY",
+            image: "data/images/test-card.png",
+        });
+        ticker.advance(30_000, 16);
+        // still typing, the clock where it was
+        expect(finished()).toBe(null);
+        expect(terminal.variable("clock")).toBe(clock);
+        expect(terminal.pressKey("Enter")).toBe(false);
+
+        terminal.resume();
+        expect(terminal.getSnapshot().paused).toBe(null);
+        ticker.advance(5000, 16);
+        expect(finished()).not.toBe(null);
+        // the clock only counts time that wasn't paused: about five seconds of it
+        expect(terminal.variable("clock")).toBe(55);
+    });
+});

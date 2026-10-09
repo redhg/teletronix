@@ -141,6 +141,33 @@ test.describe("a GM's panel", () => {
     });
 });
 
+test.describe("the GM's pause", () => {
+    test("stops the players under a cover, until the GM carries on", async ({ page, player }) => {
+        await player.open(program);
+        const gm = await openGm(page);
+        await expect(gm.getByRole("status")).toContainText("Players on HOME");
+        await tab(gm, "Messages");
+        const standBy = gm.getByRole("region", { name: "Stand by" });
+        await standBy.getByRole("textbox", { name: "On the cover" }).fill("BACK IN FIVE");
+        await gm.getByRole("button", { name: "‖ Pause", exact: true }).click();
+
+        const cover = page.getByRole("dialog", { name: "Paused" });
+        await expect(cover).toContainText("BACK IN FIVE");
+        // only the GM lifts it
+        await page.keyboard.press("Escape");
+        await expect(cover).toBeVisible();
+        await expect(gm.getByRole("button", { name: "▶ Resume" }).first()).toBeVisible();
+
+        // a new message shows at once
+        await standBy.getByRole("textbox", { name: "On the cover" }).fill("BACK IN TEN");
+        await expect(cover).toContainText("BACK IN TEN");
+
+        await gm.getByRole("button", { name: "▶ Resume" }).first().click();
+        await expect(cover).toHaveCount(0);
+        await expect(player.screen).toContainText("HOME SCREEN");
+    });
+});
+
 test.describe("the GM's handouts", () => {
     test("show the players an image over their screen, and close it", async ({ page, player }) => {
         await serveTestImages(page);

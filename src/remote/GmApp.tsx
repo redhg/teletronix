@@ -191,6 +191,23 @@ export function GmApp({ name, program }: Props) {
     const handouts = useMemo(() => handoutsOf(program), [program]);
     const showHandout = (view: unknown) => send({ type: "view", view });
 
+    // pausing the players, under a cover the GM sets up
+    const paused = latest?.paused === true;
+    const [cover, setCover] = useState<StandByCover>({ message: "", image: "", sound: "" });
+    const pause = (with_: StandByCover) =>
+        send({
+            type: "pause",
+            ...(with_.message.trim() ? { message: with_.message.trim() } : {}),
+            ...(with_.image ? { image: with_.image } : {}),
+            ...(with_.sound ? { sound: with_.sound } : {}),
+        });
+    const togglePause = () => (paused ? send({ type: "resume" }) : pause(cover));
+    const changeCover = (next: StandByCover) => {
+        setCover(next);
+        // (paused, the players' cover changes at once)
+        if (paused) pause(next);
+    };
+
     const changeAmbience = (next: string | false | null) => {
         setAmbience(next);
         send({ type: "ambience", ambience: next });
@@ -231,6 +248,20 @@ export function GmApp({ name, program }: Props) {
                     run: () => send({ type: "burst", ms: BURST_MS }),
                 },
                 { id: "window", label: "Open a players' window", run: () => openPlayers(name) },
+                paused
+                    ? {
+                          id: "resume",
+                          label: "Resume",
+                          keywords: ["pause", "unpause"],
+                          run: togglePause,
+                      }
+                    : {
+                          id: "pause",
+                          label: "Pause the players",
+                          description: "Everything stops, under a cover",
+                          keywords: ["stand by", "break", "freeze"],
+                          run: togglePause,
+                      },
             ],
         },
         {
@@ -395,6 +426,16 @@ export function GmApp({ name, program }: Props) {
                                 Restart
                             </Button>
                         </Button.Group>
+                        <Button
+                            size="xs"
+                            color={paused ? "yellow" : undefined}
+                            variant={paused ? "filled" : "default"}
+                            aria-pressed={paused}
+                            disabled={!latest}
+                            onClick={togglePause}
+                        >
+                            {paused ? "▶ Resume" : "‖ Pause"}
+                        </Button>
                         <Pairing code={code} network={network} pair={setCode} />
                         <ColorScheme />
                     </Group>
@@ -441,6 +482,14 @@ export function GmApp({ name, program }: Props) {
                                 open={latest?.dialog ?? null}
                                 go={(dialog) => action({ dialog })}
                                 close={() => send({ type: "close-dialog" })}
+                            />
+                            <StandBy
+                                cover={cover}
+                                change={changeCover}
+                                images={handouts.filter((handout) => handout.kind === "image")}
+                                sounds={[...program.audio.keys()]}
+                                paused={paused}
+                                toggle={togglePause}
                             />
                             <Handouts
                                 handouts={handouts}
@@ -1088,6 +1137,79 @@ function Handouts({
             <Group>
                 <Button variant="default" size="xs" disabled={showing === null} onClick={close}>
                     Close it
+                </Button>
+            </Group>
+        </Panel>
+    );
+}
+
+/** What covers the players' screen while they're paused: "" for none (or the default). */
+interface StandByCover {
+    message: string;
+    image: string;
+    sound: string;
+}
+
+/**
+ * Pausing the players: everything stops (text, timers, video, ambience) under a cover, with a
+ * message, an image behind it and a sound looping, until the GM carries on.
+ */
+function StandBy({
+    cover,
+    change,
+    images,
+    sounds,
+    paused,
+    toggle,
+}: {
+    cover: StandByCover;
+    change: (cover: StandByCover) => void;
+    images: Handout[];
+    sounds: string[];
+    paused: boolean;
+    toggle: () => void;
+}) {
+    return (
+        <Panel title="Stand by">
+            <Text size="sm" c="dimmed">
+                Pause the players: text stops typing, timers stop counting, videos and ambience
+                stop, under a cover, until you carry on.
+            </Text>
+            <TextInput
+                size="xs"
+                label="On the cover"
+                placeholder="PLEASE STAND BY"
+                value={cover.message}
+                onChange={(event) => change({ ...cover, message: event.currentTarget.value })}
+            />
+            <Group gap="xs" grow>
+                <Select
+                    size="xs"
+                    label="Behind it"
+                    placeholder="Nothing"
+                    clearable
+                    data={images.map((image) => ({ value: image.src, label: fileName(image.src) }))}
+                    value={cover.image || null}
+                    onChange={(image) => change({ ...cover, image: image ?? "" })}
+                />
+                <Select
+                    size="xs"
+                    label="Sound"
+                    placeholder="Silence"
+                    clearable
+                    data={sounds}
+                    value={cover.sound || null}
+                    onChange={(sound) => change({ ...cover, sound: sound ?? "" })}
+                />
+            </Group>
+            <Group>
+                <Button
+                    size="xs"
+                    color={paused ? "yellow" : undefined}
+                    variant={paused ? "filled" : "light"}
+                    onClick={toggle}
+                >
+                    {paused ? "▶ Resume" : "‖ Pause now"}
                 </Button>
             </Group>
         </Panel>

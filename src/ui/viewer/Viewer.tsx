@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import type { ResolvedEffects, View } from "../../engine/index.ts";
 import { EffectsLayer } from "../effects.tsx";
 import { useSoundToggle, VideoVolumeContext } from "../sound/context.ts";
-import { useTerminal } from "../terminal-context.ts";
+import { useTerminal, useTerminalSnapshot } from "../terminal-context.ts";
 import "../dialog.css";
 import "./viewer.css";
 
@@ -30,6 +30,7 @@ export function Viewer({ view, effects }: { view: View; effects: ResolvedEffects
     const [paused, setPaused] = useState(false);
     const [time, setTime] = useState(0);
     const [idle, setIdle] = useState(false);
+    const held = useTerminalSnapshot().paused !== null;
 
     useEffect(() => {
         dialog.current?.showModal();
@@ -65,6 +66,14 @@ export function Viewer({ view, effects }: { view: View; effects: ResolvedEffects
             element.play().catch(() => setPaused(true));
         });
     }, [muted, volume]);
+
+    // the GM's pause stops the video too, and starts it again
+    useEffect(() => {
+        const element = video.current;
+        if (!element) return;
+        if (held) element.pause();
+        else void element.play().catch(() => {});
+    }, [held]);
 
     const togglePause = () => {
         const element = video.current;

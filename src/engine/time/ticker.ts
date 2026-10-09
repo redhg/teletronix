@@ -37,3 +37,44 @@ export class ManualTicker implements Ticker {
         }
     }
 }
+
+/**
+ * A ticker that can be paused: while it is, time stands still (its now() doesn't move) and it
+ * doesn't tick, so everything that runs on it waits; resumed, it carries on from where it
+ * stopped, as if the pause never happened.
+ */
+export class PausableTicker implements Ticker {
+    private readonly inner: Ticker;
+    /** How much time has passed paused, to leave out */
+    private offset = 0;
+    /** When it paused, by the inner ticker, or null while it runs */
+    private pausedAt: number | null = null;
+
+    constructor(inner: Ticker) {
+        this.inner = inner;
+    }
+
+    get paused(): boolean {
+        return this.pausedAt !== null;
+    }
+
+    now(): number {
+        return (this.pausedAt ?? this.inner.now()) - this.offset;
+    }
+
+    pause(): void {
+        if (this.pausedAt === null) this.pausedAt = this.inner.now();
+    }
+
+    resume(): void {
+        if (this.pausedAt === null) return;
+        this.offset += this.inner.now() - this.pausedAt;
+        this.pausedAt = null;
+    }
+
+    subscribe(listener: TickListener): () => void {
+        return this.inner.subscribe((time) => {
+            if (this.pausedAt === null) listener(time - this.offset);
+        });
+    }
+}

@@ -40,7 +40,14 @@ players): play the program in one window, and open its address with `&gm` added 
 terminal, and so on), and light, dark or as your system is set (the switch in the top corner).
 Along the top, always: whether the players are connected (**LIVE**) and the screen they're on
 (and any open dialog), **Back** and **Restart** (which do what the actions of those names do),
-and pairing with another device.
+**Pause**, and pairing with another device.
+
+**Pause** stops the players' terminal for a break at the table: text stops typing, timers stop
+counting (a self-destruct countdown waits where it is), videos and the ambience stop, and nothing
+moves on, under a cover, `PLEASE STAND BY` in the program's own look. Only the GM lifts it
+(**Resume**), and everything carries on where it was. The **Stand by** panel, in the Messages tab,
+sets the cover up: a message of your own, an image of the program's behind it, and one of its
+audio files looping; changed while paused, the players' cover changes at once.
 The rest is in tabs (<left> and <right> move between them, and the panel opens at the last):
 - **Screens:** every screen, under its `parent`, or found by name. A click sends the players
   there.

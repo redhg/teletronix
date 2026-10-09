@@ -13,6 +13,7 @@ import { AutoscrollContext, Autoscroller } from "./autoscroll.ts";
 import { Bar } from "./Bar.tsx";
 import { DialogView } from "./DialogView.tsx";
 import { EffectsLayer } from "./effects.tsx";
+import { PauseCover } from "./pause/PauseCover.tsx";
 import { ScreenView } from "./ScreenView.tsx";
 import { useTerminal, useTerminalSnapshot } from "./terminal-context.ts";
 import { useColumns } from "./use-columns.ts";
@@ -32,7 +33,7 @@ interface Props {
 
 export function TerminalView({ layoutKey }: Props) {
     const terminal = useTerminal();
-    const { screen, outgoing, interstitial, dialog, view, effects } = useTerminalSnapshot();
+    const { screen, outgoing, interstitial, dialog, view, paused, effects } = useTerminalSnapshot();
     const ref = useRef<HTMLElement>(null);
     const screensRef = useRef<HTMLDivElement>(null);
     const [autoscroll] = useState(() => new Autoscroller());
@@ -138,6 +139,8 @@ export function TerminalView({ layoutKey }: Props) {
             <EffectsLayer effects={effects} />
             {dialog && <DialogView key={dialog.id} dialog={dialog} />}
             {view && <Viewer key={view.src} view={view} effects={effects} />}
+            {/* (last: over a dialog or a view too) */}
+            {paused && <PauseCover cover={paused} effects={effects} />}
         </AutoscrollContext>
     );
 }

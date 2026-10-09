@@ -8,8 +8,10 @@ export {
     ScreenRun,
 } from "./runtime/screen-run.ts";
 export {
+    DEFAULT_PAUSE_MESSAGE,
     type Interstitial,
     type OutgoingSnapshot,
+    type PauseCover,
     type SavedState,
     type ScreenSnapshot,
     Terminal,

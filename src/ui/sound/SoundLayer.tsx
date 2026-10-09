@@ -133,8 +133,10 @@ function StaticHiss({ synth }: { synth: Synth }) {
  * video with its sound plays.
  */
 function Ambience({ synth }: { synth: Synth }) {
-    const { ambience, view } = useTerminalSnapshot();
+    const { ambience, view, paused } = useTerminalSnapshot();
     const video = view?.kind === "video" && !view.muted;
-    useEffect(() => synth.setAmbience(video ? null : ambience), [synth, ambience, video]);
+    // paused, the cover's own sound, or silence
+    const playing = paused ? (paused.sound ?? null) : video ? null : ambience;
+    useEffect(() => synth.setAmbience(playing), [synth, playing]);
     return null;
 }

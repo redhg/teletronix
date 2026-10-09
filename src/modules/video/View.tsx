@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from "react";
 import { classNames, type ElementViewProps } from "../../ui/element-view.ts";
 import { useSoundToggle, VideoVolumeContext } from "../../ui/sound/context.ts";
-import { useTerminal } from "../../ui/terminal-context.ts";
+import { useTerminal, useTerminalSnapshot } from "../../ui/terminal-context.ts";
 import type { VideoElement } from "./definition.ts";
 import "./style.css";
 
@@ -11,6 +11,7 @@ export function VideoView({ element }: ElementViewProps<VideoElement>) {
     const sound = useSoundToggle();
     const volume = useContext(VideoVolumeContext);
     const muted = element.muted || sound?.muted === true;
+    const paused = useTerminalSnapshot().paused !== null;
 
     useEffect(() => {
         const element = video.current;
@@ -23,6 +24,14 @@ export function VideoView({ element }: ElementViewProps<VideoElement>) {
             element.play().catch(() => {});
         });
     }, [muted, volume]);
+
+    // the GM's pause stops it too
+    useEffect(() => {
+        const media = video.current;
+        if (!media) return;
+        if (paused) media.pause();
+        else void media.play().catch(() => {});
+    }, [paused]);
 
     const expand = () =>
         terminal.openView({

@@ -35,6 +35,7 @@ export function playerState(terminal: Terminal): PlayerState {
         ),
         ambience: snapshot.ambience,
         view: snapshot.view?.src ?? null,
+        paused: snapshot.paused !== null,
     };
 }
 
@@ -154,6 +155,19 @@ export function followRemote(
             }
             case "close-view":
                 terminal.closeView();
+                break;
+            case "pause":
+                terminal.pause({
+                    ...(message.message ? { message: message.message } : {}),
+                    ...(message.image ? { image: message.image } : {}),
+                    // (only an audio file of the program's loops)
+                    ...(message.sound && terminal.program.audio.has(message.sound)
+                        ? { sound: message.sound }
+                        : {}),
+                });
+                break;
+            case "resume":
+                terminal.resume();
                 break;
             case "ambience":
                 terminal.setRemoteAmbience(message.ambience ?? undefined);
