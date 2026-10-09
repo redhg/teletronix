@@ -1,0 +1,143 @@
+/* A monitor of several feeds: a grid of tiles, each with its label and clock, and a line of
+   text over them all */
+.mosaic-screen {
+    position: relative;
+    background: #000;
+    white-space: normal;
+}
+
+.mosaic-grid {
+    display: grid;
+    gap: 2px;
+}
+
+.mosaic-tile {
+    position: relative;
+    display: block;
+    aspect-ratio: var(--tile-aspect, 4 / 3);
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    background: #050505;
+    color: #fff;
+    font: inherit;
+    text-align: start;
+}
+
+button.mosaic-tile {
+    cursor: pointer;
+}
+
+button.mosaic-tile:focus-visible,
+button.mosaic-tile:hover {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+}
+
+.mosaic-media,
+.mosaic-noise {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mosaic-noise canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+}
+
+/* the feed's caption and clock, in the corners, as a camera's on-screen display */
+.mosaic-label,
+.mosaic-clock,
+.mosaic-no-signal,
+.mosaic-overlay {
+    position: absolute;
+    color: #fff;
+    text-shadow:
+        0.07em 0.07em 0 rgb(0 0 0 / 0.8),
+        0 0 0.3em rgb(0 0 0 / 0.6);
+    font-size: 0.75em;
+    line-height: 1.25;
+    white-space: pre;
+    pointer-events: none;
+}
+
+.mosaic-label {
+    top: 0.4em;
+    left: 0.6em;
+}
+
+.mosaic-clock {
+    top: 0.4em;
+    right: 0.6em;
+}
+
+.mosaic-no-signal {
+    inset: 50% 0 auto;
+    translate: 0 -50%;
+    font-size: 1em;
+    text-align: center;
+}
+
+/* the whole monitor's on-screen display */
+.mosaic-overlay {
+    left: 0;
+    right: 0;
+    padding: 0.3em 0.8em;
+    font-size: 1em;
+    text-align: center;
+}
+
+.mosaic-overlay-top {
+    top: 0;
+}
+
+.mosaic-overlay-bottom {
+    bottom: 0;
+}
+
+/* among the text: as wide as it says, or the screen */
+.mosaic {
+    position: relative;
+    max-width: 100%;
+}
+
+.mosaic-expand-all {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: zoom-in;
+}
+
+.mosaic-expand-all:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 2px;
+}
+
+.mosaic-expand {
+    position: absolute;
+    right: 0.4em;
+    bottom: 0.4em;
+    padding: 0 0.3em;
+    border: 0;
+    background: rgb(0 0 0 / 0.6);
+    color: #fff;
+    font: inherit;
+    font-size: 0.75em;
+    cursor: zoom-in;
+}
+
+/* over the whole window, as big as fits, keeping its shape */
+.viewer-mosaic {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+}

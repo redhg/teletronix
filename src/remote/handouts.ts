@@ -28,7 +28,8 @@ export function handoutsOf(program: Program): Handout[] {
         }
         const record = value as Record<string, unknown>;
         const view = record.view as View | undefined;
-        if (view && typeof view === "object" && typeof view.src === "string") {
+        // (a mosaic's view has no file of its own)
+        if (view && typeof view === "object" && view.src && view.kind !== "mosaic") {
             if (!found.has(view.src)) found.set(view.src, { src: view.src, kind: view.kind, view });
         }
         if (

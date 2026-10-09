@@ -138,7 +138,7 @@ export function TerminalView({ layoutKey }: Props) {
             )}
             <EffectsLayer effects={effects} />
             {dialog && <DialogView key={dialog.id} dialog={dialog} />}
-            {view && <Viewer key={view.src} view={view} effects={effects} />}
+            {view && <Viewer key={view.src || view.kind} view={view} effects={effects} />}
             {/* (last: over a dialog or a view too) */}
             {paused && <PauseCover cover={paused} effects={effects} />}
         </AutoscrollContext>

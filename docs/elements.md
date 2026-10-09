@@ -16,6 +16,7 @@ A screen's `content` is a list of elements, revealed one after another:
 | `"number"` | A prompt for whole numbers only: codes, keypads, settings. See below. |
 | `"bitmap"` | An image (`src`, `alt`). The screen waits for it to load. `cols` sets its width in characters (its height follows), e.g. to match a line of text. See [Image reveals](#image-reveals). |
 | `"video"` | A video among the text (`src`, `alt`, `cols`), looping and silent by default (`loop`, `muted`), like an animated picture. A click or Enter shows it over the whole window, with its sound (`"expand": false` to keep it in place). |
+| `"mosaic"` | Several feeds on one monitor, e.g. a security desk's cameras: `tiles` of images or videos (muted, looping), `across` a row (default: as square as they make), each `aspect` (default `"4 / 3"`). A tile has a `label` and a `clock` in its corners (`true` for the time of day, or a time to start from, `"03:14:07"`), and can have no `signal` (`false`, or a condition: a picture only while it holds), `static` (behind NO SIGNAL, or interference over a picture, `true` or 0 to 1), an `action` when clicked, and an `if`. An `overlay`, `{ "top": …, "bottom": … }`, lays a line of text over it all (markup and variables welcome). `cols` sets its width in characters. A click (or its `[⤢]`, with tiles that act) shows it over the whole window. |
 | `"progress"` | A text progress bar that runs `from` one percentage `to` another over a `duration`. See below. |
 | `"counter"` | A number that counts quickly to a target, like a memory test: "MEMORY TEST: 640K OK". See below. |
 | `"checklist"` | Lines that appear one at a time, each followed after a moment by a status like `[ OK ]`. See below. |
@@ -52,7 +53,7 @@ corner (it fades, and the pointer hides, while nothing moves) or Esc. A click or
 `{ "view": { "src": "data/video/tape3.mp4", "osd": true, "onEnd": { "screen": "after" } } }`:
 `fit` (`"contain"`, all of it with bars round it, or `"cover"`, filling the window), `loop`,
 `muted`, a `caption`, `osd` (a VCR's on-screen display, `PLAY ►` and a tape counter) and `onEnd`
-(what happens when a video ends). A video plays at full volume (or the player's, from quick
+(what happens when a video ends). A view can show a mosaic instead of a file: `{ "view": { "mosaic": { "tiles": [ … ] } } }`, as a mosaic element would. A video plays at full volume (or the player's, from quick
 settings), silent while sound's muted, and the ambience waits while it plays. MP4 plays in every
 browser. Keep videos small: the offline copy leaves out files over 10MB, and every version of a
 file stays in a repository's history; a `src` can be a web address instead, for online play.

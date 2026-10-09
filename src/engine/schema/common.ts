@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { type Mosaic, MosaicViewSchema } from "../../modules/mosaic/tiles.ts";
 import { AssignmentsSchema, ConditionSchema, VariableNameSchema } from "./variables.ts";
 
 // ─── Ids ─────────────────────────────────────────────────────────────────────
@@ -294,8 +295,11 @@ const VIDEO = /\.(mp4|m4v|webm|ogv|mov)(\?.*)?$/i;
 
 /** What a view shows, filled in. */
 export interface View {
+    /** Its file ("" for a mosaic) */
     src: string;
-    kind: "image" | "video";
+    kind: "image" | "video" | "mosaic";
+    /** For a mosaic: its tiles, and how they're laid out */
+    mosaic?: Mosaic;
     /** "contain": all of it, with bars round it; "cover": the whole window, trimmed */
     fit: "contain" | "cover";
     loop: boolean;
@@ -312,6 +316,7 @@ export const ViewOptionsSchema = z
         src: z
             .string()
             .min(1)
+            .optional()
             .meta({
                 description:
                     'An image or a video, relative to the page, e.g. "data/video/tape3.mp4", or a ' +
@@ -343,11 +348,21 @@ export const ViewOptionsSchema = z
                     "A VCR's on-screen display, in the terminal's font: PLAY ► (or PAUSE) and a " +
                     "tape counter (default: false)",
             }),
+        // (a getter: a mosaic's tiles have actions, which can show views)
+        get mosaic() {
+            return MosaicViewSchema.optional().meta({
+                description:
+                    "Several feeds at once, as a mosaic element shows them, in place of src",
+            });
+        },
         get onEnd() {
             return ActionSchema.optional().meta({
                 description: "What happens when a video ends (it closes first)",
             });
         },
+    })
+    .refine((view) => (view.src === undefined) !== (view.mosaic === undefined), {
+        message: 'Give it "src" (an image or video) or "mosaic", one or the other',
     })
     .meta({ description: "An image or video over the whole window, with its options" });
 
@@ -355,8 +370,9 @@ export const ViewSchema: z.ZodType<View> = z
     .union([z.string().min(1), ViewOptionsSchema])
     .transform((view): View => {
         const options = typeof view === "string" ? { src: view } : view;
-        const { src, kind, fit, loop, muted, caption, osd, onEnd } = options as {
-            src: string;
+        const { src, kind, fit, loop, muted, caption, osd, onEnd, mosaic } = options as {
+            src?: string;
+            mosaic?: Mosaic;
             kind?: "image" | "video";
             fit?: "contain" | "cover";
             loop?: boolean;
@@ -366,8 +382,9 @@ export const ViewSchema: z.ZodType<View> = z
             onEnd?: Action;
         };
         return {
-            src,
-            kind: kind ?? (VIDEO.test(src) ? "video" : "image"),
+            src: src ?? "",
+            kind: mosaic ? "mosaic" : (kind ?? (VIDEO.test(src ?? "") ? "video" : "image")),
+            ...(mosaic ? { mosaic } : {}),
             fit: fit ?? "contain",
             loop: loop ?? false,
             muted: muted ?? false,

@@ -139,6 +139,8 @@ import { AccountSchema, LoginSchema } from "../src/modules/login/definition.ts";
 import { MapMarkerSchema, MapPointSchema, MapSchema } from "../src/modules/map/definition.ts";
 import { MenuItemSchema, MenuSchema } from "../src/modules/menu/definition.ts";
 import { MeterRangeSchema, MeterSchema } from "../src/modules/meter/definition.ts";
+import { MosaicSchema, MosaicTileSchema } from "../src/modules/mosaic/definition.ts";
+import { MosaicOverlaySchema, MosaicViewSchema } from "../src/modules/mosaic/tiles.ts";
 import { NumberRuleSchema, NumberSchema } from "../src/modules/number/definition.ts";
 import { PauseSchema } from "../src/modules/pause/definition.ts";
 import { PowerOffSchema } from "../src/modules/poweroff/definition.ts";
@@ -292,6 +294,9 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Timer element", TimerElementSchema, '"type": "timer"'],
             ["Bitmap", BitmapSchema, '"type": "bitmap"'],
             ["Video", VideoSchema, '"type": "video"'],
+            ["Mosaic", MosaicSchema, '"type": "mosaic"'],
+            ["Mosaic tile", MosaicTileSchema],
+            ["Mosaic overlay", MosaicOverlaySchema],
             ["Blend", BlendSchema],
             ["Blend with a color", BlendObjectSchema],
             ["Image reveal", ImageRevealSchema],
@@ -390,6 +395,7 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Action case", ActionCaseSchema],
             ["View", ViewSchema],
             ["View options", ViewOptionsSchema],
+            ["Mosaic view", MosaicViewSchema],
             ["Reveal", RevealSchema],
             ["Teletype reveal", TeletypeRevealSchema, '"type": "teletype"'],
             ["Glitch reveal", GlitchRevealSchema, '"type": "glitch"'],

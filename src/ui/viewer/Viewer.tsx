@@ -1,5 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import type { ResolvedEffects, View } from "../../engine/index.ts";
+import { type Mosaic, tilesAcross } from "../../modules/mosaic/definition.ts";
+import { MosaicGrid } from "../../modules/mosaic/MosaicGrid.tsx";
 import { EffectsLayer } from "../effects.tsx";
 import { useSoundToggle, VideoVolumeContext } from "../sound/context.ts";
 import { useTerminal, useTerminalSnapshot } from "../terminal-context.ts";
@@ -8,6 +10,14 @@ import "./viewer.css";
 
 /** How long after the mouse (or a key) last moved the BACK button fades. */
 const IDLE_MS = 2500;
+
+/** As wide as a mosaic can be and still fit the window, keeping its shape. */
+function mosaicWidth(mosaic: Mosaic): string {
+    const across = tilesAcross(mosaic);
+    const rows = Math.ceil(mosaic.tiles.length / across);
+    const [w = 4, h = 3] = mosaic.aspect.split("/").map(Number);
+    return `min(100vw, calc(100vh * ${(across * w) / (rows * h)}))`;
+}
 
 /** A tape counter: 0:01:23. */
 const counter = (seconds: number) => {
@@ -86,7 +96,9 @@ export function Viewer({ view, effects }: { view: View; effects: ResolvedEffects
         <dialog
             ref={dialog}
             className="viewer"
-            aria-label={view.caption ?? (view.kind === "video" ? "Video" : "Image")}
+            aria-label={
+                view.caption ?? { video: "Video", image: "Image", mosaic: "Monitor" }[view.kind]
+            }
             data-idle={idle || undefined}
             onCancel={(event) => {
                 event.preventDefault();
@@ -99,7 +111,18 @@ export function Viewer({ view, effects }: { view: View; effects: ResolvedEffects
                 togglePause();
             }}
         >
-            {view.kind === "video" ? (
+            {view.kind === "mosaic" && view.mosaic ? (
+                <div className="viewer-mosaic">
+                    <div style={{ width: mosaicWidth(view.mosaic) }}>
+                        <MosaicGrid
+                            mosaic={view.mosaic}
+                            onTile={(tile) => {
+                                if (tile.action) terminal.dispatch(tile.action);
+                            }}
+                        />
+                    </div>
+                </div>
+            ) : view.kind === "video" ? (
                 // biome-ignore lint/a11y/useMediaCaption: a program's own clips have no captions to give
                 <video
                     ref={video}

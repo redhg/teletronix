@@ -8,7 +8,7 @@
         "waitForReveal": true,
         "header": [{ "left": { "breadcrumb": true }, "right": { "soundToggle": true } }],
         "ambience": "drone",
-        "variables": { "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false, "target": "NONE", "shipX": 5, "shipY": 2, "dossier": 1 },
+        "variables": { "camFixed": false, "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false, "target": "NONE", "shipX": 5, "shipY": 2, "dossier": 1 },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
     "screens": {
@@ -89,6 +89,8 @@
                 { "type": "text", "text": "  Bitmaps, blended with the screen, and their reveal effects.", "className": "dim" },
                 { "type": "link", "text": "> FULL SCREEN", "action": { "screen": "views" } },
                 { "type": "text", "text": "  Images and video over the whole window, VCR style.", "className": "dim" },
+                { "type": "link", "text": "> MONITORS", "action": { "screen": "monitors" } },
+                { "type": "text", "text": "  Several feeds on one screen: a security desk's cameras.", "className": "dim" },
                 { "type": "link", "text": "> VISUALS", "action": { "screen": "visuals" } },
                 { "type": "text", "text": "  Line art that moves: waveforms, charts, radar, wireframes.", "className": "dim" },
                 { "type": "link", "text": "> EFFECTS", "action": { "screen": "effects" } },
@@ -935,6 +937,37 @@
                 "===========",
                 "",
                 "The tape ran out, and its \"onEnd\" brought you here.",
+                "",
+                { "type": "link", "text": "> BACK", "action": { "back": true } }
+            ]
+        },
+        "monitors": {
+            "title": "MONITORS",
+            "parent": "cat-reveals",
+            "content": [
+                "MONITORS",
+                { "type": "rule" },
+                "",
+                "A mosaic shows several feeds at once, images or videos, each with a label and a clock, under a line of text. A feed can have no signal (with static, or dark), interference, or one only while a condition holds; and do something when it's clicked.",
+                "",
+                {
+                    "type": "mosaic",
+                    "cols": 60,
+                    "across": 2,
+                    "overlay": { "top": "SECURITY MONITOR · KEPLER RELAY", "bottom": "[alert blink]● REC[/]" },
+                    "tiles": [
+                        { "src": "data/video/test-tape.mp4", "label": "CAM 1 · HANGAR", "clock": true },
+                        { "src": "data/images/gulf-of-mexico-at-night.jpg", "label": "CAM 2 · ORBIT", "clock": "03:14:07", "action": { "view": "data/images/gulf-of-mexico-at-night.jpg" } },
+                        { "label": "CAM 3 · AIRLOCK", "signal": false, "static": true },
+                        { "src": "data/video/test-tape.mp4", "label": "CAM 4 · LAB", "signal": { "camFixed": true }, "static": 0.3 }
+                    ]
+                },
+                "",
+                "CAM 2 opens when clicked; [⤢] shows the whole monitor over the window. CAM 4 comes back when it's repaired:",
+                { "type": "toggle", "states": ["[ ] CAM 4 REPAIRED", "[X] CAM 4 REPAIRED"], "variable": "camFixed" },
+                "",
+                "An action's \"view\" can show a mosaic straight over the window, too:",
+                { "type": "link", "text": "> THE DESK, FULL SCREEN", "action": { "view": { "mosaic": { "across": 3, "overlay": { "bottom": "ALL CAMERAS · {name}" }, "tiles": [ { "src": "data/video/test-tape.mp4", "label": "CAM 1", "clock": true }, { "label": "CAM 2", "signal": false }, { "src": "data/images/gulf-of-mexico-at-night.jpg", "label": "CAM 3", "static": 0.5 } ] } } } },
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]

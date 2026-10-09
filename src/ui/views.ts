@@ -19,6 +19,7 @@ import { LoginView } from "../modules/login/View.tsx";
 import { MapView } from "../modules/map/View.tsx";
 import { MenuView } from "../modules/menu/View.tsx";
 import { MeterView } from "../modules/meter/View.tsx";
+import { MosaicView } from "../modules/mosaic/View.tsx";
 import { NumberView } from "../modules/number/View.tsx";
 import { PauseView } from "../modules/pause/View.tsx";
 import { PowerOffView } from "../modules/poweroff/View.tsx";
@@ -46,6 +47,7 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     prompt: PromptView,
     bitmap: BitmapView,
     video: VideoView,
+    mosaic: MosaicView,
     progress: ProgressView,
     slider: SliderView,
     section: SectionView,

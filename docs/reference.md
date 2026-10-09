@@ -11,11 +11,11 @@ autocomplete in your editor, point `$schema` at
 - **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem), [Inbox](#inbox), [Inbox message](#inbox-message), [Inbox labels](#inbox-labels), [Directory](#directory), [Directory entry](#directory-entry), [Shell](#shell)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link), [Bar breadcrumb](#bar-breadcrumb), [Bar sound toggle](#bar-sound-toggle)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Random](#random), [Pick](#pick), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Video](#video), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Log](#log), [Map](#map), [Map marker](#map-marker), [Map point](#map-point), [Conversation](#conversation), [Conversation part](#conversation-part), [Conversation reply](#conversation-reply), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Visual level](#visual-level), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Carousel](#carousel), [Frames](#frames), [Frame](#frame), [Tree](#tree), [Tree item](#tree-item), [Tree markers](#tree-markers), [Pause](#pause), [Rule](#rule), [Breadcrumb](#breadcrumb), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Video](#video), [Mosaic](#mosaic), [Mosaic tile](#mosaic-tile), [Mosaic overlay](#mosaic-overlay), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Log](#log), [Map](#map), [Map marker](#map-marker), [Map point](#map-point), [Conversation](#conversation), [Conversation part](#conversation-part), [Conversation reply](#conversation-reply), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Visual level](#visual-level), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Carousel](#carousel), [Frames](#frames), [Frame](#frame), [Tree](#tree), [Tree item](#tree-item), [Tree markers](#tree-markers), [Pause](#pause), [Rule](#rule), [Breadcrumb](#breadcrumb), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Audio file](#audio-file), [Pointer image](#pointer-image), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
-- **Shared types:** [Action](#action), [Action case](#action-case), [View](#view), [View options](#view-options), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
+- **Shared types:** [Action](#action), [Action case](#action-case), [View](#view), [View options](#view-options), [Mosaic view](#mosaic-view), [Reveal](#reveal), [Teletype reveal](#teletype-reveal), [Glitch reveal](#glitch-reveal), [Instant reveal](#instant-reveal), [Transition](#transition), [No transition](#no-transition), [Glitch transition](#glitch-transition), [Fade transition](#fade-transition), [Static transition](#static-transition)
 
 ## Program
 
@@ -678,6 +678,7 @@ One of:
 - [Prompt](#prompt)
 - [Bitmap](#bitmap)
 - [Video](#video)
+- [Mosaic](#mosaic)
 - [Progress](#progress)
 - [Slider](#slider)
 - [Section](#section)
@@ -1066,6 +1067,53 @@ A video among the text: playing as the screen reaches it, looping and silent by 
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 | `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="mosaic"></a>
+
+### Mosaic (`"type": "mosaic"`)
+
+Several feeds on one monitor, e.g. a security desk's cameras: images and videos in a grid, each with a label and a clock, some with no signal, under a line of text
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `tiles` | [Mosaic tile](#mosaic-tile)[] | **required** | The feeds, row by row |
+| `across` | whole number, 1–8 | as square a grid as they make | How many tiles in a row |
+| `aspect` | id | `"4 / 3"` | Each tile's shape, width / height |
+| `overlay` | [Mosaic overlay](#mosaic-overlay) |  | Text over the whole mosaic, as a monitor's on-screen display, e.g. { "top": "SECURITY MONITOR", "bottom": "[alert blink]● REC[/]" } (with markup and {variables}) |
+| `cols` | whole number, ≥ 1 | the screen's width | Its width in character columns; its height follows. On a narrower screen, it shrinks to fit |
+| `expand` | boolean | `true` | Can be shown over the whole window: a click (or Enter) does, or, with tiles that do something when clicked, its [ ⤢ ] |
+| `className` | string |  | Space-separated CSS classes, e.g. "alert" |
+| `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
+| `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
+| `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
+
+<a id="mosaic-tile"></a>
+
+### Mosaic tile
+
+A feed in a mosaic: an image, a video, or static
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `src` | string |  | An image or video, relative to the page, e.g. "data/cams/hangar.mp4", or a web address. Videos play muted, over and over. Without one, it has no signal. |
+| `kind` | `"image"` \| `"video"` | from the file's extension | Whether it's an image or a video |
+| `label` | string |  | A caption in its corner, e.g. "CAM 2 · LAB" (with markup and {variables}) |
+| `clock` | `true` \| id |  | A running clock in its other corner: true for the time of day, or a time to start from, e.g. "03:14:07" |
+| `signal` | boolean \| [Condition](#condition) | `true` | Whether it has a picture: false for NO SIGNAL, or a condition, e.g. { "cameraFixed": true }, to have one only while it holds |
+| `static` | boolean \| number, 0–1 | `false` | Static: with no signal, moving static behind NO SIGNAL (rather than a dark tile); with a picture, interference over it, true or a strength from 0 to 1 |
+| `action` | [Action](#action) |  | What happens when it's clicked (or chosen with Enter) |
+| `if` | [Condition](#condition) |  | Only there while this holds (its place stays, dark) |
+
+<a id="mosaic-overlay"></a>
+
+### Mosaic overlay
+
+Text over the whole mosaic, as a monitor's on-screen display, e.g. { "top": "SECURITY MONITOR", "bottom": "[alert blink]● REC[/]" } (with markup and {variables})
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `top` | string |  | A line across the top |
+| `bottom` | string |  | A line across the bottom |
 
 <a id="blend"></a>
 
@@ -2352,14 +2400,28 @@ An image or video over the whole window, with its options
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `src` | string | **required** | An image or a video, relative to the page, e.g. "data/video/tape3.mp4", or a web address. Videos are MP4 (which plays everywhere), WebM, M4V, OGV or MOV. |
+| `src` | string |  | An image or a video, relative to the page, e.g. "data/video/tape3.mp4", or a web address. Videos are MP4 (which plays everywhere), WebM, M4V, OGV or MOV. |
 | `kind` | `"image"` \| `"video"` | from the file's extension | Whether it's an image or a video |
 | `fit` | `"contain"` \| `"cover"` | `"contain"` | "contain": all of it, with bars round it; "cover": the whole window, trimmed to fit |
 | `loop` | boolean | `false` | Play a video over and over |
 | `muted` | boolean | `false` | Play a video without its sound |
 | `caption` | string |  | A line of text under it |
 | `osd` | boolean | `false` | A VCR's on-screen display, in the terminal's font: PLAY ► (or PAUSE) and a tape counter |
+| `mosaic` | [Mosaic view](#mosaic-view) |  | Several feeds at once, as a mosaic element shows them, in place of src |
 | `onEnd` | [Action](#action) |  | What happens when a video ends (it closes first) |
+
+<a id="mosaic-view"></a>
+
+### Mosaic view
+
+Several feeds at once, in place of src, as a mosaic element shows them: { "tiles": [ … ], "across": 2, "overlay": { … } }
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `tiles` | [Mosaic tile](#mosaic-tile)[] | **required** | The feeds, row by row |
+| `across` | whole number, 1–8 | as square a grid as they make | How many tiles in a row |
+| `aspect` | id | `"4 / 3"` | Each tile's shape, width / height |
+| `overlay` | [Mosaic overlay](#mosaic-overlay) |  | Text over the whole mosaic, as a monitor's on-screen display, e.g. { "top": "SECURITY MONITOR", "bottom": "[alert blink]● REC[/]" } (with markup and {variables}) |
 
 <a id="reveal"></a>
 

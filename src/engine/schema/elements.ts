@@ -62,6 +62,7 @@ import { type LoginElement, LoginSchema, loginModule } from "../../modules/login
 import { type MapElement, MapSchema, mapModule } from "../../modules/map/definition.ts";
 import { type MenuElement, MenuSchema, menuModule } from "../../modules/menu/definition.ts";
 import { type MeterElement, MeterSchema, meterModule } from "../../modules/meter/definition.ts";
+import { type MosaicElement, MosaicSchema, mosaicModule } from "../../modules/mosaic/definition.ts";
 import { type NumberElement, NumberSchema, numberModule } from "../../modules/number/definition.ts";
 import { type PauseElement, PauseSchema, pauseModule } from "../../modules/pause/definition.ts";
 import {
@@ -124,6 +125,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     PromptSchema,
     BitmapSchema,
     VideoSchema,
+    MosaicSchema,
     ProgressSchema,
     SliderSchema,
     SectionSchema,
@@ -173,6 +175,7 @@ export type Element =
     | PromptElement
     | BitmapElement
     | VideoElement
+    | MosaicElement
     | ProgressElement
     | SliderElement
     | SectionElement
@@ -216,6 +219,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     prompt: promptModule,
     bitmap: bitmapModule,
     video: videoModule,
+    mosaic: mosaicModule,
     progress: progressModule,
     slider: sliderModule,
     section: sectionModule,

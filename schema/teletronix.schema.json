@@ -4873,9 +4873,9 @@
                     "type": "object",
                     "properties": {
                         "src": {
+                            "description": "An image or a video, relative to the page, e.g. \"data/video/tape3.mp4\", or a web address. Videos are MP4 (which plays everywhere), WebM, M4V, OGV or MOV.",
                             "type": "string",
-                            "minLength": 1,
-                            "description": "An image or a video, relative to the page, e.g. \"data/video/tape3.mp4\", or a web address. Videos are MP4 (which plays everywhere), WebM, M4V, OGV or MOV."
+                            "minLength": 1
                         },
                         "kind": {
                             "description": "Whether it's an image or a video (default: from the file's extension)",
@@ -4913,18 +4913,134 @@
                             "description": "A VCR's on-screen display, in the terminal's font: PLAY ► (or PAUSE) and a tape counter (default: false)",
                             "type": "boolean"
                         },
+                        "mosaic": {
+                            "description": "Several feeds at once, as a mosaic element shows them, in place of src",
+                            "$ref": "#/$defs/MosaicView"
+                        },
                         "onEnd": {
                             "description": "What happens when a video ends (it closes first)",
                             "$ref": "#/$defs/Action"
                         }
                     },
-                    "required": [
-                        "src"
-                    ],
                     "additionalProperties": false,
                     "description": "An image or video over the whole window, with its options"
                 }
             ]
+        },
+        "MosaicView": {
+            "type": "object",
+            "properties": {
+                "tiles": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/MosaicTile"
+                    },
+                    "description": "The feeds, row by row"
+                },
+                "across": {
+                    "description": "How many tiles in a row (default: as square a grid as they make)",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 8
+                },
+                "aspect": {
+                    "default": "4 / 3",
+                    "description": "Each tile's shape, width / height (default: \"4 / 3\")",
+                    "type": "string",
+                    "pattern": "^\\d+(\\.\\d+)?\\s*\\/\\s*\\d+(\\.\\d+)?$"
+                },
+                "overlay": {
+                    "type": "object",
+                    "properties": {
+                        "top": {
+                            "description": "A line across the top",
+                            "type": "string"
+                        },
+                        "bottom": {
+                            "description": "A line across the bottom",
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "description": "Text over the whole mosaic, as a monitor's on-screen display, e.g. { \"top\": \"SECURITY MONITOR\", \"bottom\": \"[alert blink]● REC[/]\" } (with markup and {variables})"
+                }
+            },
+            "required": [
+                "tiles"
+            ],
+            "additionalProperties": false,
+            "description": "Several feeds at once, in place of src, as a mosaic element shows them: { \"tiles\": [ … ], \"across\": 2, \"overlay\": { … } }"
+        },
+        "MosaicTile": {
+            "type": "object",
+            "properties": {
+                "src": {
+                    "description": "An image or video, relative to the page, e.g. \"data/cams/hangar.mp4\", or a web address. Videos play muted, over and over. Without one, it has no signal.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "kind": {
+                    "description": "Whether it's an image or a video (default: from the file's extension)",
+                    "type": "string",
+                    "enum": [
+                        "image",
+                        "video"
+                    ]
+                },
+                "label": {
+                    "description": "A caption in its corner, e.g. \"CAM 2 · LAB\" (with markup and {variables})",
+                    "type": "string"
+                },
+                "clock": {
+                    "description": "A running clock in its other corner: true for the time of day, or a time to start from, e.g. \"03:14:07\"",
+                    "anyOf": [
+                        {
+                            "type": "boolean",
+                            "const": true
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^\\d{1,2}:\\d{2}(:\\d{2})?$"
+                        }
+                    ]
+                },
+                "signal": {
+                    "description": "Whether it has a picture: false for NO SIGNAL, or a condition, e.g. { \"cameraFixed\": true }, to have one only while it holds (default: true)",
+                    "anyOf": [
+                        {
+                            "type": "boolean"
+                        },
+                        {
+                            "$ref": "#/$defs/Condition"
+                        }
+                    ]
+                },
+                "static": {
+                    "default": false,
+                    "description": "Static: with no signal, moving static behind NO SIGNAL (rather than a dark tile); with a picture, interference over it, true or a strength from 0 to 1 (default: false)",
+                    "anyOf": [
+                        {
+                            "type": "boolean"
+                        },
+                        {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                        }
+                    ]
+                },
+                "action": {
+                    "description": "What happens when it's clicked (or chosen with Enter)",
+                    "$ref": "#/$defs/Action"
+                },
+                "if": {
+                    "description": "Only there while this holds (its place stays, dark)",
+                    "$ref": "#/$defs/Condition"
+                }
+            },
+            "additionalProperties": false,
+            "description": "A feed in a mosaic: an image, a video, or static"
         },
         "Action": {
             "description": "What happens: go to a screen, open a dialog, change variables, play a sound. Or a list of these with \"if\" conditions, where the first whose condition holds happens.",
@@ -5886,6 +6002,149 @@
                             ],
                             "additionalProperties": false,
                             "description": "A video among the text: playing as the screen reaches it, looping and silent by default; a click shows it over the whole window"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "mosaic"
+                                },
+                                "tiles": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/$defs/MosaicTile"
+                                    },
+                                    "description": "The feeds, row by row"
+                                },
+                                "across": {
+                                    "description": "How many tiles in a row (default: as square a grid as they make)",
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 8
+                                },
+                                "aspect": {
+                                    "default": "4 / 3",
+                                    "description": "Each tile's shape, width / height (default: \"4 / 3\")",
+                                    "type": "string",
+                                    "pattern": "^\\d+(\\.\\d+)?\\s*\\/\\s*\\d+(\\.\\d+)?$"
+                                },
+                                "overlay": {
+                                    "type": "object",
+                                    "properties": {
+                                        "top": {
+                                            "description": "A line across the top",
+                                            "type": "string"
+                                        },
+                                        "bottom": {
+                                            "description": "A line across the bottom",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "description": "Text over the whole mosaic, as a monitor's on-screen display, e.g. { \"top\": \"SECURITY MONITOR\", \"bottom\": \"[alert blink]● REC[/]\" } (with markup and {variables})"
+                                },
+                                "cols": {
+                                    "description": "Its width in character columns; its height follows. On a narrower screen, it shrinks to fit (default: the screen's width)",
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                },
+                                "expand": {
+                                    "default": true,
+                                    "description": "Can be shown over the whole window: a click (or Enter) does, or, with tiles that do something when clicked, its [ ⤢ ] (default: true)",
+                                    "type": "boolean"
+                                },
+                                "className": {
+                                    "description": "Space-separated CSS classes, e.g. \"alert\"",
+                                    "type": "string"
+                                },
+                                "reveal": {
+                                    "description": "How this element's text appears (default: the screen's reveal)",
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "teletype",
+                                                "glitch",
+                                                "instant"
+                                            ]
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "speed": {
+                                                            "description": "Milliseconds per character (default: 10)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "teletype"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Types the text one character at a time"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "glitch"
+                                                        },
+                                                        "duration": {
+                                                            "description": "Milliseconds for the text to resolve (default: config.defaults.glitch)",
+                                                            "type": "number",
+                                                            "exclusiveMinimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Resolves the text out of random glyphs, left to right"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "instant"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false,
+                                                    "description": "Shows the text all at once"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "sound": {
+                                    "description": "A sound from the program's sounds, played as the element starts to appear",
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]+$"
+                                },
+                                "if": {
+                                    "description": "Show the element only if this holds when the screen starts",
+                                    "$ref": "#/$defs/Condition"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "tiles"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Several feeds on one monitor, e.g. a security desk's cameras: images and videos in a grid, each with a label and a clock, some with no signal, under a line of text"
                         },
                         {
                             "type": "object",
