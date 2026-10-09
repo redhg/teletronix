@@ -354,7 +354,10 @@ test.describe("the editor", () => {
             // a menu, from nothing
             await page.getByRole("combobox", { name: "Add an element" }).click();
             await page.keyboard.type("menu");
-            await page.getByRole("option", { name: /^menu/ }).click();
+            // (by the keyboard: the list moves while the page scrolls the open element into view)
+            await expect(page.getByRole("option", { name: /^menu/ })).toBeVisible();
+            await page.keyboard.press("ArrowDown");
+            await page.keyboard.press("Enter");
             await page.getByRole("button", { name: "Add an item" }).click();
             await page.getByRole("textbox", { name: "Item 1: text" }).fill("> ENGINES");
             await page.getByRole("textbox", { name: "Item 1: key" }).fill("1");

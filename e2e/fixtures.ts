@@ -204,7 +204,56 @@ interface Fixtures {
     noErrors: undefined;
 }
 
+/**
+ * Keeps the tests quiet: every page's audio goes out through a gain of nothing, and every
+ * video plays at no volume. Sounds still start (the AudioSpy counts them), but nobody hears
+ * them.
+ */
+function silence(): void {
+    const Base = window.BaseAudioContext ?? window.AudioContext;
+    const real = Base && Object.getOwnPropertyDescriptor(Base.prototype, "destination");
+    if (real?.get) {
+        const silent = new WeakMap<BaseAudioContext, GainNode>();
+        Object.defineProperty(Base.prototype, "destination", {
+            configurable: true,
+            get(this: BaseAudioContext) {
+                let gain = silent.get(this);
+                if (!gain) {
+                    gain = this.createGain();
+                    gain.gain.value = 0;
+                    gain.connect(real.get?.call(this) as AudioNode);
+                    silent.set(this, gain);
+                }
+                return gain;
+            },
+        });
+    }
+    const volume = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, "volume");
+    if (volume?.set) {
+        const set = volume.set;
+        Object.defineProperty(HTMLMediaElement.prototype, "volume", {
+            ...volume,
+            set(this: HTMLMediaElement) {
+                set.call(this, 0);
+            },
+        });
+        // (a video that plays by itself never has its volume set)
+        document.addEventListener(
+            "play",
+            (event) => {
+                if (event.target instanceof HTMLMediaElement) set.call(event.target, 0);
+            },
+            true,
+        );
+    }
+}
+
 export const test = base.extend<Fixtures>({
+    // every page in a test, the GM's windows too, is silent
+    context: async ({ context }, use) => {
+        await context.addInitScript(silence);
+        await use(context);
+    },
     expectedErrors: [[], { option: true }],
     noErrors: [
         async ({ page, expectedErrors }, use) => {
