@@ -51,10 +51,10 @@ test.describe("a GM's panel", () => {
         await gm.getByRole("textbox", { name: "Message" }).fill("HALF A MESSAGE");
         // <right> and <left> move between them
         await gm.getByRole("tab", { name: "Messages" }).press("ArrowRight");
-        await expect(gm.getByRole("tab", { name: "Variables" })).toBeFocused();
-        await expect(gm.getByRole("textbox", { name: "credits" })).toBeVisible();
+        await expect(gm.getByRole("tab", { name: "Media" })).toBeFocused();
+        await expect(gm.getByRole("button", { name: "■ Stop all" })).toBeVisible();
         await expect(gm.getByRole("textbox", { name: "Message" })).toBeHidden();
-        await gm.getByRole("tab", { name: "Variables" }).press("ArrowLeft");
+        await gm.getByRole("tab", { name: "Media" }).press("ArrowLeft");
         await expect(gm.getByRole("textbox", { name: "Message" })).toHaveValue("HALF A MESSAGE");
 
         // and the panel opens at the last one
@@ -141,6 +141,33 @@ test.describe("a GM's panel", () => {
     });
 });
 
+test.describe("the GM's soundboard", () => {
+    test("plays the players a sound, and stops it all", async ({ page, player, audio }) => {
+        const withSounds: Program = {
+            ...program,
+            sounds: { laser: { wave: "sine", decay: 0.4, frequency: 0.5, slide: -0.3 } },
+        };
+        await player.open(withSounds);
+        // (sound starts at the player's first key or click)
+        await player.tap();
+        const gm = await openGm(page, withSounds);
+        await expect(gm.getByRole("status")).toContainText("Players on HOME");
+        await tab(gm, "Media");
+        const board = gm.getByRole("region", { name: "Soundboard" });
+        const played = await audio.during(
+            () => board.getByRole("button", { name: "▶ laser" }).click(),
+            400,
+        );
+        expect(played.recipes).toBe(1);
+        const beeped = await audio.during(
+            () => board.getByRole("button", { name: "▶ Alert" }).click(),
+            400,
+        );
+        expect(beeped.oscillators).toBeGreaterThan(0);
+        await gm.getByRole("button", { name: "■ Stop all" }).click();
+    });
+});
+
 test.describe("the GM's pause", () => {
     test("stops the players under a cover, until the GM carries on", async ({ page, player }) => {
         await player.open(program);
@@ -193,7 +220,7 @@ test.describe("the GM's handouts", () => {
         await player.open(withPhoto);
         const gm = await openGm(page, withPhoto);
         await expect(gm.getByRole("status")).toContainText("Players on HOME");
-        await tab(gm, "Messages");
+        await tab(gm, "Media");
         const handouts = gm.getByRole("region", { name: "Handouts" });
         await handouts.getByRole("button", { name: /sunset-grid\.png/ }).click();
         await expect(page.getByRole("dialog", { name: "A SUNSET" })).toBeVisible();
@@ -219,7 +246,7 @@ test.describe("the GM's ambience", () => {
         };
         await player.open(withAmbience);
         const gm = await openGm(page, withAmbience);
-        await tab(gm, "Effects");
+        await tab(gm, "Media");
         const panel = gm.getByText(/The sound looping in the background/);
         await expect(panel).toContainText("drone now");
 

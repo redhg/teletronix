@@ -147,6 +147,12 @@ export class Synth {
         const now = context.currentTime;
 
         switch (cue.type) {
+            case "file":
+                void this.playFile({ src: cue.src, volume: 1 });
+                return;
+            case "stop":
+                this.stopSounds();
+                return;
             case "sound": {
                 const recipe = this.library.get(cue.name);
                 if (recipe) this.playRecipe(recipe);
@@ -216,8 +222,29 @@ export class Synth {
         const source = context.createBufferSource();
         source.buffer = buffer;
         source.connect(master);
+        this.track(source);
         source.start();
         return buffer.duration;
+    }
+
+    /** The one-off sounds playing (the program's own), so they can be stopped. */
+    private playing = new Set<AudioBufferSourceNode>();
+
+    private track(source: AudioBufferSourceNode): void {
+        this.playing.add(source);
+        source.addEventListener("ended", () => this.playing.delete(source));
+    }
+
+    /** Stops the one-off sounds playing: the program's own, and audio files (not the ambience). */
+    stopSounds(): void {
+        for (const source of this.playing) {
+            try {
+                source.stop();
+            } catch {
+                // (already stopped)
+            }
+        }
+        this.playing.clear();
     }
 
     /** Plays an audio file once, whatever the settings; callers decide whether it should sound. */
@@ -230,6 +257,7 @@ export class Synth {
         const gain = context.createGain();
         gain.gain.value = file.volume;
         source.connect(gain).connect(master);
+        this.track(source);
         source.start();
     }
 

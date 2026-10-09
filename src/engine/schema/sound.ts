@@ -140,4 +140,8 @@ export type Cue =
     /** A sound from the program's sounds, by name */
     | { type: "sound"; name: string }
     /** Something chosen without a click, e.g. a button's hotkey */
-    | { type: "select" };
+    | { type: "select" }
+    /** An audio file that isn't among the program's sounds (e.g. a GM's), by its address */
+    | { type: "file"; src: string }
+    /** Stops the sounds playing (not the ambience) */
+    | { type: "stop" };

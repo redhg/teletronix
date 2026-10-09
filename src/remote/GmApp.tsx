@@ -46,7 +46,14 @@ import {
     randomId,
     relayLink,
 } from "./link.ts";
-import type { GmEnvelope, GmMessage, PlayerMessage, PlayerState } from "./protocol.ts";
+import {
+    BUILTIN_SOUNDS,
+    type BuiltinSound,
+    type GmEnvelope,
+    type GmMessage,
+    type PlayerMessage,
+    type PlayerState,
+} from "./protocol.ts";
 import { useWaitingUpdate } from "./update.ts";
 
 /** How long a burst of static lasts. */
@@ -190,6 +197,8 @@ export function GmApp({ name, program }: Props) {
     // images and videos to show the players, as the program has them
     const handouts = useMemo(() => handoutsOf(program), [program]);
     const showHandout = (view: unknown) => send({ type: "view", view });
+    const playSound = (sound: { sound?: string; builtin?: BuiltinSound; src?: string }) =>
+        send({ type: "play", ...sound });
 
     // pausing the players, under a cover the GM sets up
     const paused = latest?.paused === true;
@@ -303,6 +312,35 @@ export function GmApp({ name, program }: Props) {
                           },
                       ]
                     : []),
+            ],
+        },
+        {
+            group: "Soundboard",
+            commands: [
+                ...[...new Set([...program.sounds.keys(), ...program.audio.keys()])].map(
+                    (sound) => ({
+                        id: sound,
+                        label: `Play ${sound}`,
+                        keywords: ["sound", "soundboard"],
+                        run: () => playSound({ sound }),
+                    }),
+                ),
+                ...(Object.entries(BUILTIN_SOUNDS) as [BuiltinSound, string][]).map(
+                    ([builtin, label]) => ({
+                        id: `@${builtin}`,
+                        label: `Play ${label.toLowerCase()}`,
+                        description: "Teletronix's own",
+                        keywords: ["sound", "soundboard"],
+                        run: () => playSound({ builtin }),
+                    }),
+                ),
+                {
+                    id: "@stop",
+                    label: "Stop all",
+                    description: "Closes what's showing, stops the sounds playing",
+                    keywords: ["media", "sound", "silence"],
+                    run: () => send({ type: "stop-media" }),
+                },
             ],
         },
         {
@@ -491,13 +529,41 @@ export function GmApp({ name, program }: Props) {
                                 paused={paused}
                                 toggle={togglePause}
                             />
-                            <Handouts
-                                handouts={handouts}
-                                showing={latest?.view ?? null}
-                                show={showHandout}
-                                close={() => send({ type: "close-view" })}
-                            />
                         </SimpleGrid>
+                    </Tabs.Panel>
+                    <Tabs.Panel value="media">
+                        <Stack>
+                            <Group justify="space-between">
+                                <Text size="sm" c="dimmed">
+                                    Show the players an image or video over their whole screen, or
+                                    play them a sound, at any moment.
+                                </Text>
+                                <Button
+                                    color="red"
+                                    variant="light"
+                                    size="xs"
+                                    disabled={!latest}
+                                    onClick={() => send({ type: "stop-media" })}
+                                >
+                                    ■ Stop all
+                                </Button>
+                            </Group>
+                            <SimpleGrid cols={{ base: 1, md: 2 }}>
+                                <Handouts
+                                    handouts={handouts}
+                                    showing={latest?.view ?? null}
+                                    show={showHandout}
+                                    close={() => send({ type: "close-view" })}
+                                />
+                                <Soundboard program={program} play={playSound} />
+                                <Ambience
+                                    program={program}
+                                    playing={latest?.ambience ?? null}
+                                    value={ambience}
+                                    change={changeAmbience}
+                                />
+                            </SimpleGrid>
+                        </Stack>
                     </Tabs.Panel>
                     <Tabs.Panel value="variables">
                         <SimpleGrid cols={{ base: 1, md: 2 }}>
@@ -517,14 +583,7 @@ export function GmApp({ name, program }: Props) {
                                 sendEffects(next);
                             }}
                             burst={() => send({ type: "burst", ms: BURST_MS })}
-                        >
-                            <Ambience
-                                program={program}
-                                playing={latest?.ambience ?? null}
-                                value={ambience}
-                                change={changeAmbience}
-                            />
-                        </Effects>
+                        />
                     </Tabs.Panel>
                     <Tabs.Panel value="devices">
                         <SimpleGrid cols={{ base: 1, md: 2 }}>
@@ -552,6 +611,7 @@ export function GmApp({ name, program }: Props) {
 const TABS = [
     ["screens", "Screens"],
     ["messages", "Messages"],
+    ["media", "Media"],
     ["variables", "Variables"],
     ["effects", "Effects"],
     ["devices", "Devices"],
@@ -1212,6 +1272,72 @@ function StandBy({
                     {paused ? "▶ Resume" : "‖ Pause now"}
                 </Button>
             </Group>
+        </Panel>
+    );
+}
+
+/**
+ * Sounds to play the players, over whatever's on their screen: the program's own (generated or
+ * audio files), Teletronix's, or any audio file by its address.
+ */
+function Soundboard({
+    program,
+    play,
+}: {
+    program: Program;
+    play: (sound: { sound?: string; builtin?: BuiltinSound; src?: string }) => void;
+}) {
+    const [other, setOther] = useState("");
+    const own = [...new Set([...program.sounds.keys(), ...program.audio.keys()])];
+    return (
+        <Panel title="Soundboard">
+            {own.length > 0 && (
+                <Group gap="xs">
+                    {own.map((name) => (
+                        <Button
+                            key={name}
+                            size="xs"
+                            variant="light"
+                            title={program.audio.get(name)?.src ?? "A generated sound"}
+                            onClick={() => play({ sound: name })}
+                        >
+                            ▶ {name}
+                        </Button>
+                    ))}
+                </Group>
+            )}
+            <Group gap="xs">
+                {(Object.entries(BUILTIN_SOUNDS) as [BuiltinSound, string][]).map(([id, label]) => (
+                    <Button
+                        key={id}
+                        size="xs"
+                        variant="default"
+                        onClick={() => play({ builtin: id })}
+                    >
+                        ▶ {label}
+                    </Button>
+                ))}
+            </Group>
+            <form
+                onSubmit={(event) => {
+                    event.preventDefault();
+                    if (other.trim()) play({ src: other.trim() });
+                }}
+            >
+                <Group gap="xs" align="end">
+                    <TextInput
+                        size="xs"
+                        label="Another"
+                        placeholder="data/audio/klaxon.mp3, or a web address"
+                        value={other}
+                        onChange={(event) => setOther(event.currentTarget.value)}
+                        style={{ flex: 1 }}
+                    />
+                    <Button type="submit" size="xs" variant="light" disabled={!other.trim()}>
+                        Play
+                    </Button>
+                </Group>
+            </form>
         </Panel>
     );
 }

@@ -40,6 +40,13 @@ export type GmMessage =
     | { type: "view"; view: unknown }
     /** Closes the image or video. */
     | { type: "close-view" }
+    /**
+     * Plays a sound on the players' devices: one of the program's (by name), one of
+     * Teletronix's own, or an audio file (by its address).
+     */
+    | { type: "play"; sound?: string; builtin?: BuiltinSound; src?: string }
+    /** Closes the image or video showing, and stops the sounds playing. */
+    | { type: "stop-media" }
     /** Pauses the program under a cover: a message, an image behind it, a sound looping. */
     | { type: "pause"; message?: string; image?: string; sound?: string }
     /** Carries on where it was paused. */
@@ -56,6 +63,16 @@ export type GmMessage =
  * same browser and over the network) carries it out once.
  */
 export type GmEnvelope = GmMessage & { id: string };
+
+/** Teletronix's own sounds a GM can play. */
+export const BUILTIN_SOUNDS = {
+    alert: "Alert",
+    beep: "Beep",
+    select: "Select",
+    glitch: "Glitch",
+    static: "Static",
+} as const;
+export type BuiltinSound = keyof typeof BUILTIN_SOUNDS;
 
 /** From a players' terminal to the panel. */
 export interface PlayerMessage {

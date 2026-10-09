@@ -485,6 +485,11 @@ export class Terminal {
         this.flush();
     }
 
+    /** Plays a sound, e.g. one a GM chose (see Cue): the program's, a built-in one, a file. */
+    play(cue: Cue): void {
+        this.cue(cue);
+    }
+
     /** Shows an image or video over the whole window (see View), until closeView. */
     openView(view: View): void {
         this.view = view;

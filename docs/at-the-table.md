@@ -52,16 +52,21 @@ The rest is in tabs (<left> and <right> move between them, and the panel opens a
 - **Screens:** every screen, under its `parent`, or found by name. A click sends the players
   there.
 - **Messages:** **transmit** a message, typed into a dialog on the players' screen, with its
-  own button text, and in the alert colour if you like (Cmd/Ctrl+Enter sends it). And open
-  any of the program's dialogs, or close the open one. And **handouts**: show the players any image or
-  video the program has (or another, by its file or address) over their whole screen, as a
-  [view](elements.md) does, and close it again.
+  own button text, and in the alert colour if you like (Cmd/Ctrl+Enter sends it). Open any of
+  the program's dialogs, or close the open one. And **Stand by**, the cover for a pause (below).
+- **Media:** interrupt the players with something to see or hear, at any moment.
+  **Handouts** shows any image or video the program has (or another, by its file or address)
+  over their whole screen, as a [view](elements.md) does, until it's closed. The **Soundboard**
+  plays them any of the program's sounds, generated or audio files, Teletronix's own (an
+  alert, a beep, static, a glitch…), or any audio file by its address, over whatever's on
+  screen. **Ambience**, for a program with [audio files](look-and-sound.md#audio-files-and-ambience),
+  shows what's looping in the background, and switches it to another of the program's files,
+  silence, or back to what the program and screen say. **Stop all** closes what's showing and
+  stops the sounds playing.
 - **Variables:** every variable, live. Change one (Enter sets it) and the players' screen
   follows, as if an action had set it. And each timer's time, with Start, Stop and Reset.
 - **Effects:** turns any effect on or off over what the program and screen say, or back to
-  what they say, and sends a **burst of static**. And, for a program with
-  [audio files](look-and-sound.md#audio-files-and-ambience), the **ambience**: what's playing,
-  and another file of the program's, silence, or back to what the program and screen say.
+  what they say, and sends a **burst of static**.
 - **Devices:** a QR code for a players' device (see below), and a button to open a players'
   window on this computer.
 

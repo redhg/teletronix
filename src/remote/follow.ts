@@ -1,6 +1,12 @@
-import { ActionSchema, type EffectsSetting, type Terminal, ViewSchema } from "../engine/index.ts";
+import {
+    ActionSchema,
+    type Cue,
+    type EffectsSetting,
+    type Terminal,
+    ViewSchema,
+} from "../engine/index.ts";
 import { channelLink, type Link, type LinkStatus, newCode, randomId, relayLink } from "./link.ts";
-import type { GmEnvelope, PlayerMessage, PlayerState } from "./protocol.ts";
+import type { BuiltinSound, GmEnvelope, PlayerMessage, PlayerState } from "./protocol.ts";
 
 /** How often a players' window reports in, and a panel pings, so each knows the other's there. */
 export const HEARTBEAT_MS = 1000;
@@ -156,6 +162,15 @@ export function followRemote(
             case "close-view":
                 terminal.closeView();
                 break;
+            case "play":
+                if (message.sound) terminal.play({ type: "sound", name: message.sound });
+                else if (message.src) terminal.play({ type: "file", src: message.src });
+                else if (message.builtin) terminal.play(builtinCue(message.builtin));
+                break;
+            case "stop-media":
+                terminal.closeView();
+                terminal.play({ type: "stop" });
+                break;
             case "pause":
                 terminal.pause({
                     ...(message.message ? { message: message.message } : {}),
@@ -222,4 +237,20 @@ export function followRemote(
             for (const link of links) link.close();
         },
     };
+}
+
+/** The cue for one of Teletronix's own sounds. */
+function builtinCue(sound: BuiltinSound): Cue {
+    switch (sound) {
+        case "alert":
+            return { type: "dialog", alert: true };
+        case "beep":
+            return { type: "dialog", alert: false };
+        case "select":
+            return { type: "select" };
+        case "glitch":
+            return { type: "glitch", duration: 1000 };
+        case "static":
+            return { type: "static", duration: 1500 };
+    }
 }
