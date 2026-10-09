@@ -154,6 +154,12 @@ export function applyAppearance(
     const info: { system?: string; pixelHeight: number } = FONTS[font];
     root.setProperty("--font-family", fontStack(font));
     root.setProperty("--font-px", `${info.pixelHeight}px`);
+    // one of the font's own pixels (or a fine line, for an outline font): for bold's second
+    // strike and underlines
+    root.setProperty(
+        "--stroke",
+        info.pixelHeight > 1 ? `calc(1em / ${info.pixelHeight})` : "0.06em",
+    );
     root.setProperty("--font-scale", String(fontScale));
     root.setProperty("--line-spacing", String(lineSpacing));
     // pixel fonts stay sharp without smoothing; outline fonts need it

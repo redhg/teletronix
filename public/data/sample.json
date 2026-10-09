@@ -2281,6 +2281,8 @@
                 "",
                 "Or style just part of a line, anywhere text goes: REACTOR STATUS: [alert]CRITICAL[/alert]. EVACUATE [alert blink]NOW[/]. Write [[alert]...[[/alert], or close it with [[/]. (And [[[[ shows a [[ that's never markup.)",
                 "",
+                "The built-in styles: [bold]BOLD[/], struck twice like a printer's; [italic]italic[/]; [underline]underlined[/]; [inverse] INVERSE [/]; [dim]dim[/]; and together, [alert bold inverse] ALERT [/] or [bold underline]this[/].",
+                "",
                 { "type": "text", "text": "\"align\": \"center\" puts text in the middle.", "align": "center" },
                 { "type": "text", "text": "Or \"right\", at the edge.", "align": "right" },
                 "",

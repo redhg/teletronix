@@ -44,6 +44,45 @@ test.describe("the player", () => {
         await expect(player.screen.locator(".alert")).toHaveCSS("color", "rgb(255, 255, 0)");
     });
 
+    test("styles part of a line bold, italic, underlined or inverse", async ({ player }) => {
+        await player.open({
+            config: { name: "Styles", start: "home", reveal: "instant" },
+            screens: {
+                home: {
+                    content: [
+                        "[bold]B[/] [italic]I[/] [underline]U[/] [inverse]V[/] [alert inverse]A[/]",
+                    ],
+                },
+            },
+        });
+        const styled = (name: string) => player.screen.locator(`.${name}`).first();
+        const style = (name: string) =>
+            styled(name).evaluate((el) => {
+                const css = getComputedStyle(el);
+                return {
+                    shadow: css.textShadow,
+                    italic: css.fontStyle,
+                    line: css.textDecorationLine,
+                    color: css.color,
+                    background: css.backgroundColor,
+                };
+            });
+        // struck twice: a second copy, in the text's own color
+        expect((await style("bold")).shadow).toMatch(/rgb\(212, 249, 250\) [\d.]+px 0px 0px/);
+        expect((await style("italic")).italic).toBe("italic");
+        expect((await style("underline")).line).toBe("underline");
+        expect(await style("inverse")).toMatchObject({
+            color: "rgb(0, 12, 12)",
+            background: "rgb(212, 249, 250)",
+        });
+        // inverse alert text: on the alert color
+        expect(
+            await styled("alert.inverse").evaluate((el) => getComputedStyle(el).backgroundColor),
+        ).toBe("rgb(255, 60, 0)");
+        // the same width as plain text
+        await expect(player.screen).toContainText("B I U V A");
+    });
+
     test("shows characters as others, only where they're shown", async ({ page, player }) => {
         await player.open({
             config: {

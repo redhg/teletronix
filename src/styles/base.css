@@ -51,6 +51,47 @@ body {
     }
 }
 
+/* Bold, as a terminal or printer did it: the text struck twice, a font pixel apart, so pixel
+   fonts stay crisp and every character keeps its width */
+.bold {
+    text-shadow:
+        var(--fringe, 0 0 transparent),
+        var(--stroke, 0.06em) 0 0 currentColor,
+        var(--glow);
+}
+
+.alert.bold,
+.alert .bold {
+    text-shadow:
+        var(--fringe, 0 0 transparent),
+        var(--stroke, 0.06em) 0 0 currentColor,
+        var(--alert-glow);
+}
+
+/* slanted, as the browser does it (a pixel font's pixels shear) */
+.italic {
+    font-style: italic;
+}
+
+/* a line along the bottom of the cell, a font pixel thick, unbroken by descenders */
+.underline {
+    text-decoration: underline;
+    text-decoration-thickness: var(--stroke, 0.06em);
+    text-underline-offset: 0.15em;
+    text-decoration-skip-ink: none;
+}
+
+/* inverse video: the background's color on the text's (or the alert's, in alert text) */
+.inverse {
+    color: var(--bg);
+    background: var(--inverse-bg, var(--fg));
+    text-shadow: var(--inverse-glow);
+}
+
+.alert {
+    --inverse-bg: var(--alert);
+}
+
 /* text that's less important: notes, descriptions */
 .dim {
     opacity: 0.65;
