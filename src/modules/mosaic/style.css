@@ -76,9 +76,13 @@ button.mosaic-tile:hover {
     right: 0.6em;
 }
 
+/* in a black box, as a monitor draws it, so it reads over static */
 .mosaic-no-signal {
-    inset: 50% 0 auto;
-    translate: 0 -50%;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    padding: 0.1em 0.5em;
+    background: #000;
     font-size: 1em;
     text-align: center;
 }

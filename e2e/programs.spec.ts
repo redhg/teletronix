@@ -91,6 +91,49 @@ test.describe("the programs in public/data", () => {
         expect(screens.size).toBeGreaterThan(10);
     });
 
+    test("Tape 7 draws every screen its links reach", async ({ player }) => {
+        // (from the archive: it starts up with a key press)
+        const screens = await crawl(player, "tape7", "#archive");
+        expect(screens.size).toBeGreaterThan(5);
+    });
+
+    test("Tape 7 plays through: the search, the password, the buffer and the tape", async ({
+        player,
+    }) => {
+        const { page } = player;
+        await player.open("tape7", "#search");
+        await expect(player.screen).toContainText("SEARCH:");
+        await page.keyboard.type("03:14");
+        await page.keyboard.press("Enter");
+        await expect(player.screen).toContainText("CAM 3 BUFFER");
+
+        // the password from tape 04, then the desk, with its camera dark
+        await player.screen.getByRole("button", { name: "< BACK" }).click();
+        await player.screen.getByRole("button", { name: "< BACK" }).click();
+        await player.screen.getByRole("menuitem", { name: "3. SECURITY DESK" }).click();
+        await expect(player.screen).toContainText("PASSWORD:");
+        await page.keyboard.type("HALCYON");
+        await page.keyboard.press("Enter");
+        const airlock = player.screen.getByRole("button", { name: "CAM 3 · AIRLOCK" });
+        await expect(airlock).toContainText("NO SIGNAL");
+
+        // recovering it starts the purge
+        await player.screen.getByRole("button", { name: "> RECOVER CAM 3 BUFFER" }).click();
+        await player.dialog.getByRole("button", { name: "RECOVER" }).click();
+        await expect(player.screen).toContainText(/ARCHIVE PURGE IN 01:[23]\d/);
+        await player.screen.getByRole("button", { name: "> SECURITY DESK" }).click();
+        await expect(airlock).not.toContainText("NO SIGNAL");
+
+        // and the tape, to its end
+        await airlock.click();
+        const video = page.getByRole("dialog", { name: "Video" }).locator("video");
+        await expect(video).toHaveAttribute("src", /tape07\.mp4$/);
+        await video.evaluate((element: HTMLVideoElement) => {
+            element.currentTime = element.duration - 0.2;
+        });
+        await expect(player.screen).toContainText("END OF TAPE 07", { timeout: 10_000 });
+    });
+
     test("the Teletronix logo loads", async ({ player }) => {
         await player.open("teletronix");
         await expect(player.screen).not.toBeEmpty();

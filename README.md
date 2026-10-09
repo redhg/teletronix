@@ -1,6 +1,7 @@
 # Teletronix
 **Play it online: <https://redhg.github.io/teletronix/>**: the
-[sample](https://redhg.github.io/teletronix/?data=sample), or
+[sample](https://redhg.github.io/teletronix/?data=sample),
+[*Tape 7*](https://redhg.github.io/teletronix/?data=tape7), or
 [*The Haunting of Ypsilon-14*](https://redhg.github.io/teletronix/?data=ypsilon14). It works
 offline once opened, and installs as an app (see [Online](docs/at-the-table.md#online)).
 
@@ -21,7 +22,9 @@ npm run dev    # http://localhost:5173
 ```
 
 Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `sample`.
-`?data=ypsilon14` runs *The Haunting of Ypsilon-14*, converted from Phosphor.
+`?data=ypsilon14` runs *The Haunting of Ypsilon-14*, converted from Phosphor. `?data=tape7` runs
+*Tape 7*, a short mystery on a VCR: a space station's tape archive, its security cameras, and
+what happened at 03:14 (for the GM: [Running Tape 7](docs/at-the-table.md#running-tape-7)).
 `#<screen>` starts on that screen instead of the start screen, e.g.
 <http://localhost:5173/?data=sample#home>, and changing it jumps there: handy while writing one.
 

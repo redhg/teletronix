@@ -1,0 +1,778 @@
+{
+    "$schema": "../../schema/teletronix.schema.json",
+    "config": {
+        "name": "Tape 7",
+        "author": "@redhg",
+        "description": "The Kepler Relay Station's tape archive. The station stopped answering on day 11; the recovery crew docks with the archive deck. Somewhere in it is what happened at 03:14.",
+        "start": "boot",
+        "theme": "vcr",
+        "waitForReveal": true,
+        "header": [
+            {
+                "left": {
+                    "breadcrumb": true
+                },
+                "right": {
+                    "soundToggle": true
+                }
+            }
+        ],
+        "ambience": "drone",
+        "variables": {
+            "secure": false,
+            "found": false,
+            "recovered": false,
+            "watched": false
+        },
+        "timers": {
+            "purge": {
+                "from": 90,
+                "onComplete": {
+                    "screen": "purged"
+                }
+            }
+        }
+    },
+    "screens": {
+        "boot": {
+            "header": false,
+            "preset": {
+                "type": "boot",
+                "title": "KEPLER RELAY STATION · ARCHIVE DECK",
+                "pause": true,
+                "next": "archive"
+            }
+        },
+        "archive": {
+            "title": "ARCHIVE",
+            "content": [
+                "KEPLER RELAY STATION",
+                "TAPE ARCHIVE · DECK B",
+                {
+                    "type": "rule"
+                },
+                "",
+                "LAST ENTRY: DAY 11, 03:14.",
+                "CREW ABOARD: [alert]NO RESPONSE[/]",
+                "",
+                {
+                    "type": "menu",
+                    "items": [
+                        {
+                            "text": "1. TAPES",
+                            "key": "1",
+                            "action": {
+                                "screen": "tapes"
+                            }
+                        },
+                        {
+                            "text": "2. STATION LOG",
+                            "key": "2",
+                            "action": {
+                                "screen": "log"
+                            }
+                        },
+                        {
+                            "text": "3. SECURITY DESK",
+                            "key": "3",
+                            "action": [
+                                {
+                                    "if": {
+                                        "secure": true
+                                    },
+                                    "screen": "desk"
+                                },
+                                {
+                                    "screen": "login"
+                                }
+                            ]
+                        },
+                        {
+                            "text": "4. SEARCH",
+                            "key": "4",
+                            "action": {
+                                "screen": "search"
+                            }
+                        },
+                        {
+                            "text": "5. ABOUT",
+                            "key": "5",
+                            "action": {
+                                "screen": "about"
+                            }
+                        }
+                    ]
+                },
+                "",
+                {
+                    "type": "timer",
+                    "label": "ARCHIVE PURGE IN ",
+                    "timer": "purge",
+                    "className": "alert",
+                    "if": {
+                        "recovered": true
+                    }
+                }
+            ]
+        },
+        "tapes": {
+            "title": "TAPES",
+            "parent": "archive",
+            "content": [
+                "TAPES",
+                {
+                    "type": "rule"
+                },
+                "",
+                {
+                    "type": "link",
+                    "text": "> TAPE 01 · ARRIVAL",
+                    "action": {
+                        "view": {
+                            "src": "data/tape7/tape01.mp4",
+                            "osd": true
+                        }
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "  DAY 01. THE CREW LOG BEGINS.",
+                    "className": "dim"
+                },
+                {
+                    "type": "link",
+                    "text": "> TAPE 04 · SAMPLE K-7",
+                    "action": {
+                        "view": {
+                            "src": "data/tape7/tape04.mp4",
+                            "osd": true
+                        }
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "  DAY 06. LAB 2.",
+                    "className": "dim"
+                },
+                {
+                    "type": "link",
+                    "text": "> TAPE 07 · [MISSING]",
+                    "action": [
+                        {
+                            "if": {
+                                "recovered": true
+                            },
+                            "view": {
+                                "src": "data/tape7/tape07.mp4",
+                                "osd": true,
+                                "onEnd": {
+                                    "stopTimer": "purge",
+                                    "set": {
+                                        "watched": true
+                                    },
+                                    "screen": "ending"
+                                }
+                            }
+                        },
+                        {
+                            "dialog": "missing"
+                        }
+                    ],
+                    "if": {
+                        "recovered": false
+                    }
+                },
+                {
+                    "type": "link",
+                    "text": "> TAPE 07 · CAM 3 BUFFER (RECOVERED)",
+                    "action": [
+                        {
+                            "if": {
+                                "recovered": true
+                            },
+                            "view": {
+                                "src": "data/tape7/tape07.mp4",
+                                "osd": true,
+                                "onEnd": {
+                                    "stopTimer": "purge",
+                                    "set": {
+                                        "watched": true
+                                    },
+                                    "screen": "ending"
+                                }
+                            }
+                        },
+                        {
+                            "dialog": "missing"
+                        }
+                    ],
+                    "if": {
+                        "recovered": true
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "  DAY 11.",
+                    "className": "dim"
+                },
+                {
+                    "type": "link",
+                    "text": "> TAPE 09 · CAM 3",
+                    "action": {
+                        "view": {
+                            "src": "data/tape7/tape09.mp4",
+                            "osd": true
+                        }
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "  DAY 11. THE AIRLOCK, AT NIGHT.",
+                    "className": "dim"
+                },
+                "",
+                {
+                    "type": "timer",
+                    "label": "ARCHIVE PURGE IN ",
+                    "timer": "purge",
+                    "className": "alert",
+                    "if": {
+                        "recovered": true
+                    }
+                },
+                {
+                    "type": "link",
+                    "text": "< BACK",
+                    "action": {
+                        "screen": "archive"
+                    }
+                }
+            ]
+        },
+        "log": {
+            "title": "STATION LOG",
+            "parent": "archive",
+            "content": [
+                "STATION LOG",
+                {
+                    "type": "rule"
+                },
+                "",
+                "DAY 01 09:00  RELIEF CREW ABOARD (5).",
+                "DAY 03 11:40  ARRAY SWEEP: OBJECT K-7 RECOVERED.",
+                "DAY 06 14:22  LAB 2: K-7 SAMPLED. DR. OSEI.",
+                "DAY 08 22:10  LAB 2: TEMPERATURE RISING. CAUSE UNKNOWN.",
+                "DAY 09 02:51  DORMS: MOVEMENT, NO CREW TAGGED.",
+                "DAY 10 18:05  CREW ABOARD (4). DR. OSEI NOT FOUND.",
+                "DAY 11 03:14  [alert]AIRLOCK 3 CYCLED. FROM INSIDE.[/]",
+                "DAY 11 03:14  [alert]CAM 3: SIGNAL LOST.[/]",
+                "DAY 11 03:15  TAPE 07 REMOVED FROM ARCHIVE.",
+                "DAY 11 03:15  CREW ABOARD (?).",
+                "",
+                {
+                    "type": "text",
+                    "text": "END OF LOG.",
+                    "className": "dim"
+                },
+                "",
+                {
+                    "type": "timer",
+                    "label": "ARCHIVE PURGE IN ",
+                    "timer": "purge",
+                    "className": "alert",
+                    "if": {
+                        "recovered": true
+                    }
+                },
+                {
+                    "type": "link",
+                    "text": "< BACK",
+                    "action": {
+                        "screen": "archive"
+                    }
+                }
+            ]
+        },
+        "login": {
+            "title": "SECURITY",
+            "parent": "archive",
+            "preset": {
+                "type": "login",
+                "title": "SECURITY DESK // CREW ONLY",
+                "username": false,
+                "accounts": [
+                    {
+                        "password": "HALCYON",
+                        "action": {
+                            "set": {
+                                "secure": true
+                            },
+                            "screen": "desk"
+                        }
+                    },
+                    {
+                        "password": "halcyon",
+                        "action": {
+                            "set": {
+                                "secure": true
+                            },
+                            "screen": "desk"
+                        }
+                    },
+                    {
+                        "password": "Halcyon",
+                        "action": {
+                            "set": {
+                                "secure": true
+                            },
+                            "screen": "desk"
+                        }
+                    }
+                ],
+                "denied": "WRONG PASSWORD. (DR. OSEI NEVER COULD REMEMBER HERS.)"
+            }
+        },
+        "desk": {
+            "title": "SECURITY DESK",
+            "parent": "archive",
+            "content": [
+                {
+                    "type": "mosaic",
+                    "across": 2,
+                    "cols": 64,
+                    "overlay": {
+                        "bottom": "[alert blink]● REC[/] DECK B"
+                    },
+                    "tiles": [
+                        {
+                            "src": "data/tape7/cam1.mp4",
+                            "label": "CAM 1 · HANGAR",
+                            "clock": "03:13:40"
+                        },
+                        {
+                            "src": "data/tape7/cam2.mp4",
+                            "label": "CAM 2 · LAB 2",
+                            "clock": "03:13:40"
+                        },
+                        {
+                            "src": "data/tape7/cam3.mp4",
+                            "label": "CAM 3 · AIRLOCK",
+                            "clock": "03:14:07",
+                            "signal": {
+                                "recovered": true
+                            },
+                            "static": 0.3,
+                            "action": [
+                                {
+                                    "if": {
+                                        "recovered": true
+                                    },
+                                    "view": {
+                                        "src": "data/tape7/tape07.mp4",
+                                        "osd": true,
+                                        "onEnd": {
+                                            "stopTimer": "purge",
+                                            "set": {
+                                                "watched": true
+                                            },
+                                            "screen": "ending"
+                                        }
+                                    }
+                                },
+                                {
+                                    "dialog": "no-feed"
+                                }
+                            ]
+                        },
+                        {
+                            "src": "data/tape7/cam4.mp4",
+                            "label": "CAM 4 · DORMS",
+                            "clock": "03:13:40",
+                            "static": 0.15
+                        }
+                    ]
+                },
+                "",
+                {
+                    "type": "text",
+                    "text": "CAM 3: NO SIGNAL SINCE 03:14:07.",
+                    "if": {
+                        "recovered": false
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "CAM 3: BUFFER RECOVERED. SELECT IT TO PLAY.",
+                    "if": {
+                        "recovered": true
+                    }
+                },
+                {
+                    "type": "link",
+                    "text": "> RECOVER CAM 3 BUFFER",
+                    "action": {
+                        "dialog": "recover"
+                    },
+                    "if": {
+                        "all": [
+                            {
+                                "found": true
+                            },
+                            {
+                                "recovered": false
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "timer",
+                    "label": "ARCHIVE PURGE IN ",
+                    "timer": "purge",
+                    "className": "alert",
+                    "if": {
+                        "recovered": true
+                    }
+                },
+                {
+                    "type": "link",
+                    "text": "< BACK",
+                    "action": {
+                        "screen": "archive"
+                    }
+                }
+            ]
+        },
+        "search": {
+            "title": "SEARCH",
+            "parent": "archive",
+            "content": [
+                "SEARCH THE ARCHIVE",
+                {
+                    "type": "rule"
+                },
+                "",
+                {
+                    "type": "text",
+                    "text": "BY NAME, TAPE OR TIME (HH:MM).",
+                    "className": "dim"
+                },
+                "",
+                {
+                    "type": "prompt",
+                    "prompt": "SEARCH: ",
+                    "unknown": "NO MATCHES.",
+                    "commands": [
+                        {
+                            "command": [
+                                "03:14",
+                                "03:14:07",
+                                "0314",
+                                "3:14",
+                                "314"
+                            ],
+                            "action": {
+                                "set": {
+                                    "found": true
+                                },
+                                "screen": "found"
+                            }
+                        },
+                        {
+                            "command": [
+                                "TAPE 07",
+                                "TAPE 7",
+                                "07",
+                                "7"
+                            ],
+                            "action": {
+                                "dialog": "missing"
+                            }
+                        },
+                        {
+                            "command": [
+                                "OSEI",
+                                "DR. OSEI",
+                                "DR OSEI"
+                            ],
+                            "action": {
+                                "screen": "osei"
+                            }
+                        },
+                        {
+                            "command": [
+                                "K-7",
+                                "K7",
+                                "SAMPLE"
+                            ],
+                            "action": {
+                                "screen": "k7"
+                            }
+                        },
+                        {
+                            "command": [
+                                "HALCYON"
+                            ],
+                            "action": {
+                                "dialog": "halcyon"
+                            }
+                        }
+                    ]
+                },
+                "",
+                {
+                    "type": "link",
+                    "text": "< BACK",
+                    "action": {
+                        "screen": "archive"
+                    }
+                }
+            ]
+        },
+        "found": {
+            "title": "03:14",
+            "parent": "search",
+            "content": [
+                "1 MATCH",
+                {
+                    "type": "rule"
+                },
+                "",
+                "CAM 3 BUFFER · DAY 11 03:14:07",
+                "13 SECONDS · NOT ARCHIVED",
+                "",
+                "THE CAMERA KEPT ITS LAST SECONDS. RECOVER THEM AT THE SECURITY DESK.",
+                "",
+                {
+                    "type": "link",
+                    "text": "< BACK",
+                    "action": {
+                        "screen": "search"
+                    }
+                }
+            ]
+        },
+        "osei": {
+            "title": "OSEI",
+            "parent": "search",
+            "content": [
+                "DR. A. OSEI · XENOBIOLOGY",
+                {
+                    "type": "rule"
+                },
+                "",
+                "TAPES: 04. LOG: DAY 06, DAY 10.",
+                "LAST TAGGED: DAY 09 23:58, LAB 2.",
+                "",
+                {
+                    "type": "link",
+                    "text": "< BACK",
+                    "action": {
+                        "screen": "search"
+                    }
+                }
+            ]
+        },
+        "k7": {
+            "title": "K-7",
+            "parent": "search",
+            "content": [
+                "OBJECT K-7",
+                {
+                    "type": "rule"
+                },
+                "",
+                "RECOVERED BY THE ARRAY, DAY 03. 0.4 KG. NOT ROCK.",
+                "SURFACE TEMPERATURE, DAY 06: 37 °C.",
+                "CURRENT LOCATION: [alert]UNKNOWN[/]",
+                "",
+                {
+                    "type": "link",
+                    "text": "< BACK",
+                    "action": {
+                        "screen": "search"
+                    }
+                }
+            ]
+        },
+        "recovering": {
+            "title": "RECOVERY",
+            "parent": "desk",
+            "content": [
+                "RECOVERING CAM 3 BUFFER...",
+                "READING .......... 13 SECONDS",
+                "VERIFYING ........ OK",
+                "",
+                {
+                    "type": "text",
+                    "text": "ARCHIVE PURGE INITIATED.",
+                    "className": "alert"
+                },
+                {
+                    "type": "text",
+                    "text": "SOURCE: CAM 3 · AIRLOCK.",
+                    "className": "alert"
+                },
+                "",
+                {
+                    "type": "timer",
+                    "label": "ARCHIVE PURGE IN ",
+                    "timer": "purge",
+                    "className": "alert",
+                    "if": {
+                        "recovered": true
+                    }
+                },
+                {
+                    "type": "link",
+                    "text": "> SECURITY DESK",
+                    "action": {
+                        "screen": "desk"
+                    }
+                }
+            ]
+        },
+        "ending": {
+            "title": "END OF TAPE",
+            "parent": "archive",
+            "transition": "static",
+            "content": [
+                "END OF TAPE 07",
+                {
+                    "type": "rule"
+                },
+                "",
+                "THE PURGE STOPPED WHEN THE TAPE DID.",
+                "THE ARCHIVE IS YOURS TO TAKE HOME.",
+                "",
+                "ON THE MONITOR, CAM 3 IS DARK.",
+                "THE AIRLOCK BEHIND YOU IS CYCLING.",
+                "",
+                {
+                    "type": "link",
+                    "text": "> START OVER",
+                    "action": {
+                        "restart": true
+                    }
+                }
+            ]
+        },
+        "purged": {
+            "title": "PURGED",
+            "transition": "static",
+            "header": false,
+            "effects": {
+                "static": {
+                    "opacity": 0.2
+                }
+            },
+            "content": [
+                {
+                    "type": "text",
+                    "text": "ARCHIVE PURGED.",
+                    "className": "alert"
+                },
+                "",
+                "TAPES 01-09: ERASED.",
+                "STATION LOG: ERASED.",
+                "CAM 3: NO SIGNAL.",
+                "",
+                "IT IS STILL ABOARD.",
+                "",
+                {
+                    "type": "link",
+                    "text": "> START OVER",
+                    "action": {
+                        "restart": true
+                    }
+                }
+            ]
+        },
+        "about": {
+            "title": "ABOUT",
+            "parent": "archive",
+            "content": [
+                "TAPE 7",
+                {
+                    "type": "rule"
+                },
+                "",
+                "A Teletronix sample: tapes to watch, a security desk of camera feeds, and an archive that would rather you didn't.",
+                "",
+                {
+                    "type": "text",
+                    "text": "Ambience: \"DSGNDron_Mysterious Resonant Industrial Sci-fi Drone 3_EM\" by newlocknew, https://freesound.org/s/749636/ (CC BY-NC 4.0).",
+                    "className": "dim"
+                },
+                {
+                    "type": "text",
+                    "text": "Type: Home Video, by GGBotNet (CC0).",
+                    "className": "dim"
+                },
+                {
+                    "type": "text",
+                    "text": "Footage: generated for Teletronix (scripts/tape7-footage.py).",
+                    "className": "dim"
+                },
+                "",
+                {
+                    "type": "link",
+                    "text": "< BACK",
+                    "action": {
+                        "screen": "archive"
+                    }
+                }
+            ]
+        }
+    },
+    "dialogs": {
+        "missing": {
+            "type": "alert",
+            "content": [
+                "TAPE 07 IS NOT IN THE ARCHIVE.",
+                "",
+                "REMOVED: DAY 11, 03:15.",
+                "BY: ----"
+            ]
+        },
+        "no-feed": {
+            "type": "alert",
+            "content": [
+                "CAM 3: NO SIGNAL SINCE 03:14:07.",
+                "",
+                "A CAMERA KEEPS ITS LAST SECONDS IN A BUFFER. SEARCH FOR THEM."
+            ]
+        },
+        "halcyon": {
+            "type": "alert",
+            "content": "1 MATCH: TAPE 04. (A PASSWORD SHOULD NOT BE ON TAPE.)"
+        },
+        "recover": {
+            "type": "confirm",
+            "className": "alert",
+            "content": [
+                "RECOVER THE CAM 3 BUFFER?",
+                "",
+                "THE ARCHIVE WILL NOTICE."
+            ],
+            "confirm": {
+                "text": "RECOVER",
+                "action": {
+                    "set": {
+                        "recovered": true
+                    },
+                    "startTimer": "purge",
+                    "screen": "recovering"
+                }
+            },
+            "cancel": {
+                "text": "CANCEL"
+            }
+        }
+    },
+    "sounds": {
+        "drone": {
+            "src": "data/audio/sci-fi-drone.mp3",
+            "volume": 0.6
+        }
+    }
+}
