@@ -63,6 +63,13 @@ test.describe("the full-window viewer", () => {
 
         await page.keyboard.press("Escape");
         await expect(viewer).toHaveCount(0);
+        // the screen's own effects stay on the root, though the viewer's went with it
+        const root = () =>
+            page.evaluate(() => [
+                document.documentElement.style.getPropertyValue("--scanlines-opacity"),
+                "scanlines" in document.documentElement.dataset,
+            ]);
+        expect(await root()).toEqual([expect.stringMatching(/\d/), true]);
         await player.link("> PHOTO").click();
         await viewer.getByRole("button", { name: "BACK" }).click();
         await expect(viewer).toHaveCount(0);
