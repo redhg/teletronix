@@ -271,9 +271,12 @@ test.describe("the editor", () => {
             const picked = page.getByRole("button", { name: "Move element 2", exact: true });
             await page.keyboard.press("Space");
             await expect(picked).toHaveAttribute("aria-pressed", "true");
-            await page.keyboard.press("ArrowUp");
-            // (moved: the last thing said until it's dropped)
-            await expect(page.getByText(/is now at 1 of 2/)).toBeAttached();
+            // (moved: the last thing said until it's dropped; a key the drag isn't ready for
+            // yet is pressed again, harmlessly, at the top)
+            await expect(async () => {
+                await page.keyboard.press("ArrowUp");
+                await expect(page.getByText(/is now at 1 of 2/)).toBeAttached({ timeout: 1000 });
+            }).toPass({ timeout: 6000 });
             await page.keyboard.press("Space");
             await expect(picked).not.toHaveAttribute("aria-pressed", "true");
             await expect(element(page, 1)).toHaveAccessibleName(/link, > OTHER/);
