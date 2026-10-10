@@ -83,7 +83,7 @@ export default defineConfig({
         }),
     ],
     test: {
-        include: ["src/**/*.test.ts", "scripts/**/*.test.ts"],
+        include: ["src/**/*.test.ts", "scripts/**/*.test.ts", "desktop/**/*.test.ts"],
         environment: "node",
     },
 });

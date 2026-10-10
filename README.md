@@ -3,7 +3,8 @@
 [sample](https://redhg.github.io/teletronix/?data=sample),
 [*Tape 7*](https://redhg.github.io/teletronix/?data=tape7), or
 [*The Haunting of Ypsilon-14*](https://redhg.github.io/teletronix/?data=ypsilon14). It works
-offline once opened, and installs as an app (see [Online](docs/at-the-table.md#online)).
+offline once opened, and installs as an app (see [Online](docs/at-the-table.md#online)), or as a
+[desktop app](docs/at-the-table.md#desktop-app).
 
 A retrofuturistic terminal simulator for tabletop role-playing games, and the successor to
 Phosphor.
@@ -33,9 +34,12 @@ what happened at 03:14 (for the GM: [Running Tape 7](docs/at-the-table.md#runnin
 | `npm run dev` | Dev server |
 | `npm run build` | Typecheck and build to `dist/` |
 | `npm run table` | Build, and serve it to your network, for play at the table (see [GM remote control](docs/at-the-table.md#gm-remote-control)) |
+| `npm run desktop` | Open Teletronix as a desktop app (see [Desktop app](docs/at-the-table.md#desktop-app)) |
+| `npm run desktop:build` | Make the desktop app's installer for this computer, in `release/` |
 | `npm test` | Unit tests |
 | `npm run test:e2e` | Browser tests, in Chromium, Firefox and WebKit (see [Tests](docs/development.md#tests)) |
 | `npm run test:e2e:quick` | Browser tests in Chromium only: about a third of the time |
+| `npm run test:desktop` | The desktop app's test: starts it, and checks its window, menus and GM panel |
 | `npm run lint` / `npm run format` | Biome check / fix |
 | `npm run gen` | Regenerate `schema/teletronix.schema.json` and `docs/reference.md` after changing the schema |
 | `node scripts/convert-phosphor.ts <in> <out>` | Convert a Phosphor JSON file |

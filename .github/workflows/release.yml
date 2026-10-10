@@ -1,0 +1,48 @@
+name: Release
+
+# The desktop app's installers, for a version tag (e.g. `git tag v0.2.0 && git push --tags`):
+# built on each system, then attached to a GitHub release of that tag. They aren't code
+# signed (see docs/at-the-table.md#desktop-app).
+on:
+    push:
+        tags: ["v*"]
+
+jobs:
+    build:
+        strategy:
+            matrix:
+                os: [macos-latest, windows-latest, ubuntu-24.04]
+        runs-on: ${{ matrix.os }}
+        # (electron-builder downloads the Electron it packages)
+        env:
+            ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+        steps:
+            - uses: actions/checkout@v5
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: 24
+                  cache: npm
+            - run: npm ci
+            - run: npm run desktop:build -- --publish never
+            - uses: actions/upload-artifact@v5
+              with:
+                  name: installers-${{ matrix.os }}
+                  path: |
+                      release/*.dmg
+                      release/*.exe
+                      release/*.AppImage
+                  if-no-files-found: error
+
+    release:
+        needs: build
+        runs-on: ubuntu-24.04
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/download-artifact@v5
+              with:
+                  path: installers
+                  merge-multiple: true
+            - run: gh release create "$GITHUB_REF_NAME" installers/* --generate-notes --repo "$GITHUB_REPOSITORY"
+              env:
+                  GH_TOKEN: ${{ github.token }}

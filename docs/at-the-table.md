@@ -108,6 +108,33 @@ Without `&remote`, a terminal can't be reached from other devices at all. A copy
 online (e.g. on GitHub Pages) has no server to pass messages through, so the code shows as
 unavailable there.
 
+## Desktop app
+Teletronix also comes as an app for macOS, Windows and Linux: the same Teletronix, in a window of
+its own, that serves other devices on the network itself, with nothing to install or run first.
+- **From the repository:** `npm run desktop` (after `npm install`) builds Teletronix and opens
+  it. `npm run desktop -- --kiosk` opens it full screen, as `?kiosk` does.
+- **Installers:** `npm run desktop:build` makes one for the computer it's on, in `release/`.
+  Pushing a version tag (`git tag v0.2.0 && git push --tags`) builds all three on GitHub and
+  attaches them to a release of that tag (`.github/workflows/release.yml`).
+- **Unsigned:** the installers aren't code signed (that needs paid developer accounts). On a Mac,
+  the first time, right-click the app and choose **Open** (or allow it under **System Settings →
+  Privacy & Security**); on Windows, choose **More info → Run anyway**.
+
+It opens at the last program played. Its menus:
+- **File → Programs:** every program it has: built in, and **your own**, from the programs folder
+  (**File → Open Programs Folder**: `Documents/Teletronix`). Put a program there as
+  `heist.json`, with its files beside it as `public/data` has them (`images/map.png`, named in it
+  as `data/images/map.png`), and it's in the menu at once. A program there wins over a built-in
+  one of the same name.
+- **File → Edit This Program** opens the [editor](editor.md#the-editor), whose Save writes into
+  the programs folder (so editing a built-in program saves your own copy of it).
+- **Window → GM Panel** (Cmd/Ctrl+Shift+G) opens the [GM's panel](#gm-remote-control) in a window
+  of its own; **New Players' Window** (Cmd/Ctrl+N) another players' window.
+
+Other devices reach it as they reach `npm run table`: its panel's **Devices** tab shows the QR
+code and the address (port 4173, or the next free one). The first time, macOS (or Windows) asks
+whether to let it accept connections from the network; allow it for other devices to pair.
+
 ## Running Tape 7
 *Tape 7* (`?data=tape7`) is a short mystery, for one sitting. The players are the recovery crew of
 the Kepler Relay Station, which stopped answering on day 11, at its tape archive. **Spoilers:**

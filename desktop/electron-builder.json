@@ -1,0 +1,29 @@
+{
+    "$schema": "../node_modules/app-builder-lib/scheme.json",
+    "appId": "com.redhg.teletronix",
+    "productName": "Teletronix",
+    "copyright": "Breon Halling",
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "directories": { "output": "release", "buildResources": "desktop" },
+    "files": [
+        "package.json",
+        "dist/**",
+        "desktop/*.ts",
+        "!desktop/*.test.ts",
+        "!desktop/*.spec.ts",
+        "!desktop/playwright.config.ts",
+        "!desktop/run.ts",
+        "scripts/remote-relay.ts",
+        "scripts/editor-save.ts",
+        "!node_modules/**"
+    ],
+    "icon": "public/icons/icon-512.png",
+    "mac": {
+        "category": "public.app-category.games",
+        "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }],
+        "identity": null
+    },
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }] },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true },
+    "linux": { "target": ["AppImage"], "category": "Game" }
+}

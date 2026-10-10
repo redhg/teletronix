@@ -1,7 +1,7 @@
 # Development
 
 ## Tests
-Two suites, both run on every push by GitHub Actions:
+Three suites, all run on every push by GitHub Actions:
 
 - **Unit tests** (`npm test`, Vitest): the engine, schemas, modules' behavior and the
   generated files, with a fake clock. Next to the code, as `*.test.ts`.
@@ -9,6 +9,10 @@ Two suites, both run on every push by GitHub Actions:
   panel, driven as a user would, in Chromium, Firefox and WebKit. In `e2e/`, one
   file per feature. They build the app and serve it on port 4180, so a running dev server
   (or `npm run table`) doesn't matter.
+
+- **The desktop app's test** (`npm run test:desktop`, Playwright): starts the app itself
+  (`desktop/app.spec.ts`), with a programs folder of its own, and checks its window, menus and
+  GM panel. On Linux it needs a display (`xvfb-run`, as CI does).
 
 The first time, install the browsers with `npx playwright install`. Then:
 
@@ -43,6 +47,10 @@ Every new feature gets tests.
 - `src/remote/`: the GM's control panel (`&gm`, built with Mantine like the editor; players
   never load it), and the players' side of it. The relay that passes their messages between
   devices is `scripts/remote-relay.ts`, in Vite's servers.
+- `desktop/`: the [desktop app](at-the-table.md#desktop-app), in Electron. `main.ts` (its
+  windows and menus) and `server.ts` (the build, the programs folder, the relay and the
+  editor's saving) run as TypeScript, as Node runs it, with no build of their own;
+  `electron-builder.json` packs them with `dist/` into the installers.
 - `src/ui/`: the React layer. Per-frame text is written straight to the DOM, so React only
   re-renders on structural changes.
 - `src/assets/fonts/`: the bundled fonts, and the symbol fonts made for the ones that lack box

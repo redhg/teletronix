@@ -4,11 +4,15 @@ on:
     push:
     pull_request:
 
+# Only the desktop job starts Electron; the others skip downloading it (ELECTRON_SKIP_BINARY_DOWNLOAD).
+#
 # Pinned to Ubuntu 24.04, rather than ubuntu-latest: the browser job installs Playwright's
 # system packages and PulseAudio, which a new Ubuntu can break. Move up deliberately.
 jobs:
     check:
         runs-on: ubuntu-24.04
+        env:
+            ELECTRON_SKIP_BINARY_DOWNLOAD: 1
         steps:
             - uses: actions/checkout@v5
             - uses: actions/setup-node@v5
@@ -22,6 +26,8 @@ jobs:
 
     browsers:
         runs-on: ubuntu-24.04
+        env:
+            ELECTRON_SKIP_BINARY_DOWNLOAD: 1
         steps:
             - uses: actions/checkout@v5
             - uses: actions/setup-node@v5
@@ -46,6 +52,20 @@ jobs:
                   path: playwright-report/
                   retention-days: 14
 
+    # The desktop app (desktop/), started for real: its window, menus and GM panel.
+    desktop:
+        runs-on: ubuntu-24.04
+        steps:
+            - uses: actions/checkout@v5
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: 24
+                  cache: npm
+            - run: npm ci
+            # Ubuntu 24.04 keeps apps from the user namespaces Electron's sandbox uses
+            - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+            - run: xvfb-run --auto-servernum npm run test:desktop
+
     # Publishes the build to GitHub Pages (https://redhg.github.io/teletronix/), once
     # everything above has passed, on a push to main.
     deploy:
@@ -60,6 +80,8 @@ jobs:
         concurrency:
             group: pages
             cancel-in-progress: false
+        env:
+            ELECTRON_SKIP_BINARY_DOWNLOAD: 1
         environment:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}
