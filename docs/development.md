@@ -48,9 +48,11 @@ Every new feature gets tests.
   never load it), and the players' side of it. The relay that passes their messages between
   devices is `scripts/remote-relay.ts`, in Vite's servers.
 - `desktop/`: the [desktop app](at-the-table.md#desktop-app), in Electron. `main.ts` (its
-  windows and menus) and `server.ts` (the build, a program opened from a file, the relay
-  and the editor's saving) run as TypeScript, as Node runs it, with no build of their own;
-  `electron-builder.json` packs them with `dist/` into the installers.
+  windows and menus), `server.ts` (the build, a program opened from a file or a package, the
+  relay and the editor's saving) and `sources.ts` (an opened program's files) run as TypeScript, as Node runs it, with no build of their own;
+  `electron-builder.json` packs them with `dist/` into the installers. Packages (`.ttx`) are
+  `scripts/ttx.ts`, on zip archives read and written by `scripts/zip.ts` (Node's zlib, with no
+  library).
 - `src/ui/`: the React layer. Per-frame text is written straight to the DOM, so React only
   re-renders on structural changes.
 - `src/assets/fonts/`: the bundled fonts, and the symbol fonts made for the ones that lack box

@@ -1,17 +1,15 @@
-import { createReadStream } from "node:fs";
-import { readFile, stat, writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import { basename, extname, join, normalize, sep } from "node:path";
-import { pathToFileURL } from "node:url";
-import { createSaver } from "../scripts/editor-save.ts";
+import { extname, join } from "node:path";
 import { createRelay } from "../scripts/remote-relay.ts";
+import { diskFile, fileUnder, type OpenProgram, type SourceFile } from "./sources.ts";
 
-// The desktop app's server: Teletronix's build, a program opened from a file, the relay that
-// pairs other devices on the network with a GM's panel, and the editor's saving, as
-// `npm run table` serves them (see vite.config.ts), with nothing to install.
+// The desktop app's server: Teletronix's build, a program opened from a file (or a package),
+// the relay that pairs other devices on the network with a GM's panel, and the editor's
+// saving, as `npm run table` serves them (see vite.config.ts), with nothing to install.
 //
-//   data/<name>.json   the opened program's file, by the name it plays under (?data=<name>)
-//   data/…             its folder first (its images and sounds, beside it as public/data has
+//   data/<name>.json   the opened program, by the name it plays under (?data=<name>)
+//   data/…             its files first (beside it, or in its package, as public/data has
 //                      them), then the build's
 //   …                  the build; an address that isn't a file is the app (index.html)
 //   __teletronix/…     the editor's saving (see scripts/editor-save.ts), into the opened
@@ -56,16 +54,6 @@ const LEFT_OUT = new Set(["/sw.js", "/registerSW.js"]);
 type Next = (error?: unknown) => void;
 type Middleware = (req: IncomingMessage, res: ServerResponse, next: Next) => void;
 
-/** A program opened from a file. */
-export interface OpenProgram {
-    /** Its file */
-    file: string;
-    /** The folder it's in, served as data/ */
-    folder: string;
-    /** The name it plays under: ?data=<name> */
-    name: string;
-}
-
 export interface AppServerOptions {
     /** The build (`dist`) */
     app: string;
@@ -73,53 +61,49 @@ export interface AppServerOptions {
     open: () => OpenProgram | null;
 }
 
-/** A name to play a file's program under: its name, with what an address can't have as "-". */
-export const nameFor = (file: string) =>
-    basename(file, extname(file))
-        .replace(/[^A-Za-z0-9_-]+/g, "-")
-        .replace(/^[-_]+|[-_]+$/g, "") || "program";
+export { nameFor } from "./sources.ts";
 
-/** A file under a folder, from an address's path; null for one that would leave it. */
-export function fileUnder(folder: string, path: string): string | null {
-    let decoded: string;
+/** An address's path, decoded; null for one that can't be. */
+function decoded(path: string): string | null {
     try {
-        decoded = decodeURIComponent(path);
+        return decodeURIComponent(path);
     } catch {
         return null;
     }
-    if (decoded.includes("\0")) return null;
-    const file = normalize(join(folder, decoded));
-    const root = normalize(folder.endsWith(sep) ? folder : folder + sep);
-    return file.startsWith(root) ? file : null;
 }
 
 /**
  * The file to serve for a path: the opened program (or a file beside it), the build's, or
  * the app itself.
  */
-export async function resolveFile(
-    options: AppServerOptions,
-    path: string,
-): Promise<{ file: string; size: number } | null> {
-    const candidates: (string | null)[] = [];
+/** A file to serve, and its type; for the app's page, its file (to mark, see serveApp). */
+interface Found {
+    file: SourceFile;
+    type: string;
+    app?: string;
+}
+
+export async function resolveFile(options: AppServerOptions, path: string): Promise<Found | null> {
+    const plain = decoded(path);
+    if (plain === null) return null;
+    const typed = (file: SourceFile | null, name: string) =>
+        file && { file, type: TYPES[extname(name).toLowerCase()] ?? "application/octet-stream" };
     const open = options.open();
-    if (open && path === `/data/${open.name}.json`) candidates.push(open.file);
-    else if (open && path.startsWith("/data/")) {
-        candidates.push(fileUnder(open.folder, path.slice("/data/".length)));
+    if (open && plain.startsWith("/data/")) {
+        const own = typed(await open.find(plain.slice("/data/".length)), plain);
+        if (own) return own;
     }
-    candidates.push(fileUnder(options.app, path === "/" ? "index.html" : path));
-    for (const file of candidates) {
-        if (!file) continue;
-        const info = await stat(file).catch(() => null);
-        if (info?.isFile()) return { file, size: info.size };
-    }
-    // an address that isn't a file (and doesn't look like one) is the app
-    if (extname(path) === "") {
-        const index = join(options.app, "index.html");
-        const info = await stat(index).catch(() => null);
-        if (info?.isFile()) return { file: index, size: info.size };
-    }
-    return null;
+    // the build's files; an address that isn't a file, and doesn't look like one, is the app
+    const index = join(options.app, "index.html");
+    const local = fileUnder(options.app, plain === "/" ? "index.html" : plain);
+    const file = await diskFile(local);
+    if (file)
+        return {
+            ...(typed(file, local as string) as Found),
+            app: local === index ? index : undefined,
+        };
+    const app = extname(plain) === "" ? await diskFile(index) : null;
+    return app ? { file: app, type: TYPES[".html"] as string, app: index } : null;
 }
 
 /** "bytes=0-1023" for a file of a size: the range, or null for none (or one it can't serve). */
@@ -141,11 +125,11 @@ async function serveFile(req: IncomingMessage, res: ServerResponse, options: App
     if (LEFT_OUT.has(path)) return finish(res, 404);
     const found = await resolveFile(options, path);
     if (!found) return finish(res, 404);
-    if (found.file === join(options.app, "index.html")) return serveApp(req, res, found.file);
-    const type = TYPES[extname(found.file).toLowerCase()] ?? "application/octet-stream";
-    const range = parseRange(req.headers.range, found.size);
+    if (found.app) return serveApp(req, res, found.app);
+    const { file, type } = found;
+    const range = parseRange(req.headers.range, file.size);
     if (range === "unsatisfiable") {
-        res.writeHead(416, { "Content-Range": `bytes */${found.size}` });
+        res.writeHead(416, { "Content-Range": `bytes */${file.size}` });
         res.end();
         return;
     }
@@ -158,14 +142,14 @@ async function serveFile(req: IncomingMessage, res: ServerResponse, options: App
     if (range) {
         res.writeHead(206, {
             ...headers,
-            "Content-Range": `bytes ${range.start}-${range.end}/${found.size}`,
+            "Content-Range": `bytes ${range.start}-${range.end}/${file.size}`,
             "Content-Length": range.end - range.start + 1,
         });
     } else {
-        res.writeHead(200, { ...headers, "Content-Length": found.size });
+        res.writeHead(200, { ...headers, "Content-Length": file.size });
     }
     if (req.method === "HEAD") return res.end();
-    createReadStream(found.file, range ?? {}).pipe(res);
+    (await file.stream(range ?? undefined)).on("error", () => res.destroy()).pipe(res);
 }
 
 /**
@@ -192,24 +176,46 @@ function finish(res: ServerResponse, status: number) {
 }
 
 const SAVE = /^\/__teletronix\/save(?:\/([A-Za-z0-9][A-Za-z0-9_-]*)\.json)?$/;
-const FILES = /^\/__teletronix\/files\//;
+const FILES = /^\/__teletronix\/files\/(audio|images|video)$/;
+/** Each kind of file the editor lists, by its extensions (as scripts/editor-save.ts has them). */
+const KINDS: Record<string, RegExp> = {
+    audio: /\.(mp3|ogg|wav|m4a)$/i,
+    images: /\.(png|jpe?g|gif|webp|svg|avif)$/i,
+    video: /\.(mp4|m4v|webm|ogv|mov)$/i,
+};
 /** The largest program accepted. */
 const MAX_BYTES = 10 * 1024 * 1024;
 const LOCAL = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
 
 /**
- * The editor's saving, into the opened program's file (and the files beside it, to choose
- * from), from this computer only. With no program opened, there's nothing to save into: the
- * editor downloads instead.
+ * The editor's saving, into the opened program's file (and its files, to choose from), from
+ * this computer only. With no program opened from a .json (none, or a package), there's
+ * nothing to save into: the editor downloads instead.
  */
 function openSaving(options: AppServerOptions): Middleware {
     return (req, res, next) => {
         const path = new URL(req.url ?? "/", "http://app").pathname;
         const save = SAVE.exec(path);
-        if (!save && !FILES.test(path)) return next();
+        const files = FILES.exec(path);
+        if (!save && !files) return next();
         const open = options.open();
-        if (!open) return finish(res, 404);
-        if (!save) return createSaver(pathToFileURL(open.folder + sep))(req, res, next);
+        if (files) {
+            const kind = KINDS[files[1] as string] as RegExp;
+            void (open ? open.list() : Promise.resolve([])).then((names) => {
+                res.setHeader("Content-Type", "application/json");
+                res.end(
+                    JSON.stringify(
+                        names
+                            .filter((name) => kind.test(name))
+                            .sort()
+                            .map((name) => `data/${name}`),
+                    ),
+                );
+            });
+            return;
+        }
+        if (!save) return next();
+        if (!open?.editable) return finish(res, 404);
         if (!LOCAL.has(req.socket.remoteAddress ?? "")) return finish(res, 403);
         if (req.method === "GET" && !save[1]) return finish(res, 204);
         if (req.method !== "PUT" || save[1] !== open.name) return finish(res, 404);

@@ -15,9 +15,20 @@
         "!desktop/run.ts",
         "scripts/remote-relay.ts",
         "scripts/editor-save.ts",
+        "scripts/zip.ts",
+        "scripts/ttx.ts",
         "!node_modules/**"
     ],
     "icon": "public/icons/icon-512.png",
+    "fileAssociations": [
+        {
+            "ext": "ttx",
+            "name": "Teletronix program",
+            "description": "A Teletronix program and its files",
+            "role": "Viewer",
+            "icon": "public/icons/icon-512.png"
+        }
+    ],
     "mac": {
         "category": "public.app-category.games",
         "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }],

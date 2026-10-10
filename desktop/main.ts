@@ -1,6 +1,6 @@
 import { readFile, stat, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { basename, dirname, join, resolve } from "node:path";
+import { basename, join, normalize, resolve, sep } from "node:path";
 import {
     app,
     BrowserWindow,
@@ -10,8 +10,10 @@ import {
     nativeImage,
     shell,
 } from "electron";
+import { makePackage } from "../scripts/ttx.ts";
 import { listPrograms } from "./programs.ts";
-import { nameFor, type OpenProgram, startAppServer } from "./server.ts";
+import { startAppServer } from "./server.ts";
+import { type OpenProgram, openProgram } from "./sources.ts";
 
 // Teletronix as a desktop app: a window on its own server (see server.ts), which also serves
 // other devices on the network, for a GM's panel to pair with, as `npm run table` does.
@@ -96,13 +98,18 @@ function remember(url: string) {
  */
 async function openProgramFile(file: string) {
     const path = resolve(file);
+    let program: OpenProgram;
     try {
-        JSON.parse(await readFile(path, "utf8"));
+        program = await openProgram(path);
     } catch (error) {
-        dialog.showErrorBox(`Couldn't open ${basename(path)}`, String(error));
+        dialog.showErrorBox(
+            `Couldn't open ${basename(path)}`,
+            error instanceof Error ? error.message : String(error),
+        );
         return;
     }
-    opened = { file: path, folder: dirname(path), name: nameFor(path) };
+    void opened?.close();
+    opened = program;
     state.recent = [path, ...state.recent.filter((other) => other !== path)].slice(0, RECENT);
     saveState();
     app.addRecentDocument(path);
@@ -127,7 +134,7 @@ async function chooseProgramFile() {
     const options: Electron.OpenDialogOptions = {
         title: "Open a Teletronix program",
         properties: ["openFile"],
-        filters: [{ name: "Teletronix programs", extensions: ["json"] }],
+        filters: [{ name: "Teletronix programs", extensions: ["json", "ttx", "zip"] }],
     };
     const result = window
         ? await dialog.showOpenDialog(window, options)
@@ -136,9 +143,59 @@ async function chooseProgramFile() {
     if (!result.canceled && file) await openProgramFile(file);
 }
 
-/** The program files among a command line's arguments (or a second launch's). */
+/** The program files (and packages) among a command line's arguments (or a second launch's). */
 const filesIn = (args: string[]) =>
-    args.filter((arg) => !arg.startsWith("-") && arg.toLowerCase().endsWith(".json"));
+    args.filter((arg) => !arg.startsWith("-") && /\.(json|ttx|zip)$/i.test(arg));
+
+/** A file the program in the focused window names ("data/…"): its own, or a built-in one. */
+async function programFile(path: string): Promise<Buffer | null> {
+    const own = opened && (await opened.find(path.slice("data/".length)));
+    if (own) {
+        const chunks: Buffer[] = [];
+        for await (const chunk of await own.stream()) chunks.push(chunk as Buffer);
+        return Buffer.concat(chunks);
+    }
+    const folder = join(appFolder, "data");
+    const file = normalize(join(folder, path.slice("data/".length)));
+    return file.startsWith(folder + sep) ? readFile(file).catch(() => null) : null;
+}
+
+/**
+ * Makes a package (.ttx) of the program in the focused window, with every file it names, to
+ * hand to someone: its own, or a built-in one.
+ */
+async function exportPackage() {
+    const name = currentProgram().get("data") ?? "sample";
+    const text = (await programFile(`data/${name}.json`))?.toString("utf8");
+    if (!text) {
+        dialog.showErrorBox("Nothing to export", "Open a program first.");
+        return;
+    }
+    const window = BrowserWindow.getFocusedWindow();
+    const options: Electron.SaveDialogOptions = {
+        title: "Export as a Teletronix package",
+        defaultPath: join(app.getPath("documents"), `${name}.ttx`),
+        filters: [{ name: "Teletronix packages", extensions: ["ttx"] }],
+    };
+    const result = window
+        ? await dialog.showSaveDialog(window, options)
+        : await dialog.showSaveDialog(options);
+    if (result.canceled || !result.filePath) return;
+    try {
+        const { files, missing } = await makePackage({ name, text }, programFile, result.filePath);
+        const detail = `${basename(result.filePath)}: the program, and ${files.length} file${files.length === 1 ? "" : "s"}.`;
+        await dialog.showMessageBox({
+            type: missing.length ? "warning" : "info",
+            message: missing.length ? "Exported, without some files" : "Exported",
+            detail: missing.length
+                ? `${detail}\n\nThese weren't found, so they're left out:\n${missing.join("\n")}`
+                : detail,
+        });
+        shell.showItemInFolder(result.filePath);
+    } catch (error) {
+        dialog.showErrorBox("Couldn't export it", String(error));
+    }
+}
 
 /** "~/Games/heist.json", for the menu. */
 const shortPath = (file: string) =>
@@ -246,6 +303,11 @@ async function buildMenu() {
                 },
                 { type: "separator" },
                 {
+                    label: "Export as Package…",
+                    click: () => void exportPackage(),
+                },
+                { type: "separator" },
+                {
                     label: "Edit This Program",
                     accelerator: "CmdOrCtrl+E",
                     click: () => openWindow(withFlag(currentProgram(), "edit")),
@@ -344,8 +406,7 @@ if (!app.requestSingleInstanceLock()) {
             !pendingFile && !program && state.file && (await stat(state.file).catch(() => null))
                 ? state.file
                 : undefined;
-        if (lastFile)
-            opened = { file: lastFile, folder: dirname(lastFile), name: nameFor(lastFile) };
+        if (lastFile) opened = await openProgram(lastFile).catch(() => null);
         const params = new URLSearchParams(program ? `?data=${program}` : state.last);
         params.delete("kiosk");
         const search = kiosk ? withFlag(params, "kiosk") : params.size ? `?${params}` : "";

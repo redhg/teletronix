@@ -335,7 +335,8 @@ test.describe("the editor", () => {
             await page
                 .getByRole("textbox", { name: "When it's clicked: change variables" })
                 .fill('{ "crew": 1 }');
-            expect(await asJson()).toEqual({
+            // (polled: the last field typed into may not have reached the program yet)
+            await expect.poll(asJson).toEqual({
                 type: "link",
                 text: "> WARN",
                 action: { screen: "home", set: { crew: 1 } },
@@ -367,7 +368,7 @@ test.describe("the editor", () => {
             await page.getByRole("button", { name: "Add an item" }).click();
             await choose(page, "Item 2: when it's chosen: does", "Go back");
             await page.getByRole("button", { name: "Move item 2 up" }).click();
-            expect(await asJson()).toEqual({
+            await expect.poll(asJson).toEqual({
                 type: "menu",
                 items: [
                     { text: "NEW ITEM", action: { back: true } },

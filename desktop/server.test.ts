@@ -3,8 +3,10 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { makePackage } from "../scripts/ttx.ts";
 import { listPrograms } from "./programs.ts";
-import { fileUnder, nameFor, type OpenProgram, parseRange, startAppServer } from "./server.ts";
+import { parseRange, startAppServer } from "./server.ts";
+import { fileUnder, type OpenProgram, openProgram } from "./sources.ts";
 
 let folder = "";
 let app = "";
@@ -60,7 +62,7 @@ describe("the desktop app's server", () => {
 
     it("serves a program opened from a file, under its name, with its folder as data/", async () => {
         const heist = join(programs, "My Heist!.json");
-        opened = { file: heist, folder: programs, name: nameFor(heist) };
+        opened = await openProgram(heist);
         expect(opened.name).toBe("My-Heist");
         expect(await (await get("/data/My-Heist.json")).json()).toEqual({
             config: { name: "Heist" },
@@ -82,6 +84,41 @@ describe("the desktop app's server", () => {
         expect(await (await get("/data/sample.json")).json()).toEqual({
             config: { name: "Built-in sample" },
         });
+    });
+
+    it("serves a package's program and files, straight from it, in part too", async () => {
+        const video = Buffer.from("0123456789".repeat(100));
+        const ttx = join(folder, "Vault Job.ttx");
+        await makePackage(
+            {
+                name: "vault",
+                text: JSON.stringify({
+                    config: { name: "Vault" },
+                    screens: { home: { content: [{ type: "video", src: "data/video/cam.mp4" }] } },
+                }),
+            },
+            async (path) => (path === "data/video/cam.mp4" ? video : null),
+            ttx,
+        );
+        opened = await openProgram(ttx);
+        expect(opened.name).toBe("Vault-Job");
+        expect(opened.editable).toBe(false);
+        expect(await (await get("/data/Vault-Job.json")).json()).toMatchObject({
+            config: { name: "Vault" },
+        });
+        const part = await get("/data/video/cam.mp4", { Range: "bytes=995-" });
+        expect(part.status).toBe(206);
+        expect(part.headers.get("content-type")).toBe("video/mp4");
+        expect(await part.text()).toBe("56789");
+        expect((await get("/data/video/cam.mp4")).headers.get("content-length")).toBe("1000");
+        // (the built-in ones are still there; and there's no saving into a package)
+        expect((await get("/data/tape7.json")).status).toBe(200);
+        expect((await get("/__teletronix/save")).status).toBe(404);
+        expect(await (await get("/__teletronix/files/video")).json()).toEqual([
+            "data/video/cam.mp4",
+        ]);
+        await opened.close();
+        opened = null;
     });
 
     it("serves part of a file, as a video player asks", async () => {
@@ -113,8 +150,8 @@ describe("the desktop app's server", () => {
             expect(await response.text()).not.toContain("not for the network");
         }
         expect(fileUnder("/a/b", "../c")).toBeNull();
-        expect(fileUnder("/a/b", "%2e%2e/c")).toBeNull();
-        expect(fileUnder("/a/b", "%E0%A4%A")).toBeNull();
+        expect(fileUnder("/a/b", "x/../../c")).toBeNull();
+        expect((await get("/data/%E0%A4%A")).status).toBe(404);
         expect(fileUnder("/a/b", "c/d.png")).toBe(join("/a/b", "c/d.png"));
     });
 
@@ -132,7 +169,7 @@ describe("the desktop app's server", () => {
         opened = null;
         expect((await get("/__teletronix/save")).status).toBe(404);
         const heist = join(programs, "My Heist!.json");
-        opened = { file: heist, folder: programs, name: nameFor(heist) };
+        opened = await openProgram(heist);
         expect((await get("/__teletronix/save")).status).toBe(204);
         expect(await (await get("/__teletronix/files/images")).json()).toEqual([
             "data/images/map.png",

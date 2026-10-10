@@ -43,6 +43,7 @@ what happened at 03:14 (for the GM: [Running Tape 7](docs/at-the-table.md#runnin
 | `npm run lint` / `npm run format` | Biome check / fix |
 | `npm run gen` | Regenerate `schema/teletronix.schema.json` and `docs/reference.md` after changing the schema |
 | `node scripts/convert-phosphor.ts <in> <out>` | Convert a Phosphor JSON file |
+| `node scripts/package.ts <program.json> [<out.ttx>]` | Make a package of a program and its files (see [Desktop app](docs/at-the-table.md#desktop-app)) |
 
 ## Documentation
 - **[Writing a program](docs/programs.md):** the file, screens, moving between them, variables,

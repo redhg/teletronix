@@ -126,6 +126,12 @@ It opens at the last program played. Its menus:
   named in it as `data/images/map.png` is `images/map.png` next to the program. **Open
   Recent** has the last few; dropping a program on the app's icon (on a Mac), or naming it when
   starting the app, opens it too.
+- **Packages:** a program and all its files in one file, a `.ttx`, to hand to someone. **File →
+  Export as Package…** makes one of the program on screen (its own or a built-in one), with
+  every image, sound and video it names; `node scripts/package.ts heist.json` does the same
+  from the command line. **Open Program…** plays one (or a `.zip` of a program's folder, as
+  Finder's **Compress** makes), straight from it, and double-clicking one opens it in the app,
+  once it's installed. A package is only for playing: its editor's **Save** downloads.
 - **File → Built-in Programs:** the sample, *Tape 7*, *Ypsilon-14* and the rest.
 - **File → Edit This Program** opens the [editor](editor.md#the-editor). For a program opened
   from a file, **Save** writes into that file; for a built-in one, it downloads, as online.

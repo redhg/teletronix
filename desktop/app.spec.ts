@@ -2,6 +2,8 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { _electron, type ElectronApplication, expect, test } from "@playwright/test";
+import { openPackage } from "../scripts/ttx.ts";
+import { writeZip } from "../scripts/zip.ts";
 
 // The desktop app, started from the repository (after a build): a program opened from a file,
 // its menus, the GM panel, saving, and opening where it left off.
@@ -113,4 +115,50 @@ test("opens where it left off: the program from its file", async () => {
     const window = await again.firstWindow();
     await expect(window.locator(".screen")).toContainText("THE VAULT IS OPEN.");
     expect(await menuLabels(again, ["File", "Open Recent"])).toContain(program);
+});
+
+test("plays a package (.ttx), straight from it", async () => {
+    const ttx = join(folder, "Heist.ttx");
+    await writeZip(ttx, [
+        { name: "heist.json", data: await readFile(program), compress: true },
+        {
+            name: "images/vault.svg",
+            data: await readFile(join(folder, "heist", "images", "vault.svg")),
+            compress: true,
+        },
+    ]);
+    const app = await start(ttx);
+    const window = await app.firstWindow();
+    await expect(window.locator(".screen")).toContainText("THE VAULT IS OPEN.");
+    await expect(window).toHaveURL(/\?data=Heist$/);
+    await expect(window.locator(".bitmap canvas")).toBeVisible();
+    // (it's only for playing: the editor would download)
+    expect(await window.evaluate(async () => (await fetch("__teletronix/save")).status)).toBe(404);
+});
+
+test("exports the program, with its files, as a package", async () => {
+    const app = await start(program);
+    const window = await app.firstWindow();
+    await expect(window.locator(".screen")).toContainText("THE VAULT IS OPEN.");
+    const out = join(folder, "exported.ttx");
+    // (the save dialog, answered; the message, and showing it in the Finder, skipped)
+    await app.evaluate(({ dialog, shell }, out) => {
+        dialog.showSaveDialog = (async () => ({ canceled: false, filePath: out })) as never;
+        dialog.showMessageBox = (async () => ({ response: 0, checkboxChecked: false })) as never;
+        shell.showItemInFolder = () => {};
+    }, out);
+    await window.focus("body");
+    await clickMenu(app, ["File", "Export as Package…"]);
+    await expect
+        .poll(() =>
+            readFile(out).then(
+                () => true,
+                () => false,
+            ),
+        )
+        .toBe(true);
+    const opened = await openPackage(out);
+    expect(opened.program.name).toBe("The-Heist.json");
+    expect(opened.files()).toEqual(["images/vault.svg"]);
+    await opened.reader.close();
 });
