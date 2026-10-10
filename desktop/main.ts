@@ -350,7 +350,7 @@ async function buildMenu() {
                 { label: "Documentation", click: () => void shell.openExternal(DOCS) },
                 {
                     label: "Teletronix Online",
-                    click: () => void shell.openExternal("https://redhg.github.io/teletronix/"),
+                    click: () => void shell.openExternal("https://teletronix.net/"),
                 },
             ],
         },

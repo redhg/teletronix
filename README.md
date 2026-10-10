@@ -1,8 +1,8 @@
 # Teletronix
-**Play it online: <https://redhg.github.io/teletronix/>**: the
-[sample](https://redhg.github.io/teletronix/?data=sample),
-[*Tape 7*](https://redhg.github.io/teletronix/?data=tape7), or
-[*The Haunting of Ypsilon-14*](https://redhg.github.io/teletronix/?data=ypsilon14). It works
+**Play it online: <https://teletronix.net/>**: the
+[sample](https://teletronix.net/?data=sample),
+[*Tape 7*](https://teletronix.net/?data=tape7), or
+[*The Haunting of Ypsilon-14*](https://teletronix.net/?data=ypsilon14). It works
 offline once opened, and installs as an app (see [Online](docs/at-the-table.md#online)), or as a
 [desktop app](docs/at-the-table.md#desktop-app). Drop a [package](docs/at-the-table.md#packages)
 (`.ttx`) on it to play a program of your own.

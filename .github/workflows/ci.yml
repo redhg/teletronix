@@ -66,7 +66,7 @@ jobs:
             - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
             - run: xvfb-run --auto-servernum npm run test:desktop
 
-    # Publishes the build to GitHub Pages (https://redhg.github.io/teletronix/), once
+    # Publishes the build to GitHub Pages (https://teletronix.net/), once
     # everything above has passed, on a push to main.
     deploy:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

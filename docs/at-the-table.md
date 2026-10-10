@@ -141,7 +141,7 @@ whether to let it accept connections from the network; allow it for other device
 
 ## Packages
 A package (`.ttx`) is a program and all its files in one file, to hand to someone: they can play
-it in a browser (online, at <https://redhg.github.io/teletronix/>, too) or in the
+it in a browser (online, at <https://teletronix.net/>, too) or in the
 [desktop app](#desktop-app), with nothing else to set up.
 - **Making one:** in the desktop app, **File → Export as Package…**; or `node scripts/package.ts
   heist.json [heist.ttx]`. Either takes the program and every image, sound and video it names
@@ -187,12 +187,14 @@ The icon is drawn in `public/icons/icon.svg`; after changing it, run `node scrip
 to render the PNG sizes.
 
 ## Online
-Teletronix is published at <https://redhg.github.io/teletronix/> (e.g.
-<https://redhg.github.io/teletronix/?data=ypsilon14>), so any device can play it without a
+Teletronix is published at <https://teletronix.net/> (e.g.
+<https://teletronix.net/?data=ypsilon14>), so any device can play it without a
 computer serving it: open it once, and it works [offline](#offline) from then on, or install it
 as an app. Every push to `main` publishes the new version, once the checks and browser tests
 have passed (the `deploy` job in `.github/workflows/ci.yml`); a device picks it up the next time
-Teletronix opens there.
+Teletronix opens there. It's GitHub Pages, on a domain of its own: the old address,
+`redhg.github.io/teletronix/`, redirects there (but saved settings, progress and opened packages
+stay with the address they were made on).
 
 The online copy is only files, with no server behind it, so two things need
 `npm run table` (or `npm run dev`) instead:
@@ -202,4 +204,5 @@ The online copy is only files, with no server behind it, so two things need
   into `public/data/` and push.
 
 To publish from a fork: make the repository public (GitHub Pages is free for public
-repositories), and under **Settings → Pages**, set **Source** to **GitHub Actions**.
+repositories), and under **Settings → Pages**, set **Source** to **GitHub Actions**. A fork
+publishes at `<user>.github.io/teletronix/`, unless it's given a custom domain there too.
