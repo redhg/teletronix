@@ -12,14 +12,12 @@ const config = JSON.parse(readFileSync(join(ROOT, "desktop/electron-builder.json
 };
 
 /** A file pattern as a regular expression: "relay/*.ts", "dist/**". */
-const pattern = (glob: string) =>
-    new RegExp(
-        `^${glob
-            .replace(/[.+^${}()|[\]\\]/g, "\\$&")
-            .replace(/\*\*/g, "\u0000")
-            .replace(/\*/g, "[^/]*")
-            .replace(/\u0000/g, ".*")}$`,
-    );
+const pattern = (glob: string) => {
+    const literal = (part: string) => part.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+    // ("**" is any path; "*", any name within a folder)
+    const parts = glob.split("**").map((part) => literal(part).replaceAll("*", "[^/]*"));
+    return new RegExp(`^${parts.join(".*")}$`);
+};
 
 /** Whether electron-builder packs a file: the last pattern to match it decides. */
 function packed(file: string): boolean {
