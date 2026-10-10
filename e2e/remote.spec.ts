@@ -306,30 +306,38 @@ test.describe("the GM's command palette", () => {
     });
 });
 
+/** Starts the panel's session, and reads its code. */
+async function startSession(gm: Page): Promise<string> {
+    await gm.getByRole("button", { name: "Start a session" }).click();
+    await expect(gm.locator(".gm-pairing")).toContainText("Connected");
+    return (await gm.locator(".gm-pairing strong").innerText()).trim();
+}
+
 test.describe("over the network", () => {
-    test("pairs a panel with a terminal by its code, and controls it", async ({
+    test("a player joins the GM's session by its code, and the GM controls it", async ({
         page,
         player,
         browser,
     }) => {
-        await player.open(program, "&remote");
-        const badge = page.locator(".remote-badge");
-        await expect(badge).toContainText("WAITING FOR GM");
-        const code = (await badge.innerText()).match(/REMOTE (\w+)/)?.[1] ?? "";
-
-        // another device: a browser context of its own, which shares no channel with the first
+        // the GM, on another device: a browser context of its own, which shares no channel
         const device = await browser.newContext();
         const gm = await device.newPage();
         await gm.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
         await gm.goto("./?data=e2e&gm");
         await expect(gm.getByRole("status")).toContainText("No players' window");
-        await gm.getByRole("textbox", { name: "Another device's code" }).fill(code.toLowerCase());
-        await gm.getByRole("button", { name: "Pair" }).click();
+        const code = await startSession(gm);
+        expect(code).toMatch(/^[BCDFGHJKMNPQRSTVWXYZ]{4}-\d{4}$/);
 
-        await expect(gm.locator(".gm-pairing")).toContainText(`Paired with ${code}`);
-        await expect(gm.locator(".gm-pairing")).toContainText("Connected");
+        // the players' device asks for it, and takes it however it's typed
+        await player.open(program, "&join");
+        const prompt = page.getByRole("dialog", { name: "JOIN A GM'S SESSION" });
+        await prompt.getByRole("textbox", { name: "Session code" }).fill(code.toLowerCase());
+        await prompt.getByRole("button", { name: "> JOIN" }).click();
+        await expect(prompt).toHaveCount(0);
+        const badge = page.locator(".remote-badge");
+        await expect(badge).toContainText(`SESSION ${code} · GM CONNECTED`);
         await expect(gm.getByRole("status").first()).toContainText("Players on HOME");
-        await expect(badge).toContainText("GM CONNECTED");
+        await expect(gm.locator(".gm-pairing")).toContainText("1 device");
 
         await gm.getByRole("button", { name: /^BRIDGE/ }).click();
         await expect(player.screen).toContainText("BRIDGE SCREEN");
@@ -337,26 +345,94 @@ test.describe("over the network", () => {
         await gm.getByRole("textbox", { name: "Message" }).fill("FROM ACROSS THE ROOM");
         await gm.getByRole("button", { name: "Send" }).click();
         await expect(player.dialog).toContainText("FROM ACROSS THE ROOM");
+        await page.keyboard.press("Enter");
 
-        // it stays paired after a reload
+        // both stay in the session after a reload
         await gm.reload();
-        await expect(gm.locator(".gm-pairing")).toContainText(`Paired with ${code}`);
+        await expect(gm.locator(".gm-pairing")).toContainText(`Session ${code}`);
         await expect(gm.getByRole("status").first()).toContainText("Players on BRIDGE");
+        await page.reload();
+        await expect(badge).toContainText(`SESSION ${code} · GM CONNECTED`);
+        // (the players' window started over; the panel kept its tab: back to its screens)
+        await expect(player.screen).toContainText("HOME SCREEN");
+        await tab(gm, "Screens");
+        await gm.getByRole("button", { name: /^BRIDGE/ }).click();
+        await expect(player.screen).toContainText("BRIDGE SCREEN");
         await device.close();
+    });
+
+    test("lets the GM take a device out of the session", async ({ page, player, browser }) => {
+        const device = await browser.newContext();
+        const gm = await device.newPage();
+        await gm.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        await gm.goto("./?data=e2e&gm");
+        const code = await startSession(gm);
+        await player.open(program, `&join=${code}`);
+        await expect(page.locator(".remote-badge")).toContainText("GM CONNECTED");
+
+        await tab(gm, "Devices");
+        const joined = gm.getByRole("region", { name: "Joined devices" });
+        await expect(joined).toContainText("Device 1 · on HOME");
+        await joined.getByRole("button", { name: "Remove device 1" }).click();
+        await expect(joined).toContainText("None yet.");
+        const prompt = page.getByRole("dialog", { name: "JOIN A GM'S SESSION" });
+        await expect(prompt).toContainText("THE GM TOOK THIS DEVICE OUT OF THE SESSION.");
+        // (playing on, without one)
+        await prompt.getByRole("button", { name: "> PLAY WITHOUT ONE" }).click();
+        await expect(prompt).toHaveCount(0);
+        await expect(player.screen).toContainText("HOME SCREEN");
+        await device.close();
+    });
+
+    test("won't let another GM with the same code take the session", async ({ browser }) => {
+        const first = await (await browser.newContext()).newPage();
+        await first.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        await first.goto("./?data=e2e&gm");
+        const code = await startSession(first);
+
+        // (as if someone knew the code, but not the secret)
+        const impostor = await (await browser.newContext()).newPage();
+        await impostor.addInitScript((code) => {
+            localStorage.setItem(
+                "teletronix:gm-session:e2e",
+                JSON.stringify({ code, secret: "zzzzzzzzzzzzzzzzzzzzzzzzzzzz" }),
+            );
+        }, code);
+        await impostor.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        await impostor.goto("./?data=e2e&gm");
+        await expect(impostor.locator(".gm-pairing")).toContainText("Another GM has this code");
+        await first.context().close();
+        await impostor.context().close();
+    });
+
+    test("asks for a code that's one: four letters, then four digits", async ({ page, player }) => {
+        await player.open(program, "&join");
+        const prompt = page.getByRole("dialog", { name: "JOIN A GM'S SESSION" });
+        const field = prompt.getByRole("textbox", { name: "Session code" });
+        const join = prompt.getByRole("button", { name: "> JOIN" });
+        // (it puts in the dash, and capitals)
+        await field.fill("bcdf12");
+        await expect(field).toHaveValue("BCDF-12");
+        await expect(join).toBeDisabled();
+        // (an O among the digits is a 0)
+        await field.fill("bcdf120o");
+        await expect(join).toBeEnabled();
+        await field.fill("abcd1234");
+        await expect(join).toBeDisabled();
+        // Esc plays on without one
+        await page.keyboard.press("Escape");
+        await expect(prompt).toHaveCount(0);
+        await expect(player.screen).toContainText("HOME SCREEN");
     });
 
     test("does each command once, from the same browser and the network both", async ({
         page,
         player,
     }) => {
-        await player.open(program, "&remote");
-        const badge = page.locator(".remote-badge");
-        await expect(badge).toContainText("WAITING FOR GM");
-        const code = (await badge.innerText()).match(/REMOTE (\w+)/)?.[1] ?? "";
         const gm = await openGm(page);
-        await gm.getByRole("textbox", { name: "Another device's code" }).fill(code);
-        await gm.getByRole("button", { name: "Pair" }).click();
-        await expect(gm.locator(".gm-pairing")).toContainText("Connected");
+        const code = await startSession(gm);
+        await player.open(program, `&join=${code}`);
+        await expect(page.locator(".remote-badge")).toContainText("GM CONNECTED");
 
         await gm.getByRole("button", { name: /^BRIDGE/ }).click();
         await expect(player.screen).toContainText("BRIDGE SCREEN");
@@ -369,10 +445,11 @@ test.describe("over the network", () => {
         await expect(player.screen).toContainText("BRIDGE SCREEN");
     });
 
-    test("keeps its code to itself without &remote", async ({ page, player }) => {
+    test("keeps to itself without &join", async ({ page, player }) => {
         await player.open(program);
         await page.waitForTimeout(300);
         await expect(page.locator(".remote-badge")).toHaveCount(0);
+        await expect(page.getByRole("dialog", { name: "JOIN A GM'S SESSION" })).toHaveCount(0);
     });
 });
 
@@ -386,7 +463,7 @@ test.describe("a QR code for the players' device", () => {
         );
     });
 
-    test("opens the program on the device, paired with the panel", async ({ page, browser }) => {
+    test("opens the program on the device, in the panel's session", async ({ page, browser }) => {
         await page.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
         // (as if served to the network, at this address)
         await page.route("**/remote/addresses", (route) =>
@@ -398,7 +475,7 @@ test.describe("a QR code for the players' device", () => {
         await expect(page.getByRole("img", { name: /QR code/ })).toBeVisible();
         const address = await page.locator(".gm-address").innerText();
         const code = (await page.locator(".gm-pairing strong").innerText()).trim();
-        expect(address).toBe(`http://192.168.0.20:4173/?data=e2e&remote=${code}`);
+        expect(address).toBe(`http://192.168.0.20:4173/?data=e2e&join=${code}`);
         await page.getByRole("checkbox", { name: /kiosk/ }).check();
         await expect(page.locator(".gm-address")).toHaveText(`${address}&kiosk`);
 
@@ -408,7 +485,7 @@ test.describe("a QR code for the players' device", () => {
         const { search } = new URL(address);
         await device.goto(`./${search}`);
         await expect(device.locator(".remote-badge")).toContainText(
-            `REMOTE ${code} · GM CONNECTED`,
+            `SESSION ${code} · GM CONNECTED`,
         );
         await expect(page.getByRole("status").first()).toContainText("Players on HOME");
         await device.context().close();
@@ -428,21 +505,18 @@ test.describe("served to the network over plain http", () => {
         });
         const errors: string[] = [];
         await page.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
-        await page.goto("./?data=e2e&remote&kiosk");
+        const gm = await openGm(page);
+        gm.on("pageerror", (error) => errors.push(error.message));
+        const code = await startSession(gm);
+        // (the old name for &join still works)
+        await page.goto(`./?data=e2e&remote=${code}&kiosk`);
         expect(await page.evaluate(() => "randomUUID" in crypto)).toBe(false);
         // (kiosk mode starts, and asks for the wake lock, at a key press)
         await page.getByText("PRESS ANY KEY").waitFor();
         await page.keyboard.press("Space");
         await expect(player.screen).toContainText("HOME SCREEN");
         const badge = page.locator(".remote-badge");
-        await expect(badge).toContainText("WAITING FOR GM");
-        const code = (await badge.innerText()).match(/REMOTE (\w+)/)?.[1] ?? "";
-
-        const gm = await openGm(page);
-        gm.on("pageerror", (error) => errors.push(error.message));
-        await gm.getByRole("textbox", { name: "Another device's code" }).fill(code);
-        await gm.getByRole("button", { name: "Pair" }).click();
-        await expect(badge).toContainText("GM CONNECTED");
+        await expect(badge).toContainText(`SESSION ${code} · GM CONNECTED`);
         await gm.getByRole("button", { name: /^BRIDGE/ }).click();
         await expect(player.screen).toContainText("BRIDGE SCREEN");
         expect(errors).toEqual([]);

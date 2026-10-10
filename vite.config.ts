@@ -2,15 +2,16 @@ import react from "@vitejs/plugin-react";
 import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vitest/config";
+import { createRelay } from "./relay/node.ts";
 import { buildInfo } from "./scripts/build-info.ts";
 import { createSaver } from "./scripts/editor-save.ts";
-import { createRelay } from "./scripts/remote-relay.ts";
 
 const BACKGROUND = "#000c0c";
 
 /**
  * Lets a GM's panel on one device control a players' terminal on another, through the dev
- * or preview server (see scripts/remote-relay.ts).
+ * or preview server (see relay/node.ts): its addresses as a middleware, and its WebSocket
+ * on the server's upgrade requests.
  */
 function remoteRelay(): Plugin {
     // (other devices can reach the server only when it's started with --host)
@@ -18,14 +19,16 @@ function remoteRelay(): Plugin {
         host === true || (typeof host === "string" && !["localhost", "127.0.0.1"].includes(host));
     return {
         name: "teletronix-remote-relay",
-        configureServer: (server) =>
-            void server.middlewares.use(
-                createRelay({ exposed: () => open(server.config.server.host) }),
-            ),
-        configurePreviewServer: (server) =>
-            void server.middlewares.use(
-                createRelay({ exposed: () => open(server.config.preview.host) }),
-            ),
+        configureServer: (server) => {
+            const relay = createRelay({ exposed: () => open(server.config.server.host) });
+            server.middlewares.use(relay);
+            server.httpServer?.on("upgrade", relay.upgrade);
+        },
+        configurePreviewServer: (server) => {
+            const relay = createRelay({ exposed: () => open(server.config.preview.host) });
+            server.middlewares.use(relay);
+            server.httpServer.on("upgrade", relay.upgrade);
+        },
     };
 }
 
@@ -108,7 +111,12 @@ export default defineConfig({
         }),
     ],
     test: {
-        include: ["src/**/*.test.ts", "scripts/**/*.test.ts", "desktop/**/*.test.ts"],
+        include: [
+            "src/**/*.test.ts",
+            "scripts/**/*.test.ts",
+            "desktop/**/*.test.ts",
+            "relay/**/*.test.ts",
+        ],
         environment: "node",
     },
 });

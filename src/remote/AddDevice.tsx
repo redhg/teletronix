@@ -12,7 +12,6 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { encode } from "uqr";
 import { Panel } from "../mantine/Panel.tsx";
-import { newCode } from "./link.ts";
 
 /** Hosts that only this computer can reach. */
 const LOCAL = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
@@ -42,10 +41,10 @@ function useAddresses(): string[] | null {
     return found;
 }
 
-/** The address a players' device opens: the program, paired with this panel. */
+/** The address a players' device opens: the program, joining this panel's session. */
 export function deviceAddress(base: string, program: string, code: string, kiosk: boolean) {
     const url = new URL(base);
-    url.search = `?data=${encodeURIComponent(program)}&remote=${code}${kiosk ? "&kiosk" : ""}`;
+    url.search = `?data=${encodeURIComponent(program)}&join=${code}${kiosk ? "&kiosk" : ""}`;
     url.hash = "";
     return url.toString();
 }
@@ -77,17 +76,27 @@ export function QrCode({ text, label }: { text: string; label: string }) {
 }
 
 /**
- * Connecting a players' device: a QR code that opens the program on it, already paired with
- * this panel, and the same address to type or send.
+ * Connecting a players' device: a QR code that opens the program on it, joining this
+ * panel's session, and the same address to type or send; and the devices that have joined.
  */
 export function AddDevice({
     program,
     code,
-    pair,
+    start,
+    devices,
+    screens,
+    remove,
 }: {
     program: string;
-    code: string;
-    pair: (code: string) => void;
+    /** The session's join code, once there's a session */
+    code: string | null;
+    /** Starts a session */
+    start: () => void;
+    /** The players' windows in the session */
+    devices: string[];
+    /** The screen a players' window is on, by its id */
+    screens: (player: string) => string | null;
+    remove: (player: string) => void;
 }) {
     const addresses = useAddresses();
     const [chosen, setChosen] = useState(0);
@@ -111,7 +120,7 @@ export function AddDevice({
     } else if (!code) {
         body = (
             <Group>
-                <Button onClick={() => pair(newCode())}>Show a QR code</Button>
+                <Button onClick={start}>Show a QR code</Button>
             </Group>
         );
     } else {
@@ -124,7 +133,9 @@ export function AddDevice({
                 <Stack gap="xs">
                     <Text size="sm" c="dimmed">
                         Scan it on the players' device, on the same network. It opens the program
-                        there, paired with this panel.
+                        there, in this panel's session. Or open the program there with{" "}
+                        <Code>&amp;join</Code>, and type in the session's code,{" "}
+                        <strong>{code}</strong>.
                     </Text>
                     {addresses.length > 1 && (
                         <Select
@@ -168,5 +179,43 @@ export function AddDevice({
             </Group>
         );
     }
-    return <Panel title="Players' device">{body}</Panel>;
+    return (
+        <>
+            <Panel title="Players' device">{body}</Panel>
+            {code && (
+                <Panel title="Joined devices">
+                    {devices.length === 0 ? (
+                        <Text size="sm" c="dimmed">
+                            None yet.
+                        </Text>
+                    ) : (
+                        <Stack gap={6}>
+                            {devices.map((player, index) => (
+                                <Group key={player} gap="xs" justify="space-between">
+                                    <Text size="sm">
+                                        Device {index + 1}
+                                        {screens(player) && (
+                                            <Text span c="dimmed">
+                                                {" "}
+                                                · on {screens(player)}
+                                            </Text>
+                                        )}
+                                    </Text>
+                                    <Button
+                                        size="compact-xs"
+                                        variant="subtle"
+                                        color="red"
+                                        aria-label={`Remove device ${index + 1}`}
+                                        onClick={() => remove(player)}
+                                    >
+                                        Remove
+                                    </Button>
+                                </Group>
+                            ))}
+                        </Stack>
+                    )}
+                </Panel>
+            )}
+        </>
+    );
 }

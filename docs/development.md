@@ -45,8 +45,11 @@ Every new feature gets tests.
   shared pieces are in `src/mantine/`. The dev server's save endpoint is
   `scripts/editor-save.ts`.
 - `src/remote/`: the GM's control panel (`&gm`, built with Mantine like the editor; players
-  never load it), and the players' side of it. The relay that passes their messages between
-  devices is `scripts/remote-relay.ts`, in Vite's servers.
+  never load it), and the players' side of it.
+- `relay/`: the relay that passes their messages between devices, by sessions (a join code,
+  and the GM's secret). `core.ts` is the sessions, with nothing of where it runs; `node.ts`
+  serves it over WebSockets (`websocket.ts`, with no library) in Vite's servers and the desktop
+  app. What browsers and the relay say to each other: `src/remote/relay-protocol.ts`.
 - `desktop/`: the [desktop app](at-the-table.md#desktop-app), in Electron. `main.ts` (its
   windows and menus), `server.ts` (the build, a program opened from a file or a package, the
   relay and the editor's saving) and `sources.ts` (an opened program's files) run as TypeScript, as Node runs it, with no build of their own;

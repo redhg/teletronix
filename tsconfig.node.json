@@ -5,5 +5,5 @@
         "lib": ["ES2023"],
         "types": ["node"]
     },
-    "include": ["vite.config.ts", "scripts", "desktop"]
+    "include": ["vite.config.ts", "scripts", "desktop", "relay"]
 }

@@ -1,7 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { extname, join } from "node:path";
-import { createRelay } from "../scripts/remote-relay.ts";
+import { createRelay, type Relay } from "../relay/node.ts";
 import { diskFile, fileUnder, type OpenProgram, type SourceFile } from "./sources.ts";
 
 // The desktop app's server: Teletronix's build, a program opened from a file (or a package),
@@ -243,8 +243,8 @@ function openSaving(options: AppServerOptions): Middleware {
 }
 
 /** The whole server, as a request handler: relay, saving, then files. */
-export function appHandler(options: AppServerOptions) {
-    const chain: Middleware[] = [createRelay({ exposed: () => true }), openSaving(options)];
+export function appHandler(options: AppServerOptions, relay: Relay) {
+    const chain: Middleware[] = [relay, openSaving(options)];
     return (req: IncomingMessage, res: ServerResponse) => {
         const run = (i: number) => {
             const middleware = chain[i];
@@ -269,7 +269,12 @@ export async function startAppServer(
     tries = 20,
 ): Promise<{ server: Server; port: number }> {
     for (let attempt = 0; attempt < tries; attempt++) {
-        const server = createServer(appHandler(options));
+        const relay = createRelay({ exposed: () => true });
+        const server = createServer(appHandler(options, relay));
+        // (the relay's WebSocket; nothing else upgrades)
+        server.on("upgrade", (req, socket, head) => {
+            if (!relay.upgrade(req, socket, head)) socket.destroy();
+        });
         const listening = await new Promise<boolean>((resolve) => {
             server.once("error", () => resolve(false));
             server.listen(port + attempt, () => resolve(true));

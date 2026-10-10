@@ -1,4 +1,5 @@
 import { channelName, isMessage } from "./protocol.ts";
+import type { FromRelay, Refusal, ToRelay } from "./relay-protocol.ts";
 
 /** A way for a GM's panel and players' terminals to reach each other. */
 export interface Link {
@@ -8,9 +9,10 @@ export interface Link {
 
 /**
  * How a link over the network is doing: connecting (or reconnecting after a drop),
- * connected, or unavailable (no relay where Teletronix is served, e.g. a hosted copy).
+ * connected, unavailable (no relay where Teletronix is served, e.g. a hosted copy), or
+ * refused (the relay wouldn't have it in the session: see SessionEvents).
  */
-export type LinkStatus = "connecting" | "connected" | "unavailable";
+export type LinkStatus = "connecting" | "connected" | "unavailable" | "refused";
 
 /** Windows of this browser: a BroadcastChannel named after the program. */
 export function channelLink(program: string, receive: (message: { type: string }) => void): Link {
@@ -21,68 +23,121 @@ export function channelLink(program: string, receive: (message: { type: string }
     return { send: (message) => channel.postMessage(message), close: () => channel.close() };
 }
 
+export { randomId } from "./codes.ts";
+
+/** Who's on the end of a session's link: its GM's panel, or one of its players' windows. */
+export type SessionRole =
+    | { gm: { code: string; secret: string } }
+    | { player: { code: string; id: string } };
+
+/** What the relay says about a session, besides its messages. */
+export interface SessionEvents {
+    /** To a player: whether the GM's panel is connected */
+    gm?(present: boolean): void;
+    /** To a GM: the players' windows in the session */
+    players?(ids: string[]): void;
+    /** It won't have this browser in the session, and why (it doesn't try again) */
+    refused?(reason: Refusal): void;
+}
+
+/** The relay's WebSocket, beside the page: ws:// or wss://, as the page is http or https. */
+const socketAddress = () => {
+    const url = new URL("remote/socket", location.href);
+    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+    return url.toString();
+};
+
+/** How long to wait before trying again after a drop: longer each time, up to this. */
+const RETRY_MS = [1000, 2000, 4000, 8000];
+
 /**
- * A random id, e.g. for a message. (Not crypto.randomUUID, which browsers only have on secure
- * pages: Teletronix served to a network is plain http, e.g. http://192.168.2.139:4173.)
+ * A session, through the relay on the server Teletronix is served from (see relay/): opened
+ * by its GM, or joined by a player. It reconnects by itself after a drop; if the relay was
+ * never there (e.g. a hosted copy, with no server), it's unavailable, and stops.
  */
-export const randomId = (): string =>
-    Array.from(crypto.getRandomValues(new Uint32Array(4)), (n) => n.toString(36)).join("-");
-
-/** Letters and digits for pairing codes, without ones easy to mix up (0 and O, 1 and I). */
-const CODE_LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-export const CODE_LENGTH = 4;
-
-/** A new pairing code, e.g. "K7QX". */
-export const newCode = (): string =>
-    Array.from(
-        crypto.getRandomValues(new Uint32Array(CODE_LENGTH)),
-        (n) => CODE_LETTERS[n % CODE_LETTERS.length],
-    ).join("");
-
-/** A pairing code as typed: capitals, without spaces or anything else. */
-export const cleanCode = (typed: string): string =>
-    typed
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g, "")
-        .slice(0, 8);
-
-/**
- * Other devices, through the server Teletronix is served from (see scripts/remote-relay.ts),
- * paired by a code. It reconnects by itself after a drop.
- */
-export function relayLink(
-    code: string,
-    role: "gm" | "player",
+export function sessionLink(
+    role: SessionRole,
     receive: (message: { type: string }) => void,
     status: (status: LinkStatus) => void = () => {},
-): Link {
-    const base = new URL(`remote/${code}/`, location.href);
-    const events = new EventSource(new URL(`events?role=${role}`, base));
-    status("connecting");
-    events.onopen = () => status("connected");
-    events.onerror = () => {
-        // (closed for good when there's no relay to reach; otherwise it tries again)
-        status(events.readyState === EventSource.CLOSED ? "unavailable" : "connecting");
+    events: SessionEvents = {},
+): Link & { remove(player: string): void } {
+    let socket: WebSocket | null = null;
+    let ready = false;
+    let stopped = false;
+    let everOpened = false;
+    let failures = 0;
+    let retry: ReturnType<typeof setTimeout> | undefined;
+
+    const hello: ToRelay =
+        "gm" in role
+            ? { relay: "open", code: role.gm.code, secret: role.gm.secret }
+            : { relay: "join", code: role.player.code, player: role.player.id };
+
+    const connect = () => {
+        status("connecting");
+        const ws = new WebSocket(socketAddress());
+        socket = ws;
+        ws.onopen = () => {
+            everOpened = true;
+            failures = 0;
+            ws.send(JSON.stringify(hello));
+        };
+        ws.onmessage = (event: MessageEvent<string>) => {
+            let message: FromRelay;
+            try {
+                message = JSON.parse(event.data) as FromRelay;
+            } catch {
+                return;
+            }
+            if ("data" in message) {
+                if (isMessage(message.data)) receive(message.data);
+                return;
+            }
+            switch (message.relay) {
+                case "opened":
+                case "joined":
+                    ready = true;
+                    status("connected");
+                    return;
+                case "gm":
+                    events.gm?.(message.present);
+                    return;
+                case "players":
+                    events.players?.(message.players);
+                    return;
+                case "refused":
+                    stopped = true;
+                    status("refused");
+                    events.refused?.(message.reason);
+                    return;
+            }
+        };
+        ws.onclose = () => {
+            ready = false;
+            if (stopped || socket !== ws) return;
+            // (never reached: no relay where Teletronix is served)
+            if (!everOpened) {
+                stopped = true;
+                status("unavailable");
+                return;
+            }
+            status("connecting");
+            retry = setTimeout(connect, RETRY_MS[Math.min(failures++, RETRY_MS.length - 1)]);
+        };
     };
-    events.onmessage = (event: MessageEvent<string>) => {
-        try {
-            const message: unknown = JSON.parse(event.data);
-            if (isMessage(message)) receive(message);
-        } catch {
-            // not one of ours
-        }
+    connect();
+
+    const say = (message: ToRelay) => {
+        if (ready && socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify(message));
     };
-    const to = new URL(`send?role=${role}`, base);
     return {
-        send: (message) => {
-            fetch(to, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(message),
-            }).catch(() => {
-                // lost; state is sent again soon anyway
-            });
+        // (lost while connecting; state is sent again soon anyway)
+        send: (message) => say({ data: message }),
+        remove: (player) => say({ relay: "remove", player }),
+        close: () => {
+            stopped = true;
+            clearTimeout(retry);
+            socket?.close();
         },
-        close: () => events.close(),
     };
 }

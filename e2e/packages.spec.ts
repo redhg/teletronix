@@ -39,11 +39,16 @@ test.afterAll(async () => {
     await rm(folder, { recursive: true, force: true });
 });
 
-/** Opens the package with Cmd/Ctrl+O, as a player would, from a program's page. */
+/**
+ * Opens the package with Cmd/Ctrl+O, as a player would, from a program's page; again if the
+ * page wasn't listening yet (it starts listening once the player's code has loaded).
+ */
 async function choose(page: Page, file = ttx) {
-    const chooser = page.waitForEvent("filechooser");
-    await page.keyboard.press("ControlOrMeta+o");
-    await (await chooser).setFiles(file);
+    await expect(async () => {
+        const chooser = page.waitForEvent("filechooser", { timeout: 2000 });
+        await page.keyboard.press("ControlOrMeta+o");
+        await (await chooser).setFiles(file);
+    }).toPass({ timeout: 15_000 });
 }
 
 /** Drops a file on the page, as dragging one from the desktop does. */
@@ -162,7 +167,9 @@ test.describe("a package", () => {
             const copy = join(folder, `heist-${i}.ttx`);
             await copyFile(ttx, copy);
             await choose(page, copy);
-            await expect(page).toHaveURL(new RegExp(`data=ttx:heist-${i}$`));
+            // (loaded, not just addressed: every one shows the same text, and the next key
+            // press mustn't land on the page that's going)
+            await page.waitForURL(new RegExp(`data=ttx:heist-${i}$`));
             await expect(player.screen).toContainText("THE VAULT IS OPEN.");
         }
         const kept = await page.evaluate(

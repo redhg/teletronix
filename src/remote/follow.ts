@@ -6,8 +6,10 @@ import {
     ViewSchema,
 } from "../engine/index.ts";
 import { withFiles } from "../package/format.ts";
-import { channelLink, type Link, type LinkStatus, newCode, randomId, relayLink } from "./link.ts";
+import { cleanJoinCode } from "./codes.ts";
+import { channelLink, type Link, type LinkStatus, randomId, sessionLink } from "./link.ts";
 import type { BuiltinSound, GmEnvelope, PlayerMessage, PlayerState } from "./protocol.ts";
+import type { Refusal } from "./relay-protocol.ts";
 
 /** How often a players' window reports in, and a panel pings, so each knows the other's there. */
 export const HEARTBEAT_MS = 1000;
@@ -46,12 +48,16 @@ export function playerState(terminal: Terminal): PlayerState {
     };
 }
 
-/** How a terminal's remote control is doing, for its badge. */
+/** How a terminal's remote control is doing, for its badge (and its join prompt). */
 export interface RemoteStatus {
-    /** Its pairing code, if other devices can reach it */
+    /** The session it's joined, by its join code ("BCDF-1234") */
     code: string | null;
-    /** Its link to them */
+    /** Whether it's to join one, and has no code yet: it asks for one */
+    asking: boolean;
+    /** Its link to the session */
     network: LinkStatus | null;
+    /** Why the relay wouldn't have it, if it wouldn't */
+    refused: Refusal | null;
     /** Whether a GM's panel is connected */
     gm: boolean;
 }
@@ -59,40 +65,50 @@ export interface RemoteStatus {
 export interface Remote {
     status(): RemoteStatus;
     subscribe(listener: () => void): () => void;
+    /** Joins a session by its code, as typed (false if it isn't one). */
+    join(code: string): boolean;
+    /** Stops asking for a code: plays on without joining. */
+    dismiss(): void;
     stop(): void;
 }
 
-/**
- * A program's pairing code on this device: the same each time, so a panel stays paired.
- * One given (e.g. in a QR code's address) takes its place.
- */
-function codeFor(program: string, given?: string): string {
-    const key = `teletronix:remote-code:${program}`;
+/** The session a program joined on this device, kept so it joins again after a reload. */
+const joinKey = (program: string) => `teletronix:join-code:${program}`;
+
+function savedJoinCode(program: string): string | null {
     try {
-        const saved = localStorage.getItem(key);
-        if (saved && !given) return saved;
-        const code = given ?? newCode();
-        localStorage.setItem(key, code);
-        return code;
+        return cleanJoinCode(localStorage.getItem(joinKey(program)) ?? "");
     } catch {
-        return newCode();
+        return null;
+    }
+}
+
+function rememberJoinCode(program: string, code: string | null) {
+    try {
+        if (code) localStorage.setItem(joinKey(program), code);
+        else localStorage.removeItem(joinKey(program));
+    } catch {
+        // not remembered
     }
 }
 
 /**
  * Lets a GM's panel control the terminal: from another window of this browser, and with
- * `network`, from other devices by a pairing code. It carries out the panel's commands, and
+ * `join`, from other devices, as a player in the GM's session (by its join code: one given,
+ * the one it joined last time, or one it asks for). It carries out the panel's commands, and
  * tells the panel what's on screen.
  */
 export function followRemote(
     terminal: Terminal,
     program: string,
     {
-        network = false,
+        join = false,
         code,
         files,
     }: {
-        network?: boolean;
+        /** Whether to join a GM's session over the network */
+        join?: boolean;
+        /** Its join code, as given (e.g. in a QR code's address), if one was */
         code?: string;
         /**
          * For a package's program: where its files are here ("data/…" to an address in this
@@ -106,14 +122,23 @@ export function followRemote(
     const here = (value: unknown) => (files ? withFiles(value, files) : value);
     const fileNames = new Map([...(files ?? [])].map(([name, address]) => [address, name]));
     const listeners = new Set<() => void>();
+    const given = code ? cleanJoinCode(code) : null;
+    if (join && given) rememberJoinCode(program, given);
+    const startCode = join ? (given ?? savedJoinCode(program)) : null;
     let status: RemoteStatus = {
-        code: network ? codeFor(program, code) : null,
+        code: startCode,
+        asking: join && !startCode,
         network: null,
+        refused: null,
         gm: false,
     };
     const update = (change: Partial<RemoteStatus>) => {
         const next = { ...status, ...change };
-        if (next.network === status.network && next.gm === status.gm) return;
+        if (
+            (Object.keys(next) as (keyof RemoteStatus)[]).every((key) => next[key] === status[key])
+        ) {
+            return;
+        }
         status = next;
         for (const listener of listeners) listener();
     };
@@ -228,15 +253,33 @@ export function followRemote(
     };
 
     links.push(channelLink(program, handle));
-    if (status.code) {
-        links.push(
-            relayLink(status.code, "player", handle, (network) => {
+    let session: Link | null = null;
+    const joinSession = (joinCode: string) => {
+        session?.close();
+        if (session) links.splice(links.indexOf(session), 1);
+        session = sessionLink(
+            { player: { code: joinCode, id: player } },
+            handle,
+            (network) => {
                 update({ network });
                 // tell a panel that's waiting what's on screen
                 if (network === "connected") report();
-            }),
+            },
+            {
+                gm: (present) => {
+                    if (!present) lastGm = 0;
+                    update({ gm: present });
+                },
+                refused: (reason) => {
+                    // (removed by the GM, or a code that won't do: it asks again)
+                    rememberJoinCode(program, null);
+                    update({ refused: reason, gm: false, asking: true, code: null });
+                },
+            },
         );
-    }
+        links.push(session);
+    };
+    if (status.code) joinSession(status.code);
 
     const unsubscribe = terminal.subscribe(changed);
     const heartbeat = setInterval(() => {
@@ -250,6 +293,15 @@ export function followRemote(
             listeners.add(listener);
             return () => listeners.delete(listener);
         },
+        join: (typed) => {
+            const joinCode = cleanJoinCode(typed);
+            if (!joinCode) return false;
+            rememberJoinCode(program, joinCode);
+            update({ code: joinCode, asking: false, refused: null, network: null });
+            joinSession(joinCode);
+            return true;
+        },
+        dismiss: () => update({ asking: false }),
         stop: () => {
             unsubscribe();
             clearInterval(heartbeat);

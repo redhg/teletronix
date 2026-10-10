@@ -40,7 +40,7 @@ players): play the program in one window, and open its address with `&gm` added 
 terminal, and so on), and light, dark or as your system is set (the switch in the top corner).
 Along the top, always: whether the players are connected (**LIVE**) and the screen they're on
 (and any open dialog), **Back** and **Restart** (which do what the actions of those names do),
-**Pause**, and pairing with another device.
+**Pause**, and the session other devices join (see [From another device](#from-another-device)).
 
 **Pause** stops the players' terminal for a break at the table: text stops typing, timers stop
 counting (a self-destruct countdown waits where it is), videos and the ambience stop, and nothing
@@ -84,29 +84,35 @@ game carries on if the panel closes. Every players' window of that program follo
 
 #### From another device
 The GM's panel can also be on another device on the same network as the players' (e.g. the
-GM's laptop controlling a tablet), with Teletronix served from a computer on that network:
+GM's laptop controlling a tablet), with Teletronix served from a computer on that network (or
+by the [desktop app](#desktop-app), which serves it by itself):
 1. On that computer, run `npm run table`. It builds Teletronix and serves it to the network,
    and prints its address there, e.g. `http://192.168.2.139:4173/`. (`npm run dev -- --host`
    works too, while working on Teletronix.)
 2. On the GM's device, open the program with `&gm`, e.g. `http://localhost:4173/?data=ypsilon14&gm`
-   on that computer. In the **Devices** tab, choose **Show a QR code** (and tick **As a
-   kiosk** for a dedicated screen).
-3. Scan the QR code with the players' device's camera. It opens the program there, already
-   paired with the panel, and shows `REMOTE K7QX · GM CONNECTED` in the corner.
+   on that computer, and choose **Start a session** at the top. The panel shows the session's
+   code, e.g. `BCDF-1234`: four letters, then four digits.
+3. Players' devices join it, either way:
+   - **By QR code:** in the **Devices** tab, choose **Show a QR code** (and tick **As a kiosk**
+     for a dedicated screen), and scan it with the players' device's camera. It opens the
+     program there, in the session.
+   - **By typing the code:** open the program on the players' device with `&join` added, e.g.
+     `http://192.168.2.139:4173/?data=ypsilon14&join`. It asks for the code; any case will do,
+     with or without the dash.
 
-Or the other way round, without a camera: open the program on the players' device with
-`&remote` added, e.g. `http://192.168.2.139:4173/?data=ypsilon14&remote&kiosk`. It shows a
-pairing code in the corner, e.g. `REMOTE K7QX · WAITING FOR GM`, for a few seconds (and again
-with **Ctrl+Alt+G**, or whenever the connection changes); type it into the panel's "Another
-device's code" and choose **Pair**.
+A device in the session shows it in the corner, e.g. `SESSION BCDF-1234 · GM CONNECTED`, for a
+few seconds (and again with **Ctrl+Alt+G**, or whenever the connection changes). The **Devices**
+tab lists the devices that have joined, and the screen each is on; **Remove** takes one out of
+the session (it asks for a code again). **End** ends the session; **Start a session** then
+makes a new code.
 
-Messages go through the server on that computer, so it works without internet, and only a
-panel with the code can control the terminal (`&remote=K7QX`, as in the QR code, gives the
-terminal that code). The code stays the same on that device, and the
-panel remembers it, so they pair again by themselves after a reload or a dropped connection.
-Without `&remote`, a terminal can't be reached from other devices at all. A copy hosted
-online (e.g. on GitHub Pages) has no server to pass messages through, so the code shows as
-unavailable there.
+Messages go through the server on that computer, so it works without internet. Only the panel
+that started the session can control its devices: it holds a secret for it that's never shown
+or typed, so knowing the code lets a device join, but not take over. Both sides remember the
+session, so they join it again by themselves after a reload or a dropped connection. Without
+`&join`, a terminal can't be reached from other devices at all. (`&remote`, from before
+sessions, does what `&join` does.) A copy hosted online (e.g. at teletronix.net) has no server
+to pass messages through, so the session shows as unavailable there.
 
 ## Desktop app
 Teletronix also comes as an app for macOS, Windows and Linux: the same Teletronix, in a window of
@@ -154,7 +160,7 @@ it in a browser (online, at <https://teletronix.net/>, too) or in the
   window, and playing [offline](#offline) all have it. The editor opens it too
   (`?edit&data=ttx:heist`), and downloads it when saved.
 - **On another device:** a package lives in the browser that opened it, so a device the GM's
-  QR code (or `&remote`) opens doesn't have it: it says so, with a button to choose the package's
+  QR code (or `&join`) opens doesn't have it: it says so, with a button to choose the package's
   file there as well. (The desktop app serves a package it opened to other devices itself.)
 
 ## Running Tape 7

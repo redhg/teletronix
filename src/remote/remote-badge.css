@@ -1,4 +1,4 @@
-/* A terminal's pairing code, in the corner over the status bar (if there is one) */
+/* A terminal's session, in the corner over the status bar (if there is one) */
 .remote-badge {
     position: fixed;
     bottom: calc(var(--footer-lines, 0) * var(--line-height) + 0.25lh);
@@ -10,7 +10,80 @@
     font: inherit;
     line-height: var(--line-height);
     text-shadow: var(--glow);
-    /* (readable across a table: the GM types in its code) */
+    /* (readable across a table) */
     opacity: 0.9;
     pointer-events: none;
+}
+
+/* Asking for the GM's session code, in the program's own look */
+.join-prompt {
+    max-width: min(40ch, calc(100vw - 4ch));
+    padding: 1lh 2ch;
+    border: 1px solid var(--fg);
+    color: var(--fg);
+    background: var(--bg);
+    font: inherit;
+    line-height: var(--line-height);
+    text-shadow: var(--glow);
+}
+
+.join-prompt::backdrop {
+    background: rgb(from var(--bg) r g b / 0.7);
+}
+
+.join-prompt form {
+    display: grid;
+    gap: 1lh;
+}
+
+.join-prompt p {
+    margin: 0;
+}
+
+.join-prompt input {
+    padding: 0 0.5ch;
+    border: 0;
+    border-bottom: 1px solid var(--fg);
+    color: inherit;
+    background: none;
+    font: inherit;
+    text-shadow: inherit;
+    letter-spacing: 0.1ch;
+}
+
+.join-prompt input:focus {
+    outline: none;
+    background: rgb(from var(--fg) r g b / 0.12);
+}
+
+.join-prompt input::placeholder {
+    color: rgb(from var(--fg) r g b / 0.4);
+}
+
+.join-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 3ch;
+}
+
+.join-actions button {
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: none;
+    font: inherit;
+    text-shadow: inherit;
+    cursor: pointer;
+}
+
+.join-actions button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.join-actions button:not(:disabled):hover,
+.join-actions button:focus-visible {
+    outline: none;
+    color: var(--bg);
+    background: var(--fg);
 }

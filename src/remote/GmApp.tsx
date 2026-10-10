@@ -35,17 +35,10 @@ import { type CommandGroup, Palette, PaletteButton } from "../mantine/Palette.ts
 import { Panel } from "../mantine/Panel.tsx";
 import { ScreenTree } from "../mantine/ScreenTree.tsx";
 import { AddDevice } from "./AddDevice.tsx";
+import { newJoinCode, newSecret } from "./codes.ts";
 import { GONE_MS, HEARTBEAT_MS } from "./follow.ts";
 import { type Handout, handoutsOf } from "./handouts.ts";
-import {
-    CODE_LENGTH,
-    channelLink,
-    cleanCode,
-    type Link,
-    type LinkStatus,
-    randomId,
-    relayLink,
-} from "./link.ts";
+import { channelLink, type Link, type LinkStatus, randomId, sessionLink } from "./link.ts";
 import {
     BUILTIN_SOUNDS,
     type BuiltinSound,
@@ -54,6 +47,7 @@ import {
     type PlayerMessage,
     type PlayerState,
 } from "./protocol.ts";
+import type { Refusal } from "./relay-protocol.ts";
 import { useWaitingUpdate } from "./update.ts";
 
 /** How long a burst of static lasts. */
@@ -132,27 +126,39 @@ export function GmApp({ name, program }: Props) {
         };
     }, [name, receive]);
 
-    // and on other devices, by their pairing code
-    const [code, setCode] = useState(() => savedCode(name));
+    // and on other devices, in the panel's session, which they join by its code
+    const [session, setSession] = useState(() => savedSession(name));
     const [network, setNetwork] = useState<LinkStatus | null>(null);
+    const [refused, setRefused] = useState<Refusal | null>(null);
+    const [devices, setDevices] = useState<string[]>([]);
+    const remove = useRef<(player: string) => void>(() => {});
     useEffect(() => {
-        rememberCode(name, code);
-        if (!code) {
+        rememberSession(name, session);
+        setDevices([]);
+        if (!session) {
             setNetwork(null);
             return;
         }
-        const link = relayLink(code, "gm", receive, (status) => {
-            setNetwork(status);
-            if (status === "connected") {
-                link.send({ type: "hello", id: randomId() } satisfies GmEnvelope);
-            }
-        });
+        setRefused(null);
+        const link = sessionLink(
+            { gm: session },
+            receive,
+            (status) => {
+                setNetwork(status);
+                if (status === "connected") {
+                    link.send({ type: "hello", id: randomId() } satisfies GmEnvelope);
+                }
+            },
+            { players: setDevices, refused: setRefused },
+        );
         links.current.set("relay", link);
+        remove.current = link.remove;
         return () => {
             link.close();
             if (links.current.get("relay") === link) links.current.delete("relay");
         };
-    }, [name, code, receive]);
+    }, [name, session, receive]);
+    const startSession = () => setSession({ code: newJoinCode(), secret: newSecret() });
 
     // the players know the panel's there; it knows when they've gone
     useEffect(() => {
@@ -474,7 +480,14 @@ export function GmApp({ name, program }: Props) {
                         >
                             {paused ? "▶ Resume" : "‖ Pause"}
                         </Button>
-                        <Pairing code={code} network={network} pair={setCode} />
+                        <SessionControl
+                            code={session?.code ?? null}
+                            network={network}
+                            refused={refused}
+                            devices={devices.length}
+                            start={startSession}
+                            end={() => setSession(null)}
+                        />
                         <ColorScheme />
                     </Group>
                 </Group>
@@ -587,7 +600,20 @@ export function GmApp({ name, program }: Props) {
                     </Tabs.Panel>
                     <Tabs.Panel value="devices">
                         <SimpleGrid cols={{ base: 1, md: 2 }}>
-                            <AddDevice program={name} code={code} pair={setCode} />
+                            <AddDevice
+                                program={name}
+                                code={session?.code ?? null}
+                                start={startSession}
+                                devices={devices}
+                                screens={(player) => {
+                                    const id = players.get(player)?.state.screen;
+                                    const screen = id ? program.screens.get(id) : undefined;
+                                    return screen
+                                        ? (screen.title ?? screen.id.toUpperCase())
+                                        : null;
+                                }}
+                                remove={(player) => remove.current(player)}
+                            />
                             <Panel title="This computer">
                                 <Text size="sm" c="dimmed">
                                     A players' window on this computer (e.g. on a second display)
@@ -622,19 +648,32 @@ function openPlayers(program: string): void {
     window.open(`?data=${encodeURIComponent(program)}`, `teletronix-${program}`);
 }
 
-/** The pairing code last used for a program, so the panel reconnects after a reload. */
-function savedCode(program: string): string {
-    try {
-        return localStorage.getItem(`teletronix:gm-code:${program}`) ?? "";
-    } catch {
-        return "";
-    }
+/** A session: its join code, and the secret only this panel has. */
+interface Session {
+    code: string;
+    secret: string;
 }
 
-function rememberCode(program: string, code: string): void {
+const sessionKey = (program: string) => `teletronix:gm-session:${program}`;
+
+/** The session last started for a program, so the panel opens it again after a reload. */
+function savedSession(program: string): Session | null {
     try {
-        if (code) localStorage.setItem(`teletronix:gm-code:${program}`, code);
-        else localStorage.removeItem(`teletronix:gm-code:${program}`);
+        const saved = JSON.parse(localStorage.getItem(sessionKey(program)) ?? "null") as unknown;
+        if (saved && typeof saved === "object" && "code" in saved && "secret" in saved) {
+            const { code, secret } = saved as Session;
+            if (typeof code === "string" && typeof secret === "string") return { code, secret };
+        }
+    } catch {
+        // none
+    }
+    return null;
+}
+
+function rememberSession(program: string, session: Session | null): void {
+    try {
+        if (session) localStorage.setItem(sessionKey(program), JSON.stringify(session));
+        else localStorage.removeItem(sessionKey(program));
     } catch {
         // not remembered
     }
@@ -647,71 +686,68 @@ const NETWORK: Record<LinkStatus, { text: string; color: string }> = {
         text: "Can't connect: serve Teletronix with npm run table (or npm run dev -- --host)",
         color: "red",
     },
+    refused: { text: "Not available", color: "red" },
 };
 
-/** Pairing with a terminal on another device, by the code it shows. */
-function Pairing({
+/** Why the relay wouldn't open the panel's session. */
+const REFUSED: Record<Refusal, string> = {
+    taken: "Another GM has this code: end it and start a new session",
+    "too-many": "Too many tries: wait a minute",
+    invalid: "Not a valid session: end it and start a new one",
+    removed: "Removed",
+};
+
+/**
+ * The panel's session, which players' devices join by its code: started here, then shown
+ * with its connection and how many devices have joined.
+ */
+function SessionControl({
     code,
     network,
-    pair,
+    refused,
+    devices,
+    start,
+    end,
 }: {
-    code: string;
+    code: string | null;
     network: LinkStatus | null;
-    pair: (code: string) => void;
+    refused: Refusal | null;
+    devices: number;
+    start: () => void;
+    end: () => void;
 }) {
-    const [typed, setTyped] = useState(code);
-    const submit = (event: FormEvent) => {
-        event.preventDefault();
-        pair(cleanCode(typed));
-    };
-    if (code) {
+    if (!code) {
         return (
-            <Group gap="xs" className="gm-pairing">
-                <Text size="sm">
-                    Paired with <strong>{code}</strong>
-                </Text>
-                {network && (
-                    <Badge color={NETWORK[network].color} variant="light">
-                        {NETWORK[network].text}
-                    </Badge>
-                )}
-                <Button
-                    variant="subtle"
-                    size="xs"
-                    onClick={() => {
-                        setTyped("");
-                        pair("");
-                    }}
-                >
-                    Unpair
-                </Button>
-            </Group>
+            <Button
+                variant="default"
+                size="xs"
+                className="gm-pairing"
+                onClick={start}
+                title="Let players' devices join, by a code"
+            >
+                Start a session
+            </Button>
         );
     }
     return (
-        <form className="gm-pairing" onSubmit={submit}>
-            <Group gap={6}>
-                <TextInput
-                    size="xs"
-                    aria-label="Another device's code"
-                    placeholder="Device code"
-                    value={typed}
-                    onChange={(event) => setTyped(cleanCode(event.currentTarget.value))}
-                    autoComplete="off"
-                    spellCheck={false}
-                    w={110}
-                    styles={{ input: { fontFamily: "var(--mantine-font-family-monospace)" } }}
-                />
-                <Button
-                    type="submit"
-                    size="xs"
-                    variant="light"
-                    disabled={typed.length < CODE_LENGTH}
-                >
-                    Pair
-                </Button>
-            </Group>
-        </form>
+        <Group gap="xs" className="gm-pairing">
+            <Text size="sm">
+                Session <strong>{code}</strong>
+            </Text>
+            {network && (
+                <Badge color={NETWORK[network].color} variant="light">
+                    {refused ? REFUSED[refused] : NETWORK[network].text}
+                </Badge>
+            )}
+            {network === "connected" && (
+                <Text size="sm" c="dimmed">
+                    {devices === 1 ? "1 device" : `${devices} devices`}
+                </Text>
+            )}
+            <Button variant="subtle" size="xs" onClick={end}>
+                End
+            </Button>
+        </Group>
     );
 }
 

@@ -4,7 +4,6 @@ import { type Program, Terminal } from "../engine/index.ts";
 import { rememberProgram } from "../last-program.ts";
 import { acceptPackages, choosePackage } from "../package/open.ts";
 import { followRemote } from "../remote/follow.ts";
-import { CODE_LENGTH, cleanCode } from "../remote/link.ts";
 import { AnimationFrameTicker } from "./animation-frame-ticker.ts";
 import { applyAppearance, followPixelRatio, loadFont } from "./appearance.ts";
 import { ErrorView } from "./ErrorView.tsx";
@@ -75,12 +74,13 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
     });
     // carry on from saved progress, and keep saving
     keepSaved(terminal);
-    // a GM's panel (`&gm`) in another window can control it, and with `&remote`, one on
+    // a GM's panel (`&gm`) in another window can control it, and with `&join`, one on
     // another device too
     const remote = followRemote(terminal, params.get("data") ?? "sample", {
-        network: params.has("remote"),
-        // `&remote=K7QX` pairs with the panel that showed it (e.g. in a QR code)
-        code: givenCode(params.get("remote")),
+        // (`&remote` too, as it was called before sessions)
+        join: params.has("join") || params.has("remote"),
+        // `&join=BCDF-1234` joins the session that showed it (e.g. in a QR code)
+        code: params.get("join") || params.get("remote") || undefined,
         // (a package's files, which the panel names by their "data/…" paths)
         ...(result.files ? { files: result.files } : {}),
     });
@@ -112,12 +112,6 @@ function createTerminal(program: Program, startAt?: string): Terminal {
         instant: matchMedia("(prefers-reduced-motion: reduce)").matches,
         startAt: startAt !== undefined && program.screens.has(startAt) ? startAt : undefined,
     });
-}
-
-/** A pairing code given in the address, if it's one. */
-function givenCode(value: string | null): string | undefined {
-    const code = cleanCode(value ?? "");
-    return code.length >= CODE_LENGTH ? code : undefined;
 }
 
 /** The screen named in the page's address, as #id, if any. */
