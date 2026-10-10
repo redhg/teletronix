@@ -1,4 +1,5 @@
 import { channelName, isMessage } from "./protocol.ts";
+import { relayAddress } from "./relay-address.ts";
 import type { FromRelay, Refusal, ToRelay } from "./relay-protocol.ts";
 
 /** A way for a GM's panel and players' terminals to reach each other. */
@@ -40,20 +41,15 @@ export interface SessionEvents {
     refused?(reason: Refusal): void;
 }
 
-/** The relay's WebSocket, beside the page: ws:// or wss://, as the page is http or https. */
-const socketAddress = () => {
-    const url = new URL("remote/socket", location.href);
-    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-    return url.toString();
-};
-
 /** How long to wait before trying again after a drop: longer each time, up to this. */
 const RETRY_MS = [1000, 2000, 4000, 8000];
+/** How often a quiet connection says it's still there (so nothing between closes it). */
+const KEEP_ALIVE_MS = 30_000;
 
 /**
- * A session, through the relay on the server Teletronix is served from (see relay/): opened
- * by its GM, or joined by a player. It reconnects by itself after a drop; if the relay was
- * never there (e.g. a hosted copy, with no server), it's unavailable, and stops.
+ * A session, through a relay (see relay-address.ts): opened by its GM, or joined by a
+ * player. It reconnects by itself after a drop; if the relay was never there, it's
+ * unavailable, and stops.
  */
 export function sessionLink(
     role: SessionRole,
@@ -67,6 +63,8 @@ export function sessionLink(
     let everOpened = false;
     let failures = 0;
     let retry: ReturnType<typeof setTimeout> | undefined;
+    let keepAlive: ReturnType<typeof setInterval> | undefined;
+    const code = "gm" in role ? role.gm.code : role.player.code;
 
     const hello: ToRelay =
         "gm" in role
@@ -75,14 +73,18 @@ export function sessionLink(
 
     const connect = () => {
         status("connecting");
-        const ws = new WebSocket(socketAddress());
+        const ws = new WebSocket(relayAddress(code));
         socket = ws;
         ws.onopen = () => {
             everOpened = true;
             failures = 0;
             ws.send(JSON.stringify(hello));
+            // (answered by the relay without anything else waking: see relay/cloudflare.ts)
+            clearInterval(keepAlive);
+            keepAlive = setInterval(() => ws.send("ping"), KEEP_ALIVE_MS);
         };
         ws.onmessage = (event: MessageEvent<string>) => {
+            if (event.data === "pong") return;
             let message: FromRelay;
             try {
                 message = JSON.parse(event.data) as FromRelay;
@@ -114,6 +116,7 @@ export function sessionLink(
         };
         ws.onclose = () => {
             ready = false;
+            clearInterval(keepAlive);
             if (stopped || socket !== ws) return;
             // (never reached: no relay where Teletronix is served)
             if (!everOpened) {
@@ -137,6 +140,7 @@ export function sessionLink(
         close: () => {
             stopped = true;
             clearTimeout(retry);
+            clearInterval(keepAlive);
             socket?.close();
         },
     };

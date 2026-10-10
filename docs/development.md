@@ -49,7 +49,13 @@ Every new feature gets tests.
 - `relay/`: the relay that passes their messages between devices, by sessions (a join code,
   and the GM's secret). `core.ts` is the sessions, with nothing of where it runs; `node.ts`
   serves it over WebSockets (`websocket.ts`, with no library) in Vite's servers and the desktop
-  app. What browsers and the relay say to each other: `src/remote/relay-protocol.ts`.
+  app; `cloudflare.ts` on Cloudflare, for sessions over the internet: a Durable Object for each
+  session, whose WebSockets sleep while quiet (`wrangler.toml`; `npm run relay:dev` runs it
+  locally, `npm run relay:deploy` publishes it, after `npx wrangler login`). Which relay a page
+  uses: `src/remote/relay-address.ts` (its own on this computer or its network; the internet's
+  anywhere else). What browsers and the relay say to each other:
+  `src/remote/relay-protocol.ts`. Over a relay, heartbeats don't flow: it says who's there,
+  and players' windows report only changes, so a quiet game sends nothing.
 - `desktop/`: the [desktop app](at-the-table.md#desktop-app), in Electron. `main.ts` (its
   windows and menus), `server.ts` (the build, a program opened from a file or a package, the
   relay and the editor's saving) and `sources.ts` (an opened program's files) run as TypeScript, as Node runs it, with no build of their own;

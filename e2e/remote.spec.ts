@@ -398,6 +398,39 @@ test.describe("over the network", () => {
         await device.close();
     });
 
+    test("knows who's there by the session, with nothing passing while it's quiet", async ({
+        page,
+        player,
+        browser,
+    }) => {
+        const device = await browser.newContext();
+        const gm = await device.newPage();
+        await gm.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        await gm.goto("./?data=e2e&gm");
+        const code = await startSession(gm);
+        let passed = 0;
+        page.on("websocket", (socket) => {
+            socket.on("framesent", () => passed++);
+            socket.on("framereceived", () => passed++);
+        });
+        await player.open(program, `&join=${code}`);
+        const badge = page.locator(".remote-badge");
+        await expect(badge).toContainText("GM CONNECTED");
+        await expect(gm.getByRole("status").first()).toContainText("Players on HOME");
+
+        // quiet for longer than a heartbeat's absence would take: both still see each other
+        await page.waitForTimeout(500);
+        passed = 0;
+        await page.waitForTimeout(4000);
+        expect(passed).toBe(0);
+        await expect(gm.getByRole("status").first()).toContainText("Players on HOME");
+        await expect(badge).toContainText("GM CONNECTED");
+
+        // and when the GM goes, the player knows at once
+        await device.close();
+        await expect(badge).toContainText("WAITING FOR GM", { timeout: 2000 });
+    });
+
     test("lets the GM take a device out of the session", async ({ page, player, browser }) => {
         const device = await browser.newContext();
         const gm = await device.newPage();

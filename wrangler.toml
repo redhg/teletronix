@@ -1,0 +1,29 @@
+# The relay on Cloudflare, for sessions over the internet (relay/cloudflare.ts): at
+# https://teletronix-play.redhg.workers.dev/remote/socket once deployed.
+#
+#   npm run relay:dev      run it on this computer (Cloudflare's own runtime, locally)
+#   npm run relay:deploy   publish it (after `npx wrangler login`, once)
+
+name = "teletronix-play"
+main = "relay/cloudflare.ts"
+compatibility_date = "2026-09-20"
+workers_dev = true
+
+[vars]
+# The pages that may use it: Teletronix online, and while developing
+ORIGINS = "https://teletronix.net,https://www.teletronix.net,https://redhg.github.io,http://localhost:5173,http://localhost:4173"
+
+# One Durable Object for each session
+[[durable_objects.bindings]]
+name = "SESSIONS"
+class_name = "SessionRelay"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SessionRelay"]
+
+# Each address's tries at opening or joining a session: 30 a minute
+[[ratelimits]]
+name = "TRIES"
+namespace_id = "1001"
+simple = { limit = 30, period = 60 }

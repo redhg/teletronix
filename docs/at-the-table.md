@@ -83,9 +83,14 @@ The two windows talk directly, within the browser, so it needs no setup or netwo
 game carries on if the panel closes. Every players' window of that program follows the panel.
 
 #### From another device
-The GM's panel can also be on another device on the same network as the players' (e.g. the
-GM's laptop controlling a tablet), with Teletronix served from a computer on that network (or
-by the [desktop app](#desktop-app), which serves it by itself):
+The GM's panel can also be on another device: across the table (e.g. the GM's laptop
+controlling a tablet), or anywhere. Its session goes through a relay, which passes the GM's and
+players' messages on:
+- **Online** (e.g. at <https://teletronix.net/>), through Teletronix's relay on the internet:
+  the GM and players can be on different networks, or in different places. Open the program
+  with `&gm`, choose **Start a session**, and players join as below, at the same address.
+- **On a local network,** with no internet needed, through the relay of the computer serving
+  Teletronix (or the [desktop app](#desktop-app), which serves it by itself):
 1. On that computer, run `npm run table`. It builds Teletronix and serves it to the network,
    and prints its address there, e.g. `http://192.168.2.139:4173/`. (`npm run dev -- --host`
    works too, while working on Teletronix.)
@@ -106,13 +111,14 @@ tab lists the devices that have joined, and the screen each is on; **Remove** ta
 the session (it asks for a code again). **End** ends the session; **Start a session** then
 makes a new code.
 
-Messages go through the server on that computer, so it works without internet. Only the panel
-that started the session can control its devices: it holds a secret for it that's never shown
+On a local network, messages go through the server on that computer, so it works without
+internet; online, through Teletronix's relay (a page served from this computer or its network
+always uses its own). Only the panel that started the session can control its devices: it holds a secret for it that's never shown
 or typed, so knowing the code lets a device join, but not take over. Both sides remember the
 session, so they join it again by themselves after a reload or a dropped connection. Without
 `&join`, a terminal can't be reached from other devices at all. (`&remote`, from before
-sessions, does what `&join` does.) A copy hosted online (e.g. at teletronix.net) has no server
-to pass messages through, so the session shows as unavailable there.
+sessions, does what `&join` does.) If the relay can't be reached, the session says so: for a
+copy served from a computer, start it with `npm run table`; online, check the connection.
 
 ## Desktop app
 Teletronix also comes as an app for macOS, Windows and Linux: the same Teletronix, in a window of

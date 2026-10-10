@@ -146,15 +146,29 @@ export function followRemote(
     let effects: EffectsSetting | undefined;
     let burst: ReturnType<typeof setTimeout> | undefined;
     let lastGm = 0;
+    /** Whether the relay says the GM's panel is in the session */
+    let gmInSession = false;
     const seen: string[] = [];
 
     const links: Link[] = [];
-    const report = () => {
+    /** What each link last said, so a session's relay isn't sent the same state again */
+    const lastSaid = new WeakMap<Link, string>();
+    /**
+     * Tells the panel what's on screen: through every link, or only some. A session's relay
+     * only gets it when it's changed (the terminal says it's changed for more than the panel
+     * sees: animations, an element's memory), unless it's `forced` (the panel asked).
+     */
+    const report = (to: Link[] = links, forced = false) => {
         const state = playerState(terminal);
         // (what's showing, by the name the panel knows it by)
         if (state.view && fileNames.has(state.view)) state.view = fileNames.get(state.view) ?? null;
         const message: PlayerMessage = { type: "state", player, state };
-        for (const link of links) link.send(message);
+        const said = JSON.stringify(state);
+        for (const link of to) {
+            if (link !== channel && !forced && lastSaid.get(link) === said) continue;
+            lastSaid.set(link, said);
+            link.send(message);
+        }
     };
     let pending = false;
     // (changes come in bunches: report once they've settled)
@@ -178,7 +192,7 @@ export function followRemote(
 
         switch (message.type) {
             case "hello":
-                report();
+                report(links, true);
                 break;
             case "ping":
                 break;
@@ -252,7 +266,8 @@ export function followRemote(
         }
     };
 
-    links.push(channelLink(program, handle));
+    const channel = channelLink(program, handle);
+    links.push(channel);
     let session: Link | null = null;
     const joinSession = (joinCode: string) => {
         session?.close();
@@ -263,15 +278,17 @@ export function followRemote(
             (network) => {
                 update({ network });
                 // tell a panel that's waiting what's on screen
-                if (network === "connected") report();
+                if (network === "connected") report(links, true);
             },
             {
                 gm: (present) => {
+                    gmInSession = present;
                     if (!present) lastGm = 0;
                     update({ gm: present });
                 },
                 refused: (reason) => {
                     // (removed by the GM, or a code that won't do: it asks again)
+                    gmInSession = false;
                     rememberJoinCode(program, null);
                     update({ refused: reason, gm: false, asking: true, code: null });
                 },
@@ -282,11 +299,14 @@ export function followRemote(
     if (status.code) joinSession(status.code);
 
     const unsubscribe = terminal.subscribe(changed);
+    // Every so often, through the channel: windows of this browser know each other's there by
+    // it. A session's relay says who's there itself, so it only carries changes (it can then
+    // sleep between them, on a host that charges for the time it's awake).
     const heartbeat = setInterval(() => {
-        report();
-        if (Date.now() - lastGm > GONE_MS) update({ gm: false });
+        report([channel]);
+        if (Date.now() - lastGm > GONE_MS) update({ gm: gmInSession });
     }, HEARTBEAT_MS);
-    report();
+    report(links, true);
     return {
         status: () => status,
         subscribe: (listener) => {

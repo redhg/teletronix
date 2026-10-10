@@ -1,0 +1,15 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo",
+        // the relay on Cloudflare runs in Cloudflare's runtime, not a browser or Node
+        "lib": ["ES2023"],
+        "types": ["@cloudflare/workers-types"]
+    },
+    "include": [
+        "relay/cloudflare.ts",
+        "relay/core.ts",
+        "src/remote/codes.ts",
+        "src/remote/relay-protocol.ts"
+    ]
+}

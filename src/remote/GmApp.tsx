@@ -47,6 +47,7 @@ import {
     type PlayerMessage,
     type PlayerState,
 } from "./protocol.ts";
+import { isLocalHost } from "./relay-address.ts";
 import type { Refusal } from "./relay-protocol.ts";
 import { useWaitingUpdate } from "./update.ts";
 
@@ -160,17 +161,24 @@ export function GmApp({ name, program }: Props) {
     }, [name, session, receive]);
     const startSession = () => setSession({ code: newJoinCode(), secret: newSecret() });
 
-    // the players know the panel's there; it knows when they've gone
+    // the players' windows in this browser know the panel's there, and it knows when they've
+    // gone, by heartbeats through the channel (a session's relay says who's there itself)
     useEffect(() => {
         const timer = setInterval(() => {
-            send({ type: "ping" });
+            links.current
+                .get("channel")
+                ?.send({ type: "ping", id: randomId() } satisfies GmEnvelope);
             setNow(Date.now());
         }, HEARTBEAT_MS);
         return () => clearInterval(timer);
-    }, [send]);
+    }, []);
 
-    // the players' windows still there, in the order they first reported in (the Map's)
-    const live = [...players.values()].filter((player) => now - player.at < GONE_MS);
+    // the players' windows still there, in the order they first reported in (the Map's): ones
+    // that reported in lately, through the channel, and the session's (the relay says who's
+    // there; they only report changes)
+    const live = [...players]
+        .filter(([id, player]) => now - player.at < GONE_MS || devices.includes(id))
+        .map(([, player]) => player);
     // the panel follows one of them, steadily: the first still there (windows on different
     // screens report in turn, and following the latest would flick between them)
     const latest = live[0]?.state ?? null;
@@ -696,7 +704,10 @@ const NETWORK: Record<LinkStatus, { text: string; color: string }> = {
     connecting: { text: "Connecting…", color: "yellow" },
     connected: { text: "Connected", color: "green" },
     unavailable: {
-        text: "Can't connect: serve Teletronix with npm run table (or npm run dev -- --host)",
+        // (served from here, its relay's beside it; online, it's Teletronix's, on the internet)
+        text: isLocalHost(location.hostname)
+            ? "Can't connect: serve Teletronix with npm run table (or npm run dev -- --host)"
+            : "Can't reach Teletronix's relay: check the internet connection",
         color: "red",
     },
     refused: { text: "Not available", color: "red" },

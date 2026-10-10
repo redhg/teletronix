@@ -37,6 +37,7 @@ what happened at 03:14 (for the GM: [Running Tape 7](docs/at-the-table.md#runnin
 | `npm run table` | Build, and serve it to your network, for play at the table (see [GM remote control](docs/at-the-table.md#gm-remote-control)) |
 | `npm run desktop` | Open Teletronix as a desktop app (see [Desktop app](docs/at-the-table.md#desktop-app)) |
 | `npm run desktop:build` | Make the desktop app's installer for this computer, in `release/` |
+| `npm run relay:dev` / `npm run relay:deploy` | Run the relay for sessions over the internet locally, or publish it to Cloudflare (see [Development](docs/development.md#layout)) |
 | `npm test` | Unit tests |
 | `npm run test:e2e` | Browser tests, in Chromium, Firefox and WebKit (see [Tests](docs/development.md#tests)) |
 | `npm run test:e2e:quick` | Browser tests in Chromium only: about a third of the time |

@@ -24,3 +24,6 @@ blob-report/
 
 # Desktop app installers
 release/
+
+# Cloudflare relay, run locally (npm run relay:dev)
+.wrangler/

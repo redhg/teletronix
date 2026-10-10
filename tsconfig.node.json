@@ -5,5 +5,7 @@
         "lib": ["ES2023"],
         "types": ["node"]
     },
-    "include": ["vite.config.ts", "scripts", "desktop", "relay"]
+    "include": ["vite.config.ts", "scripts", "desktop", "relay"],
+    // (the relay on Cloudflare has its own: tsconfig.worker.json)
+    "exclude": ["relay/cloudflare.ts"]
 }

@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { cleanJoinCode } from "./codes.ts";
 import type { Remote, RemoteStatus } from "./follow.ts";
+import { isLocalHost } from "./relay-address.ts";
 import type { Refusal } from "./relay-protocol.ts";
 import "./remote-badge.css";
 
@@ -9,7 +10,12 @@ const SHOW_MS = 10_000;
 
 /** The badge's text: the session, and whether a GM's panel is connected. */
 export function badgeText({ code, network, gm }: RemoteStatus): string {
-    if (network === "unavailable") return "REMOTE UNAVAILABLE: SERVE WITH npm run table";
+    if (network === "unavailable") {
+        // (served from here, its relay's beside it; online, it's Teletronix's, on the internet)
+        return isLocalHost(location.hostname)
+            ? "SESSIONS UNAVAILABLE: SERVE WITH npm run table"
+            : "SESSIONS UNAVAILABLE: CAN'T REACH THE RELAY";
+    }
     const state =
         network === "connected" ? (gm ? "GM CONNECTED" : "WAITING FOR GM") : "CONNECTING…";
     return `SESSION ${code} · ${state}`;

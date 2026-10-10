@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { FromRelay } from "../src/remote/relay-protocol.ts";
-import { RelayCore } from "./core.ts";
+import { type Connection, RelayCore, type SessionMemory } from "./core.ts";
 
 const CODE = "BCDF-1234";
 const SECRET = "a1b2c3d4e5f6g7h8i9j0k1l2m3";
@@ -169,5 +169,51 @@ describe("the relay", () => {
         expect(relay.size).toBe(0);
         // (and its GM can open it again, with its secret)
         expect(gm(relay).received[0]).toEqual({ relay: "opened" });
+    });
+
+    it("can forget a session while it's quiet, and carry on from what it kept", () => {
+        // (as a host does that sleeps between messages, keeping only connections and storage)
+        const kept = new Map<string, SessionMemory | null>();
+        const before = new RelayCore({ remember: (code, memory) => kept.set(code, memory) });
+        const outbox = { gm: [] as string[], player: [] as string[] };
+        const connection = (who: "gm" | "player"): Connection => ({
+            send: (text) => outbox[who].push(text),
+            close: () => {},
+        });
+        const greetings = {
+            gm: JSON.stringify({ relay: "open", code: CODE, secret: SECRET }),
+            player: JSON.stringify({ relay: "join", code: CODE, player: "p1" }),
+        };
+        const gmBefore = before.accept(connection("gm"), "10.0.0.1");
+        gmBefore.receive(greetings.gm);
+        before.accept(connection("player"), "10.0.0.2").receive(greetings.player);
+        gmBefore.receive(JSON.stringify({ relay: "remove", player: "p9" }));
+        expect(kept.get(CODE)).toEqual({ secret: SECRET, removed: ["p9"] });
+
+        // it wakes: what it kept, and its connections, by the greetings they opened with
+        outbox.gm.length = 0;
+        outbox.player.length = 0;
+        const after = new RelayCore({ remember: (code, memory) => kept.set(code, memory) });
+        after.recall(CODE, kept.get(CODE) as SessionMemory);
+        const panel = after.accept(connection("gm"), "10.0.0.1");
+        panel.restore(greetings.gm);
+        const playerAgain = after.accept(connection("player"), "10.0.0.2");
+        playerAgain.restore(greetings.player);
+        // (nothing said while restoring)
+        expect(outbox).toEqual({ gm: [], player: [] });
+
+        panel.receive(JSON.stringify({ data: { type: "ping" } }));
+        expect(outbox.player).toEqual(['{"data":{"type":"ping"}}']);
+        // its secret and its removed players, as they were
+        expect(gm(after, "zzzzzzzzzzzzzzzzzzzzzzzzzz").last()).toEqual({
+            relay: "refused",
+            reason: "taken",
+        });
+        expect(player(after, "p9").last()).toEqual({ relay: "refused", reason: "removed" });
+
+        // and once everyone's gone, there's nothing to keep
+        panel.closed();
+        playerAgain.closed();
+        expect(kept.get(CODE)).toBeNull();
     });
 });
