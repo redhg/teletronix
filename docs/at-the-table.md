@@ -183,6 +183,14 @@ A new version installs in the background and takes over the next time Teletronix
 after all its tabs and windows have closed, so it never interrupts a session. Offline caching
 only runs in a build (`npm run build`, `npm run preview`), not the dev server.
 
+**Which version is this?** Add `?version` to the address (e.g.
+<https://teletronix.net/?version>): it shows the build this browser is running and the one online
+now, and whether they're the same. If they aren't, the newer one is downloaded and waiting, or
+will take over once every Teletronix tab and window has closed; **Switch to it now** does it at
+once, when it's ready. In the browser's console, `teletronix.version` names the build, e.g.
+`0.2.0 (871c5e7, built 2026-10-10 16:45 UTC)`: the version (from `npm version`), the commit it
+was built from, and when.
+
 The icon is drawn in `public/icons/icon.svg`; after changing it, run `node scripts/icons.ts`
 to render the PNG sizes.
 

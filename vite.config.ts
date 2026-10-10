@@ -2,6 +2,7 @@ import react from "@vitejs/plugin-react";
 import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vitest/config";
+import { buildInfo } from "./scripts/build-info.ts";
 import { createSaver } from "./scripts/editor-save.ts";
 import { createRelay } from "./scripts/remote-relay.ts";
 
@@ -28,11 +29,33 @@ function remoteRelay(): Plugin {
     };
 }
 
+/**
+ * Stamps the build with its version, commit and time: in the page (`teletronix.version`, see
+ * src/version.ts), and as version.json beside it, which `?version` reads fresh to compare.
+ */
+function versionStamp(): Plugin {
+    const info = buildInfo(new URL("./", import.meta.url));
+    const json = JSON.stringify(info);
+    return {
+        name: "teletronix-version",
+        config: () => ({ define: { __TELETRONIX_BUILD__: json } }),
+        generateBundle() {
+            this.emitFile({ type: "asset", fileName: "version.json", source: `${json}\n` });
+        },
+        configureServer: (server) =>
+            void server.middlewares.use("/version.json", (_req, res) => {
+                res.setHeader("Content-Type", "application/json");
+                res.end(json);
+            }),
+    };
+}
+
 export default defineConfig({
     // relative asset paths so a build can be hosted from any subdirectory
     base: "./",
     plugins: [
         react(),
+        versionStamp(),
         remoteRelay(),
         // the editor (`?edit`) saves programs straight into public/data, in the dev server
         {
@@ -76,6 +99,8 @@ export default defineConfig({
                 ],
                 // programs' images and audio can be large
                 maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+                // (left out, so `?version` always reads the one deployed now)
+                globIgnores: ["version.json"],
                 // every address (e.g. ?data=ypsilon14) is the same page
                 navigateFallback: "index.html",
                 cleanupOutdatedCaches: true,

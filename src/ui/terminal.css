@@ -142,6 +142,59 @@ button.control.alert:focus-visible {
     font: inherit;
 }
 
+/* ?version: this build, and the one online */
+.version-view {
+    user-select: text;
+}
+
+.version-view h1 {
+    font-size: inherit;
+    font-weight: normal;
+    margin: 0 0 1lh;
+}
+
+.version-view dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0 2ch;
+    margin: 0 0 1lh;
+}
+
+.version-view dd {
+    margin: 0;
+}
+
+.version-view p {
+    margin: 0 0 1lh;
+}
+
+.version-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 3ch;
+}
+
+.version-actions a,
+.version-actions button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
+    text-shadow: inherit;
+    cursor: pointer;
+}
+
+.version-actions a:hover,
+.version-actions a:focus-visible,
+.version-actions button:hover,
+.version-actions button:focus-visible {
+    outline: none;
+    color: var(--bg);
+    background: var(--fg);
+}
+
 /* what to do about it, as a link is drawn */
 .error-action {
     margin-top: 1lh;
