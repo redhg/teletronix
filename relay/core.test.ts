@@ -140,6 +140,21 @@ describe("the relay", () => {
         });
     });
 
+    it("doesn't count tries from addresses it's told not to", () => {
+        const relay = new RelayCore({ tries: 1, unlimited: (address) => address === "::1" });
+        for (let i = 0; i < 5; i++) {
+            expect(player(relay, `p${i}`, `BCDF-000${i}`, "::1").last()).toEqual({
+                relay: "gm",
+                present: false,
+            });
+        }
+        player(relay, "q1", "BCDF-1111", "6.6.6.6");
+        expect(player(relay, "q2", "BCDF-2222", "6.6.6.6").last()).toEqual({
+            relay: "refused",
+            reason: "too-many",
+        });
+    });
+
     it("forgets a session once everyone's gone, and ignores what it can't read", () => {
         const relay = new RelayCore();
         const panel = gm(relay);

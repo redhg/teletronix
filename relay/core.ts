@@ -43,6 +43,11 @@ export interface RelayOptions {
     /** Tries at opening or joining an address gets, every `per` milliseconds (default 30 a minute) */
     tries?: number;
     per?: number;
+    /**
+     * Addresses whose tries aren't counted: e.g. the computer the relay runs on, whose own
+     * windows (and tests) can't be strangers guessing codes
+     */
+    unlimited?: (address: string) => boolean;
     /** The time (ms), for tests */
     now?: () => number;
 }
@@ -54,10 +59,17 @@ export class RelayCore {
     private readonly tries: number;
     private readonly per: number;
     private readonly now: () => number;
+    private readonly unlimited: (address: string) => boolean;
 
-    constructor({ tries = 30, per = 60_000, now = Date.now }: RelayOptions = {}) {
+    constructor({
+        tries = 30,
+        per = 60_000,
+        unlimited = () => false,
+        now = Date.now,
+    }: RelayOptions = {}) {
         this.tries = tries;
         this.per = per;
+        this.unlimited = unlimited;
         this.now = now;
     }
 
@@ -86,6 +98,7 @@ export class RelayCore {
 
     /** Whether an address may try again (and counts this try). */
     private allowed(address: string): boolean {
+        if (this.unlimited(address)) return true;
         const now = this.now();
         const recent = (this.attempts.get(address) ?? []).filter((at) => now - at < this.per);
         recent.push(now);

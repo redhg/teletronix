@@ -15,6 +15,7 @@ import { acceptWebSocket } from "./websocket.ts";
 
 const SOCKET = /\/remote\/socket$/;
 const ADDRESSES = /\/remote\/addresses$/;
+const LOOPBACK = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
 
 type Next = (error?: unknown) => void;
 
@@ -32,7 +33,8 @@ export interface Relay {
  * --host); if not, it has no addresses.
  */
 export function createRelay({ exposed = () => true }: { exposed?: () => boolean } = {}): Relay {
-    const core = new RelayCore();
+    // (this computer's own windows aren't limited: only other devices' tries are counted)
+    const core = new RelayCore({ unlimited: (address) => LOOPBACK.has(address) });
     const middleware = (req: IncomingMessage, res: ServerResponse, next: Next): void => {
         const url = new URL(req.url ?? "", "http://relay");
         if (ADDRESSES.test(url.pathname) && req.method === "GET") {
