@@ -11,7 +11,7 @@ autocomplete in your editor, point `$schema` at
 - **Presets:** [Preset](#preset), [Boot](#boot), [Boot memory test](#boot-memory-test), [Shutdown](#shutdown), [Error](#error), [Crash](#crash), [Hex editor](#hex-editor), [Login](#login), [Decrypt](#decrypt), [Countdown](#countdown), [Transmission](#transmission), [Modem](#modem), [Inbox](#inbox), [Inbox message](#inbox-message), [Inbox labels](#inbox-labels), [Directory](#directory), [Directory entry](#directory-entry), [Shell](#shell)
 - **Bars:** [Bar](#bar), [Bar line](#bar-line), [Bar line slots](#bar-line-slots), [Bar slot](#bar-slot), [Bar link](#bar-link), [Bar breadcrumb](#bar-breadcrumb), [Bar sound toggle](#bar-sound-toggle)
 - **Variables:** [Variables](#variables), [Condition](#condition), [Variable tests](#variable-tests), [Comparison](#comparison), [All](#all), [Any](#any), [Not](#not), [Set](#set), [Add](#add), [Random](#random), [Pick](#pick), [Timers](#timers), [Timer](#timer)
-- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Video](#video), [Mosaic](#mosaic), [Mosaic tile](#mosaic-tile), [Mosaic overlay](#mosaic-overlay), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Log](#log), [Map](#map), [Map marker](#map-marker), [Map point](#map-point), [Conversation](#conversation), [Conversation part](#conversation-part), [Conversation reply](#conversation-reply), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Visual level](#visual-level), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Carousel](#carousel), [Frames](#frames), [Frame](#frame), [Tree](#tree), [Tree item](#tree-item), [Tree markers](#tree-markers), [Pause](#pause), [Rule](#rule), [Breadcrumb](#breadcrumb), [Buttons](#buttons), [Button](#button)
+- **Elements:** [Content](#content), [Text](#text), [Link](#link), [Menu](#menu), [Menu item](#menu-item), [Toggle](#toggle), [Choice](#choice), [Choice markers](#choice-markers), [Prompt](#prompt), [Prompt command](#prompt-command), [Login element](#login-element), [Shell element](#shell-element), [Shell command](#shell-command), [Shell folder](#shell-folder), [Shell file](#shell-file), [Shell program](#shell-program), [Shell folder settings](#shell-folder-settings), [Login account](#login-account), [Number](#number), [Number rule](#number-rule), [Timer element](#timer-element), [Bitmap](#bitmap), [Video](#video), [Mosaic](#mosaic), [Mosaic tile](#mosaic-tile), [Mosaic overlay](#mosaic-overlay), [Blend](#blend), [Blend with a color](#blend-with-a-color), [Image reveal](#image-reveal), [Image reveal options](#image-reveal-options), [ASCII image](#ascii-image), [Progress](#progress), [Progress outcome](#progress-outcome), [Delayed action](#delayed-action), [Progress interrupt](#progress-interrupt), [Hex dump](#hex-dump), [Hex dump highlight](#hex-dump-highlight), [Byte range](#byte-range), [Hex dump exit](#hex-dump-exit), [Decrypt element](#decrypt-element), [Log](#log), [Star map](#star-map), [Star map marker](#star-map-marker), [Star map route](#star-map-route), [Conversation](#conversation), [Conversation part](#conversation-part), [Conversation reply](#conversation-reply), [Spinner](#spinner), [Spinner interrupt](#spinner-interrupt), [Counter](#counter), [Checklist](#checklist), [Checklist item](#checklist-item), [Checklist item options](#checklist-item-options), [Power off](#power-off), [Crash element](#crash-element), [Visual](#visual), [Visual level](#visual-level), [Slider](#slider), [Slider rule](#slider-rule), [Meter](#meter), [Meter range](#meter-range), [Table](#table), [Table column](#table-column), [Section](#section), [Section markers](#section-markers), [Columns](#columns), [Carousel](#carousel), [Frames](#frames), [Frame](#frame), [Tree](#tree), [Tree item](#tree-item), [Tree markers](#tree-markers), [Pause](#pause), [Rule](#rule), [Breadcrumb](#breadcrumb), [Buttons](#buttons), [Button](#button)
 - **Dialogs:** [Alert](#alert), [Confirm](#confirm), [Confirm button](#confirm-button), [Cancel button](#cancel-button)
 - **Appearance:** [Theme](#theme), [Custom theme](#custom-theme), [Sound](#sound), [Sound options](#sound-options), [Sound recipe](#sound-recipe), [Audio file](#audio-file), [Pointer image](#pointer-image), [Sound voices](#sound-voices), [Key click voice](#key-click-voice), [Glitch voice](#glitch-voice), [Static burst voice](#static-burst-voice), [Static hiss voice](#static-hiss-voice), [Select voice](#select-voice), [Slider tick voice](#slider-tick-voice), [Dialog voice](#dialog-voice), [Alert voice](#alert-voice), [Error voice](#error-voice), [CRT hum voice](#crt-hum-voice)
 - **Effects:** [Effects](#effects), [Scanlines](#scanlines), [Static](#static), [Bloom](#bloom), [Vignette](#vignette), [Flicker](#flicker), [Fringe](#fringe)
@@ -706,7 +706,7 @@ One of:
 - [Breadcrumb](#breadcrumb)
 - [Log](#log)
 - [Conversation](#conversation)
-- [Map](#map)
+- [Star map](#star-map)
 - [Carousel](#carousel)
 - [Frames](#frames)
 - [Tree](#tree)
@@ -1345,55 +1345,63 @@ A live log: lines that keep arriving, one every so often, like a ship's systems 
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 | `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
-<a id="map"></a>
+<a id="star-map"></a>
 
-### Map (`"type": "map"`)
+### Star map (`"type": "starmap"`)
 
-A map: a deck plan or a star field, with markers (some moving with variables), and optional crosshairs to select a target
+A star map: stars, planets, stations and ships (some moving with variables), routes and range rings, to pan and zoom, and optionally pick a target on
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `grid` | string \| string[] | a star field, cols by rows | The map, as lines of text, e.g. a deck plan |
-| `cols` | whole number, 1–200 | `48` | Without a grid, the star field's width in characters |
-| `rows` | whole number, 1–100 | `16` | Without a grid, the star field's height in lines |
-| `stars` | whole number, ≥ 0 | one for every 12 characters | Without a grid, how many faint background stars to scatter, the same each time |
-| `sectors` | [whole number, ≥ 1, whole number, ≥ 1] |  | Divide it into sectors this many characters wide and lines tall, e.g. [12, 4]: lettered across the top and numbered down the side, A1, B1… |
-| `markers` | [Map marker](#map-marker)[] |  | What's on it: stars, ships, places, you are here |
-| `cursor` | boolean \| [Map point](#map-point) | `false` | Crosshairs the player moves with the arrow keys (Shift: further) or a click, to select a marker with Enter, Space or a click: true, or where they start, { "x", "y" } |
+| `width` | number, > 0 | `100` | How wide its space is, in its own units, e.g. light years |
+| `height` | number, > 0 | `60` | How tall its space is, in the same units |
+| `cols` | whole number, 10–200 | `60` | Its width on screen, in character columns |
+| `rows` | whole number, 4–100 | `16` | Its height on screen, in lines |
+| `stars` | whole number, ≥ 0 | one for every 20 square units | How many faint background stars to scatter, the same each time |
+| `sectors` | [number, > 0, number, > 0] |  | Divide it into sectors this wide and tall, in its units, e.g. [25, 20]: lettered across the top and numbered down the side, A1, B1… |
+| `markers` | [Star map marker](#star-map-marker)[] |  | What's on it: stars, planets, stations, ships, you |
+| `routes` | [Star map route](#star-map-route)[] |  | Lines between places: courses, jump lanes |
+| `zoom` | number, 1–20 | `4` | How far in it zooms (the wheel, a pinch, + and −), as a multiple of the whole map; 1 for no zooming |
+| `cursor` | boolean \| string | `false` | Let players pick a marker: the arrow keys go to the nearest one that way, a click picks one, and Enter, Space or a second click selects it. True, or the id of the marker it starts on |
 | `variable` | id |  | With cursor, a text variable that gets the selected marker's label |
-| `status` | string |  | With cursor, a line under the map: {sector} is the sector the crosshairs are in, {x} and {y} where they are, and {target} the label of the marker there |
+| `status` | string |  | With cursor, a line under the map: {target} is the picked marker's label, {sector} its sector, {x} and {y} where it is, and {distance} how far it is from the "you" marker |
 | `className` | string |  | Space-separated CSS classes, e.g. "alert" |
 | `reveal` | [Reveal](#reveal) | the screen's reveal | How this element's text appears |
 | `sound` | id |  | A sound from the program's sounds, played as the element starts to appear |
 | `if` | [Condition](#condition) |  | Show the element only if this holds when the screen starts |
 
-<a id="map-marker"></a>
+<a id="star-map-marker"></a>
 
-### Map marker
+### Star map marker
 
-Something on a map: a star, a ship, you are here
+Something on a star map: a star, a planet, a station, a ship, you
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `x` | whole number, ≥ 0 \| id | **required** | Its column, from 0 at the left, or a number variable |
-| `y` | whole number, ≥ 0 \| id | **required** | Its row, from 0 at the top, or a number variable |
-| `char` | character | `"*"` | How it's drawn |
-| `label` | string |  | Its name, shown when the crosshairs are on it, e.g. "LV-426" |
+| `id` | string |  | A name for routes to go through, e.g. "lv426" |
+| `x` | number \| id | **required** | How far across, from 0 at the left, or a number variable |
+| `y` | number \| id | **required** | How far down, from 0 at the top, or a number variable |
+| `kind` | `"star"` \| `"planet"` \| `"station"` \| `"ship"` \| `"you"` | `"star"` | What it is, and so how it's drawn: "star" (a point of light), "planet" (a ring), "station" (a square), "ship" (a triangle) or "you" (a ship, filled) |
+| `size` | number, 0.5–3 | `1` | How big (or bright) it's drawn, from 0.5 to 3 |
+| `label` | string |  | Its name, shown beside it, e.g. "LV-426"; can use [alert]markup[/] |
+| `range` | number \| id |  | A ring round it, this far out in the map's units (or a number variable's), e.g. a ship's jump range |
 | `blink` | boolean | `false` | Make it blink |
-| `className` | string |  | CSS classes, e.g. "alert" |
-| `action` | [Action](#action) |  | What happens when it's selected with the crosshairs |
+| `className` | string |  | CSS classes: "alert" draws it in the alert color |
+| `action` | [Action](#action) |  | What happens when it's selected |
 | `if` | [Condition](#condition) |  | Only there while this holds |
 
-<a id="map-point"></a>
+<a id="star-map-route"></a>
 
-### Map point
+### Star map route
 
-A place on a map
+A line between places on a star map: a course, a jump lane
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `x` | whole number, ≥ 0 | **required** | The column, from 0 at the left |
-| `y` | whole number, ≥ 0 | **required** | The row, from 0 at the top |
+| `path` | (string \| [number, number])[] | **required** | Where it goes: markers' ids or places, [x, y], e.g. ["you", "lv426"] |
+| `dashed` | boolean | `false` | Drawn dashed, e.g. a course not yet taken |
+| `className` | string |  | CSS classes: "alert" draws it in the alert color |
+| `if` | [Condition](#condition) |  | Only there while this holds |
 
 <a id="conversation"></a>
 

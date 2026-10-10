@@ -8,7 +8,7 @@
         "waitForReveal": true,
         "header": [{ "left": { "breadcrumb": true }, "right": { "soundToggle": true } }],
         "ambience": "drone",
-        "variables": { "camFixed": false, "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false, "target": "NONE", "shipX": 5, "shipY": 2, "dossier": 1 },
+        "variables": { "camFixed": false, "name": "STRANGER", "credits": 0, "keycard": false, "alarm": true, "fuel": 50, "hull": 100, "power": "NORMAL", "roll": 0, "luck": "UNKNOWN", "authorized": false, "target": "NONE", "shipX": 16, "shipY": 22, "jump": 34, "dossier": 1 },
         "timers": { "destruct": { "from": 60, "onComplete": { "screen": "timer-boom" } } }
     },
     "screens": {
@@ -180,8 +180,8 @@
                 { "type": "text", "text": "  The same, as DIR, CD and TYPE.", "className": "dim" },
                 { "type": "link", "text": "> CONVERSATION", "action": { "screen": "conversation" } },
                 { "type": "text", "text": "  A talk with MOTHER, reply by reply.", "className": "dim" },
-                { "type": "link", "text": "> MAPS", "action": { "screen": "maps" } },
-                { "type": "text", "text": "  A star map with crosshairs, and a deck plan.", "className": "dim" },
+                { "type": "link", "text": "> STAR MAP", "action": { "screen": "starmap" } },
+                { "type": "text", "text": "  Stars, stations and ships to pan, zoom and pick a target on.", "className": "dim" },
                 { "type": "link", "text": "> HEX DUMPS", "action": { "screen": "hexdumps" } },
                 { "type": "text", "text": "  Bytes, with secrets hidden in them.", "className": "dim" },
                 "",
@@ -1039,7 +1039,7 @@
                 "CROSSHAIR",
                 "=========",
                 "",
-                "\"pointer\": \"crosshair\": a hairline across and down the whole screen, crossing under the mouse. For a targeting screen, like the star map's.",
+                "\"pointer\": \"crosshair\": a hairline across and down the whole screen, crossing under the mouse. For a targeting screen.",
                 "",
                 "Point at these:",
                 { "type": "buttons", "buttons": [{ "text": "ENGAGE", "action": { "screen": "pointer-crosshair" } }, { "text": "ABORT", "action": { "screen": "pointer-crosshair" } }] },
@@ -2183,44 +2183,42 @@
                 }
             ]
         },
-        "maps": {
-            "pointer": "crosshair",
+        "starmap": {
             "title": "STAR MAP",
             "parent": "cat-computers",
             "content": [
                 "STAR MAP // ZETA II RETICULI",
                 { "type": "rule" },
-                "Move the crosshairs with the arrow keys (shift for further) or a click; Enter or a click on a star selects it.",
+                "The arrow keys go from marker to marker; Enter, Space or a second click selects one. The wheel, a pinch, + and - zoom (0 for the whole map), and a drag pans.",
                 "",
                 {
-                    "type": "map",
-                    "cols": 48,
-                    "rows": 12,
-                    "sectors": [12, 4],
-                    "cursor": { "x": 5, "y": 2 },
+                    "type": "starmap",
+                    "width": 120,
+                    "height": 60,
+                    "cols": 72,
+                    "rows": 18,
+                    "sectors": [30, 20],
+                    "cursor": "you",
                     "variable": "target",
-                    "status": "SECTOR {sector}  [{x},{y}]  {target}",
+                    "status": "SECTOR {sector}  [{x},{y}]  {target}  {distance} LY",
                     "markers": [
-                        { "x": "shipX", "y": "shipY", "char": "@", "label": "NOSTROMO (YOU)", "blink": true },
-                        { "x": 20, "y": 3, "char": "*", "label": "THEDUS STATION", "action": { "set": { "shipX": 19, "shipY": 3 } } },
-                        { "x": 33, "y": 9, "char": "*", "label": "[alert]LV-426[/alert]", "className": "alert", "action": { "set": { "shipX": 32, "shipY": 9 } } },
-                        { "x": 42, "y": 1, "char": "*", "label": "GATEWAY STATION", "action": { "set": { "shipX": 41, "shipY": 1 } } },
-                        { "x": 9, "y": 10, "char": "o", "label": "ACHERON (MOON)" }
+                        { "id": "you", "kind": "you", "x": "shipX", "y": "shipY", "label": "NOSTROMO", "range": "jump" },
+                        { "id": "thedus", "kind": "station", "x": 46, "y": 14, "label": "THEDUS STATION", "action": { "set": { "shipX": 46, "shipY": 18 } } },
+                        { "id": "gateway", "kind": "station", "x": 98, "y": 9, "label": "GATEWAY STATION", "action": { "set": { "shipX": 95, "shipY": 13 } } },
+                        { "id": "lv426", "kind": "planet", "x": 82, "y": 44, "label": "[alert]LV-426[/]", "className": "alert", "action": { "set": { "shipX": 78, "shipY": 41 } } },
+                        { "id": "acheron", "kind": "planet", "x": 87, "y": 47, "size": 0.6, "label": "ACHERON" },
+                        { "kind": "star", "x": 70, "y": 30, "size": 2.4, "label": "ZETA II RETICULI" },
+                        { "kind": "star", "x": 56, "y": 22, "size": 1.6, "label": "ZETA I RETICULI" },
+                        { "kind": "star", "x": 24, "y": 50, "size": 1.2, "label": "CALPAMOS" },
+                        { "kind": "ship", "x": 104, "y": 52, "label": "[alert]UNKNOWN SIGNAL[/]", "className": "alert", "blink": true, "if": { "target": "LV-426" } }
+                    ],
+                    "routes": [
+                        { "path": ["thedus", "gateway"] },
+                        { "path": ["you", "lv426"], "dashed": true, "className": "alert" }
                     ]
                 },
                 "",
-                "TARGET: {target}. Selecting a station moves the ship there: its marker follows two variables.",
-                "",
-                "A map can be a drawing too, like this deck plan, with markers on it:",
-                "",
-                {
-                    "type": "map",
-                    "grid": ["┌──────┬──────┬──────┐", "│GALLEY│ MED  │ CRYO │", "├──  ──┴──  ──┴──  ──┤", "│     CORRIDOR A     │", "└──────────┬──┬──────┘", "           │  │ AIRLOCK", "           └──┘"],
-                    "markers": [
-                        { "x": 3, "y": 3, "char": "@", "label": "YOU", "blink": true },
-                        { "x": 12, "y": 5, "char": "!", "className": "alert blink" }
-                    ]
-                },
+                "TARGET: {target}. Selecting a station or LV-426 sends the ship there: its marker follows two variables, and glides. The ring round it is its jump range, from another.",
                 "",
                 { "type": "link", "text": "> BACK", "action": { "back": true } }
             ]

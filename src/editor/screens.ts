@@ -181,12 +181,13 @@ const VARIABLE_KEYS = new Set([
     "resetTimer",
     "x",
     "y",
+    "range",
 ]);
 
 /**
  * The program with a variable or timer renamed (they share their names), and everything that
  * names it: "{name}" in text, conditions (`if`), assignments (`set`), the elements bound to it
- * (`variable`, a choice's `variables`, a timer element's `timer`, a map marker's `x` and `y`),
+ * (`variable`, a choice's `variables`, a timer element's `timer`, a star map marker's `x`, `y` and `range`),
  * and the actions that start, stop and reset a timer. It keeps its place among the others.
  */
 export function renameVariable(file: ProgramFile, from: string, to: string): ProgramFile {

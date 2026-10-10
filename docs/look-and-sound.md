@@ -47,8 +47,8 @@ a pixel-art arrow (and a hand over what can be clicked) in the theme's colors; `
 character cell in inverse video that jumps from cell to cell, as a mouse did in DOS; `"crosshair"`,
 lines across the whole screen; `"hidden"`; or an image of your own, with the pixel that points,
 `{ "src": "data/pointers/claw.png", "x": 2, "y": 1 }` (a PNG, 32×32 pixels or so: bigger ones may be
-ignored). A screen can have its own, e.g. a crosshair on a targeting screen, as the sample's star
-map does. Clicks go through as usual. Touch screens have no pointer, so it's left out there, and
+ignored). A screen can have its own, e.g. a crosshair on a targeting screen. Clicks go
+through as usual. Touch screens have no pointer, so it's left out there, and
 players can switch back to their own in [quick settings](at-the-table.md#players-own-settings).
 
 The page's scrollbar takes the theme's colors too (in browsers that can color it: not older

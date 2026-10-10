@@ -136,7 +136,6 @@ import {
 import { LinkSchema } from "../src/modules/link/definition.ts";
 import { LogSchema } from "../src/modules/log/definition.ts";
 import { AccountSchema, LoginSchema } from "../src/modules/login/definition.ts";
-import { MapMarkerSchema, MapPointSchema, MapSchema } from "../src/modules/map/definition.ts";
 import { MenuItemSchema, MenuSchema } from "../src/modules/menu/definition.ts";
 import { MeterRangeSchema, MeterSchema } from "../src/modules/meter/definition.ts";
 import { MosaicSchema, MosaicTileSchema } from "../src/modules/mosaic/definition.ts";
@@ -163,6 +162,11 @@ import {
 } from "../src/modules/shell/definition.ts";
 import { SliderRuleSchema, SliderSchema } from "../src/modules/slider/definition.ts";
 import { SpinnerInterruptSchema, SpinnerSchema } from "../src/modules/spinner/definition.ts";
+import {
+    StarmapMarkerSchema,
+    StarmapRouteSchema,
+    StarmapSchema,
+} from "../src/modules/starmap/definition.ts";
 import { TableColumnSchema, TableSchema } from "../src/modules/table/definition.ts";
 import { TextSchema } from "../src/modules/text/definition.ts";
 import { TimerElementSchema } from "../src/modules/timer/definition.ts";
@@ -312,9 +316,9 @@ const GROUPS: [string, [string, z.ZodType, string?][]][] = [
             ["Hex dump exit", HexdumpExitSchema],
             ["Decrypt element", DecryptSchema, '"type": "decrypt"'],
             ["Log", LogSchema, '"type": "log"'],
-            ["Map", MapSchema, '"type": "map"'],
-            ["Map marker", MapMarkerSchema],
-            ["Map point", MapPointSchema],
+            ["Star map", StarmapSchema, '"type": "starmap"'],
+            ["Star map marker", StarmapMarkerSchema],
+            ["Star map route", StarmapRouteSchema],
             ["Conversation", ConversationSchema, '"type": "conversation"'],
             ["Conversation part", ConversationNodeSchema],
             ["Conversation reply", ReplySchema],

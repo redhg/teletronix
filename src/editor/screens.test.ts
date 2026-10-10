@@ -129,7 +129,7 @@ describe("renaming a variable", () => {
                         variables: [null, "lit"],
                     },
                     { type: "timer", timer: "power2" },
-                    { type: "map", markers: [{ x: "power", y: 0 }] },
+                    { type: "starmap", markers: [{ x: "power", y: 0, range: "power" }] },
                 ],
             },
         },
@@ -150,6 +150,9 @@ describe("renaming a variable", () => {
         });
         expect(slider).toMatchObject({ variable: "charge", label: "power" });
         expect(choice?.variables).toEqual([null, "lit"]);
+        expect(contentOf(renamed)[5]).toMatchObject({
+            markers: [{ x: "charge", y: 0, range: "charge" }],
+        });
         expect(problems(renamed)).toEqual([]);
     });
 
@@ -161,7 +164,7 @@ describe("renaming a variable", () => {
         expect(content[0]).toBe("POWER: {power}%. {powerful} {countdown}");
         expect(content[1]).toMatchObject({ action: { startTimer: "countdown" } });
         expect(content[4]).toEqual({ type: "timer", timer: "countdown" });
-        expect(content[5]).toMatchObject({ markers: [{ x: "power", y: 0 }] });
+        expect(content[5]).toMatchObject({ markers: [{ x: "power", y: 0, range: "power" }] });
     });
 
     it("renames a choice's variables", () => {

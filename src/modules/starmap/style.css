@@ -1,0 +1,69 @@
+/* A star map: a canvas, with its labels and sector names as text over it, and a status line */
+.starmap {
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
+    white-space: pre;
+}
+
+.starmap:focus {
+    outline: none;
+}
+
+.starmap-glass {
+    position: relative;
+    overflow: hidden;
+}
+
+.starmap canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    cursor: grab;
+}
+
+.starmap-cursor-on canvas {
+    cursor: crosshair;
+}
+
+.starmap-labels {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.starmap-label,
+.starmap-sector {
+    position: absolute;
+    top: 0;
+    left: 0;
+    line-height: 1;
+}
+
+.starmap-label {
+    padding: 0.1em 0.2em;
+    background: rgb(from var(--bg) r g b / 0.6);
+}
+
+.starmap-label-picked {
+    color: var(--bg);
+    background: var(--fg);
+    text-shadow: var(--inverse-glow);
+}
+
+.starmap-label-picked.alert {
+    background: var(--alert);
+}
+
+.starmap-sector {
+    padding: 0.15em 0.3em;
+    opacity: 0.5;
+}
+
+.starmap-status {
+    flex: none;
+    margin-top: 0.5lh;
+    /* (on a screen narrower than the map, the map shrinks; its status wraps) */
+    white-space: pre-wrap;
+}

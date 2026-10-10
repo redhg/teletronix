@@ -10731,56 +10731,51 @@
                             "properties": {
                                 "type": {
                                     "type": "string",
-                                    "const": "map"
+                                    "const": "starmap"
                                 },
-                                "grid": {
-                                    "description": "The map, as lines of text, e.g. a deck plan (default: a star field, cols by rows)",
-                                    "anyOf": [
-                                        {
-                                            "type": "string"
-                                        },
-                                        {
-                                            "minItems": 1,
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    ]
+                                "width": {
+                                    "default": 100,
+                                    "description": "How wide its space is, in its own units, e.g. light years (default: 100)",
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                },
+                                "height": {
+                                    "default": 60,
+                                    "description": "How tall its space is, in the same units (default: 60)",
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
                                 },
                                 "cols": {
-                                    "default": 48,
-                                    "description": "Without a grid, the star field's width in characters (default: 48)",
+                                    "default": 60,
+                                    "description": "Its width on screen, in character columns (default: 60)",
                                     "type": "integer",
-                                    "minimum": 1,
+                                    "minimum": 10,
                                     "maximum": 200
                                 },
                                 "rows": {
                                     "default": 16,
-                                    "description": "Without a grid, the star field's height in lines (default: 16)",
+                                    "description": "Its height on screen, in lines (default: 16)",
                                     "type": "integer",
-                                    "minimum": 1,
+                                    "minimum": 4,
                                     "maximum": 100
                                 },
                                 "stars": {
-                                    "description": "Without a grid, how many faint background stars to scatter, the same each time (default: one for every 12 characters)",
+                                    "description": "How many faint background stars to scatter, the same each time (default: one for every 20 square units)",
                                     "type": "integer",
                                     "minimum": 0,
                                     "maximum": 9007199254740991
                                 },
                                 "sectors": {
-                                    "description": "Divide it into sectors this many characters wide and lines tall, e.g. [12, 4]: lettered across the top and numbered down the side, A1, B1…",
+                                    "description": "Divide it into sectors this wide and tall, in its units, e.g. [25, 20]: lettered across the top and numbered down the side, A1, B1…",
                                     "type": "array",
                                     "prefixItems": [
                                         {
-                                            "type": "integer",
-                                            "minimum": 1,
-                                            "maximum": 9007199254740991
+                                            "type": "number",
+                                            "exclusiveMinimum": 0
                                         },
                                         {
-                                            "type": "integer",
-                                            "minimum": 1,
-                                            "maximum": 9007199254740991
+                                            "type": "number",
+                                            "exclusiveMinimum": 0
                                         }
                                     ],
                                     "items": false,
@@ -10788,17 +10783,19 @@
                                     "maxItems": 2
                                 },
                                 "markers": {
-                                    "description": "What's on it: stars, ships, places, you are here",
+                                    "description": "What's on it: stars, planets, stations, ships, you",
                                     "type": "array",
                                     "items": {
                                         "type": "object",
                                         "properties": {
+                                            "id": {
+                                                "description": "A name for routes to go through, e.g. \"lv426\"",
+                                                "type": "string"
+                                            },
                                             "x": {
                                                 "anyOf": [
                                                     {
-                                                        "type": "integer",
-                                                        "minimum": 0,
-                                                        "maximum": 9007199254740991
+                                                        "type": "number"
                                                     },
                                                     {
                                                         "type": "string",
@@ -10806,14 +10803,12 @@
                                                         "description": "A variable declared in config.variables"
                                                     }
                                                 ],
-                                                "description": "Its column, from 0 at the left, or a number variable"
+                                                "description": "How far across, from 0 at the left, or a number variable"
                                             },
                                             "y": {
                                                 "anyOf": [
                                                     {
-                                                        "type": "integer",
-                                                        "minimum": 0,
-                                                        "maximum": 9007199254740991
+                                                        "type": "number"
                                                     },
                                                     {
                                                         "type": "string",
@@ -10821,18 +10816,43 @@
                                                         "description": "A variable declared in config.variables"
                                                     }
                                                 ],
-                                                "description": "Its row, from 0 at the top, or a number variable"
+                                                "description": "How far down, from 0 at the top, or a number variable"
                                             },
-                                            "char": {
-                                                "default": "*",
-                                                "description": "How it's drawn (default: \"*\")",
+                                            "kind": {
+                                                "default": "star",
+                                                "description": "What it is, and so how it's drawn: \"star\" (a point of light), \"planet\" (a ring), \"station\" (a square), \"ship\" (a triangle) or \"you\" (a ship, filled) (default: \"star\")",
                                                 "type": "string",
-                                                "minLength": 1,
-                                                "maxLength": 1
+                                                "enum": [
+                                                    "star",
+                                                    "planet",
+                                                    "station",
+                                                    "ship",
+                                                    "you"
+                                                ]
+                                            },
+                                            "size": {
+                                                "default": 1,
+                                                "description": "How big (or bright) it's drawn, from 0.5 to 3 (default: 1)",
+                                                "type": "number",
+                                                "minimum": 0.5,
+                                                "maximum": 3
                                             },
                                             "label": {
-                                                "description": "Its name, shown when the crosshairs are on it, e.g. \"LV-426\"",
+                                                "description": "Its name, shown beside it, e.g. \"LV-426\"; can use [alert]markup[/]",
                                                 "type": "string"
+                                            },
+                                            "range": {
+                                                "description": "A ring round it, this far out in the map's units (or a number variable's), e.g. a ship's jump range",
+                                                "anyOf": [
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
+                                                        "description": "A variable declared in config.variables"
+                                                    }
+                                                ]
                                             },
                                             "blink": {
                                                 "default": false,
@@ -10840,11 +10860,11 @@
                                                 "type": "boolean"
                                             },
                                             "className": {
-                                                "description": "CSS classes, e.g. \"alert\"",
+                                                "description": "CSS classes: \"alert\" draws it in the alert color",
                                                 "type": "string"
                                             },
                                             "action": {
-                                                "description": "What happens when it's selected with the crosshairs",
+                                                "description": "What happens when it's selected",
                                                 "$ref": "#/$defs/Action"
                                             },
                                             "if": {
@@ -10857,39 +10877,76 @@
                                             "y"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Something on a map: a star, a ship, you are here"
+                                        "description": "Something on a star map: a star, a planet, a station, a ship, you"
                                     }
+                                },
+                                "routes": {
+                                    "description": "Lines between places: courses, jump lanes",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "path": {
+                                                "minItems": 2,
+                                                "type": "array",
+                                                "items": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "prefixItems": [
+                                                                {
+                                                                    "type": "number"
+                                                                },
+                                                                {
+                                                                    "type": "number"
+                                                                }
+                                                            ],
+                                                            "items": false,
+                                                            "minItems": 2,
+                                                            "maxItems": 2
+                                                        }
+                                                    ],
+                                                    "description": "A marker's id, or a place: [x, y]"
+                                                },
+                                                "description": "Where it goes: markers' ids or places, [x, y], e.g. [\"you\", \"lv426\"]"
+                                            },
+                                            "dashed": {
+                                                "default": false,
+                                                "description": "Drawn dashed, e.g. a course not yet taken (default: false)",
+                                                "type": "boolean"
+                                            },
+                                            "className": {
+                                                "description": "CSS classes: \"alert\" draws it in the alert color",
+                                                "type": "string"
+                                            },
+                                            "if": {
+                                                "description": "Only there while this holds",
+                                                "$ref": "#/$defs/Condition"
+                                            }
+                                        },
+                                        "required": [
+                                            "path"
+                                        ],
+                                        "additionalProperties": false,
+                                        "description": "A line between places on a star map: a course, a jump lane"
+                                    }
+                                },
+                                "zoom": {
+                                    "default": 4,
+                                    "description": "How far in it zooms (the wheel, a pinch, + and −), as a multiple of the whole map; 1 for no zooming (default: 4)",
+                                    "type": "number",
+                                    "minimum": 1,
+                                    "maximum": 20
                                 },
                                 "cursor": {
                                     "default": false,
-                                    "description": "Crosshairs the player moves with the arrow keys (Shift: further) or a click, to select a marker with Enter, Space or a click: true, or where they start, { \"x\", \"y\" } (default: false)",
-                                    "anyOf": [
-                                        {
-                                            "type": "boolean"
-                                        },
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "x": {
-                                                    "type": "integer",
-                                                    "minimum": 0,
-                                                    "maximum": 9007199254740991,
-                                                    "description": "The column, from 0 at the left"
-                                                },
-                                                "y": {
-                                                    "type": "integer",
-                                                    "minimum": 0,
-                                                    "maximum": 9007199254740991,
-                                                    "description": "The row, from 0 at the top"
-                                                }
-                                            },
-                                            "required": [
-                                                "x",
-                                                "y"
-                                            ],
-                                            "additionalProperties": false,
-                                            "description": "A place on a map"
-                                        }
+                                    "description": "Let players pick a marker: the arrow keys go to the nearest one that way, a click picks one, and Enter, Space or a second click selects it. True, or the id of the marker it starts on (default: false)",
+                                    "type": [
+                                        "boolean",
+                                        "string"
                                     ]
                                 },
                                 "variable": {
@@ -10898,7 +10955,7 @@
                                     "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
                                 },
                                 "status": {
-                                    "description": "With cursor, a line under the map: {sector} is the sector the crosshairs are in, {x} and {y} where they are, and {target} the label of the marker there",
+                                    "description": "With cursor, a line under the map: {target} is the picked marker's label, {sector} its sector, {x} and {y} where it is, and {distance} how far it is from the \"you\" marker",
                                     "type": "string"
                                 },
                                 "className": {
@@ -10988,7 +11045,7 @@
                                 "type"
                             ],
                             "additionalProperties": false,
-                            "description": "A map: a deck plan or a star field, with markers (some moving with variables), and optional crosshairs to select a target"
+                            "description": "A star map: stars, planets, stations and ships (some moving with variables), routes and range rings, to pan and zoom, and optionally pick a target on"
                         },
                         {
                             "type": "object",

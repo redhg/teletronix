@@ -59,7 +59,6 @@ import {
 import { type LinkElement, LinkSchema, linkModule } from "../../modules/link/definition.ts";
 import { type LogElement, LogSchema, logModule } from "../../modules/log/definition.ts";
 import { type LoginElement, LoginSchema, loginModule } from "../../modules/login/definition.ts";
-import { type MapElement, MapSchema, mapModule } from "../../modules/map/definition.ts";
 import { type MenuElement, MenuSchema, menuModule } from "../../modules/menu/definition.ts";
 import { type MeterElement, MeterSchema, meterModule } from "../../modules/meter/definition.ts";
 import { type MosaicElement, MosaicSchema, mosaicModule } from "../../modules/mosaic/definition.ts";
@@ -93,6 +92,11 @@ import {
     SpinnerSchema,
     spinnerModule,
 } from "../../modules/spinner/definition.ts";
+import {
+    type StarmapElement,
+    StarmapSchema,
+    starmapModule,
+} from "../../modules/starmap/definition.ts";
 import { type TableElement, TableSchema, tableModule } from "../../modules/table/definition.ts";
 import { type TextElement, TextSchema, textModule } from "../../modules/text/definition.ts";
 import {
@@ -153,7 +157,7 @@ export const ElementSchema = z.discriminatedUnion("type", [
     BreadcrumbSchema,
     LogSchema,
     ConversationSchema,
-    MapSchema,
+    StarmapSchema,
     CarouselSchema,
     FramesSchema,
     TreeSchema,
@@ -208,7 +212,7 @@ export type Element =
     | BreadcrumbElement
     | LogElement
     | ConversationElement
-    | MapElement;
+    | StarmapElement;
 export type ElementType = Element["type"];
 export type ElementOf<T extends ElementType> = Extract<Element, { type: T }>;
 
@@ -251,7 +255,7 @@ export const modules: { [T in ElementType]: ModuleDefinition<ElementOf<T>, unkno
     breadcrumb: breadcrumbModule,
     log: logModule,
     conversation: conversationModule,
-    map: mapModule,
+    starmap: starmapModule,
 };
 
 export function moduleFor<E extends Element>(element: E): ModuleDefinition<E, unknown> {

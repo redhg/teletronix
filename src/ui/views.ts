@@ -16,7 +16,6 @@ import { HexdumpView } from "../modules/hexdump/View.tsx";
 import { LinkView } from "../modules/link/View.tsx";
 import { LogView } from "../modules/log/View.tsx";
 import { LoginView } from "../modules/login/View.tsx";
-import { MapView } from "../modules/map/View.tsx";
 import { MenuView } from "../modules/menu/View.tsx";
 import { MeterView } from "../modules/meter/View.tsx";
 import { MosaicView } from "../modules/mosaic/View.tsx";
@@ -30,6 +29,7 @@ import { SectionView } from "../modules/section/View.tsx";
 import { ShellView } from "../modules/shell/View.tsx";
 import { SliderView } from "../modules/slider/View.tsx";
 import { SpinnerView } from "../modules/spinner/View.tsx";
+import { StarmapView } from "../modules/starmap/View.tsx";
 import { TableView } from "../modules/table/View.tsx";
 import { TextView } from "../modules/text/View.tsx";
 import { TimerView } from "../modules/timer/View.tsx";
@@ -79,5 +79,5 @@ export const views: { [T in ElementType]: ElementView<ElementOf<T>> } = {
     tree: TreeView,
     log: LogView,
     conversation: ConversationView,
-    map: MapView,
+    starmap: StarmapView,
 };
