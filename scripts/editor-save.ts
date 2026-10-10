@@ -1,5 +1,6 @@
 import { readdir, writeFile } from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { basename } from "node:path";
 
 // Lets the editor (`?edit`) save a program straight into public/data, in the dev server only
 // (see vite.config.ts). Elsewhere, the editor downloads the file instead.
@@ -69,7 +70,10 @@ function save(file: URL, req: IncomingMessage, res: ServerResponse): void {
             return;
         }
         writeFile(file, body).then(
-            () => finish(res, 204),
+            () => {
+                res.setHeader("X-Saved-To", `public/data/${basename(file.pathname)}`);
+                finish(res, 204);
+            },
             () => finish(res, 500),
         );
     });

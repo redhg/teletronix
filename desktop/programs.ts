@@ -7,12 +7,10 @@ export interface ProgramEntry {
     name: string;
     /** Its config.name, or its file's name */
     title: string;
-    /** In the player's programs folder (their own, or their copy of a built-in one) */
-    own: boolean;
 }
 
-/** The programs in a folder: its .json files with a config, by title. */
-async function programsIn(folder: string, own: boolean): Promise<ProgramEntry[]> {
+/** The programs in a folder (the built-in ones): its .json files with a config, by title. */
+export async function listPrograms(folder: string): Promise<ProgramEntry[]> {
     const names = await readdir(folder).catch(() => [] as string[]);
     const entries = await Promise.all(
         names
@@ -25,25 +23,13 @@ async function programsIn(folder: string, own: boolean): Promise<ProgramEntry[]>
                     if (!json.config) return null;
                     const name = file.slice(0, -".json".length);
                     const title = typeof json.config.name === "string" ? json.config.name : name;
-                    return { name, title, own };
+                    return { name, title };
                 } catch {
                     return null;
                 }
             }),
     );
-    return entries.filter((entry): entry is ProgramEntry => entry !== null);
-}
-
-/**
- * Every program the app can play: the player's own (which win over a built-in one of the same
- * name, as the server serves theirs), then the built-in ones, each by title.
- */
-export async function listPrograms(builtIn: string, own: string): Promise<ProgramEntry[]> {
-    const [mine, theirs] = await Promise.all([programsIn(own, true), programsIn(builtIn, false)]);
-    const byTitle = (a: ProgramEntry, b: ProgramEntry) => a.title.localeCompare(b.title);
-    const taken = new Set(mine.map((entry) => entry.name));
-    return [
-        ...mine.sort(byTitle),
-        ...theirs.filter((entry) => !taken.has(entry.name)).sort(byTitle),
-    ];
+    return entries
+        .filter((entry): entry is ProgramEntry => entry !== null)
+        .sort((a, b) => a.title.localeCompare(b.title));
 }

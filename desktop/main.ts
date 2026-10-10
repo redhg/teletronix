@@ -1,6 +1,6 @@
-import { watch } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { readFile, stat, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { basename, dirname, join, resolve } from "node:path";
 import {
     app,
     BrowserWindow,
@@ -11,14 +11,18 @@ import {
     shell,
 } from "electron";
 import { listPrograms } from "./programs.ts";
-import { startAppServer } from "./server.ts";
+import { nameFor, type OpenProgram, startAppServer } from "./server.ts";
 
 // Teletronix as a desktop app: a window on its own server (see server.ts), which also serves
 // other devices on the network, for a GM's panel to pair with, as `npm run table` does.
 //
-//   --kiosk              open the program full screen, as ?kiosk does
-//   --program=<name>     open that program (otherwise, the last one played)
-//   --programs=<folder>  the player's programs folder (otherwise, Documents/Teletronix)
+// A program can be one of the built-in ones, or opened from a file anywhere (File → Open
+// Program…, a file dropped on its icon, or one named when it starts): its folder is served as
+// data/, so its images and sounds go beside it as public/data has them.
+//
+//   <file>.json          open that program
+//   --program=<name>     open that built-in program (otherwise, the last one played)
+//   --kiosk              open it full screen, as ?kiosk does
 //   --user-data=<folder> where it keeps what it remembers (otherwise, the system's place)
 
 const BACKGROUND = "#000c0c";
@@ -33,56 +37,112 @@ const argument = (name: string) =>
     process.argv.find((arg) => arg.startsWith(`--${name}=`))?.slice(name.length + 3);
 const kiosk = process.argv.includes("--kiosk");
 
-// (elsewhere, for tests: what the browser keeps, and the programs folder)
+// (elsewhere, for tests)
 const userData = argument("user-data");
 if (userData) app.setPath("userData", userData);
-const programsFolder = argument("programs") ?? join(app.getPath("documents"), "Teletronix");
 const stateFile = join(app.getPath("userData"), "state.json");
 
+/** How many programs Open Recent keeps. */
+const RECENT = 10;
+
 let origin = "";
-/** The last program played, as its address's query, e.g. "?data=tape7" */
-let lastProgram = "";
+/** The program opened from a file, if one is (the server serves it) */
+let opened: OpenProgram | null = null;
+
+/** What's remembered between runs */
+const state: {
+    /** The last program played, as its address's query, e.g. "?data=tape7" */
+    last: string;
+    /** Its file, if it was opened from one */
+    file?: string;
+    /** Programs opened from files, the latest first */
+    recent: string[];
+} = { last: "", recent: [] };
 
 // ─── what's remembered between runs ──────────────────────────────────────────
 
 async function loadState() {
     try {
-        const state = JSON.parse(await readFile(stateFile, "utf8")) as { last?: unknown };
-        if (typeof state.last === "string") lastProgram = state.last;
+        const saved = JSON.parse(await readFile(stateFile, "utf8")) as Record<string, unknown>;
+        if (typeof saved.last === "string") state.last = saved.last;
+        if (typeof saved.file === "string") state.file = saved.file;
+        if (Array.isArray(saved.recent)) {
+            state.recent = saved.recent.filter((file) => typeof file === "string");
+        }
     } catch {
         // first run
     }
 }
+
+const saveState = () => void writeFile(stateFile, JSON.stringify(state)).catch(() => {});
 
 function remember(url: string) {
     const address = new URL(url);
     if (address.origin !== origin) return;
     // (a players' window's program, not the GM's panel or the editor)
     if (address.searchParams.has("gm") || address.searchParams.has("edit")) return;
-    if (!address.searchParams.has("data") || address.search === lastProgram) return;
-    lastProgram = address.search;
-    writeFile(stateFile, JSON.stringify({ last: lastProgram })).catch(() => {});
+    const name = address.searchParams.get("data");
+    if (name === null || address.search === state.last) return;
+    state.last = address.search;
+    state.file = opened && name === opened.name ? opened.file : undefined;
+    saveState();
 }
 
-// ─── the player's programs folder ────────────────────────────────────────────
+// ─── programs from files ─────────────────────────────────────────────────────
 
-const README = `Teletronix programs
-===================
-
-Programs here can be played from the Teletronix app's Programs menu, and saved here from
-its editor. A program here wins over a built-in one of the same name.
-
-    my-program.json        a program (?data=my-program)
-    images/map.png         its files, named in it as "data/images/map.png"
-    audio/drone.mp3        "data/audio/drone.mp3"
-
-See ${DOCS}
-`;
-
-async function prepareProgramsFolder() {
-    await mkdir(programsFolder, { recursive: true });
-    await writeFile(join(programsFolder, "README.txt"), README, { flag: "wx" }).catch(() => {});
+/**
+ * Opens a program from its file, in the focused window (or a new one): the server serves it,
+ * and its folder as data/. It's added to Open Recent.
+ */
+async function openProgramFile(file: string) {
+    const path = resolve(file);
+    try {
+        JSON.parse(await readFile(path, "utf8"));
+    } catch (error) {
+        dialog.showErrorBox(`Couldn't open ${basename(path)}`, String(error));
+        return;
+    }
+    opened = { file: path, folder: dirname(path), name: nameFor(path) };
+    state.recent = [path, ...state.recent.filter((other) => other !== path)].slice(0, RECENT);
+    saveState();
+    app.addRecentDocument(path);
+    void buildMenu();
+    showProgram(`?data=${opened.name}`);
 }
+
+/** Shows a program in the focused players' window, or a new one. */
+function showProgram(search: string) {
+    const window = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+    if (!window) {
+        openWindow(search);
+        return;
+    }
+    // (keeping a kiosk window a kiosk)
+    const kioskWindow = new URL(window.webContents.getURL() || origin).searchParams.has("kiosk");
+    void window.loadURL(`${origin}/${kioskWindow ? `${search}&kiosk` : search}`);
+}
+
+async function chooseProgramFile() {
+    const window = BrowserWindow.getFocusedWindow();
+    const options: Electron.OpenDialogOptions = {
+        title: "Open a Teletronix program",
+        properties: ["openFile"],
+        filters: [{ name: "Teletronix programs", extensions: ["json"] }],
+    };
+    const result = window
+        ? await dialog.showOpenDialog(window, options)
+        : await dialog.showOpenDialog(options);
+    const file = result.filePaths[0];
+    if (!result.canceled && file) await openProgramFile(file);
+}
+
+/** The program files among a command line's arguments (or a second launch's). */
+const filesIn = (args: string[]) =>
+    args.filter((arg) => !arg.startsWith("-") && arg.toLowerCase().endsWith(".json"));
+
+/** "~/Games/heist.json", for the menu. */
+const shortPath = (file: string) =>
+    file.startsWith(homedir()) ? `~${file.slice(homedir().length)}` : file;
 
 // ─── windows ─────────────────────────────────────────────────────────────────
 
@@ -90,7 +150,7 @@ async function prepareProgramsFolder() {
 function currentProgram(): URLSearchParams {
     const window = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
     const url = window?.webContents.getURL();
-    const params = new URLSearchParams(url ? new URL(url).search : lastProgram);
+    const params = new URLSearchParams(url ? new URL(url).search : state.last);
     for (const option of ["gm", "edit", "kiosk", "remote"]) params.delete(option);
     return params;
 }
@@ -145,36 +205,44 @@ function openWindow(search: string, options: { kiosk?: boolean } = {}) {
 // ─── the menu ────────────────────────────────────────────────────────────────
 
 async function buildMenu() {
-    const programs = await listPrograms(join(appFolder, "data"), programsFolder);
-    const open = (name: string) => () => {
-        const window = BrowserWindow.getFocusedWindow();
-        const search = `?data=${encodeURIComponent(name)}`;
-        if (window) void window.loadURL(`${origin}/${search}`);
-        else openWindow(search);
-    };
-    const mine = programs.filter((program) => program.own);
-    const builtIn = programs.filter((program) => !program.own);
-    const programItems: MenuItemConstructorOptions[] = [
-        ...(mine.length
-            ? [
-                  { label: "Your Programs", enabled: false },
-                  ...mine.map((p) => ({ label: p.title, click: open(p.name) })),
-                  { type: "separator" as const },
-              ]
-            : []),
-        { label: "Built In", enabled: false },
-        ...builtIn.map((p) => ({ label: p.title, click: open(p.name) })),
-    ];
+    const builtIn = await listPrograms(join(appFolder, "data"));
     const isMac = process.platform === "darwin";
     const template: MenuItemConstructorOptions[] = [
         ...(isMac ? [{ role: "appMenu" as const }] : []),
         {
             label: "File",
             submenu: [
-                { label: "Programs", submenu: programItems },
                 {
-                    label: "Open Programs Folder",
-                    click: () => void shell.openPath(programsFolder),
+                    label: "Open Program…",
+                    accelerator: "CmdOrCtrl+O",
+                    click: () => void chooseProgramFile(),
+                },
+                {
+                    label: "Open Recent",
+                    submenu: [
+                        ...state.recent.map((file) => ({
+                            label: shortPath(file),
+                            click: () => void openProgramFile(file),
+                        })),
+                        ...(state.recent.length ? [{ type: "separator" as const }] : []),
+                        {
+                            label: "Clear Menu",
+                            enabled: state.recent.length > 0,
+                            click: () => {
+                                state.recent = [];
+                                saveState();
+                                app.clearRecentDocuments();
+                                void buildMenu();
+                            },
+                        },
+                    ],
+                },
+                {
+                    label: "Built-in Programs",
+                    submenu: builtIn.map((program) => ({
+                        label: program.title,
+                        click: () => showProgram(`?data=${encodeURIComponent(program.name)}`),
+                    })),
                 },
                 { type: "separator" },
                 {
@@ -230,24 +298,34 @@ async function buildMenu() {
 
 // ─── starting up ─────────────────────────────────────────────────────────────
 
-// one app at a time: opening it again brings the window forward
+// a file dropped on the app's icon, or opened with it (macOS), even before it's ready
+let pendingFile: string | undefined = filesIn(process.argv.slice(1))[0];
+app.on("open-file", (event, file) => {
+    event.preventDefault();
+    if (origin) void openProgramFile(file);
+    else pendingFile = file;
+});
+
+// one app at a time: opening it again brings the window forward (with a file, opening it)
 if (!app.requestSingleInstanceLock()) {
     app.quit();
 } else {
-    app.on("second-instance", () => {
+    app.on("second-instance", (_event, args) => {
         const window = BrowserWindow.getAllWindows()[0];
         if (window?.isMinimized()) window.restore();
         window?.focus();
+        const file = filesIn(args.slice(1))[0];
+        if (file) void openProgramFile(file);
     });
     app.on("window-all-closed", () => app.quit());
     app.on("activate", () => {
-        if (BrowserWindow.getAllWindows().length === 0) openWindow(lastProgram);
+        if (BrowserWindow.getAllWindows().length === 0) openWindow(state.last);
     });
 
     void app.whenReady().then(async () => {
         try {
-            await Promise.all([loadState(), prepareProgramsFolder()]);
-            const { port } = await startAppServer({ app: appFolder, programs: programsFolder });
+            await loadState();
+            const { port } = await startAppServer({ app: appFolder, open: () => opened });
             origin = `http://localhost:${port}`;
         } catch (error) {
             dialog.showErrorBox("Teletronix couldn't start", String(error));
@@ -258,17 +336,20 @@ if (!app.requestSingleInstanceLock()) {
             app.dock?.setIcon(nativeImage.createFromPath(join(appFolder, "icons/icon-512.png")));
         }
         await buildMenu();
-        // the menu follows the programs folder
-        let pending: ReturnType<typeof setTimeout> | undefined;
-        watch(programsFolder, () => {
-            clearTimeout(pending);
-            pending = setTimeout(() => void buildMenu(), 300);
-        });
 
+        // the program to start with: a file it was given, a built-in one it was told, or the
+        // last one played (from its file, if it's still there)
         const program = argument("program");
-        const params = new URLSearchParams(program ? `?data=${program}` : lastProgram);
+        const lastFile =
+            !pendingFile && !program && state.file && (await stat(state.file).catch(() => null))
+                ? state.file
+                : undefined;
+        if (lastFile)
+            opened = { file: lastFile, folder: dirname(lastFile), name: nameFor(lastFile) };
+        const params = new URLSearchParams(program ? `?data=${program}` : state.last);
         params.delete("kiosk");
         const search = kiosk ? withFlag(params, "kiosk") : params.size ? `?${params}` : "";
-        openWindow(search, { kiosk });
+        openWindow(pendingFile ? "" : search, { kiosk });
+        if (pendingFile) void openProgramFile(pendingFile);
     });
 }

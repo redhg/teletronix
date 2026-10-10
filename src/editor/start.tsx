@@ -7,6 +7,7 @@ import { fetchProgramJson } from "../ui/load-program.ts";
 import { EditorApp, NEW_PROGRAM, type ProgramFile } from "./EditorApp.tsx";
 import "@mantine/core/styles.css";
 import "@mantine/spotlight/styles.css";
+import { canAskToSave } from "./can-save.ts";
 
 /** The editor's light, dark or automatic colour scheme, kept between visits (with the GM's). */
 const colorSchemes = localStorageColorSchemeManager({ key: "teletronix:tool-color-scheme" });
@@ -39,10 +40,13 @@ export async function startEditor(root: Root, params: URLSearchParams): Promise<
     );
 }
 
-/** Whether Save can write into public/data here: only the dev server has the endpoint. */
+/**
+ * Whether Save can write the program here: the dev server can (into public/data), and the
+ * desktop app (into the file it opened). Elsewhere (online, or offline), Save downloads.
+ */
 async function saveAvailable(): Promise<boolean> {
-    // (a build never has it: no need to ask, e.g. while offline)
-    if (!import.meta.env.DEV) return false;
+    // (elsewhere there's nothing to ask: asking offline, or online, would only fail)
+    if (!canAskToSave()) return false;
     try {
         const response = await fetch(new URL("__teletronix/save", location.href));
         return response.status === 204;

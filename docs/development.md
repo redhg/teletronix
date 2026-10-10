@@ -11,8 +11,8 @@ Three suites, all run on every push by GitHub Actions:
   (or `npm run table`) doesn't matter.
 
 - **The desktop app's test** (`npm run test:desktop`, Playwright): starts the app itself
-  (`desktop/app.spec.ts`), with a programs folder of its own, and checks its window, menus and
-  GM panel. On Linux it needs a display (`xvfb-run`, as CI does).
+  (`desktop/app.spec.ts`) with a program from a file of its own, and checks its window, menus,
+  GM panel, saving, and opening where it left off. On Linux it needs a display (`xvfb-run`, as CI does).
 
 The first time, install the browsers with `npx playwright install`. Then:
 
@@ -48,8 +48,8 @@ Every new feature gets tests.
   never load it), and the players' side of it. The relay that passes their messages between
   devices is `scripts/remote-relay.ts`, in Vite's servers.
 - `desktop/`: the [desktop app](at-the-table.md#desktop-app), in Electron. `main.ts` (its
-  windows and menus) and `server.ts` (the build, the programs folder, the relay and the
-  editor's saving) run as TypeScript, as Node runs it, with no build of their own;
+  windows and menus) and `server.ts` (the build, a program opened from a file, the relay
+  and the editor's saving) run as TypeScript, as Node runs it, with no build of their own;
   `electron-builder.json` packs them with `dist/` into the installers.
 - `src/ui/`: the React layer. Per-frame text is written straight to the DOM, so React only
   re-renders on structural changes.

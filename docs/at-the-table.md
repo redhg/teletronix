@@ -121,13 +121,14 @@ its own, that serves other devices on the network itself, with nothing to instal
   Privacy & Security**); on Windows, choose **More info → Run anyway**.
 
 It opens at the last program played. Its menus:
-- **File → Programs:** every program it has: built in, and **your own**, from the programs folder
-  (**File → Open Programs Folder**: `Documents/Teletronix`). Put a program there as
-  `heist.json`, with its files beside it as `public/data` has them (`images/map.png`, named in it
-  as `data/images/map.png`), and it's in the menu at once. A program there wins over a built-in
-  one of the same name.
-- **File → Edit This Program** opens the [editor](editor.md#the-editor), whose Save writes into
-  the programs folder (so editing a built-in program saves your own copy of it).
+- **File → Open Program…** (Cmd/Ctrl+O) plays a program from its `.json` file, wherever it is.
+  Its folder stands in for `public/data`, so its files go beside it as they do there: an image
+  named in it as `data/images/map.png` is `images/map.png` next to the program. **Open
+  Recent** has the last few; dropping a program on the app's icon (on a Mac), or naming it when
+  starting the app, opens it too.
+- **File → Built-in Programs:** the sample, *Tape 7*, *Ypsilon-14* and the rest.
+- **File → Edit This Program** opens the [editor](editor.md#the-editor). For a program opened
+  from a file, **Save** writes into that file; for a built-in one, it downloads, as online.
 - **Window → GM Panel** (Cmd/Ctrl+Shift+G) opens the [GM's panel](#gm-remote-control) in a window
   of its own; **New Players' Window** (Cmd/Ctrl+N) another players' window.
 

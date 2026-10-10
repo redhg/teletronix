@@ -1,14 +1,15 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { listPrograms } from "./programs.ts";
-import { fileUnder, parseRange, startAppServer } from "./server.ts";
+import { fileUnder, nameFor, type OpenProgram, parseRange, startAppServer } from "./server.ts";
 
 let folder = "";
 let app = "";
 let programs = "";
+let opened: OpenProgram | null = null;
 let base = "";
 let close = () => {};
 
@@ -18,17 +19,20 @@ beforeAll(async () => {
     programs = join(folder, "programs");
     await mkdir(join(app, "data", "video"), { recursive: true });
     await mkdir(join(programs, "images"), { recursive: true });
-    await writeFile(join(app, "index.html"), "<!doctype html><title>Teletronix</title>");
+    await writeFile(
+        join(app, "index.html"),
+        "<!doctype html><html><head><title>Teletronix</title></head></html>",
+    );
     await writeFile(join(app, "sw.js"), "// a service worker");
     await writeFile(join(app, "data", "sample.json"), '{"config":{"name":"Built-in sample"}}');
     await writeFile(join(app, "data", "tape7.json"), '{"config":{"name":"Tape 7"}}');
     await writeFile(join(app, "data", "video", "tape.mp4"), "0123456789");
-    await writeFile(join(programs, "sample.json"), '{"config":{"name":"My sample"}}');
-    await writeFile(join(programs, "heist.json"), '{"config":{"name":"Heist"}}');
-    await writeFile(join(programs, "notes.json"), '{"not":"a program"}');
+    await writeFile(join(programs, "My Heist!.json"), '{"config":{"name":"Heist"}}');
+    await writeFile(join(programs, "sample.json"), '{"config":{"name":"Not this one"}}');
+    await writeFile(join(app, "data", "notes.json"), '{"not":"a program"}');
     await writeFile(join(programs, "images", "map.png"), "PNG");
     await writeFile(join(folder, "secret.txt"), "not for the network");
-    const { server } = await startAppServer({ app, programs }, 0);
+    const { server } = await startAppServer({ app, open: () => opened }, 0);
     base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
     close = () => server.close();
 });
@@ -46,21 +50,38 @@ describe("the desktop app's server", () => {
             const response = await get(path);
             expect(response.status).toBe(200);
             expect(response.headers.get("content-type")).toContain("text/html");
-            expect(await response.text()).toContain("<title>Teletronix</title>");
+            const html = await response.text();
+            expect(html).toContain("<title>Teletronix</title>");
+            // (marked as the desktop app's, for the editor)
+            expect(html).toContain('<meta name="teletronix-desktop" content="">');
         }
         expect((await get("/missing.png")).status).toBe(404);
     });
 
-    it("serves the player's own programs and files over the built-in ones", async () => {
-        expect(await (await get("/data/sample.json")).json()).toEqual({
-            config: { name: "My sample" },
-        });
-        expect(await (await get("/data/tape7.json")).json()).toEqual({
-            config: { name: "Tape 7" },
+    it("serves a program opened from a file, under its name, with its folder as data/", async () => {
+        const heist = join(programs, "My Heist!.json");
+        opened = { file: heist, folder: programs, name: nameFor(heist) };
+        expect(opened.name).toBe("My-Heist");
+        expect(await (await get("/data/My-Heist.json")).json()).toEqual({
+            config: { name: "Heist" },
         });
         const image = await get("/data/images/map.png");
         expect(image.headers.get("content-type")).toBe("image/png");
         expect(await image.text()).toBe("PNG");
+        // its folder's files come first; the built-in ones are still there
+        expect(await (await get("/data/sample.json")).json()).toEqual({
+            config: { name: "Not this one" },
+        });
+        expect(await (await get("/data/tape7.json")).json()).toEqual({
+            config: { name: "Tape 7" },
+        });
+        // with none opened, only the built-in ones
+        opened = null;
+        expect((await get("/data/My-Heist.json")).status).toBe(404);
+        expect((await get("/data/images/map.png")).status).toBe(404);
+        expect(await (await get("/data/sample.json")).json()).toEqual({
+            config: { name: "Built-in sample" },
+        });
     });
 
     it("serves part of a file, as a video player asks", async () => {
@@ -102,13 +123,31 @@ describe("the desktop app's server", () => {
         expect(response.status).toBe(405);
     });
 
-    it("has the relay and the editor's saving", async () => {
+    it("has the relay", async () => {
         expect((await get("/remote/addresses")).status).toBe(200);
-        // (from this computer, saving is possible)
+    });
+
+    it("saves the editor's program into the opened file, and only that", async () => {
+        // (with nothing opened, nothing to save into: the editor downloads instead)
+        opened = null;
+        expect((await get("/__teletronix/save")).status).toBe(404);
+        const heist = join(programs, "My Heist!.json");
+        opened = { file: heist, folder: programs, name: nameFor(heist) };
         expect((await get("/__teletronix/save")).status).toBe(204);
         expect(await (await get("/__teletronix/files/images")).json()).toEqual([
             "data/images/map.png",
         ]);
+        const put = (name: string, body: string) =>
+            fetch(`${base}/__teletronix/save/${name}.json`, { method: "PUT", body });
+        const saved = await put("My-Heist", '{"config":{"name":"Heist, edited"}}');
+        expect(saved.status).toBe(204);
+        expect(saved.headers.get("x-saved-to")).toBe(heist);
+        expect(JSON.parse(await readFile(heist, "utf8"))).toEqual({
+            config: { name: "Heist, edited" },
+        });
+        expect((await put("sample", "{}")).status).toBe(404);
+        expect((await put("My-Heist", "not json")).status).toBe(400);
+        opened = null;
     });
 });
 
@@ -124,12 +163,11 @@ describe("parsing a range", () => {
     });
 });
 
-describe("the Programs menu", () => {
-    it("lists the player's programs first, then the built-in ones not replaced, by title", async () => {
-        expect(await listPrograms(join(app, "data"), programs)).toEqual([
-            { name: "heist", title: "Heist", own: true },
-            { name: "sample", title: "My sample", own: true },
-            { name: "tape7", title: "Tape 7", own: false },
+describe("the Built-in Programs menu", () => {
+    it("lists the programs in a folder, by title", async () => {
+        expect(await listPrograms(join(app, "data"))).toEqual([
+            { name: "sample", title: "Built-in sample" },
+            { name: "tape7", title: "Tape 7" },
         ]);
     });
 });

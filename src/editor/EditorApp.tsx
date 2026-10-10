@@ -215,7 +215,8 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
         }).catch(() => null);
         if (response?.ok) {
             setSaved(file);
-            setStatus(`Saved public/data/${name}.json`);
+            // (where the server says: public/data, or the desktop app's file)
+            setStatus(`Saved ${response.headers.get("X-Saved-To") ?? `${name}.json`}`);
         } else {
             setStatus(
                 `Couldn't save (${response?.status ?? "no connection"}): downloading instead`,
