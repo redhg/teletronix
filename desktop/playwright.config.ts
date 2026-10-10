@@ -6,5 +6,8 @@ export default defineConfig({
     testDir: ".",
     testMatch: "*.spec.ts",
     timeout: 60_000,
+    // (starting the app is slower than loading a page: on a fresh CI runner, its first window
+    // can take several seconds to draw)
+    expect: { timeout: 20_000 },
     reporter: "list",
 });
