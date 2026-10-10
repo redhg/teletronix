@@ -169,8 +169,15 @@ export function GmApp({ name, program }: Props) {
         return () => clearInterval(timer);
     }, [send]);
 
+    // the players' windows still there, in the order they first reported in (the Map's)
     const live = [...players.values()].filter((player) => now - player.at < GONE_MS);
-    const latest = live.sort((a, b) => b.at - a.at)[0]?.state ?? null;
+    // the panel follows one of them, steadily: the first still there (windows on different
+    // screens report in turn, and following the latest would flick between them)
+    const latest = live[0]?.state ?? null;
+    // every screen they're on, each once, in that order
+    const screensOn = [
+        ...new Set(live.flatMap(({ state }) => (state.screen === null ? [] : [state.screen]))),
+    ];
     const action = (action: object) => send({ type: "action", action });
 
     const update = useWaitingUpdate();
@@ -454,7 +461,13 @@ export function GmApp({ name, program }: Props) {
                 <Group justify="space-between" gap="sm">
                     <Group gap="md">
                         <Title order={3}>{program.config.name}</Title>
-                        <Status count={live.length} state={latest} program={program} name={name} />
+                        <Status
+                            count={live.length}
+                            state={latest}
+                            screens={screensOn}
+                            program={program}
+                            name={name}
+                        />
                     </Group>
                     <Group gap="sm">
                         <PaletteButton />
@@ -521,7 +534,7 @@ export function GmApp({ name, program }: Props) {
                     <Tabs.Panel value="screens">
                         <ScreenTree
                             screens={[...program.screens.values()]}
-                            current={latest?.screen ?? null}
+                            current={screensOn}
                             onSelect={(screen) => action({ screen })}
                         />
                     </Tabs.Panel>
@@ -754,11 +767,15 @@ function SessionControl({
 function Status({
     count,
     state,
+    screens,
     program,
     name,
 }: {
     count: number;
+    /** The window the panel follows */
     state: PlayerState | null;
+    /** Every screen a window's on */
+    screens: string[];
     program: Program;
     name: string;
 }) {
@@ -774,6 +791,23 @@ function Status({
                 <Button size="compact-xs" variant="light" onClick={() => openPlayers(name)}>
                     Open one
                 </Button>
+            </Group>
+        );
+    }
+    const titleOf = (id: string) => {
+        const screen = program.screens.get(id);
+        return screen ? (screen.title ?? screen.id.toUpperCase()) : id.toUpperCase();
+    };
+    // (windows on different screens: which ones, on hover)
+    if (screens.length > 1) {
+        return (
+            <Group gap="xs" role="status">
+                <Badge color="green" variant="dot" className="gm-live">
+                    Live
+                </Badge>
+                <Text size="sm" title={`On ${screens.map(titleOf).join(", ")}`}>
+                    Players on <strong>various screens</strong> · {count} windows
+                </Text>
             </Group>
         );
     }

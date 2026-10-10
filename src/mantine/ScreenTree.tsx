@@ -21,8 +21,9 @@ export interface TreeScreen {
 
 interface Props {
     screens: readonly TreeScreen[];
-    /** The screen to mark (and open the folders of) */
-    current: string | null;
+    /** The screen to mark (and open the folders of), or several (e.g. players' windows on
+     * different screens) */
+    current: string | readonly string[] | null;
     onSelect: (id: string) => void;
     /** Smaller, without a card: e.g. for a sidebar */
     compact?: boolean;
@@ -33,6 +34,10 @@ interface Props {
  * parent that isn't there, or parents in a circle, leave a screen at the top.
  */
 export function ScreenTree({ screens, current, onSelect, compact = false }: Props) {
+    const marked = useMemo(
+        () => new Set(current === null ? [] : typeof current === "string" ? [current] : current),
+        [current],
+    );
     const [filter, setFilter] = useState("");
     const byId = useMemo(() => new Map(screens.map((screen) => [screen.id, screen])), [screens]);
     // each screen's parent, if it's one the tree can put it under
@@ -63,13 +68,17 @@ export function ScreenTree({ screens, current, onSelect, compact = false }: Prop
         return map;
     }, [screens, parentOf]);
 
-    // folders opened by hand, and those the current screen is in
+    // folders opened by hand, and those the marked screens are in
     const [open, setOpen] = useState(new Set<string>());
     useEffect(() => {
         const path: string[] = [];
-        for (let id = current ?? undefined; id !== undefined; id = parentOf.get(id)) path.push(id);
+        for (const start of marked) {
+            for (let id: string | undefined = start; id !== undefined; id = parentOf.get(id)) {
+                path.push(id);
+            }
+        }
         setOpen((was) => new Set([...was, ...path]));
-    }, [current, parentOf]);
+    }, [marked, parentOf]);
     const toggle = (id: string) =>
         setOpen((was) => {
             const next = new Set(was);
@@ -85,8 +94,8 @@ export function ScreenTree({ screens, current, onSelect, compact = false }: Prop
             label={label(id)}
             rightSection={compact ? undefined : <Code fz="xs">{id}</Code>}
             description={compact && byId.get(id)?.title ? id : undefined}
-            active={id === current}
-            aria-current={id === current ? "true" : undefined}
+            active={marked.has(id)}
+            aria-current={marked.has(id) ? "true" : undefined}
             onClick={() => onSelect(id)}
             py={compact ? 2 : 4}
             style={{ flex: 1, minWidth: 0, borderRadius: "var(--mantine-radius-sm)" }}

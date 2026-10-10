@@ -82,6 +82,43 @@ test.describe("a GM's panel", () => {
         await expect.poll(scheme).toBe("dark");
     });
 
+    test("follows players' windows on different screens steadily, naming each screen", async ({
+        page,
+        player,
+    }) => {
+        await player.open(program);
+        // (another players' window, in the same browser, on another screen)
+        const second = await page.context().newPage();
+        await second.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        await second.goto("./?data=e2e#bridge");
+        await expect(second.locator(".screen")).toContainText("BRIDGE SCREEN");
+
+        const gm = await openGm(page);
+        const status = gm.getByRole("status").first();
+        await expect(status).toContainText("Players on various screens · 2 windows");
+        // (which ones, on hover, in the order the windows first reported in)
+        await expect(status.locator("[title]")).toHaveAttribute(
+            "title",
+            /^On (HOME, BRIDGE|BRIDGE, HOME)$/,
+        );
+        // it doesn't flick between them as each window reports in, every second
+        const first = await status.innerText();
+        for (let i = 0; i < 6; i++) {
+            await gm.waitForTimeout(500);
+            expect(await status.innerText()).toBe(first);
+        }
+        // the screen list marks both
+        const marked = gm.locator('[aria-current="true"]');
+        await expect(marked).toHaveCount(2);
+        await expect(marked.filter({ hasText: "HOME" })).toHaveCount(1);
+        await expect(marked.filter({ hasText: "BRIDGE" })).toHaveCount(1);
+
+        // once one goes, the other
+        await page.close();
+        await expect(status).toContainText("Players on BRIDGE", { timeout: 6000 });
+        await expect(status).not.toContainText("HOME");
+    });
+
     test("says when no players' window is open", async ({ page }) => {
         await page.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
         await page.goto("./?data=e2e&gm");
