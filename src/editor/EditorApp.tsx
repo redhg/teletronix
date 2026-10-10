@@ -198,7 +198,8 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
     const download = () => {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(new Blob([formatJson(file)], { type: "application/json" }));
-        link.download = `${name}.json`;
+        // (a package's program, ttx:<name>, downloads as <name>.json)
+        link.download = `${name.replace(/^ttx:/, "")}.json`;
         link.click();
         URL.revokeObjectURL(link.href);
     };
@@ -885,7 +886,17 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
             </AppShell.Main>
 
             <AppShell.Aside>
-                <iframe ref={preview} className="editor-preview" title="Preview" src="?preview" />
+                <iframe
+                    ref={preview}
+                    className="editor-preview"
+                    title="Preview"
+                    // (a package's program: the preview finds its files in it)
+                    src={
+                        name.startsWith("ttx:")
+                            ? `?preview&data=${encodeURIComponent(name)}`
+                            : "?preview"
+                    }
+                />
             </AppShell.Aside>
         </AppShell>
     );

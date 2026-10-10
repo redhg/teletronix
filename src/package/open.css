@@ -1,0 +1,21 @@
+/* Where a package can be dropped, over the whole page, in the program's colours */
+.package-drop {
+    position: fixed;
+    inset: 1rem;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+    border: 2px dashed var(--fg);
+    background: rgb(from var(--bg) r g b / 0.88);
+    color: var(--fg);
+    font: inherit;
+    font-family: var(--font-family, monospace);
+    text-align: center;
+    text-shadow: var(--glow, none);
+}
+
+.package-drop.alert {
+    border-color: var(--alert);
+    color: var(--alert);
+}

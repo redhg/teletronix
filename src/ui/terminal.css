@@ -142,6 +142,25 @@ button.control.alert:focus-visible {
     font: inherit;
 }
 
+/* what to do about it, as a link is drawn */
+.error-action {
+    margin-top: 1lh;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-shadow: inherit;
+    cursor: pointer;
+}
+
+.error-action:hover,
+.error-action:focus-visible {
+    outline: none;
+    color: var(--bg);
+    background: var(--fg);
+}
+
 /* Phosphor afterglow: a screen left with "transition": "fade" dims quickly, then lingers */
 .screen.fading {
     animation: phosphor-fade var(--fade-duration) cubic-bezier(0.1, 0.7, 0.3, 1) forwards;

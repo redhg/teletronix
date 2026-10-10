@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { type Program, parseProgram, type Terminal } from "../engine/index.ts";
+import { withFiles } from "../package/format.ts";
 import { Player } from "./Player.tsx";
 import { isPreviewMessage, type PreviewMessage } from "./preview-protocol.ts";
 
 interface Props {
     create: (program: Program, startAt?: string) => Terminal;
+    /** For a package's program: where its files are in this window, by "data/…" */
+    files?: Map<string, string>;
 }
 
 interface Running {
@@ -19,7 +22,7 @@ interface Running {
  * screen the editor asks for, or the one that was showing (if the program still has it). It
  * tells the editor which screen it's on.
  */
-export function PreviewHost({ create }: Props) {
+export function PreviewHost({ create, files }: Props) {
     const [running, setRunning] = useState<Running | null>(null);
     const terminal = running?.terminal ?? null;
 
@@ -45,7 +48,9 @@ export function PreviewHost({ create }: Props) {
                 return;
             }
             if (event.data.type !== "teletronix:program") return;
-            const result = parseProgram(event.data.file);
+            const result = parseProgram(
+                files ? withFiles(event.data.file, files) : event.data.file,
+            );
             // (a program with mistakes in it keeps the last good version showing)
             if (!result.ok) return;
             const showing = terminal?.getSnapshot().screen?.run.screen.id;
@@ -58,7 +63,7 @@ export function PreviewHost({ create }: Props) {
         };
         window.addEventListener("message", handleMessage);
         return () => window.removeEventListener("message", handleMessage);
-    }, [terminal, create]);
+    }, [terminal, create, files]);
 
     // the old version stops once the new one's showing (not in a cleanup: React runs those
     // on a terminal still in use, in development)

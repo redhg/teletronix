@@ -2,34 +2,28 @@ import { createReadStream } from "node:fs";
 import { type FileHandle, open } from "node:fs/promises";
 import { Readable } from "node:stream";
 import { crc32, deflateRawSync, inflateRawSync } from "node:zlib";
+import {
+    CENTRAL_HEADER,
+    DEFLATED,
+    dataStart,
+    END_OF_DIRECTORY,
+    END_SIZE,
+    findDirectory,
+    LOCAL_HEADER,
+    MAX_32,
+    MAX_COMMENT,
+    parseDirectory,
+    STORED,
+    UTF8,
+    type ZipEntry,
+} from "../src/package/format.ts";
 
-// Zip archives, as far as Teletronix packages (.ttx) need them: reading what Finder, Windows,
-// `zip` and the like make (stored or deflated files, no encryption, no Zip64), and writing
-// them. A stored file can be read in part, straight from the archive: a video, as a player
+export type { ZipEntry };
+
+// Zip archives in Node, as far as Teletronix packages (.ttx) need them (see
+// src/package/format.ts, which the browser's reader shares): reading what Finder, Windows,
+// `zip` and the like make, and writing them. A stored file can be read in part, straight from the archive: a video, as a player
 // seeks through it.
-
-const LOCAL_HEADER = 0x04034b50;
-const CENTRAL_HEADER = 0x02014b50;
-const END_OF_DIRECTORY = 0x06054b50;
-/** Bit 0 of the flags: encrypted. Bit 11: the name is UTF-8. */
-const ENCRYPTED = 1;
-const UTF8 = 1 << 11;
-const STORED = 0;
-const DEFLATED = 8;
-/** The most a 32-bit size or offset can be: beyond it, a zip needs Zip64. */
-const MAX_32 = 0xffffffff;
-
-export interface ZipEntry {
-    /** Its path in the archive, with "/" between folders */
-    name: string;
-    /** 0: stored as is; 8: deflated */
-    method: number;
-    compressedSize: number;
-    size: number;
-    crc: number;
-    /** Where its local header is */
-    offset: number;
-}
 
 /** An archive opened for reading: its files, by name. */
 export class ZipReader {
@@ -63,8 +57,7 @@ export class ZipReader {
     private async dataStart(entry: ZipEntry): Promise<number> {
         const header = Buffer.alloc(30);
         await this.file.read(header, 0, 30, entry.offset);
-        if (header.readUInt32LE(0) !== LOCAL_HEADER) throw new Error(`Damaged: ${entry.name}`);
-        return entry.offset + 30 + header.readUInt16LE(26) + header.readUInt16LE(28);
+        return dataStart(entry, header);
     }
 
     /** A file's contents, whole (checked against its checksum). */
@@ -97,56 +90,12 @@ export class ZipReader {
 
 async function readDirectory(file: FileHandle): Promise<Map<string, ZipEntry>> {
     const { size } = await file.stat();
-    // the end of the directory record: in the last 22 bytes, or before a comment of up to 64K
-    const tail = Buffer.alloc(Math.min(size, 22 + 0xffff));
+    const tail = Buffer.alloc(Math.min(size, END_SIZE + MAX_COMMENT));
     await file.read(tail, 0, tail.length, size - tail.length);
-    let end = -1;
-    for (let i = tail.length - 22; i >= 0; i--) {
-        if (tail.readUInt32LE(i) === END_OF_DIRECTORY) {
-            end = i;
-            break;
-        }
-    }
-    if (end < 0) throw new Error("Not a zip archive");
-    const count = tail.readUInt16LE(end + 10);
-    const directorySize = tail.readUInt32LE(end + 12);
-    const directoryOffset = tail.readUInt32LE(end + 16);
-    if (count === 0xffff || directoryOffset === MAX_32) {
-        throw new Error("A Zip64 archive (over 4 GB, or 65,535 files): too big to read");
-    }
-    const directory = Buffer.alloc(directorySize);
-    await file.read(directory, 0, directorySize, directoryOffset);
-
-    const entries = new Map<string, ZipEntry>();
-    let at = 0;
-    for (let i = 0; i < count; i++) {
-        if (directory.readUInt32LE(at) !== CENTRAL_HEADER) throw new Error("A damaged archive");
-        const flags = directory.readUInt16LE(at + 8);
-        const method = directory.readUInt16LE(at + 10);
-        const nameLength = directory.readUInt16LE(at + 28);
-        const extraLength = directory.readUInt16LE(at + 30);
-        const commentLength = directory.readUInt16LE(at + 32);
-        const rawName = directory.subarray(at + 46, at + 46 + nameLength);
-        // (read as UTF-8 whether or not it's marked so: names not marked are meant to be in
-        // the old DOS code page, but tools write UTF-8 in practice, and ASCII reads the same)
-        const name = rawName.toString("utf8").replaceAll("\\", "/");
-        const entry: ZipEntry = {
-            name,
-            method,
-            crc: directory.readUInt32LE(at + 16),
-            compressedSize: directory.readUInt32LE(at + 20),
-            size: directory.readUInt32LE(at + 24),
-            offset: directory.readUInt32LE(at + 42),
-        };
-        at += 46 + nameLength + extraLength + commentLength;
-        if (name.endsWith("/")) continue;
-        if (flags & ENCRYPTED) throw new Error(`Encrypted: ${name}`);
-        if (method !== STORED && method !== DEFLATED) {
-            throw new Error(`Compressed in a way it can't read: ${name}`);
-        }
-        entries.set(name, entry);
-    }
-    return entries;
+    const where = findDirectory(tail);
+    const directory = Buffer.alloc(where.size);
+    await file.read(directory, 0, where.size, where.offset);
+    return parseDirectory(directory, where.count);
 }
 
 /** A file to put in an archive: its path in it, its contents, and whether to compress it. */

@@ -2,13 +2,14 @@ import { StrictMode } from "react";
 import type { Root } from "react-dom/client";
 import { type Program, Terminal } from "../engine/index.ts";
 import { rememberProgram } from "../last-program.ts";
+import { acceptPackages, choosePackage } from "../package/open.ts";
 import { followRemote } from "../remote/follow.ts";
 import { CODE_LENGTH, cleanCode } from "../remote/link.ts";
 import { AnimationFrameTicker } from "./animation-frame-ticker.ts";
 import { applyAppearance, followPixelRatio, loadFont } from "./appearance.ts";
 import { ErrorView } from "./ErrorView.tsx";
 import { loadElement } from "./load-element.ts";
-import { loadProgram } from "./load-program.ts";
+import { loadProgram, packageFiles } from "./load-program.ts";
 import { Player } from "./Player.tsx";
 import { PreviewHost } from "./PreviewHost.tsx";
 import { keepSaved } from "./save.ts";
@@ -26,17 +27,32 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
     followPixelRatio();
     // in the editor, a preview of the program as it's edited, which the editor sends
     if (params.has("preview")) {
+        // (a package's program, in the editor: its files, from the package)
+        const files = await packageFiles(params.get("data"));
         root.render(
             <StrictMode>
-                <PreviewHost create={createTerminal} />
+                <PreviewHost create={createTerminal} files={files} />
             </StrictMode>,
         );
         return;
     }
 
+    // a package (.ttx) dropped on the page, or chosen with Cmd/Ctrl+O, plays here
+    acceptPackages();
     const result = await loadProgram(params.get("data") ?? "sample");
     if (!result.ok) {
-        root.render(<ErrorView title={result.title} errors={result.errors} />);
+        root.render(
+            <ErrorView
+                title={result.title}
+                errors={result.errors}
+                // (a package opened elsewhere: choose it here too)
+                action={
+                    result.missingPackage
+                        ? { label: "> CHOOSE THE PACKAGE…", run: () => choosePackage() }
+                        : undefined
+                }
+            />,
+        );
         return;
     }
 
@@ -65,6 +81,8 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
         network: params.has("remote"),
         // `&remote=K7QX` pairs with the panel that showed it (e.g. in a QR code)
         code: givenCode(params.get("remote")),
+        // (a package's files, which the panel names by their "data/…" paths)
+        ...(result.files ? { files: result.files } : {}),
     });
 
     root.render(

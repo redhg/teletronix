@@ -126,12 +126,9 @@ It opens at the last program played. Its menus:
   named in it as `data/images/map.png` is `images/map.png` next to the program. **Open
   Recent** has the last few; dropping a program on the app's icon (on a Mac), or naming it when
   starting the app, opens it too.
-- **Packages:** a program and all its files in one file, a `.ttx`, to hand to someone. **File →
-  Export as Package…** makes one of the program on screen (its own or a built-in one), with
-  every image, sound and video it names; `node scripts/package.ts heist.json` does the same
-  from the command line. **Open Program…** plays one (or a `.zip` of a program's folder, as
-  Finder's **Compress** makes), straight from it, and double-clicking one opens it in the app,
-  once it's installed. A package is only for playing: its editor's **Save** downloads.
+- **[Packages](#packages):** **File → Export as Package…** makes one of the program on screen
+  (its own or a built-in one); **Open Program…** plays one, as does double-clicking one, once
+  the app's installed. A package is only for playing: its editor's **Save** downloads.
 - **File → Built-in Programs:** the sample, *Tape 7*, *Ypsilon-14* and the rest.
 - **File → Edit This Program** opens the [editor](editor.md#the-editor). For a program opened
   from a file, **Save** writes into that file; for a built-in one, it downloads, as online.
@@ -141,6 +138,24 @@ It opens at the last program played. Its menus:
 Other devices reach it as they reach `npm run table`: its panel's **Devices** tab shows the QR
 code and the address (port 4173, or the next free one). The first time, macOS (or Windows) asks
 whether to let it accept connections from the network; allow it for other devices to pair.
+
+## Packages
+A package (`.ttx`) is a program and all its files in one file, to hand to someone: they can play
+it in a browser (online, at <https://redhg.github.io/teletronix/>, too) or in the
+[desktop app](#desktop-app), with nothing else to set up.
+- **Making one:** in the desktop app, **File → Export as Package…**; or `node scripts/package.ts
+  heist.json [heist.ttx]`. Either takes the program and every image, sound and video it names
+  (`data/…`), from beside it, or Teletronix's own, and says which it couldn't find. Inside,
+  it's a zip, laid out as `public/data` is: `heist.json`, `images/vault.png`… A `.zip` of a
+  program's folder, as Finder's **Compress** makes, works as a package too.
+- **Playing one in a browser:** drop it on a Teletronix page (any program's), or press
+  **Cmd/Ctrl+O** there and choose it. It plays as `?data=ttx:<its name>`, and stays in that
+  browser (the latest ten opened), so a reload, the [GM's panel](#gm-remote-control) in another
+  window, and playing [offline](#offline) all have it. The editor opens it too
+  (`?edit&data=ttx:heist`), and downloads it when saved.
+- **On another device:** a package lives in the browser that opened it, so a device the GM's
+  QR code (or `&remote`) opens doesn't have it: it says so, with a button to choose the package's
+  file there as well. (The desktop app serves a package it opened to other devices itself.)
 
 ## Running Tape 7
 *Tape 7* (`?data=tape7`) is a short mystery, for one sitting. The players are the recovery crew of

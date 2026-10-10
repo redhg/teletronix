@@ -4,7 +4,8 @@
 [*Tape 7*](https://redhg.github.io/teletronix/?data=tape7), or
 [*The Haunting of Ypsilon-14*](https://redhg.github.io/teletronix/?data=ypsilon14). It works
 offline once opened, and installs as an app (see [Online](docs/at-the-table.md#online)), or as a
-[desktop app](docs/at-the-table.md#desktop-app).
+[desktop app](docs/at-the-table.md#desktop-app). Drop a [package](docs/at-the-table.md#packages)
+(`.ttx`) on it to play a program of your own.
 
 A retrofuturistic terminal simulator for tabletop role-playing games, and the successor to
 Phosphor.
@@ -43,7 +44,7 @@ what happened at 03:14 (for the GM: [Running Tape 7](docs/at-the-table.md#runnin
 | `npm run lint` / `npm run format` | Biome check / fix |
 | `npm run gen` | Regenerate `schema/teletronix.schema.json` and `docs/reference.md` after changing the schema |
 | `node scripts/convert-phosphor.ts <in> <out>` | Convert a Phosphor JSON file |
-| `node scripts/package.ts <program.json> [<out.ttx>]` | Make a package of a program and its files (see [Desktop app](docs/at-the-table.md#desktop-app)) |
+| `node scripts/package.ts <program.json> [<out.ttx>]` | Make a package of a program and its files (see [Packages](docs/at-the-table.md#packages)) |
 
 ## Documentation
 - **[Writing a program](docs/programs.md):** the file, screens, moving between them, variables,

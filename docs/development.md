@@ -53,6 +53,10 @@ Every new feature gets tests.
   `electron-builder.json` packs them with `dist/` into the installers. Packages (`.ttx`) are
   `scripts/ttx.ts`, on zip archives read and written by `scripts/zip.ts` (Node's zlib, with no
   library).
+- `src/package/`: packages (`.ttx`). `format.ts` is what a package is, and reading a zip's
+  directory, for both readers: Node's (`scripts/zip.ts`) and the browser's (`browser.ts`, with
+  `DecompressionStream`). `store.ts` keeps opened ones in IndexedDB; `open.ts` opens them
+  (dropped on the page, or Cmd/Ctrl+O).
 - `src/ui/`: the React layer. Per-frame text is written straight to the DOM, so React only
   re-renders on structural changes.
 - `src/assets/fonts/`: the bundled fonts, and the symbol fonts made for the ones that lack box

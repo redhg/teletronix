@@ -1,8 +1,9 @@
 import { createReadStream } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
-import { basename, dirname, extname, join, normalize, sep } from "node:path";
+import { dirname, join, normalize, sep } from "node:path";
 import type { Readable } from "node:stream";
 import { openPackage } from "../scripts/ttx.ts";
+import { nameFor } from "../src/package/format.ts";
 
 // Where an opened program's files come from: a folder (a .json, with its files beside it, as
 // public/data has them) or a package (a .ttx: a zip of the same).
@@ -29,11 +30,7 @@ export interface OpenProgram {
     close(): Promise<void>;
 }
 
-/** A name to play a file's program under: its name, with what an address can't have as "-". */
-export const nameFor = (file: string) =>
-    basename(file, extname(file))
-        .replace(/[^A-Za-z0-9_-]+/g, "-")
-        .replace(/^[-_]+|[-_]+$/g, "") || "program";
+export { nameFor };
 
 /** A file under a folder, from a path in it; null for one that would leave it. */
 export function fileUnder(folder: string, path: string): string | null {

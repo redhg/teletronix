@@ -5,6 +5,7 @@ import {
     type Terminal,
     ViewSchema,
 } from "../engine/index.ts";
+import { withFiles } from "../package/format.ts";
 import { channelLink, type Link, type LinkStatus, newCode, randomId, relayLink } from "./link.ts";
 import type { BuiltinSound, GmEnvelope, PlayerMessage, PlayerState } from "./protocol.ts";
 
@@ -86,9 +87,24 @@ function codeFor(program: string, given?: string): string {
 export function followRemote(
     terminal: Terminal,
     program: string,
-    { network = false, code }: { network?: boolean; code?: string } = {},
+    {
+        network = false,
+        code,
+        files,
+    }: {
+        network?: boolean;
+        code?: string;
+        /**
+         * For a package's program: where its files are here ("data/…" to an address in this
+         * window), as the panel names them by their "data/…" paths
+         */
+        files?: Map<string, string>;
+    } = {},
 ): Remote {
     const player = randomId();
+    // a package's files: from the panel's names to here, and back
+    const here = (value: unknown) => (files ? withFiles(value, files) : value);
+    const fileNames = new Map([...(files ?? [])].map(([name, address]) => [address, name]));
     const listeners = new Set<() => void>();
     let status: RemoteStatus = {
         code: network ? codeFor(program, code) : null,
@@ -109,7 +125,10 @@ export function followRemote(
 
     const links: Link[] = [];
     const report = () => {
-        const message: PlayerMessage = { type: "state", player, state: playerState(terminal) };
+        const state = playerState(terminal);
+        // (what's showing, by the name the panel knows it by)
+        if (state.view && fileNames.has(state.view)) state.view = fileNames.get(state.view) ?? null;
+        const message: PlayerMessage = { type: "state", player, state };
         for (const link of links) link.send(message);
     };
     let pending = false;
@@ -155,7 +174,7 @@ export function followRemote(
                 if (!burst) terminal.setRemoteEffects(effects);
                 break;
             case "view": {
-                const view = ViewSchema.safeParse(message.view);
+                const view = ViewSchema.safeParse(here(message.view));
                 if (view.success) terminal.openView(view.data);
                 break;
             }
@@ -164,8 +183,9 @@ export function followRemote(
                 break;
             case "play":
                 if (message.sound) terminal.play({ type: "sound", name: message.sound });
-                else if (message.src) terminal.play({ type: "file", src: message.src });
-                else if (message.builtin) terminal.play(builtinCue(message.builtin));
+                else if (message.src) {
+                    terminal.play({ type: "file", src: here(message.src) as string });
+                } else if (message.builtin) terminal.play(builtinCue(message.builtin));
                 break;
             case "stop-media":
                 terminal.closeView();
@@ -174,7 +194,7 @@ export function followRemote(
             case "pause":
                 terminal.pause({
                     ...(message.message ? { message: message.message } : {}),
-                    ...(message.image ? { image: message.image } : {}),
+                    ...(message.image ? { image: here(message.image) as string } : {}),
                     // (only an audio file of the program's loops)
                     ...(message.sound && terminal.program.audio.has(message.sound)
                         ? { sound: message.sound }
