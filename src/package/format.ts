@@ -177,6 +177,26 @@ export function withFiles(program: unknown, addresses: Map<string, string>): unk
     return program;
 }
 
+/**
+ * An id to play a package (or a program's file) under, from its bytes (or its path): the same
+ * each time for the same, and giving nothing away, unlike a name could (`?data=ttx:k7q2m9xa1b`).
+ * A quick 53-bit hash (cyrb53), not a cryptographic one: browsers keep those for secure pages,
+ * and these only need to differ.
+ */
+export function idFor(content: Uint8Array | string): string {
+    const bytes = typeof content === "string" ? new TextEncoder().encode(content) : content;
+    let h1 = 0xdeadbeef;
+    let h2 = 0x41c6ce57;
+    for (const byte of bytes) {
+        h1 = Math.imul(h1 ^ byte, 2654435761);
+        h2 = Math.imul(h2 ^ byte, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    const hash = 4294967296 * (2097151 & h2) + (h1 >>> 0);
+    return hash.toString(36).padStart(11, "0");
+}
+
 /** A name to play a package (or a program's file) under: what an address can't have, as "-". */
 export const nameFor = (fileName: string) =>
     fileName

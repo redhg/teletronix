@@ -76,7 +76,9 @@ test("plays a program opened from a file, with its files beside it", async () =>
     const app = await start(program);
     const window = await app.firstWindow();
     await expect(window.locator(".screen")).toContainText("THE VAULT IS OPEN.");
-    await expect(window).toHaveURL(/^http:\/\/localhost:\d+\/\?data=The-Heist$/);
+    // (an id from its path, giving nothing of its name away)
+    await expect(window).toHaveURL(/^http:\/\/localhost:\d+\/\?data=[0-9a-z]{11}$/);
+    const id = new URL(window.url()).searchParams.get("data");
     // (its image, from beside it)
     await expect(window.locator(".bitmap canvas")).toBeVisible();
 
@@ -86,7 +88,7 @@ test("plays a program opened from a file, with its files beside it", async () =>
     const panel = app.waitForEvent("window");
     await clickMenu(app, ["Window", "GM Panel"]);
     const gm = await panel;
-    await expect(gm).toHaveURL(/\?data=The-Heist&gm$/);
+    await expect(gm).toHaveURL(new RegExp(`\\?data=${id}&gm$`));
     await expect(gm.getByText("LIVE")).toBeVisible();
 });
 
@@ -94,14 +96,15 @@ test("saves the editor's changes into the file", async () => {
     const app = await start(program);
     const window = await app.firstWindow();
     await expect(window.locator(".screen")).toContainText("THE VAULT IS OPEN.");
-    const saved = await window.evaluate(async () => {
+    const id = new URL(window.url()).searchParams.get("data");
+    const saved = await window.evaluate(async (id) => {
         const can = await fetch("__teletronix/save");
-        const put = await fetch("__teletronix/save/The-Heist.json", {
+        const put = await fetch(`__teletronix/save/${id}.json`, {
             method: "PUT",
             body: JSON.stringify({ config: { name: "Heist, edited" }, screens: {} }),
         });
         return [can.status, put.status, put.headers.get("X-Saved-To")];
-    });
+    }, id);
     expect(saved).toEqual([204, 204, program]);
     expect(JSON.parse(await readFile(program, "utf8")).config.name).toBe("Heist, edited");
 });
@@ -130,7 +133,7 @@ test("plays a package (.ttx), straight from it", async () => {
     const app = await start(ttx);
     const window = await app.firstWindow();
     await expect(window.locator(".screen")).toContainText("THE VAULT IS OPEN.");
-    await expect(window).toHaveURL(/\?data=Heist$/);
+    await expect(window).toHaveURL(/\?data=[0-9a-z]{11}$/);
     await expect(window.locator(".bitmap canvas")).toBeVisible();
     // (it's only for playing: the editor would download)
     expect(await window.evaluate(async () => (await fetch("__teletronix/save")).status)).toBe(404);
@@ -158,7 +161,7 @@ test("exports the program, with its files, as a package", async () => {
         )
         .toBe(true);
     const opened = await openPackage(out);
-    expect(opened.program.name).toBe("The-Heist.json");
+    expect(opened.program.name).toMatch(/^[0-9a-z]{11}\.json$/);
     expect(opened.files()).toEqual(["images/vault.svg"]);
     await opened.reader.close();
 });

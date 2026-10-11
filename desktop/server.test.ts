@@ -63,8 +63,11 @@ describe("the desktop app's server", () => {
     it("serves a program opened from a file, under its name, with its folder as data/", async () => {
         const heist = join(programs, "My Heist!.json");
         opened = await openProgram(heist);
-        expect(opened.name).toBe("My-Heist");
-        expect(await (await get("/data/My-Heist.json")).json()).toEqual({
+        // (by its path, as nothing anyone could read anything into)
+        const id = opened.name;
+        expect(id).toMatch(/^[0-9a-z]{11}$/);
+        expect((await openProgram(heist)).name).toBe(id);
+        expect(await (await get(`/data/${id}.json`)).json()).toEqual({
             config: { name: "Heist" },
         });
         const image = await get("/data/images/map.png");
@@ -79,7 +82,7 @@ describe("the desktop app's server", () => {
         });
         // with none opened, only the built-in ones
         opened = null;
-        expect((await get("/data/My-Heist.json")).status).toBe(404);
+        expect((await get(`/data/${id}.json`)).status).toBe(404);
         expect((await get("/data/images/map.png")).status).toBe(404);
         expect(await (await get("/data/sample.json")).json()).toEqual({
             config: { name: "Built-in sample" },
@@ -101,9 +104,10 @@ describe("the desktop app's server", () => {
             ttx,
         );
         opened = await openProgram(ttx);
-        expect(opened.name).toBe("Vault-Job");
+        const id = opened.name;
+        expect(id).not.toMatch(/vault/i);
         expect(opened.editable).toBe(false);
-        expect(await (await get("/data/Vault-Job.json")).json()).toMatchObject({
+        expect(await (await get(`/data/${id}.json`)).json()).toMatchObject({
             config: { name: "Vault" },
         });
         const part = await get("/data/video/cam.mp4", { Range: "bytes=995-" });
@@ -176,14 +180,14 @@ describe("the desktop app's server", () => {
         ]);
         const put = (name: string, body: string) =>
             fetch(`${base}/__teletronix/save/${name}.json`, { method: "PUT", body });
-        const saved = await put("My-Heist", '{"config":{"name":"Heist, edited"}}');
+        const saved = await put(opened.name, '{"config":{"name":"Heist, edited"}}');
         expect(saved.status).toBe(204);
         expect(saved.headers.get("x-saved-to")).toBe(heist);
         expect(JSON.parse(await readFile(heist, "utf8"))).toEqual({
             config: { name: "Heist, edited" },
         });
         expect((await put("sample", "{}")).status).toBe(404);
-        expect((await put("My-Heist", "not json")).status).toBe(400);
+        expect((await put(opened.name, "not json")).status).toBe(400);
         opened = null;
     });
 });

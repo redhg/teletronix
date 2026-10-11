@@ -3,7 +3,7 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import { dirname, join, normalize, sep } from "node:path";
 import type { Readable } from "node:stream";
 import { openPackage } from "../scripts/ttx.ts";
-import { nameFor } from "../src/package/format.ts";
+import { idFor, nameFor } from "../src/package/format.ts";
 
 // Where an opened program's files come from: a folder (a .json, with its files beside it, as
 // public/data has them) or a package (a .ttx: a zip of the same).
@@ -62,7 +62,8 @@ export async function openProgram(file: string): Promise<OpenProgram> {
 async function openFolderProgram(file: string): Promise<OpenProgram> {
     // (an error now, rather than when it's played, if it isn't JSON)
     JSON.parse(await readFile(file, "utf8"));
-    const name = nameFor(file);
+    // (by its path, not its name: an address shouldn't give anything away)
+    const name = idFor(file);
     const folder = dirname(file);
     return {
         name,
@@ -79,7 +80,8 @@ async function openFolderProgram(file: string): Promise<OpenProgram> {
 
 async function openPackageProgram(file: string): Promise<OpenProgram> {
     const opened = await openPackage(file);
-    const name = nameFor(file);
+    // (by its path, not its name: an address shouldn't give anything away)
+    const name = idFor(file);
     return {
         name,
         file,

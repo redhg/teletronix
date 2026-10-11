@@ -161,10 +161,12 @@ it in a browser (online, at <https://teletronix.net/>, too) or in the
   it's a zip, laid out as `public/data` is: `heist.json`, `images/vault.png`… A `.zip` of a
   program's folder, as Finder's **Compress** makes, works as a package too.
 - **Playing one in a browser:** drop it on a Teletronix page (any program's), or press
-  **Cmd/Ctrl+O** there and choose it. It plays as `?data=ttx:<its name>`, and stays in that
+  **Cmd/Ctrl+O** there and choose it. It plays as `?data=ttx:` and an id made from its contents
+  (e.g. `?data=ttx:0nqmm8fa1t2`: the same file, the same id, and nothing of its name, which
+  could give something away to players who see the address or a QR code), and stays in that
   browser (the latest ten opened), so a reload, the [GM's panel](#gm-remote-control) in another
   window, and playing [offline](#offline) all have it. The editor opens it too
-  (`?edit&data=ttx:heist`), and downloads it when saved.
+  (`?edit&data=ttx:0nqmm8fa1t2`), and downloads it when saved.
 - **On another device:** a package lives in the browser that opened it, so a device the GM's
   QR code (or `&join`) opens may not have it. If the GM's panel is playing it, in a
   [session](#from-another-device), the device asks the panel for it: it says how big it is

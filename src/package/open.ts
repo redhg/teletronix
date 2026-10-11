@@ -1,5 +1,5 @@
 import { readPackage } from "./browser.ts";
-import { nameFor } from "./format.ts";
+import { idFor } from "./format.ts";
 import { PACKAGE_PREFIX, putPackage } from "./store.ts";
 import "./open.css";
 
@@ -15,7 +15,8 @@ const isPackageFile = (file: File) => /\.(ttx|zip)$/i.test(file.name);
 export async function openPackageFile(file: File): Promise<void> {
     if (!isPackageFile(file)) throw new Error(`${file.name} isn't a package (.ttx)`);
     await readPackage(file, file.name);
-    const id = nameFor(file.name);
+    // (by its contents, not its name: an address shouldn't give anything away)
+    const id = idFor(new Uint8Array(await file.arrayBuffer()));
     await putPackage({ id, fileName: file.name, file, added: Date.now() });
     const kiosk = new URLSearchParams(location.search).has("kiosk");
     location.assign(`?data=${PACKAGE_PREFIX}${id}${kiosk ? "&kiosk" : ""}`);

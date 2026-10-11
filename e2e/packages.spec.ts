@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { appendFile, copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Browser } from "@playwright/test";
@@ -52,6 +52,12 @@ async function choose(page: Page, file = ttx) {
     }).toPass({ timeout: 15_000 });
 }
 
+/** The package playing on a page, by its id: `ttx:<id>`, from its contents (not its name). */
+async function playing(page: Page): Promise<string> {
+    await page.waitForURL(/\?data=ttx:[0-9a-z]{11}$/);
+    return new URL(page.url()).searchParams.get("data") ?? "";
+}
+
 /** Drops a file on the page, as dragging one from the desktop does. */
 async function drop(page: Page, file: string, name: string) {
     const bytes = [...(await readFile(file))];
@@ -80,10 +86,17 @@ test.describe("a package", () => {
     }) => {
         await player.open("sample", "#home");
         await choose(page);
-        await expect(page).toHaveURL(/\?data=ttx:The-Heist$/);
+        const id = await playing(page);
+        // (an id from its contents, giving nothing of its name away; the same file, the same)
+        expect(id).not.toMatch(/heist/i);
         await expect(player.screen).toContainText("THE VAULT IS OPEN.");
         await expect(player.screen.locator(".bitmap canvas")).toBeVisible();
         await expect(page).toHaveTitle("Heist");
+        // (the same file again: the same id, the page loaded again)
+        const loaded = page.waitForEvent("load");
+        await choose(page);
+        await loaded;
+        expect(await playing(page)).toBe(id);
 
         await page.reload();
         await expect(player.screen).toContainText("THE VAULT IS OPEN.");
@@ -104,7 +117,7 @@ test.describe("a package", () => {
         });
         await expect(page.locator(".package-drop")).toContainText("DROP A TELETRONIX PACKAGE");
         await drop(page, ttx, "The Heist.ttx");
-        await expect(page).toHaveURL(/\?data=ttx:The-Heist$/);
+        await playing(page);
         await expect(player.screen).toContainText("THE VAULT IS OPEN.");
     });
 
@@ -124,7 +137,7 @@ test.describe("a package", () => {
     test("can be chosen where it isn't yet, e.g. a device the GM's QR code opened", async ({
         page,
     }) => {
-        await page.goto("./?data=ttx:The-Heist");
+        await page.goto("./?data=ttx:k7q2m9xa1bz");
         const error = page.locator(".error-view");
         await expect(error).toContainText("This program isn't in this browser");
         // (nothing of its name, which could give something away)
@@ -138,10 +151,11 @@ test.describe("a package", () => {
     test("works with the GM's panel: its handouts, from the package", async ({ page, player }) => {
         await player.open("sample", "#home");
         await choose(page);
+        const id = await playing(page);
         await expect(player.screen).toContainText("THE VAULT IS OPEN.");
 
         const gm = await page.context().newPage();
-        await gm.goto("./?data=ttx:The-Heist&gm");
+        await gm.goto(`./?data=${id}&gm`);
         await expect(gm.getByText("LIVE")).toBeVisible();
         await gm.getByRole("tab", { name: "Media" }).click();
         const handout = gm.getByRole("button", { name: /vault\.svg/ });
@@ -155,8 +169,9 @@ test.describe("a package", () => {
     test("opens in the editor, whose preview has its files too", async ({ page, player }) => {
         await player.open("sample", "#home");
         await choose(page);
+        const id = await playing(page);
         await expect(player.screen).toContainText("THE VAULT IS OPEN.");
-        await page.goto("./?edit&data=ttx:The-Heist");
+        await page.goto(`./?edit&data=${id}`);
         const preview = page.frameLocator("iframe.editor-preview");
         await expect(preview.locator(".screen")).toContainText("THE VAULT IS OPEN.");
         await expect(preview.locator(".bitmap canvas")).toBeVisible();
@@ -166,13 +181,21 @@ test.describe("a package", () => {
     test("keeps the latest ten opened in this browser", async ({ page, player }) => {
         test.slow();
         await player.open("sample", "#home");
+        const ids: string[] = [];
         for (let i = 1; i <= 11; i++) {
+            // (each a little different, so a package of its own: bytes after the end of a zip
+            // are left alone)
             const copy = join(folder, `heist-${i}.ttx`);
             await copyFile(ttx, copy);
+            await appendFile(copy, `copy ${i}`);
+            const before = page.url();
             await choose(page, copy);
-            // (loaded, not just addressed: every one shows the same text, and the next key
-            // press mustn't land on the page that's going)
-            await page.waitForURL(new RegExp(`data=ttx:heist-${i}$`));
+            // (the next one's page, loaded: not the one going, at an address like it, and the
+            // next key press mustn't land on that)
+            await page.waitForURL((url) => url.href !== before);
+            const id = await playing(page);
+            expect(ids).not.toContain(id);
+            ids.push(id);
             await expect(player.screen).toContainText("THE VAULT IS OPEN.");
         }
         const kept = await page.evaluate(
@@ -189,31 +212,34 @@ test.describe("a package", () => {
                 }),
         );
         expect(kept).toHaveLength(10);
-        expect(kept).not.toContain("heist-1");
-        expect(kept).toContain("heist-11");
+        expect(kept).not.toContain(ids[0]?.slice("ttx:".length));
+        expect(kept).toContain(ids[10]?.slice("ttx:".length));
     });
 
     test.describe("shared by the GM, through the session", () => {
         /** A GM, in a browser of its own, playing the package, with a session started. */
-        async function gmWithPackage(browser: Browser): Promise<{ gm: Page; code: string }> {
+        async function gmWithPackage(
+            browser: Browser,
+        ): Promise<{ gm: Page; code: string; id: string }> {
             const gm = await (await browser.newContext()).newPage();
             await gm.goto("./?data=sample#home");
             await choose(gm);
+            const id = await playing(gm);
             await expect(gm.locator(".screen")).toContainText("THE VAULT IS OPEN.");
-            await gm.goto("./?data=ttx:The-Heist&gm");
+            await gm.goto(`./?data=${id}&gm`);
             await gm.getByRole("button", { name: "Start a session" }).click();
             await expect(gm.locator(".gm-pairing")).toContainText("Connected");
             const code = (await gm.locator(".gm-pairing strong").innerText()).trim();
-            return { gm, code };
+            return { gm, code, id };
         }
 
         test("reaches a player who accepts it, who then plays it in the session", async ({
             page,
             browser,
         }) => {
-            const { gm, code } = await gmWithPackage(browser);
+            const { gm, code, id } = await gmWithPackage(browser);
             // (the players' device, as the GM's QR code opens it)
-            await page.goto(`./?data=ttx:The-Heist&join=${code}`);
+            await page.goto(`./?data=${id}&join=${code}`);
             const view = page.locator(".receive-package");
             await expect(view).toContainText("THIS PROGRAM ISN'T IN THIS BROWSER");
             await expect(view).toContainText(/THE GM IS SHARING PROGRAM DATA \(\d+ KB\)/);
@@ -233,8 +259,8 @@ test.describe("a package", () => {
             page,
             browser,
         }) => {
-            const { gm, code } = await gmWithPackage(browser);
-            await page.goto("./?data=ttx:The-Heist&join");
+            const { gm, code, id } = await gmWithPackage(browser);
+            await page.goto(`./?data=${id}&join`);
             const view = page.locator(".receive-package");
             await view.getByRole("textbox", { name: "Session code" }).fill(code.toLowerCase());
             await view.getByRole("button", { name: "> ASK THE GM FOR IT" }).click();
@@ -253,13 +279,13 @@ test.describe("a package", () => {
             const gm = await (await browser.newContext()).newPage();
             await gm.goto("./?data=sample#home");
             await choose(gm, tape7);
-            await gm.waitForURL(/data=ttx:Tape-7$/);
-            await gm.goto("./?data=ttx:Tape-7&gm");
+            const id = await playing(gm);
+            await gm.goto(`./?data=${id}&gm`);
             await gm.getByRole("button", { name: "Start a session" }).click();
             await expect(gm.locator(".gm-pairing")).toContainText("Connected");
             const code = (await gm.locator(".gm-pairing strong").innerText()).trim();
 
-            await page.goto(`./?data=ttx:Tape-7&join=${code}#tapes`);
+            await page.goto(`./?data=${id}&join=${code}#tapes`);
             const view = page.locator(".receive-package");
             await expect(view).toContainText(/THE GM IS SHARING PROGRAM DATA \(6\.\d MB\)/);
             await view.getByRole("button", { name: "> ACCEPT" }).click();
@@ -276,7 +302,7 @@ test.describe("a package", () => {
 
         test("says so when the GM isn't playing that package", async ({ page, browser }) => {
             const { gm, code } = await gmWithPackage(browser);
-            await page.goto(`./?data=ttx:Another-Heist&join=${code}`);
+            await page.goto(`./?data=ttx:zzzzzzzzzzz&join=${code}`);
             await expect(page.locator(".receive-package")).toContainText(
                 "THE GM ISN'T PLAYING THIS PACKAGE.",
             );
