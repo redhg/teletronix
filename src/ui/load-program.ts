@@ -66,7 +66,8 @@ async function fetchPackage(id: string): Promise<FetchResult> {
     if (!stored) {
         return {
             ...fail(
-                `The package "${id}" isn't in this browser`,
+                // (not by its name, which could give something away)
+                "This program isn't in this browser",
                 "It was opened in another browser, or on another device. Choose its file " +
                     "(.ttx) to play it here too.",
             ),
@@ -78,7 +79,7 @@ async function fetchPackage(id: string): Promise<FetchResult> {
         return { ok: true, json: JSON.parse(pkg.programText), url: stored.fileName, package: pkg };
     } catch (error) {
         return fail(
-            `Can't open ${stored.fileName}`,
+            "Can't open this program's package",
             error instanceof Error ? error.message : String(error),
         );
     }

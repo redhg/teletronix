@@ -126,7 +126,9 @@ test.describe("a package", () => {
     }) => {
         await page.goto("./?data=ttx:The-Heist");
         const error = page.locator(".error-view");
-        await expect(error).toContainText(`The package "The-Heist" isn't in this browser`);
+        await expect(error).toContainText("This program isn't in this browser");
+        // (nothing of its name, which could give something away)
+        await expect(error).not.toContainText("Heist");
         const chooser = page.waitForEvent("filechooser");
         await error.getByRole("button", { name: "> CHOOSE THE PACKAGE…" }).click();
         await (await chooser).setFiles(ttx);
@@ -213,8 +215,10 @@ test.describe("a package", () => {
             // (the players' device, as the GM's QR code opens it)
             await page.goto(`./?data=ttx:The-Heist&join=${code}`);
             const view = page.locator(".receive-package");
-            await expect(view).toContainText(`THE PACKAGE "The-Heist" ISN'T IN THIS BROWSER`);
-            await expect(view).toContainText(/THE GM IS SHARING The Heist\.ttx \(\d+ KB\)/);
+            await expect(view).toContainText("THIS PROGRAM ISN'T IN THIS BROWSER");
+            await expect(view).toContainText(/THE GM IS SHARING PROGRAM DATA \(\d+ KB\)/);
+            // (nothing of its name, which could give something away)
+            await expect(view).not.toContainText(/heist/i);
             await view.getByRole("button", { name: "> ACCEPT" }).click();
             await expect(page.locator(".screen")).toContainText("THE VAULT IS OPEN.");
             await expect(page.locator(".bitmap canvas")).toBeVisible();
@@ -257,7 +261,7 @@ test.describe("a package", () => {
 
             await page.goto(`./?data=ttx:Tape-7&join=${code}#tapes`);
             const view = page.locator(".receive-package");
-            await expect(view).toContainText(/THE GM IS SHARING Tape 7\.ttx \(6\.\d MB\)/);
+            await expect(view).toContainText(/THE GM IS SHARING PROGRAM DATA \(6\.\d MB\)/);
             await view.getByRole("button", { name: "> ACCEPT" }).click();
             await expect(page.locator(".screen")).toContainText("TAPE 01", { timeout: 30_000 });
             // (a video from inside it plays)

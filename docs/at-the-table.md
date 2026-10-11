@@ -167,8 +167,9 @@ it in a browser (online, at <https://teletronix.net/>, too) or in the
   (`?edit&data=ttx:heist`), and downloads it when saved.
 - **On another device:** a package lives in the browser that opened it, so a device the GM's
   QR code (or `&join`) opens may not have it. If the GM's panel is playing it, in a
-  [session](#from-another-device), the device asks the panel for it: it says what it is and how
-  big (e.g. `THE GM IS SHARING Heist.ttx (6.8 MB)`), and once the player chooses **Accept**, the
+  [session](#from-another-device), the device asks the panel for it: it says how big it is
+  (`THE GM IS SHARING PROGRAM DATA (6.8 MB)`; never its name, which could give something away),
+  and once the player chooses **Accept**, the
   panel sends it there, through the session, and it plays (and stays, as one opened there). The
   panel's **Devices** tab shows how far it's got. Nothing is stored anywhere on the way, so it
   works for packages up to 50 MB; for a bigger one, or without a session, the device can

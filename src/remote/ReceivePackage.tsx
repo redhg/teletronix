@@ -114,24 +114,21 @@ export function ReceivePackage({
 
     return (
         <main className="terminal error-view receive-package">
-            <h1>THE PACKAGE "{id}" ISN'T IN THIS BROWSER</h1>
+            {/* (never the package's name, nor its file's: either could give something away) */}
+            <h1>THIS PROGRAM ISN'T IN THIS BROWSER</h1>
             {step.step === "code" && <CodeField join={setCode} />}
             {step.step === "asking" && <p>ASKING THE GM FOR IT…</p>}
             {step.step === "waiting" && <p>WAITING FOR THE GM, IN SESSION {code}…</p>}
             {step.step === "offered" && (
                 <>
-                    <p>
-                        THE GM IS SHARING {step.fileName} ({sizeText(step.size)}).
-                    </p>
+                    <p>THE GM IS SHARING PROGRAM DATA ({sizeText(step.size)}).</p>
                     <button type="button" className="error-action" onClick={accept}>
                         &gt; ACCEPT
                     </button>
                 </>
             )}
             {step.step === "receiving" && (
-                <p role="status">
-                    RECEIVING {step.fileName}… {Math.round(step.progress * 100)}%
-                </p>
+                <p role="status">RECEIVING PROGRAM DATA… {Math.round(step.progress * 100)}%</p>
             )}
             {step.step === "unavailable" && (
                 <p className="alert">
