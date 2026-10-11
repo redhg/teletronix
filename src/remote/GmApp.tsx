@@ -107,7 +107,7 @@ export function GmApp({ name, program }: Props) {
     const sharePackage = useCallback(
         (message: PlayerMessage) => {
             const link = relay.current;
-            if (message.type === "state" || !link) return;
+            if (message.type === "state" || message.type === "program-wanted" || !link) return;
             const { player } = message;
             if (message.type === "package-wanted") {
                 void answerFor(name, message.package).then((answer) =>
@@ -138,6 +138,11 @@ export function GmApp({ name, program }: Props) {
                 sharePackage(message as PlayerMessage);
                 return;
             }
+            if (message.type === "program-wanted") {
+                const { player } = message as Extract<PlayerMessage, { type: "program-wanted" }>;
+                relay.current?.sendTo(player, { type: "program", program: name, id: randomId() });
+                return;
+            }
             if (message.type !== "state") return;
             const { player, state } = message as Extract<PlayerMessage, { type: "state" }>;
             // a new window gets the effects (and ambience) the panel has on
@@ -150,7 +155,7 @@ export function GmApp({ name, program }: Props) {
             }
             setPlayers((was) => new Map(was).set(player, { state, at: Date.now() }));
         },
-        [sendEffects, send, sharePackage],
+        [sendEffects, send, sharePackage, name],
     );
 
     // players' windows in this browser

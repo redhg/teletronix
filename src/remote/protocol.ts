@@ -63,6 +63,11 @@ export type GmMessage =
      */
     | { type: "package-offer"; package: string; fileName: string; size: number }
     | { type: "package-unavailable"; package: string; reason: "not-shared" | "too-big" }
+    /**
+     * To a window joining by a code alone (the start page): the program the panel's playing,
+     * as its address names it (`ttx:0nqmm8fa1t2`, or a built-in one's name)
+     */
+    | { type: "program"; program: string }
     /** A piece of the package, as base64, once accepted. */
     | { type: "package-piece"; package: string; index: number; count: number; data: string };
 
@@ -91,7 +96,9 @@ export type PlayerMessage =
           state: PlayerState;
       }
     /** A players' window without the GM's package asks about it, then accepts it. */
-    | { type: "package-wanted" | "package-accepted"; player: string; package: string };
+    | { type: "package-wanted" | "package-accepted"; player: string; package: string }
+    /** A window joining by a code alone asks which program the panel's playing. */
+    | { type: "program-wanted"; player: string };
 
 /** Whether something received is a message of ours, with a type. */
 export const isMessage = (data: unknown): data is { type: string } =>

@@ -257,3 +257,66 @@ button.control.alert:focus-visible {
     outline: none;
     background: rgb(from var(--fg) r g b / 0.12);
 }
+
+/* The start page: a few sections of lines, as a terminal's menu */
+.start-page {
+    display: grid;
+    gap: 2lh;
+    align-content: start;
+    max-width: 80ch;
+    user-select: text;
+}
+
+.start-page h1,
+.start-page h2 {
+    margin: 0;
+    font-size: inherit;
+    font-weight: normal;
+}
+
+.start-page section,
+.start-page header {
+    display: grid;
+    gap: 0.5lh;
+    justify-items: start;
+}
+
+.start-page p,
+.start-page ul,
+.start-page form {
+    margin: 0;
+}
+
+.start-page ul {
+    display: grid;
+    gap: 0.25lh;
+    padding: 0;
+    list-style: none;
+}
+
+.start-page .dim {
+    opacity: 0.6;
+}
+
+.start-link {
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: none;
+    font: inherit;
+    text-decoration: none;
+    text-shadow: inherit;
+    cursor: pointer;
+}
+
+.start-link:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.start-link:not(:disabled):hover,
+.start-link:focus-visible {
+    outline: none;
+    color: var(--bg);
+    background: var(--fg);
+}

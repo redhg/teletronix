@@ -3,7 +3,8 @@ import { lastProgram } from "./last-program.ts";
 import { exposeVersion } from "./version.ts";
 
 // `?edit` opens the program editor, `&gm` a GM's control panel for a program played in
-// another window, `?version` which build this is; anything else plays a program.
+// another window, `?version` which build this is; `?data=<name>` plays a program, and an
+// address without one is the start page.
 // Each loads only its own code and styles.
 const search = lastProgram(location.search);
 if (search !== location.search) history.replaceState(null, "", search);
@@ -19,6 +20,8 @@ if (params.has("version")) {
     import("./remote/start.tsx").then(({ startGm }) => startGm(root, params));
 } else if (params.has("edit")) {
     import("./editor/start.tsx").then(({ startEditor }) => startEditor(root, params));
+} else if (!params.has("data") && !params.has("preview")) {
+    import("./ui/start-page.tsx").then(({ startPage }) => startPage(root));
 } else {
     import("./ui/start-player.tsx").then(({ startPlayer }) => startPlayer(root, params));
 }

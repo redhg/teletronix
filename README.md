@@ -5,7 +5,8 @@
 [*The Haunting of Ypsilon-14*](https://teletronix.net/?data=ypsilon14). It works
 offline once opened, and installs as an app (see [Online](docs/at-the-table.md#online)), or as a
 [desktop app](docs/at-the-table.md#desktop-app). Drop a [package](docs/at-the-table.md#packages)
-(`.ttx`) on it to play a program of your own.
+(`.ttx`) on it to play a program of your own, or join a GM's session by its code, on its start
+page.
 
 A retrofuturistic terminal simulator for tabletop role-playing games, and the successor to
 Phosphor.
@@ -23,7 +24,8 @@ npm install
 npm run dev    # http://localhost:5173
 ```
 
-Programs live in `public/data/`. Pick one with `?data=<name>`; the default is `sample`.
+Programs live in `public/data/`. Pick one with `?data=<name>`; without one, it's the start page
+(join a GM's session, open a package, or a demo).
 `?data=ypsilon14` runs *The Haunting of Ypsilon-14*, converted from Phosphor. `?data=tape7` runs
 *Tape 7*, a short mystery on a VCR: a space station's tape archive, its security cameras, and
 what happened at 03:14 (for the GM: [Running Tape 7](docs/at-the-table.md#running-tape-7)).

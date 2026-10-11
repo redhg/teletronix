@@ -221,7 +221,11 @@ Teletronix is published at <https://teletronix.net/> (e.g.
 computer serving it: open it once, and it works [offline](#offline) from then on, or install it
 as an app. Every push to `main` publishes the new version, once the checks and browser tests
 have passed (the `deploy` job in `.github/workflows/ci.yml`); a device picks it up the next time
-Teletronix opens there. It's GitHub Pages, on a domain of its own: the old address,
+Teletronix opens there. Its address alone (or any without `?data=`) is the start page: **join a
+GM's session** by its code (it asks the GM's panel which program it's playing, and goes
+there), **open a package** (or drop one on it), play one opened there before (one a GM shared
+is listed by no name: it could give something away), or a demo; each with **[GM]** for its
+GM's panel. It's GitHub Pages, on a domain of its own: the old address,
 `redhg.github.io/teletronix/`, redirects there (but saved settings, progress and opened packages
 stay with the address they were made on).
 

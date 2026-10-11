@@ -8,16 +8,29 @@ import "./open.css";
 
 const isPackageFile = (file: File) => /\.(ttx|zip)$/i.test(file.name);
 
+/** A program's name (config.name), from its text, if it has one. */
+export function titleOf(programText: string): string | undefined {
+    try {
+        const name = (JSON.parse(programText) as { config?: { name?: unknown } }).config?.name;
+        return typeof name === "string" ? name : undefined;
+    } catch {
+        return undefined;
+    }
+}
+
 /**
  * Opens a package's file: checks it (an error says what's wrong), keeps it, and plays it here,
  * as `?data=ttx:<name>` (kept a kiosk, if this is one).
  */
 export async function openPackageFile(file: File): Promise<void> {
     if (!isPackageFile(file)) throw new Error(`${file.name} isn't a package (.ttx)`);
-    await readPackage(file, file.name);
+    const opened = await readPackage(file, file.name);
     // (by its contents, not its name: an address shouldn't give anything away)
     const id = idFor(new Uint8Array(await file.arrayBuffer()));
-    await putPackage({ id, fileName: file.name, file, added: Date.now() });
+    await putPackage(
+        { id, fileName: file.name, file, added: Date.now() },
+        { from: "opened", title: titleOf(opened.programText) },
+    );
     const kiosk = new URLSearchParams(location.search).has("kiosk");
     location.assign(`?data=${PACKAGE_PREFIX}${id}${kiosk ? "&kiosk" : ""}`);
 }

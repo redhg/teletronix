@@ -54,7 +54,11 @@ export function ReceivePackage({
             try {
                 const file = arrival.blob();
                 await readPackage(file, offered.fileName);
-                await putPackage({ id, fileName: offered.fileName, file, added: Date.now() });
+                // (listed as from a session: its title mustn't show on a player's screens)
+                await putPackage(
+                    { id, fileName: offered.fileName, file, added: Date.now() },
+                    { from: "session" },
+                );
                 location.reload();
             } catch (error) {
                 setStep({

@@ -73,7 +73,7 @@ export function RemoteBadge({ remote }: { remote: Remote }) {
 }
 
 /** "bcdf12" → "BCDF-12": the code as it's typed, with its dash. */
-const formatTyped = (typed: string) => {
+export const formatTyped = (typed: string) => {
     const plain = typed
         .toUpperCase()
         .replace(/[^A-Z0-9]/g, "")
