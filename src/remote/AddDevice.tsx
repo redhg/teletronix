@@ -86,6 +86,7 @@ export function AddDevice({
     devices,
     screens,
     remove,
+    receiving,
 }: {
     program: string;
     /** The session's join code, once there's a session */
@@ -97,6 +98,8 @@ export function AddDevice({
     /** The screen a players' window is on, by its id */
     screens: (player: string) => string | null;
     remove: (player: string) => void;
+    /** How far the package has got to a players' window that's receiving it (0 to 1) */
+    receiving: (player: string) => number | null;
 }) {
     const addresses = useAddresses();
     const [chosen, setChosen] = useState(0);
@@ -198,6 +201,13 @@ export function AddDevice({
                                             <Text span c="dimmed">
                                                 {" "}
                                                 · on {screens(player)}
+                                            </Text>
+                                        )}
+                                        {receiving(player) !== null && (
+                                            <Text span c="dimmed">
+                                                {" "}
+                                                · getting the package:{" "}
+                                                {Math.round((receiving(player) ?? 0) * 100)}%
                                             </Text>
                                         )}
                                     </Text>

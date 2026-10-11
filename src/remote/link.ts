@@ -56,7 +56,13 @@ export function sessionLink(
     receive: (message: { type: string }) => void,
     status: (status: LinkStatus) => void = () => {},
     events: SessionEvents = {},
-): Link & { remove(player: string): void } {
+): Link & {
+    remove(player: string): void;
+    /** Sends a message to one player (from a GM) */
+    sendTo(player: string, message: object): void;
+    /** How much is still waiting to go out (bytes), for pacing a long send */
+    buffered(): number;
+} {
     let socket: WebSocket | null = null;
     let ready = false;
     let stopped = false;
@@ -136,6 +142,8 @@ export function sessionLink(
     return {
         // (lost while connecting; state is sent again soon anyway)
         send: (message) => say({ data: message }),
+        sendTo: (player, message) => say({ data: message, to: player }),
+        buffered: () => socket?.bufferedAmount ?? 0,
         remove: (player) => say({ relay: "remove", player }),
         close: () => {
             stopped = true;

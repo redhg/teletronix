@@ -39,6 +39,7 @@ import { newJoinCode, newSecret } from "./codes.ts";
 import { GONE_MS, HEARTBEAT_MS } from "./follow.ts";
 import { type Handout, handoutsOf } from "./handouts.ts";
 import { channelLink, type Link, type LinkStatus, randomId, sessionLink } from "./link.ts";
+import { answerFor, type ShareTarget, sendPackage } from "./packages-share.ts";
 import {
     BUILTIN_SOUNDS,
     type BuiltinSound,
@@ -98,11 +99,46 @@ export function GmApp({ name, program }: Props) {
         [send],
     );
 
+    // the session's link, to send one player something (e.g. the package)
+    const relay = useRef<ShareTarget | null>(null);
+    // packages going to players' windows that hadn't got them: how far each has got (0 to 1)
+    const [sharing, setSharing] = useState(new Map<string, number>());
+    const sharePackage = useCallback(
+        (message: PlayerMessage) => {
+            const link = relay.current;
+            if (message.type === "state" || !link) return;
+            const { player } = message;
+            if (message.type === "package-wanted") {
+                void answerFor(name, message.package).then((answer) =>
+                    link.sendTo(player, { ...answer, id: randomId() }),
+                );
+                return;
+            }
+            void answerFor(name, message.package).then((answer) => {
+                if (answer.type !== "package-offer") return;
+                setSharing((was) => new Map(was).set(player, 0));
+                void sendPackage(link, player, name, (sent, count) =>
+                    setSharing((was) => {
+                        const next = new Map(was);
+                        if (sent === count) next.delete(player);
+                        else next.set(player, sent / count);
+                        return next;
+                    }),
+                );
+            });
+        },
+        [name],
+    );
+
     const known = useRef(new Set<string>());
     const receive = useCallback(
         (message: { type: string }) => {
+            if (message.type === "package-wanted" || message.type === "package-accepted") {
+                sharePackage(message as PlayerMessage);
+                return;
+            }
             if (message.type !== "state") return;
-            const { player, state } = message as PlayerMessage;
+            const { player, state } = message as Extract<PlayerMessage, { type: "state" }>;
             // a new window gets the effects (and ambience) the panel has on
             if (!known.current.has(player)) {
                 known.current.add(player);
@@ -113,7 +149,7 @@ export function GmApp({ name, program }: Props) {
             }
             setPlayers((was) => new Map(was).set(player, { state, at: Date.now() }));
         },
-        [sendEffects, send],
+        [sendEffects, send, sharePackage],
     );
 
     // players' windows in this browser
@@ -153,10 +189,12 @@ export function GmApp({ name, program }: Props) {
             { players: setDevices, refused: setRefused },
         );
         links.current.set("relay", link);
+        relay.current = link;
         remove.current = link.remove;
         return () => {
             link.close();
             if (links.current.get("relay") === link) links.current.delete("relay");
+            if (relay.current === link) relay.current = null;
         };
     }, [name, session, receive]);
     const startSession = () => setSession({ code: newJoinCode(), secret: newSecret() });
@@ -634,6 +672,7 @@ export function GmApp({ name, program }: Props) {
                                         : null;
                                 }}
                                 remove={(player) => remove.current(player)}
+                                receiving={(player) => sharing.get(player) ?? null}
                             />
                             <Panel title="This computer">
                                 <Text size="sm" c="dimmed">

@@ -166,8 +166,14 @@ it in a browser (online, at <https://teletronix.net/>, too) or in the
   window, and playing [offline](#offline) all have it. The editor opens it too
   (`?edit&data=ttx:heist`), and downloads it when saved.
 - **On another device:** a package lives in the browser that opened it, so a device the GM's
-  QR code (or `&join`) opens doesn't have it: it says so, with a button to choose the package's
-  file there as well. (The desktop app serves a package it opened to other devices itself.)
+  QR code (or `&join`) opens may not have it. If the GM's panel is playing it, in a
+  [session](#from-another-device), the device asks the panel for it: it says what it is and how
+  big (e.g. `THE GM IS SHARING Heist.ttx (6.8 MB)`), and once the player chooses **Accept**, the
+  panel sends it there, through the session, and it plays (and stays, as one opened there). The
+  panel's **Devices** tab shows how far it's got. Nothing is stored anywhere on the way, so it
+  works for packages up to 50 MB; for a bigger one, or without a session, the device can
+  choose the package's file itself. (The desktop app serves a package it opened to other
+  devices itself.)
 
 ## Running Tape 7
 *Tape 7* (`?data=tape7`) is a short mystery, for one sitting. The players are the recovery crew of

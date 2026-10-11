@@ -39,6 +39,8 @@ interface Client {
     /** A players' window's id */
     player?: string;
     gm: boolean;
+    /** Its messages this while: since when, and how many */
+    sent?: { since: number; count: number };
 }
 
 interface Session {
@@ -61,6 +63,11 @@ export interface RelayOptions {
      */
     unlimited?: (address: string) => boolean;
     /**
+     * Messages a connection may send every `per` milliseconds, before it's closed (default
+     * 3,000 a minute: far beyond a game's, or sending a package, but not a runaway's)
+     */
+    messages?: number;
+    /**
      * Called when what a session needs kept changes (null once it's over), for a host that
      * forgets its sessions while they're quiet, to give back with `recall`
      */
@@ -78,6 +85,7 @@ export class RelayCore {
     private readonly now: () => number;
     private readonly unlimited: (address: string) => boolean;
     private readonly remember: (code: string, memory: SessionMemory | null) => void;
+    private readonly messages: number;
     /** Restoring connections: nothing's said, and no tries are counted */
     private quiet = false;
 
@@ -86,8 +94,10 @@ export class RelayCore {
         per = 60_000,
         unlimited = () => false,
         remember = () => {},
+        messages = 3000,
         now = Date.now,
     }: RelayOptions = {}) {
+        this.messages = messages;
         this.tries = tries;
         this.per = per;
         this.unlimited = unlimited;
@@ -166,7 +176,8 @@ export class RelayCore {
         }
         if (typeof message !== "object" || message === null) return;
         if ("data" in message) {
-            this.forward(client, message.data);
+            if (!this.paced(client)) return this.refuse(client, "too-many");
+            this.forward(client, message.data, message.to);
             return;
         }
         switch (message.relay) {
@@ -236,11 +247,27 @@ export class RelayCore {
         }
     }
 
-    private forward(client: Client, data: unknown) {
+    /** Whether a connection may send another message (and counts this one). */
+    private paced(client: Client): boolean {
+        if (this.quiet) return true;
+        const now = this.now();
+        if (!client.sent || now - client.sent.since >= this.per) {
+            client.sent = { since: now, count: 0 };
+        }
+        client.sent.count++;
+        return client.sent.count <= this.messages;
+    }
+
+    private forward(client: Client, data: unknown, player?: unknown) {
         const session = client.session;
         if (!session) return;
         const text = JSON.stringify({ data } satisfies FromRelay);
-        const to = client.gm ? session.players : session.gms;
+        // (a GM's, to every player, or one; a player's, to the GMs)
+        const to = client.gm
+            ? [...session.players].filter(
+                  (other) => player === undefined || other.player === player,
+              )
+            : session.gms;
         for (const other of to) other.connection.send(text);
     }
 

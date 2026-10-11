@@ -56,7 +56,15 @@ export type GmMessage =
     /** A message, typed into a dialog. */
     | { type: "transmit"; text: string; dismiss?: string; alert?: boolean }
     /** Closes the open dialog, as if answered "no". */
-    | { type: "close-dialog" };
+    | { type: "close-dialog" }
+    /**
+     * To a players' window without the GM's package (see packages-share.ts): what it is, to
+     * accept or not; or why the GM can't share it.
+     */
+    | { type: "package-offer"; package: string; fileName: string; size: number }
+    | { type: "package-unavailable"; package: string; reason: "not-shared" | "too-big" }
+    /** A piece of the package, as base64, once accepted. */
+    | { type: "package-piece"; package: string; index: number; count: number; data: string };
 
 /**
  * A message from the panel as sent: with an id, so a terminal that gets it twice (from the
@@ -75,12 +83,15 @@ export const BUILTIN_SOUNDS = {
 export type BuiltinSound = keyof typeof BUILTIN_SOUNDS;
 
 /** From a players' terminal to the panel. */
-export interface PlayerMessage {
-    type: "state";
-    /** Which players' window it is (there can be more than one) */
-    player: string;
-    state: PlayerState;
-}
+export type PlayerMessage =
+    | {
+          type: "state";
+          /** Which players' window it is (there can be more than one) */
+          player: string;
+          state: PlayerState;
+      }
+    /** A players' window without the GM's package asks about it, then accepts it. */
+    | { type: "package-wanted" | "package-accepted"; player: string; package: string };
 
 /** Whether something received is a message of ours, with a type. */
 export const isMessage = (data: unknown): data is { type: string } =>

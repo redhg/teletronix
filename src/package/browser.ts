@@ -72,7 +72,9 @@ export async function packageAddresses(pkg: BrowserPackage): Promise<Map<string,
     const addresses = new Map<string, string>();
     for (const path of pkg.files) {
         const file = await pkg.file(path);
-        if (file) addresses.set(`data/${path}`, URL.createObjectURL(file));
+        // (named after the #, which loading ignores: a program's type of file, video or image,
+        // goes by the end of its address, e.g. ".mp4", which a blob: address hasn't got)
+        if (file) addresses.set(`data/${path}`, `${URL.createObjectURL(file)}#${encodeURI(path)}`);
     }
     return addresses;
 }

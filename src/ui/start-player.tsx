@@ -3,7 +3,8 @@ import type { Root } from "react-dom/client";
 import { type Program, Terminal } from "../engine/index.ts";
 import { rememberProgram } from "../last-program.ts";
 import { acceptPackages, choosePackage } from "../package/open.ts";
-import { followRemote } from "../remote/follow.ts";
+import { cleanJoinCode } from "../remote/codes.ts";
+import { followRemote, savedJoinCode } from "../remote/follow.ts";
 import { AnimationFrameTicker } from "./animation-frame-ticker.ts";
 import { applyAppearance, followPixelRatio, loadFont } from "./appearance.ts";
 import { ErrorView } from "./ErrorView.tsx";
@@ -38,7 +39,24 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
 
     // a package (.ttx) dropped on the page, or chosen with Cmd/Ctrl+O, plays here
     acceptPackages();
-    const result = await loadProgram(params.get("data") ?? "sample");
+    const name = params.get("data") ?? "sample";
+    const result = await loadProgram(name);
+    // a package this browser hasn't got, in a GM's session: asked of the GM
+    const joining = params.has("join") || params.has("remote");
+    if (!result.ok && result.missingPackage && joining) {
+        const { ReceivePackage } = await import("../remote/ReceivePackage.tsx");
+        const given = cleanJoinCode(params.get("join") || params.get("remote") || "");
+        root.render(
+            <StrictMode>
+                <ReceivePackage
+                    program={name}
+                    id={result.missingPackage}
+                    code={given ?? savedJoinCode(name)}
+                />
+            </StrictMode>,
+        );
+        return;
+    }
     if (!result.ok) {
         root.render(
             <ErrorView
@@ -76,7 +94,7 @@ export async function startPlayer(root: Root, params: URLSearchParams): Promise<
     keepSaved(terminal);
     // a GM's panel (`&gm`) in another window can control it, and with `&join`, one on
     // another device too
-    const remote = followRemote(terminal, params.get("data") ?? "sample", {
+    const remote = followRemote(terminal, name, {
         // (`&remote` too, as it was called before sessions)
         join: params.has("join") || params.has("remote"),
         // `&join=BCDF-1234` joins the session that showed it (e.g. in a QR code)

@@ -11,8 +11,8 @@ export type ToRelay =
     | { relay: "join"; code: string; player: string }
     /** The GM takes a players' window out of the session. */
     | { relay: "remove"; player: string }
-    /** A message for the other side. */
-    | { data: unknown };
+    /** A message for the other side: from a GM, to every player, or one (`to`). */
+    | { data: unknown; to?: string };
 
 /** Why the relay wouldn't have a browser in a session. */
 export type Refusal =
@@ -20,7 +20,7 @@ export type Refusal =
     | "taken"
     /** It isn't a code, or isn't a secret. */
     | "invalid"
-    /** Too many tries from this address in a while. */
+    /** Too many tries from this address in a while (or messages, from this connection). */
     | "too-many"
     /** The GM took this window out. */
     | "removed";

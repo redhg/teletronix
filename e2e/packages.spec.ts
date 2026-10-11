@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { Browser } from "@playwright/test";
 import { expect, type Page, test } from "./fixtures.ts";
 
 // Packages (.ttx) in the browser: opened (chosen, or dropped on the page), kept for a reload
@@ -188,5 +189,94 @@ test.describe("a package", () => {
         expect(kept).toHaveLength(10);
         expect(kept).not.toContain("heist-1");
         expect(kept).toContain("heist-11");
+    });
+
+    test.describe("shared by the GM, through the session", () => {
+        /** A GM, in a browser of its own, playing the package, with a session started. */
+        async function gmWithPackage(browser: Browser): Promise<{ gm: Page; code: string }> {
+            const gm = await (await browser.newContext()).newPage();
+            await gm.goto("./?data=sample#home");
+            await choose(gm);
+            await expect(gm.locator(".screen")).toContainText("THE VAULT IS OPEN.");
+            await gm.goto("./?data=ttx:The-Heist&gm");
+            await gm.getByRole("button", { name: "Start a session" }).click();
+            await expect(gm.locator(".gm-pairing")).toContainText("Connected");
+            const code = (await gm.locator(".gm-pairing strong").innerText()).trim();
+            return { gm, code };
+        }
+
+        test("reaches a player who accepts it, who then plays it in the session", async ({
+            page,
+            browser,
+        }) => {
+            const { gm, code } = await gmWithPackage(browser);
+            // (the players' device, as the GM's QR code opens it)
+            await page.goto(`./?data=ttx:The-Heist&join=${code}`);
+            const view = page.locator(".receive-package");
+            await expect(view).toContainText(`THE PACKAGE "The-Heist" ISN'T IN THIS BROWSER`);
+            await expect(view).toContainText(/THE GM IS SHARING The Heist\.ttx \(\d+ KB\)/);
+            await view.getByRole("button", { name: "> ACCEPT" }).click();
+            await expect(page.locator(".screen")).toContainText("THE VAULT IS OPEN.");
+            await expect(page.locator(".bitmap canvas")).toBeVisible();
+            await expect(page.locator(".remote-badge")).toContainText(
+                `SESSION ${code} · GM CONNECTED`,
+            );
+            await expect(gm.getByRole("status").first()).toContainText("Players on HOME");
+            await gm.context().close();
+        });
+
+        test("asks for the session's code, if the address hasn't got it", async ({
+            page,
+            browser,
+        }) => {
+            const { gm, code } = await gmWithPackage(browser);
+            await page.goto("./?data=ttx:The-Heist&join");
+            const view = page.locator(".receive-package");
+            await view.getByRole("textbox", { name: "Session code" }).fill(code.toLowerCase());
+            await view.getByRole("button", { name: "> ASK THE GM FOR IT" }).click();
+            await view.getByRole("button", { name: "> ACCEPT" }).click();
+            await expect(page.locator(".screen")).toContainText("THE VAULT IS OPEN.");
+            await gm.context().close();
+        });
+
+        test("arrives whole, in many pieces: Tape 7's, with its videos", async ({
+            page,
+            browser,
+        }) => {
+            test.slow();
+            const tape7 = join(folder, "Tape 7.ttx");
+            execFileSync("node", ["scripts/package.ts", "public/data/tape7.json", tape7]);
+            const gm = await (await browser.newContext()).newPage();
+            await gm.goto("./?data=sample#home");
+            await choose(gm, tape7);
+            await gm.waitForURL(/data=ttx:Tape-7$/);
+            await gm.goto("./?data=ttx:Tape-7&gm");
+            await gm.getByRole("button", { name: "Start a session" }).click();
+            await expect(gm.locator(".gm-pairing")).toContainText("Connected");
+            const code = (await gm.locator(".gm-pairing strong").innerText()).trim();
+
+            await page.goto(`./?data=ttx:Tape-7&join=${code}#tapes`);
+            const view = page.locator(".receive-package");
+            await expect(view).toContainText(/THE GM IS SHARING Tape 7\.ttx \(6\.\d MB\)/);
+            await view.getByRole("button", { name: "> ACCEPT" }).click();
+            await expect(page.locator(".screen")).toContainText("TAPE 01", { timeout: 30_000 });
+            // (a video from inside it plays)
+            await page.getByRole("button", { name: "> TAPE 01 · ARRIVAL" }).click();
+            const video = page.getByRole("dialog", { name: "Video" }).locator("video");
+            await expect(video).toHaveAttribute("src", /^blob:.*#tape7\/tape01\.mp4$/);
+            await expect
+                .poll(() => video.evaluate((element: HTMLVideoElement) => element.readyState))
+                .toBeGreaterThan(0);
+            await gm.context().close();
+        });
+
+        test("says so when the GM isn't playing that package", async ({ page, browser }) => {
+            const { gm, code } = await gmWithPackage(browser);
+            await page.goto(`./?data=ttx:Another-Heist&join=${code}`);
+            await expect(page.locator(".receive-package")).toContainText(
+                "THE GM ISN'T PLAYING THIS PACKAGE.",
+            );
+            await gm.context().close();
+        });
     });
 });

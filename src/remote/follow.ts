@@ -75,7 +75,7 @@ export interface Remote {
 /** The session a program joined on this device, kept so it joins again after a reload. */
 const joinKey = (program: string) => `teletronix:join-code:${program}`;
 
-function savedJoinCode(program: string): string | null {
+export function savedJoinCode(program: string): string | null {
     try {
         return cleanJoinCode(localStorage.getItem(joinKey(program)) ?? "");
     } catch {
@@ -83,7 +83,7 @@ function savedJoinCode(program: string): string | null {
     }
 }
 
-function rememberJoinCode(program: string, code: string | null) {
+export function rememberJoinCode(program: string, code: string | null) {
     try {
         if (code) localStorage.setItem(joinKey(program), code);
         else localStorage.removeItem(joinKey(program));

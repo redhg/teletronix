@@ -61,6 +61,33 @@ describe("the relay", () => {
         expect(two.data()).toHaveLength(1);
     });
 
+    it("lets a GM send to one player, and limits how much a connection sends", () => {
+        let now = 0;
+        const relay = new RelayCore({ messages: 3, per: 60_000, now: () => now });
+        const panel = gm(relay);
+        const one = player(relay, "p1");
+        const two = player(relay, "p2");
+        panel.say({ data: "for one", to: "p1" });
+        expect(one.data()).toEqual(["for one"]);
+        expect(two.data()).toEqual([]);
+        // (a player can't choose who hears it: always the GMs)
+        one.say({ data: "up", to: "p2" });
+        expect(two.data()).toEqual([]);
+        expect(panel.data()).toEqual(["up"]);
+
+        panel.say({ data: 2 });
+        panel.say({ data: 3 });
+        panel.say({ data: 4 });
+        expect(panel.last()).toEqual({ relay: "refused", reason: "too-many" });
+        expect(panel.closed).toBe(true);
+        expect(one.data()).toEqual(["for one", 2, 3]);
+        // (another connection, its own count; and a new while, a new count)
+        now = 60_000;
+        const again = gm(relay);
+        again.say({ data: 5 });
+        expect(one.data()).toEqual(["for one", 2, 3, 5]);
+    });
+
     it("keeps sessions apart", () => {
         const relay = new RelayCore();
         const panel = gm(relay);

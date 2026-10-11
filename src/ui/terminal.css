@@ -231,3 +231,29 @@ button.control.alert:focus-visible {
 .effects > * {
     z-index: 2;
 }
+
+/* a package from the GM: its steps, as lines of text */
+.receive-package p,
+.receive-package form {
+    margin: 0 0 1lh;
+}
+
+.receive-package .error-action {
+    display: block;
+    margin: 0 0 1lh;
+}
+
+.receive-code {
+    padding: 0 0.5ch;
+    border: 0;
+    border-bottom: 1px solid var(--fg);
+    color: inherit;
+    background: none;
+    font: inherit;
+    text-shadow: inherit;
+}
+
+.receive-code:focus {
+    outline: none;
+    background: rgb(from var(--fg) r g b / 0.12);
+}
