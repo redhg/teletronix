@@ -775,8 +775,10 @@ export function GmApp({ name, program }: Props) {
                                 code={session?.code ?? null}
                                 start={startSession}
                             />
-                            {name.startsWith(PACKAGE_PREFIX) && sharesThroughCloud() && (
+                            {/* (online, whatever's playing: the key's for every package) */}
+                            {sharesThroughCloud() && (
                                 <Sharing
+                                    builtIn={!name.startsWith(PACKAGE_PREFIX)}
                                     uploadKey={uploadKey}
                                     change={(key) => {
                                         rememberUploadKey(key);

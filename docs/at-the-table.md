@@ -187,7 +187,8 @@ it in a browser (online, at <https://teletronix.net/>, too) or in the
   choose the package's file itself.
 - **Faster, with an upload key:** online, a GM with an upload key (from whoever runs
   Teletronix's relay: `npm run relay:key -- add "Name"` makes one) puts it in the panel's
-  **Devices → Sharing**. The package then goes through Cloudflare: uploaded once, when a device
+  **Devices → Sharing**, in any program's panel online (it's kept in that browser, for every
+  package). The package then goes through Cloudflare: uploaded once, when a device
   first asks for it, downloaded by the players who accept it, and deleted when the session ends
   (or a day after, whatever happens). Up to 50 MB a package, and 500 MB a day a key. Should
   anything fail (a key that's been taken back, say), it goes through the session instead, and

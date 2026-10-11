@@ -161,10 +161,13 @@ export function Players({
  * an upload key (from whoever runs Teletronix's relay), through Cloudflare: faster.
  */
 export function Sharing({
+    builtIn,
     uploadKey,
     change,
     problem,
 }: {
+    /** Whether the program's one of Teletronix's own (every device has it: nothing to share) */
+    builtIn: boolean;
     uploadKey: string;
     change: (key: string) => void;
     problem: string | null;
@@ -173,8 +176,8 @@ export function Sharing({
     return (
         <Panel title="Sharing">
             <Text size="sm" c="dimmed">
-                A players' device without this package gets it from the panel when it joins: through
-                the session, or, with an upload key, through Cloudflare (faster).
+                When you play a package, a players' device without it gets it from the panel as it
+                joins: through the session, or, with an upload key, through Cloudflare (faster).
             </Text>
             <Group gap="xs" align="end">
                 <PasswordInput
@@ -201,11 +204,13 @@ export function Sharing({
                 )}
             </Group>
             <Text size="sm" c={problem ? "red" : "dimmed"} role="status">
-                {problem
-                    ? `Can't upload it (${problem}): it goes through the session instead.`
-                    : uploadKey
-                      ? "It goes through Cloudflare, uploaded when a device first asks for it."
-                      : "It goes through the session."}
+                {builtIn
+                    ? "This program comes with Teletronix, so there's nothing to share; your key is used for your packages."
+                    : problem
+                      ? `Can't upload it (${problem}): it goes through the session instead.`
+                      : uploadKey
+                        ? "It goes through Cloudflare, uploaded when a device first asks for it."
+                        : "It goes through the session."}
             </Text>
         </Panel>
     );
