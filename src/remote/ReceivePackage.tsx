@@ -3,6 +3,7 @@ import { readPackage } from "../package/browser.ts";
 import { choosePackage } from "../package/open.ts";
 import { putPackage } from "../package/store.ts";
 import "../ui/terminal.css";
+import { downloadPackage } from "./cloud-packages.ts";
 import { cleanJoinCode, randomId } from "./codes.ts";
 import { rememberJoinCode } from "./follow.ts";
 import { sessionLink } from "./link.ts";
@@ -41,6 +42,9 @@ export function ReceivePackage({
     const [code, setCode] = useState(given);
     const [step, setStep] = useState<Step>(given ? { step: "asking" } : { step: "code" });
     const send = useRef<(message: PlayerMessage) => void>(() => {});
+    // (keeps the package once it's whole, however it came)
+    const keep = useRef<(file: Blob) => Promise<void>>(async () => {});
+    const offer = useRef<{ fileName: string; url?: string }>({ fileName: `${id}.ttx` });
     const player = useRef(randomId());
 
     useEffect(() => {
@@ -50,9 +54,8 @@ export function ReceivePackage({
         const arrival = new PackageArrival();
         let offered = { fileName: `${id}.ttx`, size: 0 };
         const ask = () => link.send({ type: "package-wanted", player: me, package: id });
-        const finish = async () => {
+        const finish = async (file: Blob = arrival.blob()) => {
             try {
-                const file = arrival.blob();
                 await readPackage(file, offered.fileName);
                 // (listed as from a session: its title mustn't show on a player's screens)
                 await putPackage(
@@ -75,6 +78,10 @@ export function ReceivePackage({
                     case "package-offer":
                         if (message.package !== id) return;
                         offered = { fileName: message.fileName, size: message.size };
+                        offer.current = {
+                            fileName: message.fileName,
+                            ...(message.url ? { url: message.url } : {}),
+                        };
                         setStep({ step: "offered", ...offered });
                         return;
                     case "package-unavailable":
@@ -107,13 +114,27 @@ export function ReceivePackage({
             },
         );
         send.current = (message) => link.send(message);
+        keep.current = finish;
         return () => link.close();
     }, [code, id, program]);
 
     const accept = () => {
         if (step.step !== "offered") return;
-        setStep({ step: "receiving", fileName: step.fileName, progress: 0 });
-        send.current({ type: "package-accepted", player: player.current, package: id });
+        const { fileName } = step;
+        setStep({ step: "receiving", fileName, progress: 0 });
+        const throughSession = () =>
+            send.current({ type: "package-accepted", player: player.current, package: id });
+        // from Cloudflare, if the GM shared it there; through the session if not (or if that
+        // fails)
+        const { url } = offer.current;
+        if (!url) return throughSession();
+        downloadPackage(url, (progress) => setStep({ step: "receiving", fileName, progress })).then(
+            (file) => keep.current(file),
+            () => {
+                setStep({ step: "receiving", fileName, progress: 0 });
+                throughSession();
+            },
+        );
     };
 
     return (

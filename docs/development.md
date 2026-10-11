@@ -51,7 +51,10 @@ Every new feature gets tests.
   serves it over WebSockets (`websocket.ts`, with no library) in Vite's servers and the desktop
   app; `cloudflare.ts` on Cloudflare, for sessions over the internet: a Durable Object for each
   session, whose WebSockets sleep while quiet (`wrangler.toml`; `npm run relay:dev` runs it
-  locally, `npm run relay:deploy` publishes it, after `npx wrangler login`). Which relay a page
+  locally, `npm run relay:deploy` publishes it, after `npx wrangler login`); beside it,
+  `packages.ts`: packages GMs with a key share, in R2 (the `teletronix-packages` bucket,
+  private, deleting what's a day old), keys kept by fingerprint in Workers KV (`GM_KEYS`;
+  `npm run relay:key -- add | list | remove` manages them, `scripts/gm-keys.ts`). Which relay a page
   uses: `src/remote/relay-address.ts` (its own on this computer or its network; the internet's
   anywhere else). What browsers and the relay say to each other:
   `src/remote/relay-protocol.ts`. Over a relay, heartbeats don't flow: it says who's there,

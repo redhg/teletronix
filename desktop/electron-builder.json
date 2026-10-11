@@ -16,6 +16,7 @@
         "relay/*.ts",
         "!relay/*.test.ts",
         "!relay/cloudflare.ts",
+        "!relay/packages.ts",
         "scripts/editor-save.ts",
         "scripts/zip.ts",
         "scripts/ttx.ts",

@@ -184,7 +184,14 @@ it in a browser (online, at <https://teletronix.net/>, too) or in the
   panel sends it there, through the session, and it plays (and stays, as one opened there). The
   panel's **Devices** tab shows how far it's got. Nothing is stored anywhere on the way, so it
   works for packages up to 50 MB; for a bigger one, or without a session, the device can
-  choose the package's file itself. (The desktop app serves a package it opened to other
+  choose the package's file itself.
+- **Faster, with an upload key:** online, a GM with an upload key (from whoever runs
+  Teletronix's relay: `npm run relay:key -- add "Name"` makes one) puts it in the panel's
+  **Devices → Sharing**. The package then goes through Cloudflare: uploaded once, when a device
+  first asks for it, downloaded by the players who accept it, and deleted when the session ends
+  (or a day after, whatever happens). Up to 50 MB a package, and 500 MB a day a key. Should
+  anything fail (a key that's been taken back, say), it goes through the session instead, and
+  the panel says why. (The desktop app serves a package it opened to other
   devices itself.)
 
 ## Running Tape 7

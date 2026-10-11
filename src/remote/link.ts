@@ -135,6 +135,10 @@ export function sessionLink(
         };
     };
     connect();
+    // (a page that's going says goodbye itself, so the other side hears it at once: a browser
+    // closing a tab may just drop the connection, which the relay only notices later)
+    const goodbye = () => socket?.close();
+    addEventListener("pagehide", goodbye);
 
     const say = (message: ToRelay) => {
         if (ready && socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify(message));
@@ -147,6 +151,7 @@ export function sessionLink(
         remove: (player) => say({ relay: "remove", player }),
         close: () => {
             stopped = true;
+            removeEventListener("pagehide", goodbye);
             clearTimeout(retry);
             clearInterval(keepAlive);
             socket?.close();

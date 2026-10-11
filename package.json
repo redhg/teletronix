@@ -26,6 +26,7 @@
         "desktop": "vite build && node desktop/run.ts",
         "relay:dev": "wrangler dev",
         "relay:deploy": "wrangler deploy",
+        "relay:key": "node scripts/gm-keys.ts",
         "test:desktop": "vite build && playwright test --config desktop/playwright.config.ts",
         "desktop:build": "npm run build && electron-builder --config desktop/electron-builder.json"
     },

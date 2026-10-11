@@ -61,7 +61,14 @@ export type GmMessage =
      * To a players' window without the GM's package (see packages-share.ts): what it is, to
      * accept or not; or why the GM can't share it.
      */
-    | { type: "package-offer"; package: string; fileName: string; size: number }
+    | {
+          type: "package-offer";
+          package: string;
+          fileName: string;
+          size: number;
+          /** Where to download it from, if the GM shared it through Cloudflare (with a key) */
+          url?: string;
+      }
     | { type: "package-unavailable"; package: string; reason: "not-shared" | "too-big" }
     /**
      * To a window joining by a code alone (the start page): the program the panel's playing,

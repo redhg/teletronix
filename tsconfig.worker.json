@@ -8,6 +8,7 @@
     },
     "include": [
         "relay/cloudflare.ts",
+        "relay/packages.ts",
         "relay/core.ts",
         "src/remote/codes.ts",
         "src/remote/relay-protocol.ts"

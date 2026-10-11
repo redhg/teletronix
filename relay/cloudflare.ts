@@ -2,6 +2,7 @@ import { DurableObject } from "cloudflare:workers";
 import { isJoinCode } from "../src/remote/codes.ts";
 import { MAX_MESSAGE, type Refusal } from "../src/remote/relay-protocol.ts";
 import { type Connection, type Handler, RelayCore, type SessionMemory } from "./core.ts";
+import { type PackagesEnv, packages } from "./packages.ts";
 
 // The relay on Cloudflare (see wrangler.toml), for sessions over the internet: the same
 // sessions as the local relay's (relay/core.ts), one Durable Object each, named by its join
@@ -10,8 +11,9 @@ import { type Connection, type Handler, RelayCore, type SessionMemory } from "./
 // greeting it opened with, to take it back by when the session wakes.
 //
 //   GET /remote/socket?code=BCDF-1234   a WebSocket (see src/remote/relay-protocol.ts)
+//   /packages…                          packages GMs with a key share (see packages.ts)
 
-interface Env {
+interface Env extends PackagesEnv {
     SESSIONS: DurableObjectNamespace<SessionRelay>;
     /** Tries at opening or joining, by address (see wrangler.toml) */
     TRIES: RateLimit;
@@ -38,6 +40,26 @@ function refusal(reason: Refusal): Response {
 export default {
     async fetch(request: Request, env: Env): Promise<Response> {
         const url = new URL(request.url);
+        const allowed = env.ORIGINS.split(",").map((each) => each.trim());
+        const origin = request.headers.get("Origin");
+        if (url.pathname === "/packages" || url.pathname.startsWith("/packages/")) {
+            // (Teletronix's own pages may use them from a browser; no other site's may)
+            if (origin !== null && !allowed.includes(origin)) {
+                return new Response(null, { status: 403 });
+            }
+            const cors: HeadersInit = origin
+                ? {
+                      "Access-Control-Allow-Origin": origin,
+                      "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+                      "Access-Control-Allow-Headers": "Authorization, Content-Type",
+                      "Access-Control-Max-Age": "86400",
+                      Vary: "Origin",
+                  }
+                : {};
+            if (request.method === "OPTIONS")
+                return new Response(null, { status: 204, headers: cors });
+            return packages(request, env, cors);
+        }
         if (url.pathname !== "/remote/socket") {
             return new Response("Teletronix's relay: https://teletronix.net/\n", { status: 404 });
         }
@@ -45,8 +67,6 @@ export default {
             return new Response(null, { status: 426 });
         }
         // (from Teletronix's own pages; a browser always says where it's from)
-        const origin = request.headers.get("Origin");
-        const allowed = env.ORIGINS.split(",").map((each) => each.trim());
         if (origin !== null && !allowed.includes(origin)) {
             return new Response(null, { status: 403 });
         }

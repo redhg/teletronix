@@ -1,4 +1,5 @@
-import { Badge, Button, Group, Select, Stack, Text, TextInput } from "@mantine/core";
+import { Badge, Button, Group, PasswordInput, Select, Stack, Text, TextInput } from "@mantine/core";
+import { useState } from "react";
 import { Panel } from "../mantine/Panel.tsx";
 
 // Players' windows, one by one: who the GM's panel sends to (every one, or one, e.g. a private
@@ -93,7 +94,13 @@ export function Players({
                     {windows.map((window, index) => {
                         const progress = receiving(window.id);
                         return (
-                            <Group key={window.id} gap="xs" wrap="nowrap" justify="space-between">
+                            <Group
+                                key={window.id}
+                                gap="xs"
+                                wrap="nowrap"
+                                justify="space-between"
+                                data-screen={screenOf(window.id) ?? undefined}
+                            >
                                 <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
                                     <TextInput
                                         size="xs"
@@ -145,6 +152,61 @@ export function Players({
                     })}
                 </Stack>
             )}
+        </Panel>
+    );
+}
+
+/**
+ * How the package reaches players' devices that haven't got it: through the session, or, with
+ * an upload key (from whoever runs Teletronix's relay), through Cloudflare: faster.
+ */
+export function Sharing({
+    uploadKey,
+    change,
+    problem,
+}: {
+    uploadKey: string;
+    change: (key: string) => void;
+    problem: string | null;
+}) {
+    const [typed, setTyped] = useState(uploadKey);
+    return (
+        <Panel title="Sharing">
+            <Text size="sm" c="dimmed">
+                A players' device without this package gets it from the panel when it joins: through
+                the session, or, with an upload key, through Cloudflare (faster).
+            </Text>
+            <Group gap="xs" align="end">
+                <PasswordInput
+                    size="xs"
+                    label="Upload key"
+                    placeholder="ttx_…"
+                    value={typed}
+                    onChange={(event) => setTyped(event.currentTarget.value.trim())}
+                    onBlur={() => change(typed)}
+                    autoComplete="off"
+                    style={{ flex: 1 }}
+                />
+                {uploadKey && (
+                    <Button
+                        size="xs"
+                        variant="subtle"
+                        onClick={() => {
+                            setTyped("");
+                            change("");
+                        }}
+                    >
+                        Forget it
+                    </Button>
+                )}
+            </Group>
+            <Text size="sm" c={problem ? "red" : "dimmed"} role="status">
+                {problem
+                    ? `Can't upload it (${problem}): it goes through the session instead.`
+                    : uploadKey
+                      ? "It goes through Cloudflare, uploaded when a device first asks for it."
+                      : "It goes through the session."}
+            </Text>
         </Panel>
     );
 }

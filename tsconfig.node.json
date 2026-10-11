@@ -7,5 +7,5 @@
     },
     "include": ["vite.config.ts", "scripts", "desktop", "relay"],
     // (the relay on Cloudflare has its own: tsconfig.worker.json)
-    "exclude": ["relay/cloudflare.ts"]
+    "exclude": ["relay/cloudflare.ts", "relay/packages.ts"]
 }

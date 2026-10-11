@@ -426,9 +426,10 @@ test.describe("over the network", () => {
         await expect(gm.getByRole("status").first()).toContainText("Players on HOME");
         await expect(badge).toContainText("GM CONNECTED");
 
-        // and when the GM goes, the player knows at once
+        // and when the GM goes (its page left, which says goodbye), the player knows at once
+        await gm.goto("about:blank");
+        await expect(badge).toContainText("WAITING FOR GM", { timeout: 5000 });
         await device.close();
-        await expect(badge).toContainText("WAITING FOR GM", { timeout: 2000 });
     });
 
     test("lets the GM take a device out of the session", async ({ page, player, browser }) => {
@@ -528,16 +529,19 @@ test.describe("one player at a time", () => {
         await player.open(program);
         const second = await page.context().newPage();
         await second.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
-        await second.goto("./?data=e2e");
-        await expect(second.locator(".screen")).toContainText("HOME SCREEN");
+        await second.goto("./?data=e2e#engine");
+        await expect(second.locator(".screen")).toContainText("ENGINE SCREEN");
 
         const gm = await openGm(page);
         await expect(gm.getByRole("status").first()).toContainText("2 windows");
-        // the second, named in the Devices tab
+        // the second, named in the Devices tab (found by its screen: the panel numbers windows
+        // as they first report in, which can be either first)
         await tab(gm, "Devices");
         const players = gm.getByRole("region", { name: "Players", exact: true });
-        await players.getByRole("textbox", { name: "Name of player 2" }).fill("Engineer");
-        await players.getByRole("textbox", { name: "Name of player 2" }).press("Enter");
+        const row = players.locator('[data-screen="ENGINE ROOM"]');
+        const engineerName = row.getByRole("textbox", { name: /^Name of player/ });
+        await engineerName.fill("Engineer");
+        await engineerName.press("Enter");
 
         // only to the engineer
         await gm.getByRole("combobox", { name: "Send to" }).click();
@@ -563,10 +567,12 @@ test.describe("one player at a time", () => {
         await tab(gm, "Screens");
         await gm.getByRole("button", { name: /^HOME/ }).click();
         await expect(second.locator(".screen")).toContainText("HOME SCREEN");
+        await expect(player.screen).toContainText("HOME SCREEN");
 
         // the engineer, after a reload: the same window, the same name
         await second.reload();
-        await expect(second.locator(".screen")).toContainText("HOME SCREEN");
+        // (its address's #engine starts it there again)
+        await expect(second.locator(".screen")).toContainText("ENGINE SCREEN");
         await gm.getByRole("combobox", { name: "Send to" }).click();
         await expect(gm.getByRole("option", { name: "Only to Engineer" })).toBeVisible();
     });

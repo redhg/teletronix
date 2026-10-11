@@ -27,3 +27,14 @@ new_sqlite_classes = ["SessionRelay"]
 name = "TRIES"
 namespace_id = "1001"
 simple = { limit = 30, period = 60 }
+
+# Packages GMs with a key share through Cloudflare (see scripts/gm-keys.ts): their keys, by
+# fingerprint, and the packages themselves (private, deleted after a day: see the bucket's
+# lifecycle rule)
+[[kv_namespaces]]
+binding = "GM_KEYS"
+id = "57849786863244839d4170e8ef4201aa"
+
+[[r2_buckets]]
+binding = "PACKAGES"
+bucket_name = "teletronix-packages"

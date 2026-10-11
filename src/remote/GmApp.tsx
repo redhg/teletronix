@@ -35,12 +35,21 @@ import { type CommandGroup, Palette, PaletteButton } from "../mantine/Palette.ts
 import { Panel } from "../mantine/Panel.tsx";
 import { ScreenTree } from "../mantine/ScreenTree.tsx";
 import { Version } from "../mantine/Version.tsx";
+import { PACKAGE_PREFIX } from "../package/store.ts";
 import { AddDevice } from "./AddDevice.tsx";
+import {
+    deleteUpload,
+    rememberUploadKey,
+    savedUploadKey,
+    sharesThroughCloud,
+    type Uploaded,
+    uploadPackage,
+} from "./cloud-packages.ts";
 import { newJoinCode, newSecret } from "./codes.ts";
 import { GONE_MS, HEARTBEAT_MS } from "./follow.ts";
 import { type Handout, handoutsOf } from "./handouts.ts";
 import { channelLink, type Link, type LinkStatus, randomId, sessionLink } from "./link.ts";
-import { Players, SendTo } from "./Players.tsx";
+import { Players, SendTo, Sharing } from "./Players.tsx";
 import { answerFor, type ShareTarget, sendPackage } from "./packages-share.ts";
 import {
     BUILTIN_SOUNDS,
@@ -123,15 +132,53 @@ export function GmApp({ name, program }: Props) {
     const relay = useRef<ShareTarget | null>(null);
     // packages going to players' windows that hadn't got them: how far each has got (0 to 1)
     const [sharing, setSharing] = useState(new Map<string, number>());
+    // with an upload key (online), the package goes through Cloudflare: uploaded once, when a
+    // player first asks for it, and deleted when the session ends
+    const [uploadKey, setUploadKey] = useState(savedUploadKey);
+    const uploadKeyRef = useRef(uploadKey);
+    uploadKeyRef.current = uploadKey;
+    const [cloudProblem, setCloudProblem] = useState<string | null>(null);
+    const upload = useRef<{ key: string; uploaded: Promise<Uploaded> } | null>(null);
+    const forgetUpload = useCallback(() => {
+        const was = upload.current;
+        upload.current = null;
+        void was?.uploaded.then(({ id }) => deleteUpload(id, was.key)).catch(() => {});
+    }, []);
+    /** The package's upload, made once (null without a key, or offline). */
+    const uploaded = useCallback(async (): Promise<Uploaded | null> => {
+        const key = uploadKeyRef.current;
+        if (!key || !sharesThroughCloud()) return null;
+        if (upload.current?.key !== key) {
+            forgetUpload();
+            upload.current = { key, uploaded: uploadPackage(name, key) };
+        }
+        try {
+            const done = await upload.current.uploaded;
+            setCloudProblem(null);
+            return done;
+        } catch (error) {
+            upload.current = null;
+            setCloudProblem(error instanceof Error ? error.message : String(error));
+            return null;
+        }
+    }, [name, forgetUpload]);
+
     const sharePackage = useCallback(
         (message: PlayerMessage) => {
             const link = relay.current;
             if (message.type === "state" || message.type === "program-wanted" || !link) return;
             const { player } = message;
             if (message.type === "package-wanted") {
-                void answerFor(name, message.package).then((answer) =>
-                    link.sendTo(player, { ...answer, id: randomId() }),
-                );
+                void answerFor(name, message.package).then(async (answer) => {
+                    // (through Cloudflare, with a key; through the session, without, or if that
+                    // fails)
+                    const cloud = answer.type === "package-offer" ? await uploaded() : null;
+                    link.sendTo(player, {
+                        ...answer,
+                        ...(cloud ? { url: cloud.url } : {}),
+                        id: randomId(),
+                    });
+                });
                 return;
             }
             void answerFor(name, message.package).then((answer) => {
@@ -147,7 +194,7 @@ export function GmApp({ name, program }: Props) {
                 );
             });
         },
-        [name],
+        [name, uploaded],
     );
 
     const known = useRef(new Set<string>());
@@ -229,6 +276,11 @@ export function GmApp({ name, program }: Props) {
         };
     }, [name, session, receive]);
     const startSession = () => setSession({ code: newJoinCode(), secret: newSecret() });
+    // (a session's upload goes with it: when it ends, or the panel closes)
+    useEffect(() => {
+        if (!session) return;
+        return forgetUpload;
+    }, [session, forgetUpload]);
 
     // the players' windows in this browser know the panel's there, and it knows when they've
     // gone, by heartbeats through the channel (a session's relay says who's there itself)
@@ -723,6 +775,17 @@ export function GmApp({ name, program }: Props) {
                                 code={session?.code ?? null}
                                 start={startSession}
                             />
+                            {name.startsWith(PACKAGE_PREFIX) && sharesThroughCloud() && (
+                                <Sharing
+                                    uploadKey={uploadKey}
+                                    change={(key) => {
+                                        rememberUploadKey(key);
+                                        setUploadKey(key);
+                                        setCloudProblem(null);
+                                    }}
+                                    problem={cloudProblem}
+                                />
+                            )}
                             <Players
                                 windows={liveIds.map((id) => ({ id, name: nameOf(id) }))}
                                 screenOf={(player) => {

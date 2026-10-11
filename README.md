@@ -40,6 +40,7 @@ what happened at 03:14 (for the GM: [Running Tape 7](docs/at-the-table.md#runnin
 | `npm run desktop` | Open Teletronix as a desktop app (see [Desktop app](docs/at-the-table.md#desktop-app)) |
 | `npm run desktop:build` | Make the desktop app's installer for this computer, in `release/` |
 | `npm run relay:dev` / `npm run relay:deploy` | Run the relay for sessions over the internet locally, or publish it to Cloudflare (see [Development](docs/development.md#layout)) |
+| `npm run relay:key -- add <name>` | Make an upload key for a GM, to share packages through Cloudflare (`list`, `remove <name>`) |
 | `npm test` | Unit tests |
 | `npm run test:e2e` | Browser tests, in Chromium, Firefox and WebKit (see [Tests](docs/development.md#tests)) |
 | `npm run test:e2e:quick` | Browser tests in Chromium only: about a third of the time |
