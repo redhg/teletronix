@@ -18,6 +18,15 @@ test("teletronix.version names this build, from any page", async ({ page, player
     );
 });
 
+test("the GM's panel and the editor say which version they are", async ({ page }) => {
+    for (const address of ["./?data=sample&gm", "./?data=sample&edit"]) {
+        await page.goto(address);
+        const link = page.getByRole("link", { name: `v${version}` });
+        await expect(link).toHaveAttribute("href", "?version");
+        await expect(link).toHaveAttribute("title", new RegExp(`^Teletronix ${version} \\(`));
+    }
+});
+
 test.describe("?version", () => {
     test("says when this browser has the build that's online", async ({ page }) => {
         await page.goto("./?version");

@@ -34,6 +34,7 @@ import { ColorScheme } from "../mantine/ColorScheme.tsx";
 import { type CommandGroup, Palette, PaletteButton } from "../mantine/Palette.tsx";
 import { Panel } from "../mantine/Panel.tsx";
 import { ScreenTree } from "../mantine/ScreenTree.tsx";
+import { Version } from "../mantine/Version.tsx";
 import { AddDevice } from "./AddDevice.tsx";
 import { newJoinCode, newSecret } from "./codes.ts";
 import { GONE_MS, HEARTBEAT_MS } from "./follow.ts";
@@ -547,6 +548,7 @@ export function GmApp({ name, program }: Props) {
                             start={startSession}
                             end={() => setSession(null)}
                         />
+                        <Version />
                         <ColorScheme />
                     </Group>
                 </Group>

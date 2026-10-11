@@ -24,6 +24,7 @@ import { ColorScheme } from "../mantine/ColorScheme.tsx";
 import { MenuCaret } from "../mantine/MenuCaret.tsx";
 import { type CommandGroup, Palette, PaletteButton } from "../mantine/Palette.tsx";
 import { ScreenTree } from "../mantine/ScreenTree.tsx";
+import { Version } from "../mantine/Version.tsx";
 import {
     type AppearanceSettings,
     isPreviewMessage,
@@ -663,6 +664,7 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                                 ⟲
                             </ActionIcon>
                         </Tooltip>
+                        <Version />
                         <ColorScheme />
                     </Group>
                 </Group>

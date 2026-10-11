@@ -394,6 +394,21 @@ if (!app.requestSingleInstanceLock()) {
             app.quit();
             return;
         }
+        // (its About box: the version and commit of the Teletronix it serves)
+        try {
+            const build = JSON.parse(await readFile(join(appFolder, "version.json"), "utf8")) as {
+                version: string;
+                commit: string;
+            };
+            app.setAboutPanelOptions({
+                applicationName: "Teletronix",
+                applicationVersion: build.version,
+                version: build.commit,
+                website: "https://teletronix.net/",
+            });
+        } catch {
+            // (a build without one: Electron's own)
+        }
         if (process.platform === "darwin" && !app.isPackaged) {
             app.dock?.setIcon(nativeImage.createFromPath(join(appFolder, "icons/icon-512.png")));
         }
