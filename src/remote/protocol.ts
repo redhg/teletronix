@@ -75,7 +75,11 @@ export type GmMessage =
  * A message from the panel as sent: with an id, so a terminal that gets it twice (from the
  * same browser and over the network) carries it out once.
  */
-export type GmEnvelope = GmMessage & { id: string };
+export type GmEnvelope = GmMessage & {
+    id: string;
+    /** For one players' window only, by its id (the others leave it); for every one, without */
+    to?: string;
+};
 
 /** Teletronix's own sounds a GM can play. */
 export const BUILTIN_SOUNDS = {

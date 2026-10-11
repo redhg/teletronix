@@ -67,8 +67,17 @@ The rest is in tabs (<left> and <right> move between them, and the panel opens a
   follows, as if an action had set it. And each timer's time, with Start, Stop and Reset.
 - **Effects:** turns any effect on or off over what the program and screen say, or back to
   what they say, and sends a **burst of static**.
-- **Devices:** a QR code for a players' device (see below), and a button to open a players'
-  window on this computer.
+- **Devices:** a QR code for a players' device (see below), a button to open a players'
+  window on this computer, and **Players**: every players' window, in this browser or the
+  session, with the screen it's on. Name each (e.g. "Engineer"; it keeps its name through a
+  reload), and send to one alone with **Only to them**.
+
+**One player at a time.** With more than one players' window, **Send to** (at the top) chooses
+who the panel's for: everyone, or one. While it's one, an orange **Only to ENGINEER** says so,
+and everything the panel does goes to that window alone (a screen, a message, a handout, a
+sound, effects, a pause: a private screen for the engineer, say), and the panel shows that
+window's screen and state. **Everyone** goes back to all of them. Windows that are apart show
+as "Players on various screens".
 
 **Cmd/Ctrl+K** (or **Commands…**) opens a command palette, to do any of it by typing a few
 letters: go to a screen (by its title or id), open a dialog, turn a true/false variable over or

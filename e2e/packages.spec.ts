@@ -97,6 +97,8 @@ test.describe("a package", () => {
         await choose(page);
         await loaded;
         expect(await playing(page)).toBe(id);
+        // (its files loaded before it's reloaded: leaving while they load, WebKit says so)
+        await expect(player.screen.locator(".bitmap canvas")).toBeVisible();
 
         await page.reload();
         await expect(player.screen).toContainText("THE VAULT IS OPEN.");

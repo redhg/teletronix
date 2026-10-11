@@ -72,6 +72,23 @@ export interface Remote {
     stop(): void;
 }
 
+/**
+ * This window's id, the same after a reload (kept for the tab: another tab is another
+ * window), so the GM's panel knows it again: its name there, and messages for it alone.
+ */
+function windowId(program: string): string {
+    const key = `teletronix:window:${program}`;
+    try {
+        const kept = sessionStorage.getItem(key);
+        if (kept) return kept;
+        const id = randomId();
+        sessionStorage.setItem(key, id);
+        return id;
+    } catch {
+        return randomId();
+    }
+}
+
 /** The session a program joined on this device, kept so it joins again after a reload. */
 const joinKey = (program: string) => `teletronix:join-code:${program}`;
 
@@ -117,7 +134,7 @@ export function followRemote(
         files?: Map<string, string>;
     } = {},
 ): Remote {
-    const player = randomId();
+    const player = windowId(program);
     // a package's files: from the panel's names to here, and back
     const here = (value: unknown) => (files ? withFiles(value, files) : value);
     const fileNames = new Map([...(files ?? [])].map(([name, address]) => [address, name]));
@@ -185,6 +202,8 @@ export function followRemote(
         const message = received as GmEnvelope;
         if (typeof message.id !== "string") return;
         if (seen.includes(message.id)) return;
+        // (for one window, and not this one: another player's)
+        if (message.to !== undefined && message.to !== player) return;
         seen.push(message.id);
         if (seen.length > SEEN) seen.shift();
         lastGm = Date.now();

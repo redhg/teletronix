@@ -441,10 +441,10 @@ test.describe("over the network", () => {
         await expect(page.locator(".remote-badge")).toContainText("GM CONNECTED");
 
         await tab(gm, "Devices");
-        const joined = gm.getByRole("region", { name: "Joined devices" });
-        await expect(joined).toContainText("Device 1 · on HOME");
-        await joined.getByRole("button", { name: "Remove device 1" }).click();
-        await expect(joined).toContainText("None yet.");
+        const players = gm.getByRole("region", { name: "Players", exact: true });
+        await expect(players).toContainText("On HOME · in the session");
+        await players.getByRole("button", { name: "Remove Player 1" }).click();
+        await expect(players).toContainText("No players' window is open.");
         const prompt = page.getByRole("dialog", { name: "JOIN A GM'S SESSION" });
         await expect(prompt).toContainText("THE GM TOOK THIS DEVICE OUT OF THE SESSION.");
         // (playing on, without one)
@@ -520,6 +520,80 @@ test.describe("over the network", () => {
         await page.waitForTimeout(300);
         await expect(page.locator(".remote-badge")).toHaveCount(0);
         await expect(page.getByRole("dialog", { name: "JOIN A GM'S SESSION" })).toHaveCount(0);
+    });
+});
+
+test.describe("one player at a time", () => {
+    test("sends to one window alone, follows it, and keeps its name", async ({ page, player }) => {
+        await player.open(program);
+        const second = await page.context().newPage();
+        await second.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        await second.goto("./?data=e2e");
+        await expect(second.locator(".screen")).toContainText("HOME SCREEN");
+
+        const gm = await openGm(page);
+        await expect(gm.getByRole("status").first()).toContainText("2 windows");
+        // the second, named in the Devices tab
+        await tab(gm, "Devices");
+        const players = gm.getByRole("region", { name: "Players", exact: true });
+        await players.getByRole("textbox", { name: "Name of player 2" }).fill("Engineer");
+        await players.getByRole("textbox", { name: "Name of player 2" }).press("Enter");
+
+        // only to the engineer
+        await gm.getByRole("combobox", { name: "Send to" }).click();
+        await gm.getByRole("option", { name: "Only to Engineer" }).click();
+        await expect(gm.locator(".gm-only-to")).toHaveText("Only to Engineer");
+        await tab(gm, "Screens");
+        await gm.getByRole("button", { name: /^BRIDGE/ }).click();
+        await expect(second.locator(".screen")).toContainText("BRIDGE SCREEN");
+        // (the panel shows the engineer's, as it is)
+        await expect(gm.getByRole("status").first()).toContainText("Players on BRIDGE");
+        await tab(gm, "Messages");
+        await gm.getByRole("textbox", { name: "Message" }).fill("FOR YOUR EYES ONLY");
+        await gm.getByRole("button", { name: "Send" }).click();
+        await expect(second.locator("dialog[open]")).toContainText("FOR YOUR EYES ONLY");
+        // the other window: as it was
+        await page.waitForTimeout(300);
+        await expect(player.screen).toContainText("HOME SCREEN");
+        await expect(player.dialog).toHaveCount(0);
+
+        // back to everyone
+        await gm.getByRole("button", { name: "Everyone", exact: true }).click();
+        await expect(gm.locator(".gm-only-to")).toHaveCount(0);
+        await tab(gm, "Screens");
+        await gm.getByRole("button", { name: /^HOME/ }).click();
+        await expect(second.locator(".screen")).toContainText("HOME SCREEN");
+
+        // the engineer, after a reload: the same window, the same name
+        await second.reload();
+        await expect(second.locator(".screen")).toContainText("HOME SCREEN");
+        await gm.getByRole("combobox", { name: "Send to" }).click();
+        await expect(gm.getByRole("option", { name: "Only to Engineer" })).toBeVisible();
+    });
+
+    test("sends to one device in the session alone", async ({ browser }) => {
+        const gm = await (await browser.newContext()).newPage();
+        await gm.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+        await gm.goto("./?data=e2e&gm");
+        const code = await startSession(gm);
+        const devices: Page[] = [];
+        for (let i = 0; i < 2; i++) {
+            const device = await (await browser.newContext()).newPage();
+            await device.route("**/data/e2e.json", (route) => route.fulfill({ json: program }));
+            await device.goto(`./?data=e2e&join=${code}`);
+            await expect(device.locator(".remote-badge")).toContainText("GM CONNECTED");
+            devices.push(device);
+        }
+        const [first, second] = devices as [Page, Page];
+        await expect(gm.locator(".gm-pairing")).toContainText("2 devices");
+
+        await gm.getByRole("combobox", { name: "Send to" }).click();
+        await gm.getByRole("option", { name: "Only to Player 2" }).click();
+        await gm.getByRole("button", { name: /^BRIDGE/ }).click();
+        await expect(second.locator(".screen")).toContainText("BRIDGE SCREEN");
+        await first.waitForTimeout(300);
+        await expect(first.locator(".screen")).toContainText("HOME SCREEN");
+        for (const page of [gm, first, second]) await page.context().close();
     });
 });
 

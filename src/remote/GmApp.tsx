@@ -40,6 +40,7 @@ import { newJoinCode, newSecret } from "./codes.ts";
 import { GONE_MS, HEARTBEAT_MS } from "./follow.ts";
 import { type Handout, handoutsOf } from "./handouts.ts";
 import { channelLink, type Link, type LinkStatus, randomId, sessionLink } from "./link.ts";
+import { Players, SendTo } from "./Players.tsx";
 import { answerFor, type ShareTarget, sendPackage } from "./packages-share.ts";
 import {
     BUILTIN_SOUNDS,
@@ -72,9 +73,24 @@ interface Props {
 export function GmApp({ name, program }: Props) {
     // the links are made and closed by the same effects (React may run them more than once)
     const links = useRef(new Map<string, Link>());
-    const send = useCallback((message: GmMessage) => {
-        const envelope: GmEnvelope = { ...message, id: randomId() };
-        for (const link of links.current.values()) link.send(envelope);
+    // who the panel's sending to: every players' window, or one (by its id)
+    const [target, setTarget] = useState<string | null>(null);
+    const targetRef = useRef(target);
+    targetRef.current = target;
+    // the session's players' windows (the relay's list), kept for sending
+    const devicesRef = useRef<string[]>([]);
+    /** Sends to every players' window, or one: by default, the one chosen to send to. */
+    const send = useCallback((message: GmMessage, to: string | null = targetRef.current) => {
+        const envelope: GmEnvelope = { ...message, id: randomId(), ...(to ? { to } : {}) };
+        for (const [kind, link] of links.current) {
+            // (to one of the session's: through the relay to it alone; to one in this browser,
+            // not through the relay at all)
+            if (to && kind === "relay") {
+                if (devicesRef.current.includes(to)) relay.current?.sendTo(to, envelope);
+                continue;
+            }
+            link.send(envelope);
+        }
     }, []);
 
     // the players' windows, by id, with when each last reported in
@@ -89,13 +105,16 @@ export function GmApp({ name, program }: Props) {
     ambienceRef.current = ambience;
 
     const sendEffects = useCallback(
-        (overrides: Partial<Record<EffectName, Override>>) => {
+        (overrides: Partial<Record<EffectName, Override>>, to?: string) => {
             const setting = Object.fromEntries(
                 Object.entries(overrides)
                     .filter(([, value]) => value !== "program")
                     .map(([effect, value]) => [effect, value === "on"]),
             );
-            send({ type: "effects", effects: Object.keys(setting).length > 0 ? setting : null });
+            send(
+                { type: "effects", effects: Object.keys(setting).length > 0 ? setting : null },
+                to,
+            );
         },
         [send],
     );
@@ -145,12 +164,12 @@ export function GmApp({ name, program }: Props) {
             }
             if (message.type !== "state") return;
             const { player, state } = message as Extract<PlayerMessage, { type: "state" }>;
-            // a new window gets the effects (and ambience) the panel has on
+            // a new window gets the effects (and ambience) the panel has on: it alone
             if (!known.current.has(player)) {
                 known.current.add(player);
-                sendEffects(effectsRef.current);
+                sendEffects(effectsRef.current, player);
                 if (ambienceRef.current !== null) {
-                    send({ type: "ambience", ambience: ambienceRef.current });
+                    send({ type: "ambience", ambience: ambienceRef.current }, player);
                 }
             }
             setPlayers((was) => new Map(was).set(player, { state, at: Date.now() }));
@@ -192,7 +211,13 @@ export function GmApp({ name, program }: Props) {
                     link.send({ type: "hello", id: randomId() } satisfies GmEnvelope);
                 }
             },
-            { players: setDevices, refused: setRefused },
+            {
+                players: (ids) => {
+                    devicesRef.current = ids;
+                    setDevices(ids);
+                },
+                refused: setRefused,
+            },
         );
         links.current.set("relay", link);
         relay.current = link;
@@ -220,16 +245,36 @@ export function GmApp({ name, program }: Props) {
     // the players' windows still there, in the order they first reported in (the Map's): ones
     // that reported in lately, through the channel, and the session's (the relay says who's
     // there; they only report changes)
-    const live = [...players]
+    const liveIds = [...players]
         .filter(([id, player]) => now - player.at < GONE_MS || devices.includes(id))
-        .map(([, player]) => player);
-    // the panel follows one of them, steadily: the first still there (windows on different
-    // screens report in turn, and following the latest would flick between them)
-    const latest = live[0]?.state ?? null;
-    // every screen they're on, each once, in that order
+        .map(([id]) => id);
+    const live = liveIds.flatMap((id) => players.get(id) ?? []);
+    // (the one chosen to send to, gone: back to every one)
+    useEffect(() => {
+        if (target !== null && !liveIds.includes(target)) setTarget(null);
+    });
+    // the panel follows one of them, steadily: the one it's sending to, or the first still
+    // there (windows on different screens report in turn, and following the latest would
+    // flick between them)
+    const followed = target !== null ? players.get(target) : live[0];
+    const latest = followed?.state ?? null;
+    // every screen they're on (or the one it's sending to is), each once, in that order
     const screensOn = [
-        ...new Set(live.flatMap(({ state }) => (state.screen === null ? [] : [state.screen]))),
+        ...new Set(
+            (target !== null && followed ? [followed] : live).flatMap(({ state }) =>
+                state.screen === null ? [] : [state.screen],
+            ),
+        ),
     ];
+
+    // players' windows' names: the GM's own, kept, or "Player 1", "Player 2"… by when each
+    // first reported in
+    const [names, setNames] = useLocalStorage<Record<string, string>>({
+        key: `teletronix:gm-names:${name}`,
+        defaultValue: {},
+    });
+    const nameOf = (id: string) =>
+        names[id]?.trim() || `Player ${[...players.keys()].indexOf(id) + 1}`;
     const action = (action: object) => send({ type: "action", action });
 
     const update = useWaitingUpdate();
@@ -514,12 +559,19 @@ export function GmApp({ name, program }: Props) {
                     <Group gap="md">
                         <Title order={3}>{program.config.name}</Title>
                         <Status
-                            count={live.length}
+                            count={target !== null ? 1 : live.length}
                             state={latest}
                             screens={screensOn}
                             program={program}
                             name={name}
                         />
+                        {live.length > 1 || target !== null ? (
+                            <SendTo
+                                target={target}
+                                choose={setTarget}
+                                windows={liveIds.map((id) => ({ id, name: nameOf(id) }))}
+                            />
+                        ) : null}
                     </Group>
                     <Group gap="sm">
                         <PaletteButton />
@@ -670,16 +722,29 @@ export function GmApp({ name, program }: Props) {
                                 program={name}
                                 code={session?.code ?? null}
                                 start={startSession}
-                                devices={devices}
-                                screens={(player) => {
+                            />
+                            <Players
+                                windows={liveIds.map((id) => ({ id, name: nameOf(id) }))}
+                                screenOf={(player) => {
                                     const id = players.get(player)?.state.screen;
                                     const screen = id ? program.screens.get(id) : undefined;
                                     return screen
                                         ? (screen.title ?? screen.id.toUpperCase())
                                         : null;
                                 }}
-                                remove={(player) => remove.current(player)}
+                                inSession={(player) => devices.includes(player)}
                                 receiving={(player) => sharing.get(player) ?? null}
+                                target={target}
+                                choose={setTarget}
+                                rename={(player, typed) =>
+                                    setNames((was) => {
+                                        const next = { ...was };
+                                        if (typed.trim()) next[player] = typed.trim();
+                                        else delete next[player];
+                                        return next;
+                                    })
+                                }
+                                remove={(player) => remove.current(player)}
                             />
                             <Panel title="This computer">
                                 <Text size="sm" c="dimmed">
