@@ -10,6 +10,16 @@ restarts with anything else, on the screen it was showing (⟲ restarts it by ha
   reveal's `speed`); it's written as just the name until an option is set, and switching kinds
   keeps the options both have. Anything else more involved than text, a number or a switch is
   edited as JSON.
+- **Map:** the whole program at a glance: every screen as a card (its title, id and first
+  lines; the start screen marked), its dialogs and timers too, and every way between them as an
+  arrow, labelled with what does it and when: a link's or menu item's text, a key or a delay,
+  a video's end, a dialog's answer, a timer running out, with any condition ("if keycard").
+  Drag to move about, scroll (or pinch) to zoom, the minimap to jump; **Find** goes to a
+  screen; a double-click opens a card's screen or dialog to edit. Cards are laid out from the
+  start screen down; drag one and it stays put (for that program, in that browser), until
+  **Arrange again**. The preview steps aside for it. It's only for looking, for now: edit in
+  the forms, and the map follows (while the program has mistakes, it shows it as it last
+  worked).
 - **Appearance:** the theme, picked from little screens in each theme's colours and font (or
   your own colours), then the font, text size, line spacing, effects and sound.
 - **The pointer** is in the Program settings (and a screen's): one of Teletronix's, or an image

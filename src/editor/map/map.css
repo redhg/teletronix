@@ -1,0 +1,30 @@
+/* The editor's Map: as tall as the window leaves it */
+.program-map {
+    /* (under the editor's header, and the section's heading) */
+    height: calc(100dvh - 56px - 2 * var(--mantine-spacing-lg) - 5rem);
+    min-height: 420px;
+    border: 1px solid var(--mantine-color-default-border);
+    border-radius: var(--mantine-radius-md);
+    overflow: hidden;
+}
+
+.map-card[data-start] {
+    border-color: var(--mantine-color-green-6);
+}
+
+.map-card[data-kind="dialog"] {
+    border-style: dashed;
+}
+
+.map-lines {
+    font-family: var(--mantine-font-family-monospace);
+}
+
+/* one of several screens, at random */
+.map-edge-random path {
+    stroke-dasharray: 5 4;
+}
+
+.program-map .react-flow__edge-text {
+    font-size: 10px;
+}

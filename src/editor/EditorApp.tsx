@@ -18,7 +18,7 @@ import {
     UnstyledButton,
 } from "@mantine/core";
 import { useHotkeys } from "@mantine/hooks";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type ParseError, parseProgram, type SoundSetting } from "../engine/index.ts";
 import { ColorScheme } from "../mantine/ColorScheme.tsx";
 import { MenuCaret } from "../mantine/MenuCaret.tsx";
@@ -66,9 +66,13 @@ export const NEW_PROGRAM: ProgramFile = {
 };
 
 /** What's being edited: the program's settings, its appearance, or a screen (`screen:<id>`). */
+/** The Map, loaded when it's first opened (React Flow is big, and only the map needs it). */
+const ProgramMap = lazy(() => import("./map/ProgramMap.tsx"));
+
 type Section = string;
 const SECTIONS: { id: Section; label: string; description: string }[] = [
     { id: "program", label: "Program", description: "Name, start screen, bars, variables…" },
+    { id: "map", label: "Map", description: "Every screen, and the ways between them" },
     { id: "appearance", label: "Appearance", description: "Colours, font, effects, sound" },
     { id: "variables", label: "Variables & timers", description: "What it remembers, and clocks" },
     { id: "sounds", label: "Sounds", description: "Sound effects of its own" },
@@ -146,6 +150,9 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
 
     const config = (file.config ?? {}) as Record<string, unknown>;
     const result = useMemo(() => parseProgram(file), [file]);
+    // the program as it last worked, for the map (while it has mistakes, it shows that)
+    const lastGood = useRef(result.ok ? result.program : null);
+    if (result.ok) lastGood.current = result.program;
     const errors: ParseError[] = result.ok ? [] : result.errors;
     const configErrors = useMemo(() => {
         const map = new Map<string, string>();
@@ -539,7 +546,8 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
             aside={{
                 width: { base: 360, lg: 520 },
                 breakpoint: "md",
-                collapsed: { desktop: !showPreview, mobile: true },
+                // (the map has the room the preview had: it shows no one screen)
+                collapsed: { desktop: !showPreview || section === "map", mobile: true },
             }}
             padding="lg"
         >
@@ -843,6 +851,27 @@ export function EditorApp({ name: initialName, file: initialFile, canSave, notic
                         )}
                         {screenId && !screenFiles[screenId] && (
                             <Text c="dimmed">There's no screen "{screenId}" any more.</Text>
+                        )}
+                        {section === "map" && (
+                            <Suspense fallback={<Text c="dimmed">Loading the map…</Text>}>
+                                {lastGood.current ? (
+                                    <ProgramMap
+                                        program={lastGood.current}
+                                        name={name}
+                                        open={(id) =>
+                                            select(
+                                                id.startsWith("screen:")
+                                                    ? screenSection(id.slice("screen:".length))
+                                                    : id,
+                                            )
+                                        }
+                                    />
+                                ) : (
+                                    <Text c="dimmed">
+                                        The map shows once the program's mistakes are put right.
+                                    </Text>
+                                )}
+                            </Suspense>
                         )}
                         {section === "program" && (
                             <ProgramSection
