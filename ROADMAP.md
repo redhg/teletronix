@@ -52,6 +52,12 @@ The Electron app and `.ttx` packages are built.
 | Release workflow on `v*` tags | Idea | Build the installers in CI |
 | Code signing | Idea | Apple charges $99/yr. Only worth it to distribute the app widely |
 
+## Elements
+
+| Feature | Status | Notes |
+| --- | --- | --- |
+| Text-mode windowing UI (Turbo Vision style) | Idea | Elements for windows, a menu bar, a status line and dialog controls, plus a theme, so a program can show an in-fiction 90s DOS app. Use [magiblot/tvision](https://github.com/magiblot/tvision) as a reference for the view tree, event routing, commands, palettes and drawing; rewrite in TS on the DOM rather than port it. Its license is unclear (GitHub can't identify it; the COPYRIGHT file is Borland's 1997 release with no clear reuse terms), so check before translating any code |
+
 ## Tools' UI
 
 | Feature | Status | Notes |
